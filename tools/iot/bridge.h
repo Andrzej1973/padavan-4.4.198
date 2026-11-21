@@ -14,6 +14,14 @@ int wr_iot_bss_set_down(void);
 /* Administrative UP only: caller holds the service guard and has verified
  * isolation/DHCP/DNS. Vendor radio and client connectivity need device proof. */
 int wr_iot_bss_set_up(void);
+/* Read-only administrative observation: owned UP bridge, sole attached ra2 UP.
+ * Caller holds the service guard. This does not prove RF/client connectivity. */
+int wr_iot_bss_is_active(void);
+/* Read-only administrative DOWN/absent check; foreign masters are refused.
+ * Caller owns the generation/guard. Does not prove vendor RF quiescence. */
+int wr_iot_bss_is_down(void);
+/* Exact current owned bridge gateway/mask observation; no interface mutation. */
+int wr_iot_bridge_address_matches(const char *,const char *);
 /* Caller installs isolation before UP and stops ra2 before either transition. */
 int wr_iot_bridge_set_up(int enabled);
 #endif

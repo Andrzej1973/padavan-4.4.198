@@ -1,0 +1,190 @@
+{
+  "schema": 2,
+  "image_identity": {
+    "model": "WR1200JS",
+    "firmware_source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+    "build_commit": "56d3559634014cb45e343bb0fab1d9fb3e88f80e",
+    "run_id": "39325639006",
+    "run_attempt": "1",
+    "run_number": "492"
+  },
+  "busybox_version": "1.24.2",
+  "busybox_sha256": "7971fc931749de86ecb7a9c63acf1b1abe9e697941e0f8412dc23229b3667bd6",
+  "config_sha256": "03994343bdfe38e4be669e023e57b5440d1143c23bb89ae7d51cb7b18b2d484d",
+  "scope": "exact image BusyBox identity/config/applet links/ELF closure, shell syntax and bounded probes; selected invalid-action dispatch only; service interactions unverified",
+  "runtime_verified": false,
+  "whole_service_audit_complete": false,
+  "entrypoint_gaps": [],
+  "active_service_groups": [
+    "doh",
+    "dropbear_ssh",
+    "iperf3",
+    "privoxy",
+    "shadowsocks_clients",
+    "stubby",
+    "u2ec",
+    "usbip",
+    "vlmcsd",
+    "wireguard_amneziawg",
+    "wr_band_steering",
+    "zerotier"
+  ],
+  "active_service_entrypoint_checks": {
+    "doh": true,
+    "dropbear_ssh": true,
+    "iperf3": true,
+    "privoxy": true,
+    "shadowsocks_clients": true,
+    "stubby": true,
+    "u2ec": true,
+    "usbip": true,
+    "vlmcsd": true,
+    "wireguard_amneziawg": true,
+    "wr_band_steering": true,
+    "zerotier": true
+  },
+  "selected_service_entrypoint_map_complete": true,
+  "feature_image_gates": {
+    "qos": {
+      "required_core_config": {
+        "CONFIG_IFB": "m",
+        "CONFIG_IMQ": "m",
+        "CONFIG_IMQ_BEHAVIOR_AB": "y",
+        "CONFIG_NETFILTER_XT_TARGET_IMQ": "m"
+      },
+      "invalid_core_config": {},
+      "required_modules": [
+        "act_mirred.ko",
+        "act_skbedit.ko",
+        "cls_flow.ko",
+        "cls_fw.ko",
+        "cls_route.ko",
+        "cls_tcindex.ko",
+        "cls_u32.ko",
+        "em_u32.ko",
+        "ifb.ko",
+        "imq.ko",
+        "sch_hfsc.ko",
+        "sch_htb.ko",
+        "sch_ingress.ko",
+        "sch_tbf.ko",
+        "xt_IMQ.ko"
+      ],
+      "missing_modules": [],
+      "tc_candidates": [
+        "bin/tc"
+      ],
+      "tc_present": true,
+      "tc_paths_found": [
+        "bin/tc"
+      ],
+      "scope": "selected-image kernel modules/config and tc MIPS ELF/library closure/version under QEMU; QoS rules, activation and throughput unverified",
+      "passed": true,
+      "tc_sha256": "bb84853e9865c4efdc8a88944a32eaa7ff4f058a685718f774218056a55c02da",
+      "tc_elf_dependency_closure": {
+        "candidate:bin/tc": {
+          "sha256": "bb84853e9865c4efdc8a88944a32eaa7ff4f058a685718f774218056a55c02da",
+          "needed": [
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libuClibc-1.0.43.so": {
+          "sha256": "1fbdd34c2d6cbbc8b64ae906a75d139e27aa0abd618cf36e3cdf36ac34458971",
+          "needed": [
+            "ld-uClibc.so.1"
+          ]
+        },
+        "image:lib/ld-uClibc-1.0.43.so": {
+          "sha256": "0508a75f2e075168a42898dca4f31e70c97e880b22e8ee765d4baa875ba24498",
+          "needed": []
+        }
+      },
+      "tc_version_output": "tc utility, iproute2-5.12.0",
+      "tc_qemu_version_passed": true
+    },
+    "zram": {
+      "report": "zram-image-checks.txt",
+      "scope": "final ROMFS dependencies, rc command and exact-image BusyBox help; activation unverified",
+      "passed": true
+    },
+    "wpad": {
+      "report": "wpad-image-checks.json",
+      "scope": "final ROMFS editor, HTTP field, PAC links and preservation checks; runtime unverified",
+      "passed": true,
+      "required_checks": [
+        "effective_selector",
+        "link_wpad.dat",
+        "link_wpad.da",
+        "link_proxy.pac",
+        "editor",
+        "capability_guard",
+        "login_guard",
+        "httpd_capability",
+        "httpd_mime",
+        "httpd_field",
+        "default_direct",
+        "preserve_existing"
+      ]
+    },
+    "sfe": {
+      "required_modules": [
+        "fast-classifier.ko",
+        "shortcut-fe-cm.ko",
+        "shortcut-fe-ipv6.ko",
+        "shortcut-fe.ko"
+      ],
+      "missing_modules": [],
+      "sbin_rc_present": true,
+      "busybox_modprobe_present": true,
+      "scope": "selected-image rc/module/modprobe presence only; load, offload and throughput unverified",
+      "passed": true
+    }
+  },
+  "service_dispatch_probes": [
+    {
+      "service": "stubby",
+      "script": "usr/bin/stubby.sh",
+      "script_sha256": "9aad9cd58fb91d0abcd41390fe27ec25c41c98482731ff3fd5dfcf97f415110b",
+      "exit": 1,
+      "refusal_text_found": true,
+      "scope": "unknown action only; lock, configuration and daemon lifecycle are not entered",
+      "passed": true
+    },
+    {
+      "service": "doh",
+      "script": "usr/bin/doh_proxy.sh",
+      "script_sha256": "addd6f51ae63598232e54a52494a647c30e8e618d12ae4ca3416b4eb007ded6d",
+      "exit": 1,
+      "refusal_text_found": true,
+      "scope": "unknown action only; lock, configuration and daemon lifecycle are not entered",
+      "passed": true
+    },
+    {
+      "service": "privoxy",
+      "script": "usr/bin/privoxy.sh",
+      "script_sha256": "bc4213f32f85d14c740f4f09e8455236f2fa8888fafc53c2301d0bd3191db5e1",
+      "exit": 1,
+      "refusal_text_found": true,
+      "scope": "unknown action only; lock, configuration and daemon lifecycle are not entered",
+      "passed": true
+    },
+    {
+      "service": "vlmcsd",
+      "script": "usr/bin/vlmcsd.sh",
+      "script_sha256": "46e93ac62bc86d5b0fec21f0742eb0cb30848cfce8cb9f02b092dcb302148f3e",
+      "exit": 1,
+      "refusal_text_found": true,
+      "scope": "unknown action only; lock, configuration and daemon lifecycle are not entered",
+      "passed": true
+    }
+  ],
+  "other_interpreters": [
+    "etc_ro/lua/5.1/share/json2lua.lua",
+    "etc_ro/lua/5.1/share/lua2json.lua"
+  ],
+  "success": true,
+  "source_artifact_id": 12222841162,
+  "source_report_sha256": "77aaf65cc73accf766a885d7b57ece621109053cd6ef93145662ed678b63c5aa",
+  "shell_script_count": 57,
+  "applet_count": 150
+}

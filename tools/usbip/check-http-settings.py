@@ -8,11 +8,21 @@ p.add_argument('--output',type=Path,required=True)
 a=p.parse_args();here=Path(__file__).parent
 prefix=r'''
 #include <assert.h>
+#include <errno.h>
 #include <ctype.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+static int fail_directory_fsync;
+static int wr_usbip_test_fsync(int fd){
+ struct stat s;
+ if(fail_directory_fsync&&fstat(fd,&s)==0&&S_ISDIR(s.st_mode)){errno=EIO;return -1;}
+ return fsync(fd);
+}
+#define WR_USBIP_FSYNC(fd) wr_usbip_test_fsync(fd)
 static char settings_dir[PATH_MAX],settings_lock[PATH_MAX];
 #define WR_USBIP_EXPORT_DIRECTORY settings_dir
 #define WR_USBIP_LIFECYCLE_LOCK settings_lock
@@ -59,12 +69,21 @@ int main(void){
  assert(strstr(reply,"\"saved\":true")&&strstr(reply,"\"applied\":false")&&strstr(reply,"\"flash_committed\":false"));
  assert(wr_usbip_settings_read(loaded)==WR_USBIP_SETTINGS_READY);
  assert(!memcmp(loaded,rules,sizeof(rules)));
+ rules[0].enabled=1;strcpy(rules[0].bus,"1-1");strcpy(rules[0].vendor,"1234");
+ strcpy(rules[0].product,"beef");strcpy(rules[0].serial_hex,"756e6974");
+ assert(wr_usbip_export_encode(rules,text,sizeof(text)));
+ for(i=0;text[i];i++)snprintf(table+i*2,3,"%02x",(unsigned char)text[i]);
+ fail_directory_fsync=1;submit();fail_directory_fsync=0;
+ assert(strstr(reply,"\"saved\":true")&&strstr(reply,"\"synchronized\":false"));
+ assert(strstr(reply,"\"applied\":false")&&strstr(reply,"\"flash_committed\":false"));
+ assert(wr_usbip_settings_read(loaded)==WR_USBIP_SETTINGS_READY);
+ assert(!memcmp(loaded,rules,sizeof(rules)));
  reply[0]=0;wr_usbip_settings_output("",NULL);assert(strstr(reply,"unsafe_request"));
  reply[0]=0;ej_wr_usbip_export_settings(0,NULL,0,NULL);assert(strstr(reply,"\"state\":1")&&strstr(reply,table));
  safe=0;reply[0]=0;ej_wr_usbip_export_settings(0,NULL,0,NULL);assert(strstr(reply,"unsafe_request"));
  assert(snprintf(path,sizeof(path),"%s/exports.v1",settings_dir)<(int)sizeof(path));
  assert(unlink(path)==0&&rmdir(settings_dir)==0&&unlink(settings_lock)==0&&rmdir(root)==0);
- puts("PASS USBIP HTTP settings: authentication, body validation, save-only behavior and private roundtrip");return 0;
+ puts("PASS USBIP HTTP settings: authentication, body validation, save-only behavior, directory-fsync uncertainty and private roundtrip");return 0;
 }
 '''
 code=(here/'http-settings.inc').read_text(encoding='utf-8').replace(

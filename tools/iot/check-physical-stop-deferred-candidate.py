@@ -1,0 +1,70 @@
+"""Check isolated deferred installer with reviewed snippets, not a full SDK."""
+from pathlib import Path
+import hashlib,json,subprocess,sys,tempfile
+here=Path(__file__).resolve().parent
+ns={'__file__':str(here/'check-physical-stop-candidate.py')}
+source=(here/'check-physical-stop-candidate.py').read_text()
+exec(compile(source[:source.index("with tempfile.TemporaryDirectory(")],'<reviewed fixture setup>','exec'),ns)
+files=dict(ns['files'])
+files['include/wr-iot-raw-recovery-free-fence.inc']=(here/'raw-recovery-free-fence.inc').read_text()
+files['include/driver-api-closed-entry.inc']='#define WR_IOT_RA2_NO_HOST_MODE 1\n'+(here/'driver-api-closed-entry.inc').read_text()
+files['include/wr-iot-reset-admission.inc']=(here/'reset-admission.inc').read_text()
+files['os/linux/rt_main_dev.c']=(here/'main-close-checked.inc').read_text()
+files['include/main-open-recovery-owner.h']=(here/'main-open-recovery-owner.h').read_text()
+with tempfile.TemporaryDirectory(prefix='wr-stop-deferred-installer-') as d:
+ root=Path(d);src=root/'source';src.mkdir()
+ for n,text in files.items():
+  f=src/n;f.parent.mkdir(parents=True,exist_ok=True);f.write_text(text)
+ hashes=lambda:{n:hashlib.sha256((src/n).read_bytes()).hexdigest() for n in files}
+ before=hashes()
+ manifest={'production_installed':False,'merged_driver_sha256':before,
+ 'candidate_driver_sha256':dict(before),'main_physical_close_delegation_layer':{'physical_close_delegated':True},'ra2_no_host_experiment':{}}
+ src.with_name(src.name+'.manifest.json').write_text(json.dumps(manifest))
+ def run(inp,out,ok):
+  r=subprocess.run([sys.executable,'-B',str(here/'prepare-physical-stop-deferred-candidate.py'),str(inp),str(out)],capture_output=True,text=True)
+  assert (r.returncode==0)==ok,r.stderr
+ missing=dict(manifest);missing.pop('ra2_no_host_experiment')
+ src.with_name(src.name+'.manifest.json').write_text(json.dumps(missing))
+ run(src,root/'missing-no-host',False);assert not (root/'missing-no-host').exists()
+ src.with_name(src.name+'.manifest.json').write_text(json.dumps(manifest))
+ out=root/'prepared';run(src,out,True)
+ assert hashes()==before
+ raw=(out/'include/wr-iot-raw-recovery-free-fence.inc').read_text()
+ assert 'wr_iot_physical_lifetime.active' in raw
+ assert 'wr_iot_physical_stop_terminal_clear(&terminal)' in raw
+ assert raw.index('RTMP_IRQ_UNLOCK(&ad->MacTabLock,flags);')<raw.index('wr_iot_physical_stop_terminal_clear(&terminal)')
+
+ assert 'struct wr_iot_physical_rebind_probe wr_iot_physical_rebind_probe;' in (out/'include/rtmp.h').read_text()
+ assert (out/'common/rtmp_init.c').read_text().count('NdisZeroMemory(&pAd->wr_iot_physical_rebind_probe,')==1
+ assert (out/'include/physical-rebind-probe-types.h').is_file()
+ assert (out/'include/physical-rebind-probe.h').is_file()
+ binding=(out/'include/physical-rebind-binding.inc').read_text()
+ assert binding.count('task_pid(current)')==3
+ assert binding.index('RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);')<binding.index('observed=wr_iot_mt7603_closed_config_observed(ad,dev);')
+ assert '#include "physical-rebind-binding.inc"' in (out/'include/driver-api-closed-entry.inc').read_text()
+
+ for name in ('include/wr-iot-mbss-recovery-work.inc','include/wr-iot-mbss-recovery-join.inc'):
+  assert 'ad->wr_iot_physical_rebind_probe.active' in (out/name).read_text()
+ assert 'ad->wr_iot_physical_rebind_probe.active' in raw
+ assert 'struct wr_iot_physical_stop_terminal wr_iot_physical_terminal;' in (out/'include/rtmp.h').read_text()
+ assert (out/'common/rtmp_init.c').read_text().count('NdisZeroMemory(&pAd->wr_iot_physical_terminal,')==1
+
+ for field in ('wr_iot_physical_pins','wr_iot_physical_pending_pins'):
+  assert ('struct wr_iot_physical_stop_pins '+field+';') in (out/'include/rtmp.h').read_text()
+  assert (out/'common/rtmp_init.c').read_text().count('NdisZeroMemory(&pAd->'+field+',')==1
+
+ result=json.loads(out.with_name(out.name+'.manifest.json').read_text())
+ assert result['physical_stop_deferred_layer']['main_worker_hook']
+ assert result['physical_stop_deferred_layer']['endpoint_installed']
+ assert result['physical_stop_deferred_layer']['rebind_endpoint_installed']
+ assert 'return wr_iot_physical_rebind_ioctl(ad,dev,rq);' in (out/'include/driver-api-closed-entry.inc').read_text()
+ assert result['physical_stop_deferred_layer']['endpoint_scope']=='isolated no-host experiment only'
+ assert (out/'include/wr-iot-peer-close-executor.inc').read_bytes()==(src/'include/wr-iot-peer-close-executor.inc').read_bytes()
+ assert 'wr_iot_physical_stop_lifetime_capture_main(' in (out/'os/linux/rt_main_dev.c').read_text()
+ assert '\n#include "physical-stop-arm-admission.inc"\n' in (out/'include/driver-api-closed-entry.inc').read_text()
+ assert '#include "beacon-producer-gate.h"' not in (out/'include/physical-stop-prior-close.h').read_text()
+ assert all(hashlib.sha256((out/n).read_bytes()).hexdigest()==h for n,h in result['merged_driver_sha256'].items())
+ run(out,root/'duplicate',False);assert not (root/'duplicate').exists()
+ (src/'os/linux/rt_main_dev.c').write_text('changed')
+ run(src,root/'changed',False);assert not (root/'changed').exists()
+print('PASS dormant deferred installer: exact manifest, immutable source/legacy executor, worker hook, refusal before output for drift/duplicate; full SDK/target pending')

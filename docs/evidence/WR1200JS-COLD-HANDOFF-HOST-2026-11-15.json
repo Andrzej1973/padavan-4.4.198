@@ -1,0 +1,30 @@
+{
+  "scope": "private stable cold parent to existing initial backend handoff",
+  "checks": {
+    "actual_cold_parent_profile_and_RC_binding_asan_ubsan": "PASS",
+    "one_begin_even_on_backend_refusal": "PASS",
+    "bound_progress_no_fresh_begin": "PASS",
+    "ACTIVE_requires_full_observer_not_APPLIED": "PASS",
+    "pending_Guest_auth_aux_identity_drift_gates": "PASS",
+    "prepared_RC_C11_objects": "PASS",
+    "three_RC_backend_target_symbol_gates_registered": "PASS"
+  },
+  "actors": [
+    "initial start-runner transport",
+    "full ACTIVE observer",
+    "SDK Main/Guest/service/multicast boundaries"
+  ],
+  "sha256": {
+    "tools/iot/cold-on-handoff.c": "c00288d284248e18988e578b67180ba40e9128c352f464c4dc4a77c914167c8b",
+    "tools/iot/cold-on-handoff.h": "5b6b11d98dc3b4d18dd4e6f7a814c689f21fbe884df818e0c95f4c25aa29fbcf",
+    "tools/iot/check-cold-on-handoff.py": "472793a912e4297836003cec3c09f17d91bd4b6362fd7988e492c50464ff8e15",
+    "tools/iot/rc-cold-start.inc": "b3c0dc3e61043221cc7882188800364f2dcb63b10717ba02dc8c80ee0770521c",
+    "tools/iot/check-rc-cold-start.py": "7f714ebe36153e81e3d47b41594743251f72e48a09965ee60d349b6af8020bf8",
+    "tools/iot/compile-runtime-link.sh": "d65e8a956c4c98556e14875fc63406d5d3e63bb184868d51c745a7bcbe489795"
+  },
+  "public_entry_bound": false,
+  "post_up_shutdown_bound": false,
+  "root_retirement_bound": false,
+  "target_verified": false,
+  "physical_verified": false
+}

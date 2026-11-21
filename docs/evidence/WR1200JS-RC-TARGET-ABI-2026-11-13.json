@@ -1,0 +1,27 @@
+{
+  "run": 43358186573,
+  "source": "b0c9d5e9a57368ce15ac990e20fa72f92fb9d569",
+  "artifact": 14006923283,
+  "objects": {
+    "iot-rc-disable-services-mips.o": {
+      "bytes": 2920,
+      "sha256": "535ed4574aafd6d6500b5d74c9a0f287fdfe4f68bb8effbcee4d0ba7c47b8763"
+    },
+    "iot-rc-disable-controller-mips.o": {
+      "bytes": 15444,
+      "sha256": "9f525bb800ae5e329d109a14c25f6a50e6e3579512ac67cae11140bbccd9e682"
+    },
+    "iot-rc-driver-api-client-mips.o": {
+      "bytes": 13040,
+      "sha256": "cb37ddac654bc0cf36f871d3d2e89b0ba59cec29c058ec62fc285bab6c31ebed"
+    },
+    "iot-rc-driver-close-controller-mips.o": {
+      "bytes": 2732,
+      "sha256": "01d45a388449664f9267fa23776f677d1a9473272eef7d89e62bf08981fd991e"
+    }
+  },
+  "scope": "Four actual prepared RC ELF32 little-endian MIPS translation units verified. disable-services object contains quarantine_reapply reference. This is not a complete RC executable link or firmware installation.",
+  "gap": "New firewall reapply definition was not extracted by prior installed firewall target probe; local verifier update adds it for next ABI run.",
+  "runtime_verified": false,
+  "cleanup": "Archive/objects processed in memory; no extracted scratch retained."
+}

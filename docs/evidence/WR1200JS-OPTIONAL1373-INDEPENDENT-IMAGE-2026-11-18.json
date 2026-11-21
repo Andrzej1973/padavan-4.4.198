@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-18",
+  "run": 44165025483,
+  "artifact": 14365119640,
+  "source_revision": "87f2ed5ab8555bedc177d37b4e6d2d9a211a96f2",
+  "verification_source": {
+    "verified_revision": "87f2ed5ab8555bedc177d37b4e6d2d9a211a96f2",
+    "github_run": {
+      "conclusion": "success",
+      "displayTitle": "Padavan #1373 [optional] 87f2ed5ab8555bedc177d37b4e6d2d9a211a96f2 host=ubuntu-24.04 tc=source iot/peer82",
+      "headSha": "87f2ed5ab8555bedc177d37b4e6d2d9a211a96f2",
+      "url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/44165025483"
+    }
+  },
+  "github_run": {
+    "conclusion": "success",
+    "displayTitle": "Padavan #1373 [optional] 87f2ed5ab8555bedc177d37b4e6d2d9a211a96f2 host=ubuntu-24.04 tc=source iot/peer82",
+    "headSha": "87f2ed5ab8555bedc177d37b4e6d2d9a211a96f2",
+    "url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/44165025483"
+  },
+  "status": "INDEPENDENT_CANDIDATE_IMAGE_AND_LIFECYCLE_PAIR_PASS",
+  "image_sha256": "c836665277bdeebd1343d8854414634de6353436a173d9e7bcea47a2c2b270c7",
+  "image_bytes": 14510484,
+  "remaining_partition_bytes": 1676908,
+  "header_payload_crc_verified": true,
+  "squashfs_offset": 1982256,
+  "lifecycle_pair_recomputed": true,
+  "native_snapshot_evidence": {
+    "verified": true,
+    "kernel_getall_sha256": "1328a1e4fa4f098286ce7a30561ebb51f645010e6fcb6c4b7182000bb721ef08",
+    "kernel_generate_sha256": "c25f6619194849e9c2897c6ea73aff9b935aaf88a52afb037a2a2069a5d3cef1",
+    "native_header_sha256": "411b381cdff5d6fea5fda76510e7a5dacff591dd067ce47c3cc3e225ae42b33e",
+    "nvram_space": 61440,
+    "nvram_header_bytes": 20,
+    "snapshot_c_sha256": "4f305b1bf4a647c209c4aa39550b4678ed8afbc125601eadb62fc49957388203",
+    "snapshot_h_sha256": "d31c873448a171b3d8c127ba5daedd774e756448fd6273ffa9179f0b0c856f55"
+  },
+  "configuration_ram_target_symbols": true,
+  "desired_generation_target_symbols": true,
+  "automatic_initial_shutdown_target_symbols": true,
+  "automatic_cold_shutdown_target_symbols": true,
+  "automatic_mailbox_shutdown_target_symbols": true,
+  "embedded_replacements": {
+    "sbin/rc": {
+      "bytes": 1076020,
+      "sha256": "9d1387f2f992ccd4820a6a5db375735192e7f06887aef0665d4df46ffcc79570",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 407440,
+      "sha256": "04db8a60ce2738918886cbe5fef87041904853e12f820be97a0185161559a46b",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/bin/iappd.sh": {
+      "bytes": 1567,
+      "sha256": "020f6b714bc6c174681b2ce040a9d57ba7d9943679591f00a8b8b17ea29a62fa"
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "bytes": 6300076,
+      "sha256": "f49a2f9b2add7880ccfd2ab1189952963a60cefbfeaa92e8e7a036970eab7ca2",
+      "elf": "ELF32 LE MIPS"
+    }
+  },
+  "dependency_closure": {
+    "runtime_verified": false,
+    "production_installed": false,
+    "dependency_closure_verified": true,
+    "elf_files": {
+      "candidate:sbin/rc": {
+        "sha256": "9d1387f2f992ccd4820a6a5db375735192e7f06887aef0665d4df46ffcc79570",
+        "needed": [
+          "libiw.so.30",
+          "libshared.so",
+          "libdisk.so",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libiw.so.30": {
+        "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+        "needed": [
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libuClibc-1.0.48.so": {
+        "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+        "needed": [
+          "ld-uClibc.so.1"
+        ]
+      },
+      "image:lib/ld-uClibc-1.0.48.so": {
+        "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+        "needed": []
+      },
+      "image:lib/libshared.so": {
+        "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+        "needed": []
+      },
+      "image:lib/libdisk.so": {
+        "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+        "needed": []
+      },
+      "candidate:usr/sbin/httpd": {
+        "sha256": "04db8a60ce2738918886cbe5fef87041904853e12f820be97a0185161559a46b",
+        "needed": [
+          "libshared.so",
+          "libiw.so.30",
+          "libdisk.so",
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libssl.so.3": {
+        "sha256": "3cb01582ae199b37e864e0470a2418d9c0023805e6fa11ecf6e0a3dfdcaaa938",
+        "needed": [
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libcrypto.so.3": {
+        "sha256": "fe68701044ed596c093a76bdc89b7f815e67420c04e7c1748105462a1da61edf",
+        "needed": [
+          "libc.so.0"
+        ]
+      }
+    },
+    "errors": []
+  },
+  "board_checks": {
+    "uimage_magic": true,
+    "product_id": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "size_range": true,
+    "iot_hwnat_dtb": true
+  },
+  "module_vermagic_4_4_198": true,
+  "limits": [
+    "Selected embedded replacements and dependencies independently extracted; full unchanged-ROMFS proof remains CI scope",
+    "Covers87f2ed5a native snapshot/readback and Save integration; excludes later edit/view and Classic candidate assets",
+    "Candidate not main-image promoted or device accepted"
+  ],
+  "runtime_verified": false,
+  "production_promoted": false,
+  "audit_script_sha256": "f4ac000054340cb4c5ed957e17a301c8dd54406bc07a91bf8a6ce3b5184700ae",
+  "native_flash_readback_source_verified": true,
+  "save_registration_target_symbols_verified": true
+}

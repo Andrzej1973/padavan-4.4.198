@@ -1,0 +1,39 @@
+{
+  "revision_base": "0313e4f9882886b29db144fee975ec78d8cdff8d",
+  "checks": [
+    {
+      "command": "python3 -B tools/iot/check-cold-on-root.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-cold-on-root-shutdown.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+      "result": "PASS"
+    }
+  ],
+  "scope": "Private stable root normal completion plus post-UP/pre-parent-release shutdown routing; child actors. Actual prepared backend GNU11 and root units C11 Werror host compilation. No public scheduler routing.",
+  "sha256": {
+    "cold-on-root.c": "6ff7dab01a6bd7728982f3024a63c8f3514600066147687e4259c4b3df305704",
+    "cold-on-root.h": "0a460f48146815ba3a4f22bd668406961b6226792ccb8bbff7ec3db024166f2a",
+    "cold-on-root-shutdown.c": "71bebb4a8e934667725a8df3b710819149d45b819f3ce3acc115366328f94fee",
+    "check-cold-on-root.py": "fa6cc8ad0dfa1bfef5d4a530b018e393f34be012cf02c513675eff6daee374fc",
+    "check-cold-on-root-shutdown.py": "6d8c892cafe0997f6952b1136e16c2ebcfa6127af58899d5b4451861967ae514",
+    "prepare-runtime.py": "cf7793d67f8fd24ffd004425c70858b1d77ea01fcb75fbe6d95c1f73924eec81",
+    "check-runtime-source.py": "d4e2c5dd64b38a0bc8f670da4ea73a20f0f666f70432b98999ff6f8d67880021",
+    "check-physical-stop-client-preparation.py": "6996bd1d4ed05f112aa53abe6ede8fb42c8b06e1328a8cb53f9c0a19803f8802",
+    "check-physical-stop-suite.py": "842e40f273f278de613881941a3f0dd3b636316bf6d9a03bd76a49889ac23adf",
+    "compile-runtime-link.sh": "d7f031ddee6d35e7dfb5583a51a2cdbb5d92230d62b155a98921213806ea6e6c"
+  },
+  "remaining": [
+    "pre-UP root recovery",
+    "fresh shutdown OFF envelope generation",
+    "post-parent-release shutdown root routing",
+    "public scheduler binding",
+    "target/image/device verification"
+  ],
+  "target_build_verified": false,
+  "physical_runtime_verified": false
+}

@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-18",
+  "base_revision": "05e77d6195e38107c1a1fca41f4f39c5d3e0484c",
+  "workspace_candidate": "runtime toggle source changes; asset hashes identify tested bytes",
+  "command": "python3 -B tools/iot/check-classic-browser.py",
+  "result": {
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+    "modes": [
+      "ram",
+      "auto",
+      "save"
+    ],
+    "runtimeModes": [
+      "on",
+      "off"
+    ],
+    "navigation": true,
+    "secretWiped": true,
+    "automaticRetry": false,
+    "expiryRefused": true,
+    "clockRegressionRefused": true,
+    "pageErrors": [],
+    "scope": "Real Edge DOM with actual form/config/navigation assets; AJAX and SDK frame are fixtures, no native HTTP/RC or device acceptance"
+  },
+  "asset_sha256": {
+    "tools/iot/classic-config-form.html": "6202c26a1ad8452e7e674c45849096bf9c9d7bd8f4fedcb064934e2ebadbf4e0",
+    "tools/iot/classic-config.js": "f370bb65e836c79cb5e7cad1d4f260f74afd5862e7c361170f54d76647d27394",
+    "tools/iot/classic-navigation.js": "ad088221c85749ea6582748a3fe95b58cb37df9aedc4885c9570192630b2c39c",
+    "tools/iot/check-classic-browser.py": "f31c6ba61623235ce5d7de51b4a97398a2597e6528d3b8aedef2c760fd479236",
+    "tools/webui-preview/check_page04_browser.py": "1ea3433fc2bf6f9a5d4ac045ca49911935b22eae89c2016245ea31e602b31338"
+  },
+  "page_network_blocked": true,
+  "ajax_responses": "fixture callbacks, no actual HTTP server",
+  "sdk_frame": "minimal DOM fixture, not native SDK frame rendering",
+  "temporary_profile_removed": true,
+  "router_runtime_verified": false,
+  "runtime_toggle_trx_verified": false
+}

@@ -1,0 +1,28 @@
+{
+  "scope": "Staged actual Linux CLOSE enter with host kernel-resource stubs",
+  "hashes": {
+    "tools/iot/driver-api-close-enter.inc": "34b23d8f3bcfffeecb4fab47f8932a2e1a373fdac3faef83bf6854fb8d65859f",
+    "tools/iot/check-driver-api-close-enter.c": "88d10ef2d9993601d1be5b50fc26fda83be0a4919448c8beeff44f549c507656",
+    "tools/iot/driver-api-close-owner.h": "bd78a5010f2add5598494c82aa3397255c7c41ad6d57b5f0f4724518b8d03e54",
+    "tools/iot/driver-api-close-finish-binding.inc": "b123c6be45872baba99433354a12a919783e1a50de8e40152fa304472da81e8d"
+  },
+  "asan_ubsan": "PASS",
+  "cases": 8,
+  "duplicate_reservation": "PASS exact original ticket and one hold pair retained",
+  "extra_module_hold": true,
+  "extra_netdev_hold": true,
+  "original_open_module_hold_distinct": true,
+  "refusal_balances_acquired_holds": true,
+  "retirement_bound": false,
+  "endpoint_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "strong_finish_host_cases": [
+    "foreign task unchanged",
+    "dev_close zero without executor consumption uncertain",
+    "duplicate finish unchanged",
+    "exact reference completion succeeds but retains extra holds"
+  ],
+  "completion_header_regression": "PASS positive and19 faults ASan/UBSan",
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
+}

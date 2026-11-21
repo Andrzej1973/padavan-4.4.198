@@ -1,0 +1,21 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "files": {
+    "trunk/linux-4.4.x/net/core/dev_ioctl.c": "56274c5daed81f78c9e83a1c285e22cbf53bdc7fa29ac128d95138a2fa23e8ab",
+    "trunk/linux-4.4.x/net/wireless/wext-core.c": "ccda317769cc99b00095304e5ce710f3a2e3d262defd6804ce36f262e4317bec"
+  },
+  "verified_edges": [
+    "WEXT ioctl entry acquires RTNL around wireless_process_ioctl",
+    "WEXT legacy fallback calls ndo_do_ioctl inside that entry",
+    "network private ioctl path invokes dev_ifsioc under RTNL"
+  ],
+  "not_proven": [
+    "all channel-list builders invoked under RTNL",
+    "all indirect channel/flag writers serialized",
+    "adapter lifetime through query and policy validation",
+    "snapshot remains valid until configuration write/restart"
+  ],
+  "decision": "RTNL is a candidate existing serialization domain; do not add a reader-only lock or claim complete snapshot safety yet",
+  "runtime_verified": false,
+  "new_ioctl_implemented": false
+}

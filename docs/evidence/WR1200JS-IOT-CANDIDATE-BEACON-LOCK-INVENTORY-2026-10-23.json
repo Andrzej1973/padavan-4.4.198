@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "candidate": "../iot-unified-txs-handler-snapshot-v2-20261023/driver",
+  "candidate_manifest_sha256": "776569f766b5b172ef2bb08827ea2e162dc6a3d86a31d2a49f4b799d662e9065",
+  "method": "source-text scan by tools/iot/check-capacity.py; no target Kbuild commands",
+  "complete_driver_tree": false,
+  "production_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "unit_count": 8,
+  "site_count": 19,
+  "form_counts": {
+    "IRQ": 9,
+    "SEM": 10
+  },
+  "pinned_ap_nps_included": false,
+  "sites": [
+    {
+      "file": "ap/ap.c",
+      "line": 971,
+      "function": "APStartUp",
+      "form": "IRQ"
+    },
+    {
+      "file": "ap/ap.c",
+      "line": 1425,
+      "function": "APStop",
+      "form": "IRQ"
+    },
+    {
+      "file": "ap/ap_cfg.c",
+      "line": 14616,
+      "function": "Set_BcnStateCtrl_Proc",
+      "form": "IRQ"
+    },
+    {
+      "file": "ap/ap_mbss.c",
+      "line": 297,
+      "function": "mbss_cr_enable",
+      "form": "SEM"
+    },
+    {
+      "file": "ap/ap_mbss.c",
+      "line": 354,
+      "function": "mbss_cr_disable",
+      "form": "SEM"
+    },
+    {
+      "file": "ap/ap_mbss.c",
+      "line": 432,
+      "function": "MBSS_Open",
+      "form": "SEM"
+    },
+    {
+      "file": "ap/ap_mbss.c",
+      "line": 485,
+      "function": "MBSS_AbortOpen",
+      "form": "SEM"
+    },
+    {
+      "file": "common/cmm_data_pci.c",
+      "line": 2686,
+      "function": "RTMPHandleBcnDmaDoneInterrupt",
+      "form": "SEM"
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 1490,
+      "function": "RTMPFreeTxRxRingMemory",
+      "form": "SEM"
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 1890,
+      "function": "RTMPRingCleanUp",
+      "form": "IRQ"
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 1992,
+      "function": "wr_iot_pdma_reset_raw",
+      "form": "IRQ"
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 2072,
+      "function": "wr_iot_pdma_reset_raw",
+      "form": "IRQ"
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 2118,
+      "function": "wr_iot_pdma_reset_raw",
+      "form": "IRQ"
+    },
+    {
+      "file": "common/cmm_mac_pci.c",
+      "line": 2726,
+      "function": "RT28xx_UpdateBeaconToAsic",
+      "form": "SEM"
+    },
+    {
+      "file": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1518,
+      "function": "APCheckBcnQHandler",
+      "form": "SEM"
+    },
+    {
+      "file": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1653,
+      "function": "AsicEnableBssSync",
+      "form": "SEM"
+    },
+    {
+      "file": "hw_ctrl/cmm_asic_mt.c",
+      "line": 1722,
+      "function": "AsicEnableApBssSync",
+      "form": "SEM"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 98,
+      "function": "BcnTxSHandler",
+      "form": "IRQ"
+    },
+    {
+      "file": "tx_rx/wdev.c",
+      "line": 140,
+      "function": "wdev_bcn_buf_deinit",
+      "form": "IRQ"
+    }
+  ]
+}

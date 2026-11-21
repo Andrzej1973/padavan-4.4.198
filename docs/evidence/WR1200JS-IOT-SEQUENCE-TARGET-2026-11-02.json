@@ -1,0 +1,34 @@
+{
+  "run_id": 41456493103,
+  "artifact_id": 13148127712,
+  "zip_sha256": "ea0f15b51d0fe418a72f7743a6d146fb02d85242b965dd16a42b0a1b985304ca",
+  "compile_report": {
+    "schema": 1,
+    "candidate_variant": "peer82",
+    "repository_revision": "706c16a3a427b9785b80ff5be9ba64cfe0311d50",
+    "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+    "target_compiled": true,
+    "production_installed": false,
+    "runtime_verified": false,
+    "module": "mt76x3_ap.ko",
+    "module_bytes": 5501752,
+    "module_sha256": "0de9fba80a3c8de2724517493dc0e2d92af225ffadceb69064585c248501c852",
+    "compiled_task_macros": {
+      "KTHREAD_SUPPORT": true,
+      "OS_ABL_FUNC_SUPPORT": false,
+      "CONFIG_PM": false,
+      "RTMP_TIMER_TASK_SUPPORT": false,
+      "WSC_INCLUDED": false
+    },
+    "task_command_sha256": "a71a8ab18d1436427121ed7953055d890a05da7ff69e69b28d85b8df74215da5",
+    "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c"
+  },
+  "module_verified": "SHA256 matches report; ELF32 little-endian EM_MIPS",
+  "reservation_layer": {
+    "production_installed": false,
+    "target_compiled": false,
+    "runtime_verified": false
+  },
+  "release_gate_followup_included": false,
+  "runtime_verified": false
+}

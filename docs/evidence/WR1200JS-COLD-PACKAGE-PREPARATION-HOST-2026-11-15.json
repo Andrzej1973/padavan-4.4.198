@@ -1,0 +1,22 @@
+{
+  "scope": "registered cold admission/generation/Main/pending recovery/retirement package",
+  "prepared_c11_units": "PASS",
+  "manifest_cold_on_entry_bound": false,
+  "new_focused_host_tests": "PASS",
+  "base_full_suite": "WR1200JS-COLD-GENERATION-FULL-SUITE-2026-11-15.json",
+  "sha256": {
+    "tools/iot/prepare-runtime.py": "721533c1e1aec66797cdfd80384a3fc00a52b3bd740a9a99d3d0d30ec865f686",
+    "tools/iot/check-runtime-source.py": "be01355133fbc127fefeb49a4ec589bbd038e60c1fa56d85cbec764f733490ef",
+    "tools/iot/check-physical-stop-client-preparation.py": "9e49daa06705f8f719c43fad25f8476cf92464a954b05ee85bbd0b1f665a2b25",
+    "tools/iot/check-physical-stop-suite.py": "a09ee05d4d0836ac6429434cea94040db25fda72dfab3d5af05ba454838df27d",
+    "tools/iot/compile-runtime-link.sh": "3e150cd3c35bd954e97a9f8f3fa0c048cf6a8f41decf1686b880cc3b27488bba",
+    ".github/workflows/band-steering-abi.yml": "fdf56c2bc9e335e1b34843fef3415247639ee42a33ab900c155397ea54cff4e6"
+  },
+  "target_build_verified": false,
+  "physical_verified": false,
+  "remaining": [
+    "cold root and backend initial-start handoff",
+    "Main LAN/Guest/services restore and post-UP shutdown",
+    "target/image/device gates"
+  ]
+}

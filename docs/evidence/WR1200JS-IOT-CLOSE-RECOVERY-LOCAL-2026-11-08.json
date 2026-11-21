@@ -1,0 +1,36 @@
+{
+  "scope": "Metadata handoff into existing real wr_iot_mbss_recovery_queue, explicit actual-pin preconditions",
+  "hashes": {
+    "tools/iot/driver-api-close-recovery.h": "6f71a8330d3769efaba9ac342c230087c00b9e6140b6209e741041d45d57930c",
+    "tools/iot/check-driver-api-close-recovery.c": "5ab8441721efb5e139f341b5311e667974f92121464e214454e01217e0856f59"
+  },
+  "host_asan_ubsan": "PASS",
+  "supported_sources": [
+    "CLOSE_INCOMPLETE stage2/3",
+    "UNCERTAIN stage5 with valid provenance"
+  ],
+  "unsupported_stages_refused": [
+    0,
+    1,
+    4
+  ],
+  "same_ticket_preserved": true,
+  "kernel_reference_acquisition_bound": false,
+  "scheduling_bound": false,
+  "endpoint_installed": false,
+  "runtime_verified": false,
+  "host_cases": 16,
+  "additional_refusals": [
+    "executor still running",
+    "removal stage active",
+    "record removing",
+    "borrowed task still live",
+    "reference already completed",
+    "ticket not consumed"
+  ],
+  "refusal_preserves_recovery_owner": true,
+  "all_cases_preserve_api_owner_record_radio": true,
+  "extra_netdev_transfer": "PASS once only into existing owner, rejection preserves both, module hold remains API owned",
+  "kernel_scheduling_bound": false,
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
+}

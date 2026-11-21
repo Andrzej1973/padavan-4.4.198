@@ -1,0 +1,9 @@
+{
+  "owned_path": "/home/andrzej/padavan-build/router-guide-work/.scratch/optional1358-audit",
+  "audit_run": 44127447652,
+  "audit_report": "docs/evidence/WR1200JS-OPTIONAL1358-INDEPENDENT-IMAGE-2026-11-17.json",
+  "download_and_audit_handles_terminal": true,
+  "tracked_files_removed": false,
+  "allocated_bytes_removed": 183083008,
+  "runtime_verified": false
+}

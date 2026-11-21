@@ -1,0 +1,21 @@
+{
+  "scope": "actual no-reload profile preservation; correction of earlier parity audit",
+  "result": "PASS;18630; ASan/UBSan",
+  "production_change": "none; skip already implemented in be8c0a3",
+  "proved": [
+    "zero generator calls",
+    "same bytes/device/inode/size/mtime/ctime through repeated verify",
+    "post-Main abort refused"
+  ],
+  "fixtures": "SDK/physical/Main actors injected; initial measurement-order fixture error corrected",
+  "source_sha256": {
+    "tools/iot/restart-generation.c": "619000931a89cd329dddb61f62c960864a22dde5ac09f571b3489ebfee4c7dec",
+    "tools/iot/check-restart-no-reload.py": "8bbb2a441ac481f0c2f004b98ee79ed96c152b2b0ba30a2f9e6b1c4fd5ab815a"
+  },
+  "limits": [
+    "standalone test not registered yet",
+    "conditional reload_svc_rt still pending",
+    "no target/device acceptance"
+  ],
+  "cleanup": "TemporaryDirectory self-removed; no durable scratch"
+}

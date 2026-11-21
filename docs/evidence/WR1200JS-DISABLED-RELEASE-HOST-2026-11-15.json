@@ -1,0 +1,33 @@
+{
+  "scope": "disabled parent release using actual RC-owned original OFF receipt and actual signal fence",
+  "checks_passed": [
+    "check-radio-on-disabled-release.py",
+    "check-radio-on-release.py",
+    "check-radio-on-disabled-witness.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "invariants": [
+    "exact receipt compared in RC",
+    "trusted internal observer/context retained across unmask failure",
+    "fresh full disabled preflight on every retry",
+    "profile metadata captured before cleanup",
+    "baseline/credentials wiped before guard release",
+    "OFF receipt consumed once",
+    "no fabricated ACTIVE or ra2 OPEN",
+    "WAN starts after guard release only"
+  ],
+  "negative_cases": [
+    "foreign receipt",
+    "auth missing",
+    "unmask failure",
+    "idle lost on retry"
+  ],
+  "limitations": [
+    "pending shutdown retained, disabled root shutdown not integrated",
+    "RELEASED is not DONE",
+    "followup/IAPP/root integration pending",
+    "SDK/idle actor boundaries"
+  ],
+  "target_verified": false,
+  "runtime_verified": false
+}

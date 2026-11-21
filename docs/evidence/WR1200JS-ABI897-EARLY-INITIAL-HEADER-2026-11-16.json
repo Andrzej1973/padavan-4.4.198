@@ -1,0 +1,17 @@
+{
+  "observed_utc": "2026-11-16T04:34:55.525367+00:00",
+  "failed_run": 43803736533,
+  "monitor_run": 43804650783,
+  "monitor_artifact": 14197633604,
+  "monitor_usefulness": "Correct run/job/step and causal missing header present; heuristic includes nonfatal fixture lines; parser change unnecessary",
+  "monitor_sha256": "3c14715a799cefa3e70ded1bae9e56e0a28695793ca18103964379aa16ac3ee0",
+  "cause": "wr-iot-initial-off.c:1 initial-shutdown-owner.h missing in early prepare-rc payload before runtime stage",
+  "source_fix": "d3f971cfa7f484cffe1da8fab33f7b64920fb59b",
+  "checks": [
+    "Early initial-off header and actual C implementation compile from staged dependencies only PASS",
+    "Runtime-declared initial client/session/controller staging PASS",
+    "Shutdown API isolated header closure PASS"
+  ],
+  "new_abi_run": 43804875861,
+  "target_acceptance": "pending; no success claim"
+}

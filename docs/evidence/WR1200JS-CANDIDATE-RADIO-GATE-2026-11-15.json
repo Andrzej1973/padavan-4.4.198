@@ -1,0 +1,15 @@
+{
+  "revision_base": "029c22285f4cb62502c96f8b0f58f0e993d17de0",
+  "checks": [
+    "python3 -B tools/iot/check-candidate-radio-features.py PASS positive and negative synthetic symbol/config tables",
+    "bash -n tools/iot/ci-stage-candidate-romfs.sh PASS",
+    "embedded Python AST parse PASS"
+  ],
+  "sha256": {
+    "verify-candidate-radio-features.py": "f51c648941db246391233809d381da2ea5e41cf5c23d2cc90d1a17a4507c5588",
+    "check-candidate-radio-features.py": "847a9e1f2e2ffcfbca13f4fffad3472a7719c4242e2b13e11ada4741bba809c5",
+    "ci-stage-candidate-romfs.sh": "a61a24f0bc94b5c6a50ab33acbaf1b3a81e03a7b3ff1ef31e9db6a151bf55a59"
+  },
+  "actual_staged_radio_verified": false,
+  "physical_runtime_verified": false
+}

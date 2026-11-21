@@ -1,0 +1,44 @@
+{
+  "revision_base": "45c1d36a93dc292153cee57a150f7a68d34dde9d",
+  "checks": [
+    {
+      "command": "python3 -B tools/iot/check-cold-on-scheduler.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-cold-on-composition.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-radio-on-composition.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-runtime.py",
+      "result": "PASS"
+    }
+  ],
+  "preparation_result": {
+    "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+    "result": "PASS",
+    "scope": "Actual composed prepared RC backend + standalone cold scheduler/root units host Werror, source equality and duplicate preparation refusal"
+  },
+  "scope": "Actual static PID1 slot + root with child actors. Actual RC wait/status/mailbox with root boundary actors. Cadence, retirement/refusal/cancellation and no redispatch after cancel.",
+  "sha256": {
+    "cold-on-scheduler.c": "bdf2f8f6256cb5826a9234638b0dd16f29891897ee1f03f580f086f814882f63",
+    "cold-on-scheduler.h": "f687e22ec1c7c25984b8bfbe5977691e2d30135a9848d14e25b2cdc4a6bc8e80",
+    "rc-runtime.c": "32592db0b1fdad7efd895b7d9988fd0c0fb4f174a0117ab41aa21618aad0fb99",
+    "check-rc-runtime.c": "5f9f2550e38125b6b8d83cda16180bf7d57059842c58978598561be154059cb6",
+    "check-cold-on-scheduler.py": "457f62fe20798a4cc847b519ddd333c9778daa3298185b7bdfb39109fbf577ab",
+    "check-rc-cold-on-composition.py": "ae31eeda8756702cf31a303bfbdee87cf4ca7ce8898a25689c29ebc13c507e09",
+    "prepare-runtime.py": "b662b930d39959323fbc3e8bc299a34176b9499c98238f241aa1c47972be9370",
+    "check-runtime-source.py": "94d9f872da1ecca5198e8c4e4ed2922a0d0778c25713a5d6cbf6a1805ce2f7ca",
+    "check-physical-stop-client-preparation.py": "b536164f2beaaa1f4405a4bc1158de3df6ee2aa078ad7c3d3218184057cdbcdb",
+    "check-physical-stop-suite.py": "236fe1cf88ac8f5bbdb7794b957e220324d80214a861b1d68925a843c9cdaeb4",
+    "compile-runtime-link.sh": "d7e96e1831fed288efa220c8d3e088760a5013897c94abc0e88b0e5325417d59"
+  },
+  "rc_wait_scheduling_bound": true,
+  "stock_radio_entry_bound": false,
+  "target_build_verified": false,
+  "physical_runtime_verified": false
+}

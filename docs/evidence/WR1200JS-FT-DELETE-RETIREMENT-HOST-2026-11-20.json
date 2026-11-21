@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-20",
+  "scope": "Prepared native delete FT request retirement",
+  "changes": [
+    "Under existing native MacTabLock and validated delete identity, request slot retirement precedes association visibility withdrawal and generation advance.",
+    "Retire WAITING requests for exact WCID, clear current/detached/preauth metadata; preserve token counter, ledger serial and other WCIDs.",
+    "Validate current handle and all affected ledger states before mutations; event ownership/CLAIMED/stale or foreign handle refuses atomically."
+  ],
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-auth-request-context.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": "Pinned delete composition ordering, missing predecessor/duplicate refusal; real retirement helper host Werror ASan/UBSan tests WAITING, busy, CLAIMED, stale serial, foreign handle, unaffected foreign WCID and serial."
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-iapp-slot-retirement.h": "b9ee61f83fc46add0295dae4d85e6e530b0eab617a572198d3757411280f52f6",
+    "tools/iot/ft-iapp-delete-composition.py": "6e2d782c0d144b684f5d6864178396fc1dcfca7887872f52900c3f7724f831e7",
+    "tools/iot/check-ft-iapp-detached-admission.c": "6310485195270500dbc592f1ded023fe6cd0802d640ae935d8913db7e0272b1e",
+    "tools/iot/check-ft-auth-request-context.py": "9b64829e98bf025b33c4cea3200e85a155a7944314bcfb4a6d21b519874fe2c3"
+  },
+  "limits": [
+    "Full native deletion/teardown function not compiled or executed in this fixture; source composition only, retirement helper executes against host schemas.",
+    "Reset/reassociation paths that bypass this native deletion still require coverage.",
+    "IAPP/cache/completion integration remains open. Prepared composers are uninstalled; target/image/device acceptance unverified."
+  ]
+}

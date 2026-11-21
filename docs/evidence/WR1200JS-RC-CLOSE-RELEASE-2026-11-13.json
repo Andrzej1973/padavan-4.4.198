@@ -1,0 +1,14 @@
+{
+  "scope": "RC client and controller for experimental operation14; activation remains unbound",
+  "source_base": "ef82883689ee28f90b60765556e1c5d6b8cfc4d2",
+  "checks": {
+    "client": "actual implementation with socket/ioctl/close injection; CLOSE10/progress13/release14 outcomes",
+    "controller": "retirement prerequisite, retained identity through pending/uncertain/not-submitted, terminal local replay, no replacement CLOSE",
+    "host": "GCC -std=c11 -Wall -Wextra -Werror ASan/UBSan client/controller passed; check-host-compatibility.py passed",
+    "ci": "controller added alongside client in optional merged fixture loop",
+    "prepared_rc": "release wire header copied beside client; existing Makefile objects compile client and controller"
+  },
+  "target_verification": "pending for this package",
+  "physical_runtime": "not performed",
+  "cleanup": "TemporaryDirectory removed test binaries and host fixtures; no retained scratch"
+}

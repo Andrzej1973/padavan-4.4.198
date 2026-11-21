@@ -1,0 +1,24 @@
+{
+  "source_base": "bfa2d5545b176aec777f0cfbeaad380ef411ecc0",
+  "implementation": "tools/iot/restart-main-up.c",
+  "check": "check-restart-main-up.py PASS gcc O2 ASan/UBSan syscall injection",
+  "cases": [
+    "success single SET",
+    "socket failure",
+    "GET failure",
+    "already UP refusal",
+    "SET failure uncertain",
+    "close failure uncertain"
+  ],
+  "runtime_linked": true,
+  "controller_bound": true,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "Main bridge/Guest/service startup",
+    "post-UP recovery and baseline finalization",
+    "scheduler",
+    "target and physical acceptance"
+  ],
+  "cleanup": "TemporaryDirectory binary/source automatically removed"
+}

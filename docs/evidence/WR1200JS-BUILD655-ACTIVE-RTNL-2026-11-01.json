@@ -1,0 +1,20 @@
+{
+  "scope": "build655 active RTNL include repair; source evidence only",
+  "source_revision": "263b8707aa94cdb3e2c36ab3cf921a69ec878a79",
+  "sha256": {
+    ".github/workflows/build-padavan-4.4-wr1200js.yml": "4743af93ad79f9835232035b79da6e7da0e3032628b4a7cc37ce8f7686f98323",
+    "tools/iot/prepare-aux-family-retry-scheduler.py": "dfa70a7509b7a61a4599bd501988622385daa191e0da92f25d10564a6e597c2b",
+    "tools/iot/audit-aux-family-retry-scheduler.py": "ddcee4c2e15329786c13d9726440ac63b77c80c1b98b93d28edf9c49b211b919",
+    "tools/iot/check-retry-rtnl-header.py": "8a836c5d56fdf97ae206610268916cd695e90d5dbd954df01b39df77915c3f25"
+  },
+  "checks": [
+    "full peer chain generation passed",
+    "receipt-checked production source merge passed",
+    "actual merged scheduler audit passed",
+    "commented and missing header regression rejected",
+    "workflow YAML and complete step bash syntax passed"
+  ],
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false
+}

@@ -1,0 +1,21 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "host compiled exact source predicates only; no skb/flow or device runtime test",
+  "source_sha256": {
+    "raeth": "977cbcadfe7bacd540133aa47e4379666f1d3207eaf875723e9ada0f7c1ec49c",
+    "mediatek": "0ce961e149a0ee88f3d1090e9bbc2e635b352dbdd9b35430e8d5d0a9eae9142b"
+  },
+  "macros": {
+    "raeth": "#define do_ge2ext_fast(dev, skb)                                               \\\n\t((IS_LAN(dev) || IS_WAN(dev) || IS_PPD(dev) || IS_EXT(dev)) && \\\n\t skb_hnat_is_hashed(skb) && \\\n\t skb_hnat_reason(skb) == HIT_BIND_FORCE_TO_CPU)\n",
+    "mediatek": "#define do_ge2ext_fast(dev, skb)                                               \\\n\t((IS_LAN(dev) || IS_WAN(dev) || IS_PPD(dev)) && \\\n\t skb_hnat_is_hashed(skb) && \\\n\t skb_hnat_reason(skb) == HIT_BIND_FORCE_TO_CPU)\n"
+  },
+  "cases": 64,
+  "differences": [
+    {
+      "raeth": "8 1 1 1",
+      "mediatek": "8 1 1 0"
+    }
+  ],
+  "production_change_applied": false,
+  "runtime_verified": false
+}

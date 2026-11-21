@@ -1,0 +1,126 @@
+{
+  "run_id": 42999728996,
+  "runtime_verified": false,
+  "artifacts": {
+    "modern-nvram-candidate": {
+      "id": 13846940554,
+      "objects": {
+        "nvram-client-probe.o": {
+          "bytes": 1716,
+          "sha256": "4bf2038837fbc9eb59808f361176c6ec781391b9ec7f87fd6b3af5b2ee014b1c",
+          "abi_u32": [
+            5264,
+            328,
+            2492485201,
+            1
+          ]
+        },
+        "nvram-commit-order.o": {
+          "bytes": 69876,
+          "sha256": "8598eac4c4dc7ed0a6a857d009c39b741da5e3976f7cc5577c0701d652221777",
+          "abi_u32": [
+            5264,
+            328,
+            2492485201,
+            1
+          ]
+        }
+      },
+      "result.json": {
+        "scope": "Isolated NVRAM kernel TU and userspace ABI probe; not linked or installed in production",
+        "repository_revision": "2d91fe4b5bc6560b3ed17327f83a488c76236eda",
+        "production_before": {
+          "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c": "5bdfa51add776cfe46eabd5c328859d74822220e7772335d08e21b91750190c1",
+          "trunk/linux-4.4.x/drivers/nvram/nvram.c": "8a978e2e7a31fce4f8ec7ab1b541d16b52599e16746c008d6e02603298d0a2c7",
+          "trunk/linux-4.4.x/drivers/nvram/nvram_linux.o": "ef36b11cd9de9cf267e70ef58016e364e5d21a3bcf73e3e4f397f2b7f2d7713e",
+          "trunk/linux-4.4.x/.config": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+          "trunk/linux-4.4.x/vmlinux": "0bad55dbf45ec5e4513fa24f03e379ee5901c4fcf99d1d99f9081d4985e9a8fb",
+          "trunk/images/WR1200JS_4.4.198.9-1003.trx": "409a952fa7ab2374e565f2c556829fe2fbdd61c22ec73deb8362eb97905f151c"
+        },
+        "target_compiled": true,
+        "production_installed": false,
+        "runtime_verified": false,
+        "scratch_removed": true,
+        "candidate_source_sha256": "4961b8457d9f2975a9470541e5e24fb754ccdea36b2800718cfaf5ed702af554",
+        "command": [
+          "make",
+          "-C",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk/linux-4.4.x",
+          "ARCH=mips",
+          "CROSS_COMPILE=/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/toolchain/toolchain-mipsel/bin/mipsel-linux-uclibc-",
+          "drivers/wr-nvram-order-9p0x9r_m/nvram_linux.o"
+        ],
+        "compile_exit_code": 0,
+        "batch_core_sha256": "d3598b151c58380ce07de0aa390d62ee2bb80d0b9b72ba05ed3117396b778a31",
+        "wire_sha256": {
+          "nvram-batch-wire.h": "d12889b1ced78ac2714bcd47dc6d193be73cd8d0a54e5aa3cb72ddba3b6eb0e5",
+          "nvram-batch-wire.c.inc": "c11e538a323f09eb708a1c6893f7233e7f16eedc25569d135cae241eef521ba5",
+          "nvram-batch-user.c.inc": "4f2ad051fcdb66290e3bdc5f9d781c1d25081206c9ee354fadc8b3cceeb7f4b2"
+        },
+        "kernel_target_compiled": true,
+        "object_bytes": 69876,
+        "object_sha256": "8598eac4c4dc7ed0a6a857d009c39b741da5e3976f7cc5577c0701d652221777",
+        "client_command": [
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/toolchain/toolchain-mipsel/bin/mipsel-linux-uclibc-gcc",
+          "-std=gnu99",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/tools/webui-preview",
+          "-c",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk/linux-4.4.x/drivers/wr-nvram-order-9p0x9r_m/client-probe.c",
+          "-o",
+          "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk/linux-4.4.x/drivers/wr-nvram-order-9p0x9r_m/client-probe.o"
+        ],
+        "client_compile_exit_code": 0,
+        "kernel_abi": {
+          "request_bytes": 5264,
+          "item_bytes": 328,
+          "ioctl_command": 2492485201,
+          "version": 1
+        },
+        "client_abi": {
+          "request_bytes": 5264,
+          "item_bytes": 328,
+          "ioctl_command": 2492485201,
+          "version": 1
+        },
+        "client_target_compiled": true,
+        "abi_match": true,
+        "client_object_sha256": "4bf2038837fbc9eb59808f361176c6ec781391b9ec7f87fd6b3af5b2ee014b1c",
+        "client_header_sha256": "48bf6f30386c4ab134119f7af7fa5fdaf7ca6a325bdcb274242f47864d59b1b8",
+        "scratch_bytes": 143196,
+        "production_after": {
+          "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c": "5bdfa51add776cfe46eabd5c328859d74822220e7772335d08e21b91750190c1",
+          "trunk/linux-4.4.x/drivers/nvram/nvram.c": "8a978e2e7a31fce4f8ec7ab1b541d16b52599e16746c008d6e02603298d0a2c7",
+          "trunk/linux-4.4.x/drivers/nvram/nvram_linux.o": "ef36b11cd9de9cf267e70ef58016e364e5d21a3bcf73e3e4f397f2b7f2d7713e",
+          "trunk/linux-4.4.x/.config": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+          "trunk/linux-4.4.x/vmlinux": "0bad55dbf45ec5e4513fa24f03e379ee5901c4fcf99d1d99f9081d4985e9a8fb",
+          "trunk/images/WR1200JS_4.4.198.9-1003.trx": "409a952fa7ab2374e565f2c556829fe2fbdd61c22ec73deb8362eb97905f151c"
+        },
+        "production_unchanged": true
+      }
+    },
+    "board-build-status-wr1200js": {
+      "id": 13846373043,
+      "objects": {},
+      "board-build-status.json": {
+        "board": "wr1200js",
+        "status": "success"
+      }
+    },
+    "verification-source": {
+      "id": 13845717042,
+      "objects": {},
+      "verification-source.json": {
+        "dispatch_revision": "1b4c4740ba0e7143757aae0f8d04619604ca5fc7",
+        "requested_revision": "2d91fe4b5bc6560b3ed17327f83a488c76236eda",
+        "verified_revision": "2d91fe4b5bc6560b3ed17327f83a488c76236eda",
+        "runtime_verified": false
+      }
+    }
+  },
+  "independent_elf_abi_match": true
+}

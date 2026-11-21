@@ -1,0 +1,44 @@
+{
+  "run": 42850042906,
+  "artifacts": [
+    13778189965,
+    13781422201
+  ],
+  "verification_source": {
+    "dispatch_revision": "7a7d62075ee31174108863ee75b165179b58c62c",
+    "requested_revision": "7a7d62075ee31174108863ee75b165179b58c62c",
+    "verified_revision": "7a7d62075ee31174108863ee75b165179b58c62c",
+    "runtime_verified": false
+  },
+  "features": {
+    "baseline": {
+      "report": "target-compile-result.json",
+      "module": "mt76x3_ap.ko",
+      "bytes": 5907144,
+      "sha256": "2db6b1d61fb643ae3b2063d2470a1f5c96606f50d320c702581a9ecd604f91b0",
+      "independent_elf": "ELF32 little-endian MIPS",
+      "production_installed": false,
+      "runtime_verified": false
+    },
+    "reload": {
+      "report": "reload-feature/result.json",
+      "module": "reload-feature/mt76x3_ap-reload.ko",
+      "bytes": 5909252,
+      "sha256": "819556ddebbbe09e2bd45ee67afc8c5f7ca8752f0fb8af0cbb904a1e5eaab457",
+      "independent_elf": "ELF32 little-endian MIPS",
+      "production_installed": false,
+      "runtime_verified": false
+    },
+    "wsc": {
+      "report": "wsc-feature/result.json",
+      "module": "wsc-feature/mt76x3_ap-wsc.ko",
+      "bytes": 6517080,
+      "sha256": "85bcfae511f3eaf3fe74b272e3f8ceb64b2097864ab4bb837a4ec3f81ea7431c",
+      "independent_elf": "ELF32 little-endian MIPS",
+      "production_installed": false,
+      "runtime_verified": false
+    }
+  },
+  "scope": "Exact source and downloaded baseline/reload/WSC module bytes/hash/MIPS identities independently verified; runtime unverified",
+  "retained_binary_artifacts": false
+}

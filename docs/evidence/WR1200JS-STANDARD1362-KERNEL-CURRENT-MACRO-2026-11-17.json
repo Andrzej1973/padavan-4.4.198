@@ -1,0 +1,15 @@
+{
+  "failed_run": 44132828084,
+  "standard": 1362,
+  "first_actionable_error": "drivers/nvram/nvram_linux.c conditional save local current expands Linux current task macro; expected parenthesis before -> token",
+  "fix": "Rename local to profile_value and retain exact prepared source gate with new hash",
+  "host_regression": "Actual handler compiles and executes with current macro defined, Werror and ASan/UBSan; source capability and actual preparer tests pass",
+  "prepared_kernel_sha256": "78b0613f63221b9bb1d65631d130b8dd34a865a1776985bcd4cd582a3c242d0d",
+  "target_rerun_pending": true,
+  "runtime_verified": false,
+  "sha256": {
+    "tools/iot/native-flash-save.inc": "e60c6a540bbf6251051315774eae78406fa079603421eaba4ae131252dee4f8a",
+    "tools/iot/native-flash-source-guard.py": "e237df1c1ea51a98a290c9ee9237a305d7a06fd9f1ec4f8f58747df362c4f036",
+    "tools/iot/check-native-conditional-save.py": "7e112208f40740b7c3d846aaf50d2bf2d67026df167597c8e0cfe8b4382a4d96"
+  }
+}

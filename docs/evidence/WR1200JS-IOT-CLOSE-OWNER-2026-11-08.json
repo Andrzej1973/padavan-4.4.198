@@ -1,0 +1,16 @@
+{
+  "scope": "Isolated locked reserve/take component for future Linux CLOSE entry",
+  "sha256": {
+    "tools/iot/driver-api-close-owner.h": "2fcd8053eabad0728ad821d7474e22cecf5be4adf2225b0128f80e4131f30b2f",
+    "tools/iot/check-driver-api-close-owner.c": "1cc2c8facf3b2167fae3873b453dc8e0b0f2db79221e7ddd100fe98fe59ea9f7"
+  },
+  "host_asan_ubsan": "PASS",
+  "single_ticket_and_single_consume": true,
+  "wrong_task_device_generation_token_removal_epoch_serial_provenance_and_running_refused": true,
+  "failure_retains_owner_and_ticket": true,
+  "actual_ndo_stop_bound": false,
+  "recovery_release_implemented": false,
+  "target_compiled": false,
+  "rf_dma_verified": false,
+  "runtime_verified": false
+}

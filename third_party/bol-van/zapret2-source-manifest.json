@@ -1,0 +1,1273 @@
+{
+  "upstream": "https://github.com/bol-van/zapret2",
+  "commit": "4a33055448ce5f4e7acc704e1fbe0d8a8a6aa08d",
+  "archive_sha256": "97df3ff802359eb0fbd3c7dea5f9c88e76d4e37c13a65dd8fe53b6e202a7f4c1",
+  "file_count": 253,
+  "files": [
+    {
+      "path": ".gitattributes",
+      "size": 144,
+      "sha256": "69483cf15cb62508d5c757857e2c825d4905224e587ae120e0555b71262b1e27"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/config.yml",
+      "size": 27,
+      "sha256": "05905c8f244d51298bbd1778c286c8a6c9f7adf0d0e5a5f72f764d71ec82cc64"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/issue-warning.md",
+      "size": 2261,
+      "sha256": "60ad3ad20f67806aa52ca971ff5b1552a21b6d13a6995f0acdb54a12792f09e3"
+    },
+    {
+      "path": ".github/workflows/build.yml",
+      "size": 23672,
+      "sha256": "24d184d2dd11701c794fcf48136fff8ba4edaf503e5f01c4dc8ed8da51f93ada"
+    },
+    {
+      "path": ".github/workflows/libnetfilter_queue-android.patch",
+      "size": 996,
+      "sha256": "93d253f52c8735045592fe04ba483259b779a1ab3b5083664f7d2fa196bde509"
+    },
+    {
+      "path": ".gitignore",
+      "size": 207,
+      "sha256": "20048578d0c2d47c2a1501a43bb8d39d22d1e05f5610b65585e182077dfa9da8"
+    },
+    {
+      "path": "binaries/readme.txt",
+      "size": 282,
+      "sha256": "0da198a913de9ccec3d2deae5fb46f28f075e0650b930374ce8d8129688a3ad6"
+    },
+    {
+      "path": "blockcheck2.d/custom/10-list.sh",
+      "size": 1942,
+      "sha256": "932a32685ac5b9de3ee95a09f6449f373dc5f6f94c9d229650d06c1d4f1d3a9f"
+    },
+    {
+      "path": "blockcheck2.d/custom/list_http.txt",
+      "size": 286,
+      "sha256": "447e0fd123c56d77ed18990555538e69b907c3ffac4527cba3d632a6db1e6423"
+    },
+    {
+      "path": "blockcheck2.d/custom/list_https_tls12.txt",
+      "size": 386,
+      "sha256": "08b26ade461cfee7ba385cfa2b789936f3708c5c6cff1bf81ea304564a3526d1"
+    },
+    {
+      "path": "blockcheck2.d/custom/list_https_tls13.txt",
+      "size": 500,
+      "sha256": "cd96dc6b93d63b9e02d135492919dbd4478028b64dbf4a7ca3c400a84ba7c877"
+    },
+    {
+      "path": "blockcheck2.d/custom/list_quic.txt",
+      "size": 261,
+      "sha256": "d5a1895db91e903554f65910b8619f250649c4fadb5f5a5c697d5758e94e75ff"
+    },
+    {
+      "path": "blockcheck2.d/custom/README.txt",
+      "size": 1585,
+      "sha256": "863ab3ee44a04072a6404d9acdea81c49602560430a94a5afcbe898199874a4e"
+    },
+    {
+      "path": "blockcheck2.d/standard/10-http-basic.sh",
+      "size": 308,
+      "sha256": "44d3359ad6b9a5138e9634d9c18f0bec265f2953099bbca7cf54b36ada692a67"
+    },
+    {
+      "path": "blockcheck2.d/standard/15-misc.sh",
+      "size": 1193,
+      "sha256": "c693c027ef1f1ff85b209082078ba23eb570c6673d3bf10efe6a241a2a679e0d"
+    },
+    {
+      "path": "blockcheck2.d/standard/17-oob.sh",
+      "size": 585,
+      "sha256": "065e4c34fbb13afd32924bb4b2978c72353f9df4f0599365d426ec0f8d0626f5"
+    },
+    {
+      "path": "blockcheck2.d/standard/20-multi.sh",
+      "size": 1835,
+      "sha256": "e031a59853b720b933399bc485570272869badd51051fa9e7b13cb1a2e9f5be6"
+    },
+    {
+      "path": "blockcheck2.d/standard/23-seqovl.sh",
+      "size": 3953,
+      "sha256": "5c2aa29cf6aceed69baf9e0707b68a7ce399b56ccecc47eca705138da64ebbdd"
+    },
+    {
+      "path": "blockcheck2.d/standard/24-syndata.sh",
+      "size": 1675,
+      "sha256": "f4dcea4d1d442d7477c48274f807f4b8c1372ac4b148841e6312fc78c2a8249a"
+    },
+    {
+      "path": "blockcheck2.d/standard/25-fake.sh",
+      "size": 6071,
+      "sha256": "4eea4d498ee14f0f24a6268b2429471110052a8dbe55049b1b142fb861a12737"
+    },
+    {
+      "path": "blockcheck2.d/standard/30-faked.sh",
+      "size": 4224,
+      "sha256": "7898d7f72f2459c5418d70411f5793d43419f92210ae1e1767e1d80ce1735dae"
+    },
+    {
+      "path": "blockcheck2.d/standard/35-hostfake.sh",
+      "size": 4342,
+      "sha256": "1e2f09babe8e9f7f144bb9d0e3f5543e3b77e29691328e888ca7f8b054caa12c"
+    },
+    {
+      "path": "blockcheck2.d/standard/50-fake-multi.sh",
+      "size": 7303,
+      "sha256": "f499860406938f76045bf00dcb74aed17609a91c7c917a734406e7755365af6b"
+    },
+    {
+      "path": "blockcheck2.d/standard/55-fake-faked.sh",
+      "size": 8760,
+      "sha256": "836f3810cb07f240ba2aa7a6dfbe1f9f861e0d8d8d456cdd0c0f51b9ec5f8741"
+    },
+    {
+      "path": "blockcheck2.d/standard/60-fake-hostfake.sh",
+      "size": 4563,
+      "sha256": "a12763a37997759c6694435ed50583110b4eab916bb0bfc201ffa1fff6e14534"
+    },
+    {
+      "path": "blockcheck2.d/standard/90-quic.sh",
+      "size": 1121,
+      "sha256": "f898211b3f9aa2fd6d06bf7a1e9d03a90b5b05c978cc00d3164c25fe49877f28"
+    },
+    {
+      "path": "blockcheck2.d/standard/def.inc",
+      "size": 926,
+      "sha256": "621347142f84b482d69daa8209840d98e78922b717bd77d0d9df96960d059493"
+    },
+    {
+      "path": "blockcheck2.sh",
+      "size": 53477,
+      "sha256": "9e37dd4cf9fc0803cf4bc1e3f173145ea472b9058600202dd8bc01332f1dff3b"
+    },
+    {
+      "path": "common/base.sh",
+      "size": 8414,
+      "sha256": "15d96940abef2389d4310091fb4939ffb76962a8a0930af4b523575caa97a3d1"
+    },
+    {
+      "path": "common/custom.sh",
+      "size": 557,
+      "sha256": "cb199ff108567ea8c284481ae28461d48d54736ccee7002f913de48df3c0df87"
+    },
+    {
+      "path": "common/dialog.sh",
+      "size": 1156,
+      "sha256": "354b65f7b8ee798bfde3a37d3ca628da83df57942983d98b869ebefc56aa5a8b"
+    },
+    {
+      "path": "common/elevate.sh",
+      "size": 530,
+      "sha256": "077dd6dfe7cbd686b84788260686d9d971546e67c7734a5e42f6b42af0adf886"
+    },
+    {
+      "path": "common/fwtype.sh",
+      "size": 929,
+      "sha256": "8a21e8f8fb1878bef256a467540a9fae42f9135201cbad06c1118c1f2bf69b50"
+    },
+    {
+      "path": "common/installer.sh",
+      "size": 17698,
+      "sha256": "a291cd9d629fdbf75e2d0e797e2c576a339565885f9f61df6e94b76cbdac112c"
+    },
+    {
+      "path": "common/ipt.sh",
+      "size": 8799,
+      "sha256": "661684e064ce9a4ba6381773321c68de9a59341504f3a85701783e6955e7fad3"
+    },
+    {
+      "path": "common/linux_daemons.sh",
+      "size": 539,
+      "sha256": "d18d21c79a439c8c3e0973901da2e84d090fb701307672b5e9439aca43eb3256"
+    },
+    {
+      "path": "common/linux_fw.sh",
+      "size": 1240,
+      "sha256": "71602e7bbe013df5c37c048409c7120c06265ecf9b9a2129ff968f577cc5ce53"
+    },
+    {
+      "path": "common/linux_iphelper.sh",
+      "size": 558,
+      "sha256": "9a1dd5a521170c7e4db1a9d02eccd2f9cfa386c32ac6e06e118329a67c1f42e0"
+    },
+    {
+      "path": "common/list.sh",
+      "size": 2825,
+      "sha256": "8220705a1e241241fdc345789426f0e7f87c1fe06f8f3089a1f3bd225fdafde4"
+    },
+    {
+      "path": "common/nft.sh",
+      "size": 19816,
+      "sha256": "5d726b060c6d2af150c1d486d16591dcd00297a0effe56cb4aa0f73aaa9090c8"
+    },
+    {
+      "path": "common/virt.sh",
+      "size": 962,
+      "sha256": "998bbe5cc5086f1a4ce9a70459097e4ed6d9499703463228501757dece133de1"
+    },
+    {
+      "path": "config.default",
+      "size": 5534,
+      "sha256": "758cf25e3d57ccf2c0dd053b218d571e6ebb293293f341c8e5294a35ceed2f7b"
+    },
+    {
+      "path": "docs/changes.txt",
+      "size": 12417,
+      "sha256": "2223c0ca08ef73e01e88db060241dcc3ab6dfd2854e36b78f42f0496b822305e"
+    },
+    {
+      "path": "docs/compile/build_howto_openwrt.txt",
+      "size": 3586,
+      "sha256": "2422b02070661a7aebd21f4914a88399e53d91792b9f03a9d2c7f7a8bb8a42a6"
+    },
+    {
+      "path": "docs/compile/build_howto_unix.txt",
+      "size": 1745,
+      "sha256": "3842bc00f8b644a9f2abb59d31f24c713634f97a8b5efaba7f36998df8ab8bd7"
+    },
+    {
+      "path": "docs/compile/build_howto_windows.txt",
+      "size": 1163,
+      "sha256": "80309dc61e62f953359692781a403e34d379f0b99ae9ae8c8799fbc3ce22c0fe"
+    },
+    {
+      "path": "docs/compile/builder-linux/build_deps.sh",
+      "size": 3329,
+      "sha256": "243e7f4497056ce2beb31c4b5d42aa40714d4102131dcb96330ddd4f3e813b65"
+    },
+    {
+      "path": "docs/compile/builder-linux/build_zapret1.sh",
+      "size": 1181,
+      "sha256": "d038ca1f20e67e2bcebce5bdd0bfe5f45d0716092165a2aba70c0489221eb800"
+    },
+    {
+      "path": "docs/compile/builder-linux/build_zapret2.sh",
+      "size": 1589,
+      "sha256": "a6f750928c0fbaeabfec913a009cc423f2a9d5dc81017d4e461c453fdf00f11f"
+    },
+    {
+      "path": "docs/compile/builder-linux/common.inc",
+      "size": 6255,
+      "sha256": "0d5e4a0cca50648f1c8e805dfc4c77fd923858f67f7c3d1a428f32dd96c1a1fd"
+    },
+    {
+      "path": "docs/compile/builder-linux/get_toolchains.sh",
+      "size": 379,
+      "sha256": "8d357c7a3d74cc262c86428972a19c428902cbc1524b79bec6ae5ea585aaf0f9"
+    },
+    {
+      "path": "docs/compile/openwrt/package/zapret/ip2net/Makefile",
+      "size": 554,
+      "sha256": "6206b51a64fca74a1fba96929f66ab10a53efa5a28417f1d55659d69c85901a0"
+    },
+    {
+      "path": "docs/compile/openwrt/package/zapret/ip2net/readme.txt",
+      "size": 28,
+      "sha256": "37c2caac65767051797b917cbe48d9fb629e0c68a890efe7932ced9c162bfced"
+    },
+    {
+      "path": "docs/compile/openwrt/package/zapret/mdig/Makefile",
+      "size": 540,
+      "sha256": "5e50985a7a3a1c0c599a0c7f07e6d341a2f206f4fad06239a8592fa649ae9aa2"
+    },
+    {
+      "path": "docs/compile/openwrt/package/zapret/mdig/readme.txt",
+      "size": 26,
+      "sha256": "5f5c4df42991adfad4bec268ceb2b919ab51b7d0db7f8a70ca6cf60b3b0fab6d"
+    },
+    {
+      "path": "docs/compile/openwrt/package/zapret/nfqws2/Makefile",
+      "size": 1050,
+      "sha256": "2572d1f523f7924b748689912a670f46acfeb8431a2993cbf7a186f9b129cec6"
+    },
+    {
+      "path": "docs/compile/openwrt/package/zapret/nfqws2/readme.txt",
+      "size": 26,
+      "sha256": "5bd4e05cb6860e4ad3d81034a4fe2cc5fec0fcd0fdaece8fceda52236ae6355e"
+    },
+    {
+      "path": "docs/LICENSE.txt",
+      "size": 1069,
+      "sha256": "d089978dd77d53cb6aa5dff51cfdbff617e52dd44af1ac44a6df02c6644f17d5"
+    },
+    {
+      "path": "docs/manual.en.md",
+      "size": 348503,
+      "sha256": "b678c33971baeda76898d1f68b26a836ae5dd96e5b2bcb2c1e511753fc5cbd98"
+    },
+    {
+      "path": "docs/manual.md",
+      "size": 512888,
+      "sha256": "600d9594411bcb8f1de16923e6c8de9f545bba0715c4b859c084e4840064996c"
+    },
+    {
+      "path": "docs/readme.md",
+      "size": 51001,
+      "sha256": "344e4a84cfc5acd897146507f1c9f446804ae9e47a8ed2da9c8ea7d207afbd54"
+    },
+    {
+      "path": "files/fake/bgp_open.bin",
+      "size": 57,
+      "sha256": "be5ec044131e57850760f1d13f35c0db21b9aac31bf47bc06487c23567dc8a2f"
+    },
+    {
+      "path": "files/fake/bitcoin.bin",
+      "size": 109,
+      "sha256": "f5e465cebaecde0dcb8fb3d16c84881040528b481c39b4dad0bf31912d2cbed1"
+    },
+    {
+      "path": "files/fake/dht_find_node.bin",
+      "size": 98,
+      "sha256": "1f892e567bdd3dfc23e8dc86933b258a67262cb66cbf16bcc3cfa704db604ba0"
+    },
+    {
+      "path": "files/fake/dht_get_peers.bin",
+      "size": 104,
+      "sha256": "b57f6584eb58689ccf81702b44103fa53ea31a5dba00be9c95b4059bad602e77"
+    },
+    {
+      "path": "files/fake/discord-ip-discovery-with-port.bin",
+      "size": 74,
+      "sha256": "073e84935196ec6a9701e6ad0df21de2b5fbfb7e3fd3ce6c5d9bba8e8654eb14"
+    },
+    {
+      "path": "files/fake/discord-ip-discovery-without-port.bin",
+      "size": 74,
+      "sha256": "3f63c3a0cc63b90a6a8c50ffc61a32cc7d1f1b60457a96b90719256744df0e96"
+    },
+    {
+      "path": "files/fake/dns.bin",
+      "size": 38,
+      "sha256": "cbb6136332be371807ddecaf347eccfd2040991953312857778e9b04ca1737a8"
+    },
+    {
+      "path": "files/fake/dtls_clienthello_w3_org.bin",
+      "size": 226,
+      "sha256": "5bacd8cb6bd451f2374e55bc066b632e3c88fb852e3a44f19e6246c04d127be5"
+    },
+    {
+      "path": "files/fake/dtls_serverhello.bin",
+      "size": 170,
+      "sha256": "baa0b1947ab41d25f4dd5b0a48cb52d089ad2cf57b634483e97fc314ca30fc3d"
+    },
+    {
+      "path": "files/fake/http_iana_org.bin",
+      "size": 427,
+      "sha256": "3e4fb49b1323ddf2f8e691b1cbe804207b4e849711d76f79ebf2b54247a9285e"
+    },
+    {
+      "path": "files/fake/isakmp_initiator_request.bin",
+      "size": 584,
+      "sha256": "45a73a6a414c9cbe032a44cabf20e98f67a652924072add0f105109f17f9b2ec"
+    },
+    {
+      "path": "files/fake/ntp4.bin",
+      "size": 48,
+      "sha256": "a682871ec4f0d632ed5b8ef043f87712869cc542a4cb56fa8a5214522d3153b8"
+    },
+    {
+      "path": "files/fake/quic2_example_com.bin",
+      "size": 1200,
+      "sha256": "b0b766fe7e762577072d3365cc4f9635809210cba301a67f8457f5e6fdac5c68"
+    },
+    {
+      "path": "files/fake/quic_initial_facebook_com.bin",
+      "size": 1200,
+      "sha256": "d6504305e15e6f63930d24ced9045001e345d3c1aeb56b1b4c329d51c7dea274"
+    },
+    {
+      "path": "files/fake/quic_initial_facebook_com_quiche.bin",
+      "size": 1200,
+      "sha256": "2c874e6b4adbfd9206c0b5a34a6a3e93af4c4f8552285408d61c56ed26c6f1f1"
+    },
+    {
+      "path": "files/fake/quic_initial_rr1---sn-xguxaxjvh-n8me_googlevideo_com_kyber_1.bin",
+      "size": 1230,
+      "sha256": "b8aaf20e3750f79a1f0b8cc15207e4a434c684ac72b6c1c12703bfd4a5728317"
+    },
+    {
+      "path": "files/fake/quic_initial_rr1---sn-xguxaxjvh-n8me_googlevideo_com_kyber_2.bin",
+      "size": 1230,
+      "sha256": "38c3a82140215151f7a34d14c01e494fea5242ac514c8b820648446ad33bb5b2"
+    },
+    {
+      "path": "files/fake/quic_initial_rr2---sn-gvnuxaxjvh-o8ge_googlevideo_com.bin",
+      "size": 1200,
+      "sha256": "71143c03968bd7b8b6959d05910b2937d5ed1681ab50e2fe84cfacaa17384bf7"
+    },
+    {
+      "path": "files/fake/quic_initial_rutracker_org.bin",
+      "size": 1200,
+      "sha256": "d5d77f90ff45489d246bd447c3e9f28e98891e206dc17c79d4de1da6bd0f18e8"
+    },
+    {
+      "path": "files/fake/quic_initial_rutracker_org_kyber_1.bin",
+      "size": 1230,
+      "sha256": "e0ae5ed5e3018512c8ab8ba8d7097607a65f17fa258bbd0b50596abe85f71264"
+    },
+    {
+      "path": "files/fake/quic_initial_rutracker_org_kyber_2.bin",
+      "size": 1230,
+      "sha256": "b32f891a670afcda91276b2dfc712c6c67ab1c02c0c3e9dbd8ac1f7cb9790c73"
+    },
+    {
+      "path": "files/fake/quic_initial_vk_com.bin",
+      "size": 1357,
+      "sha256": "f86d488593a65132c10e7e5b5e02f32ff8e0862988b30bebc6a671c5380f3976"
+    },
+    {
+      "path": "files/fake/quic_initial_www_google_com.bin",
+      "size": 1200,
+      "sha256": "f4589c57749f956bb30538197a521d7005f8b0a8723b4707e72405e51ddac50a"
+    },
+    {
+      "path": "files/fake/quic_short_header.bin",
+      "size": 620,
+      "sha256": "ec07b86d54395a3620569d786846c2062f5d30fe8847ecb862703a623c4176ab"
+    },
+    {
+      "path": "files/fake/rdp.bin",
+      "size": 47,
+      "sha256": "d837ff6717a92bc04821eba48ddabae474cf0c9bfd13d70429a7e43e226fe57c"
+    },
+    {
+      "path": "files/fake/rtsp_options.bin",
+      "size": 116,
+      "sha256": "dce3c8df3168b9377a75cfb0e873bcd45bd4e5892d39e0c547f3277c423488c9"
+    },
+    {
+      "path": "files/fake/sip_register.bin",
+      "size": 505,
+      "sha256": "8544fc3d30b603a4ee96512c141aa6e91aa8f679fef7e3d97f32c36cabfdc8de"
+    },
+    {
+      "path": "files/fake/smtp_ehlo.bin",
+      "size": 22,
+      "sha256": "8fc388f019233035e3324ab7c752ef9fde44df3002a2fd070a5352fd611f062e"
+    },
+    {
+      "path": "files/fake/snmp_get_next_request.bin",
+      "size": 43,
+      "sha256": "3c528051d9541002bee77e2a9c7aac485a0d83144b132f6c00b34aee25ceec7e"
+    },
+    {
+      "path": "files/fake/stun.bin",
+      "size": 100,
+      "sha256": "9cd5469309780ca56c0bd97266524a48c7ee529d02c3179cfecb20b260a59641"
+    },
+    {
+      "path": "files/fake/tls_alert.bin",
+      "size": 7,
+      "sha256": "6e25a3eaad79292acefde5d967457256a6e350ebef38424f237209cd391bf5ea"
+    },
+    {
+      "path": "files/fake/tls_clienthello_google_com_tlsrec.bin",
+      "size": 522,
+      "sha256": "2b13340d72a3d39c0fd0caf1dab544093eb1b81f22e7fd549792bae1c11432e9"
+    },
+    {
+      "path": "files/fake/tls_clienthello_gosuslugi_ru.bin",
+      "size": 517,
+      "sha256": "ec581c9877ebc4b69e6cdab48f46e0f7b0eeb67c5fefe849f21525faa1ff4f74"
+    },
+    {
+      "path": "files/fake/tls_clienthello_iana_org.bin",
+      "size": 517,
+      "sha256": "9db8772636bb332f1970e8767bc7d628bfa640714bd0b7e699fbe92d559e666e"
+    },
+    {
+      "path": "files/fake/tls_clienthello_iana_org_bigsize.bin",
+      "size": 517,
+      "sha256": "f1c9cad58ce517b9e0f6f57d14e9fafc207140378551f90d2217d0a24ffca961"
+    },
+    {
+      "path": "files/fake/tls_clienthello_rutracker_org_kyber.bin",
+      "size": 1787,
+      "sha256": "0fe5b4118d698536bb845450e3314e22969c59f69f72d90dcb4ef477327ce81d"
+    },
+    {
+      "path": "files/fake/tls_clienthello_sberbank_ru.bin",
+      "size": 517,
+      "sha256": "d10110e695ec16cdbed292cfbba3e779b8f08acb92bfa1023ad56a8cccd3aae6"
+    },
+    {
+      "path": "files/fake/tls_clienthello_vk_com.bin",
+      "size": 517,
+      "sha256": "d6d63c53bc0e1d97e913a43fc4db34f6558bb807228bf6100e3b6863f0720404"
+    },
+    {
+      "path": "files/fake/tls_clienthello_vk_com_kyber.bin",
+      "size": 1812,
+      "sha256": "b930e34be4a0f7fe388d4cb9886838f9a7b68fd62d3461629885e4cefcfe3805"
+    },
+    {
+      "path": "files/fake/tls_clienthello_www_google_com.bin",
+      "size": 681,
+      "sha256": "936c2bee4cfb80aa3c426b2dcbcc834b3fbcd1adb17172959dc569c73a14275c"
+    },
+    {
+      "path": "files/fake/tls_serverhello_google_com_tls13.bin",
+      "size": 1208,
+      "sha256": "ae162a8970cbabf7d9a7a0c453a51ee49274eab8658a9743e390cd686ccb9a73"
+    },
+    {
+      "path": "files/fake/wireguard_initiation.bin",
+      "size": 148,
+      "sha256": "0af3b37b9912fbee78663711e93e090a33665759b684199ac4d0c9d9dbc468df"
+    },
+    {
+      "path": "files/fake/wireguard_response.bin",
+      "size": 92,
+      "sha256": "8cfa32a791b31f89270f0ad2bed8db04c1ec1f97a66044f120037530610f807b"
+    },
+    {
+      "path": "files/fake/zero_1024.bin",
+      "size": 1024,
+      "sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef"
+    },
+    {
+      "path": "files/fake/zero_256.bin",
+      "size": 256,
+      "sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1"
+    },
+    {
+      "path": "files/fake/zero_512.bin",
+      "size": 512,
+      "sha256": "076a27c79e5ace2a3d47f9dd2e83e4ff6ea8872b3c2218f66c92b89b55f36560"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/10-keenetic-udp-fix",
+      "size": 819,
+      "sha256": "308387991b706d3550da179f3bb13c572b3e61d2a57e87832cd23bd71a25a47f"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/20-fw-extra",
+      "size": 1574,
+      "sha256": "2b0a45f640a4ce224c3babdc679a095245647618231a20bb246536c4e35fac60"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/40-webserver",
+      "size": 1202,
+      "sha256": "ad6faf96a85a0d08f87201d6b0bc51a305e31c4d606923467bbd1d8dd75f5d68"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/50-dht4all",
+      "size": 1387,
+      "sha256": "60a29f43478d31b087acfac8e6d66d890ee85f872a00aee15c487dfec0ede813"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/50-discord-media",
+      "size": 1572,
+      "sha256": "3301a626b28f0787fbd912cf3da7909246b291a5ab59dbfbeab90334cc174538"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/50-nfqws-ipset",
+      "size": 5718,
+      "sha256": "2a524728e51f50bd8e932af310bd5ff526a5b224c13a76dbfa116d50f833560f"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/50-quic4all",
+      "size": 966,
+      "sha256": "83a1521fd70f9eb65b0cd468af469f57cc5e6680b98ef204b2c84f89613e3b77"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/50-stun4all",
+      "size": 987,
+      "sha256": "e7d5491206d6d9327fa95bfcf349e70a4376a0c321712c454583b58b1b68028d"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/50-wg4all",
+      "size": 1566,
+      "sha256": "23cade709b338c9a3b9a4048f3a5cd7e70ebcbe264edc7cd98edee686ed3d785"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/80-dns-intercept",
+      "size": 1882,
+      "sha256": "1daaec145e2eaa67b0f3f4f86afd00e22f441380a1ebda61a772496ac7d8cfc6"
+    },
+    {
+      "path": "init.d/custom.d.examples.linux/99-lan-filter",
+      "size": 4384,
+      "sha256": "c54002fa0c81790eb5155fdf389c2db0e96c985d4742a510ee9fd3b0dfc09a94"
+    },
+    {
+      "path": "init.d/openrc/zapret2",
+      "size": 1487,
+      "sha256": "a7f28591dc786d783a942c4e849963ff19afd1d997a67dd09bf89b380a3a744c"
+    },
+    {
+      "path": "init.d/openwrt/90-zapret2",
+      "size": 840,
+      "sha256": "eb6ec8316caa65179481eba90617ae0ab05449c4fbba56ed0241863576b49f95"
+    },
+    {
+      "path": "init.d/openwrt/custom.d/.keep",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "init.d/openwrt/firewall.zapret2",
+      "size": 238,
+      "sha256": "77fcb60f0a6c94b4125e366c38c992e9717e30d971e425e1870a5a924971284e"
+    },
+    {
+      "path": "init.d/openwrt/functions",
+      "size": 6105,
+      "sha256": "3f88187d2e0744ae51bf6587269d91b3d7ec2ba3581868642cc0a3c4ee919f22"
+    },
+    {
+      "path": "init.d/openwrt/zapret2",
+      "size": 2987,
+      "sha256": "8fa55eb713739374db22b7f57f6feb2bdfcf2e8deb21b8e443b2e0f9ed89fabd"
+    },
+    {
+      "path": "init.d/pfsense/zapret2.sh",
+      "size": 784,
+      "sha256": "ce9536a24f990d170b0ede4e325ec2bea9845e94754f9fe1784ffad3f9c64127"
+    },
+    {
+      "path": "init.d/runit/zapret2/finish",
+      "size": 48,
+      "sha256": "29ddd5d71247488841d562518380bed48e52447172a12bceca562ec43cc961ae"
+    },
+    {
+      "path": "init.d/runit/zapret2/run",
+      "size": 86,
+      "sha256": "28957d60e3513e35434144ffcb372890b9d0f82090ca841d02ad5c33667d1cef"
+    },
+    {
+      "path": "init.d/s6/zapret2/down",
+      "size": 63,
+      "sha256": "a08c8750faa626c2e83adaf66a2096b1b4fc38a1c677778942a88c4ae2902021"
+    },
+    {
+      "path": "init.d/s6/zapret2/type",
+      "size": 8,
+      "sha256": "aab38fd7998987a22d44fda7822afcfa69d039d3ba02b1f707f064df64352217"
+    },
+    {
+      "path": "init.d/s6/zapret2/up",
+      "size": 64,
+      "sha256": "1688cfd386414c1232a719a1689dcad177d525990d94ceb4b7d1c85a60c60e9b"
+    },
+    {
+      "path": "init.d/systemd/nfqws2@.service",
+      "size": 1397,
+      "sha256": "510afedf7782ecbe6302e39c4ec4329774c85593b8952faca16ebdf154fb3662"
+    },
+    {
+      "path": "init.d/systemd/zapret2-list-update.service",
+      "size": 225,
+      "sha256": "2e03d8b3da5a9680b402a51e315553d2399246b9a9af925ac6d1f5f6802daf1e"
+    },
+    {
+      "path": "init.d/systemd/zapret2-list-update.timer",
+      "size": 235,
+      "sha256": "ae43b341d80e8b23e17b945136aab2ad456f98d49cb6b834b2760478ba042a21"
+    },
+    {
+      "path": "init.d/systemd/zapret2.service",
+      "size": 301,
+      "sha256": "a137fca2e83958458205a40b788b53704101c9bb6da4eac76e168ea9e1382708"
+    },
+    {
+      "path": "init.d/sysv/custom.d/.keep",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "init.d/sysv/functions",
+      "size": 4317,
+      "sha256": "8b504ab7461a0e11e9e0e2277afba0f9562d4f1c11d3c5f63771b369bcd2d9bd"
+    },
+    {
+      "path": "init.d/sysv/zapret2",
+      "size": 1352,
+      "sha256": "43fed7b6485ae51bbee205d60c6a0041af14cbda5fef90479d333266880411f5"
+    },
+    {
+      "path": "init.d/windivert.filter.examples/README.txt",
+      "size": 1571,
+      "sha256": "2d06f2378e8c8bcec149a33380ab261b7b7adc7198b8e194493c274c852ede08"
+    },
+    {
+      "path": "init.d/windivert.filter.examples/windivert_part.dht.txt",
+      "size": 87,
+      "sha256": "0e0d071239995332c2e45e60c59c5bb3d70233426e430a7babb24b18b75e90c0"
+    },
+    {
+      "path": "init.d/windivert.filter.examples/windivert_part.discord_media.txt",
+      "size": 600,
+      "sha256": "ea0253e1ad6c435862f48b422fd2196c97e32570226aae0ddd4fbe79aa56ba52"
+    },
+    {
+      "path": "init.d/windivert.filter.examples/windivert_part.quic_initial_ietf.txt",
+      "size": 160,
+      "sha256": "bac79f529b582ac15142d9593358b4d5317cfb630ad55de982a47c2fd340bd53"
+    },
+    {
+      "path": "init.d/windivert.filter.examples/windivert_part.stun.txt",
+      "size": 98,
+      "sha256": "3354ee5db83b9bfd211596977dd5fca371827a3641707b7d6752ab65b4b6a445"
+    },
+    {
+      "path": "init.d/windivert.filter.examples/windivert_part.wireguard.txt",
+      "size": 169,
+      "sha256": "c979c8a6c1d8c4586869f8fcefc9e3971ce98780bf03724fbfbcc6af828f2822"
+    },
+    {
+      "path": "install_bin.sh",
+      "size": 4846,
+      "sha256": "524321c662d5f77feae034208e52a404bdc4286d2b779616e60f420b3b0d93f6"
+    },
+    {
+      "path": "install_easy.sh",
+      "size": 21527,
+      "sha256": "8f4baea7c8cefbb35c5ddc579cb1af9ca808c56fe19df2e643fae1b0706f8d98"
+    },
+    {
+      "path": "install_prereq.sh",
+      "size": 1041,
+      "sha256": "de7c60f2c19e1fccb35ad7fc92a6d2529aa29ec6f568055f31ec9eb274c14215"
+    },
+    {
+      "path": "ip2net/ip2net.c",
+      "size": 14937,
+      "sha256": "1d7c0c04e36d11a999c0d929af0663dfae1c4114dae3eabdea0f459646ec3176"
+    },
+    {
+      "path": "ip2net/Makefile",
+      "size": 940,
+      "sha256": "3153b28263172488a679cf0cc5ea7181252319db2b81c23131d8d9a8695d810c"
+    },
+    {
+      "path": "ip2net/qsort.c",
+      "size": 8393,
+      "sha256": "4cff8ca795f749ad7631307e51948ea7b916629fef3b4f30a1da09da5783486b"
+    },
+    {
+      "path": "ip2net/qsort.h",
+      "size": 233,
+      "sha256": "9ea5083d64557d408183c4f17138eb223d9ef21403f4a74624bea4bd101a4fb0"
+    },
+    {
+      "path": "ipset/antifilter.helper",
+      "size": 491,
+      "sha256": "c3aca4be8f5221b9d70f4a4fabecf975b182dd78eb1fb1fa00f06a45ec35f86e"
+    },
+    {
+      "path": "ipset/clear_lists.sh",
+      "size": 298,
+      "sha256": "9e0a1245dce2455a2d24b64e5a771ef365236373d0b3c5020b4af571a92b2a5a"
+    },
+    {
+      "path": "ipset/create_ipset.sh",
+      "size": 8186,
+      "sha256": "4dfbd33276107497272bb4462c6ca01eb962e40dcf9ab34cab021dc8b2d321db"
+    },
+    {
+      "path": "ipset/def.sh",
+      "size": 6721,
+      "sha256": "a82324b4e07b8e5293f16f6f1aa9af18e5d23623aeb48e44267f8ba07a0a8e4b"
+    },
+    {
+      "path": "ipset/get_antifilter_allyouneed.sh",
+      "size": 253,
+      "sha256": "b15a2acc5ca03073f3491671c47878424d878fe678dbb57760203e5e9df74c84"
+    },
+    {
+      "path": "ipset/get_antifilter_ip.sh",
+      "size": 245,
+      "sha256": "2a8930983e67b8bb7a4e78e684acb98a4166f67247cbde4835323002018f7952"
+    },
+    {
+      "path": "ipset/get_antifilter_ipresolve.sh",
+      "size": 252,
+      "sha256": "ef2374f8f9522c2f4fe3fd367ba0ea8d66321b98edb9308b9613f9fc7a06ddfc"
+    },
+    {
+      "path": "ipset/get_antifilter_ipsmart.sh",
+      "size": 253,
+      "sha256": "c7ab8fb04979998c50cf965c30ca382672857515b0efcf2361f4d650258022a1"
+    },
+    {
+      "path": "ipset/get_antifilter_ipsum.sh",
+      "size": 248,
+      "sha256": "261c89e71bb8a2110e760201bc9b2ebc2d3376552083a63362ec9f5271baf939"
+    },
+    {
+      "path": "ipset/get_antizapret_domains.sh",
+      "size": 743,
+      "sha256": "7d0c04cfe7c0ca68874d967f2215bddcbb61958db4e01b4a24f6dafe03f9478c"
+    },
+    {
+      "path": "ipset/get_config.sh",
+      "size": 269,
+      "sha256": "a1534dde64aa6ee6337399dabc0cf1c1ee8f1758622cb6430b784629e4809d24"
+    },
+    {
+      "path": "ipset/get_exclude.sh",
+      "size": 165,
+      "sha256": "9010c82cd059c63ef65d809fde2dc4d52e00abc6962c83c30e4153548fdf6fd2"
+    },
+    {
+      "path": "ipset/get_ipban.sh",
+      "size": 174,
+      "sha256": "2d5e27b4460fb2453df6562a7a2abc09da625649be2933d56973caadd4fe195e"
+    },
+    {
+      "path": "ipset/get_reestr_preresolved.sh",
+      "size": 1081,
+      "sha256": "b95346b715ffa5a200621448c091af0ac00c61f1ab87cb6ac5fa45360f13472a"
+    },
+    {
+      "path": "ipset/get_reestr_preresolved_smart.sh",
+      "size": 1075,
+      "sha256": "d6bd81d41029c44da3a6af00f687d3fcee6da19e1784d34cc5015773898b66c4"
+    },
+    {
+      "path": "ipset/get_reestr_resolvable_domains.sh",
+      "size": 1034,
+      "sha256": "436ed8820fac87fc0efe46ce021ade6dc460e5797e0872ccc153edda7f24b124"
+    },
+    {
+      "path": "ipset/get_refilter_domains.sh",
+      "size": 888,
+      "sha256": "732e1e64e8830d743c945b153c3da8f7a5c862192f490d9713ec94ad3acf50d1"
+    },
+    {
+      "path": "ipset/get_refilter_ipsum.sh",
+      "size": 804,
+      "sha256": "d14c948423b7c30da314493b8664a239255bc146459ad28114ecfabddf8606f1"
+    },
+    {
+      "path": "ipset/get_user.sh",
+      "size": 162,
+      "sha256": "1b8768446cf7fb0f7f2709be1a76b615b5d79d859cfdddf5bb3c2a72536bda31"
+    },
+    {
+      "path": "ipset/zapret-hosts-user-exclude.txt.default",
+      "size": 104,
+      "sha256": "2c458a13d4f68273def0fce33b942b69561e4bce8f038b4e9d949bb12a671e10"
+    },
+    {
+      "path": "lua/zapret-antidpi.lua",
+      "size": 51866,
+      "sha256": "6d1fa9168e5de1682fef91fd174f68b58c50f6739ef00f42ca7db2b940b6246d"
+    },
+    {
+      "path": "lua/zapret-auto.lua",
+      "size": 21123,
+      "sha256": "23a9b99a776d868d92f4cc0ee5110f5c1f12fe746620d9c0337022dbc2f52df0"
+    },
+    {
+      "path": "lua/zapret-lib.lua",
+      "size": 93714,
+      "sha256": "6bf528fef1f0fc3c65e189216fc8a06bb873f6e25d1c29d2bfa4695a09b73440"
+    },
+    {
+      "path": "lua/zapret-obfs.lua",
+      "size": 18871,
+      "sha256": "e2d75840a9f1e3bfb74fa7463886932e03eb02ab33c6146d6392d6a231d1cfd5"
+    },
+    {
+      "path": "lua/zapret-pcap.lua",
+      "size": 1441,
+      "sha256": "6866c37c92fbc62075accf94228da48af618c7f416edc682eba99b2196e05f45"
+    },
+    {
+      "path": "lua/zapret-tests.lua",
+      "size": 37399,
+      "sha256": "82664cb50a751a531b63dce094ac03de5045b16b489e726ff32a9a1034811459"
+    },
+    {
+      "path": "Makefile",
+      "size": 1707,
+      "sha256": "faff36676e3f4038246f6c9a722429be4e51c1cb5151b653792d6fd88b4bf137"
+    },
+    {
+      "path": "mdig/Makefile",
+      "size": 989,
+      "sha256": "1a2ce81e3b4319bc053362f34a9db7c0eff76aa810dbbd4640e1c796a30b6971"
+    },
+    {
+      "path": "mdig/mdig.c",
+      "size": 14854,
+      "sha256": "60b544b05fa46281087f73edb863102f0c08feab10a83c6ba81cfe697ca089a2"
+    },
+    {
+      "path": "nfq2/andr/getifaddrs.c",
+      "size": 6153,
+      "sha256": "1d69be9311220e95a26848c8f1b95b50de137716649b5b4099d37d13178dd76f"
+    },
+    {
+      "path": "nfq2/andr/ifaddrs.h",
+      "size": 139,
+      "sha256": "5bb2727954fb1a763cc2addf8d774f74d7d10cc88af38f0d26721aaeee3bc9c3"
+    },
+    {
+      "path": "nfq2/andr/netlink.c",
+      "size": 1366,
+      "sha256": "9d185edd676d142d7c68c14e19a07b92f893602dd9c150bd35532bd03bf12958"
+    },
+    {
+      "path": "nfq2/andr/netlink.h",
+      "size": 2288,
+      "sha256": "5c5e45a68a42b497b0ff4afe44cbfc66f7b3417459b33c745ed79581d1b60970"
+    },
+    {
+      "path": "nfq2/BSDmakefile",
+      "size": 945,
+      "sha256": "3366782987737775ec4167e93bdf45432813257982c1318e61442512dee8a23f"
+    },
+    {
+      "path": "nfq2/checksum.c",
+      "size": 4942,
+      "sha256": "6859b6a986d13454d49754b57992cd4d71e0b545457349070c2bd787e7f16b53"
+    },
+    {
+      "path": "nfq2/checksum.h",
+      "size": 1729,
+      "sha256": "c9768e5403afd2a6cb983e160f712768fc3f7d1c7625894140f46e2fe0b6e7cf"
+    },
+    {
+      "path": "nfq2/conntrack.c",
+      "size": 13215,
+      "sha256": "f0d24a55956419940c0232d269ed8e6da4b6a4d54ba94f81a08f130fbfa1a73a"
+    },
+    {
+      "path": "nfq2/conntrack.h",
+      "size": 4206,
+      "sha256": "5aebe64005eed40ef1f304bf0efe90ae7acc501c673706db2552b7b57afe68bc"
+    },
+    {
+      "path": "nfq2/conntrack_base.h",
+      "size": 1237,
+      "sha256": "2e7a0aaab16ce2a116d8899e046de5a7178de440892bb5547ee04f06f568ad60"
+    },
+    {
+      "path": "nfq2/crypto/aes-ctr.c",
+      "size": 1931,
+      "sha256": "0a928dea95dd5a4dfe61c066e13fb535236620fb79c770097a2cfd05b2290085"
+    },
+    {
+      "path": "nfq2/crypto/aes-ctr.h",
+      "size": 339,
+      "sha256": "e1f1acfa92c9aa56b45d4c47c5510adb4c83cb64b0851ea1982fdb669644ebce"
+    },
+    {
+      "path": "nfq2/crypto/aes-gcm.c",
+      "size": 535,
+      "sha256": "df149d5af5e775461eafb7c06a0c71bd11e8f57fe09abf73a31f7d365f624993"
+    },
+    {
+      "path": "nfq2/crypto/aes-gcm.h",
+      "size": 312,
+      "sha256": "38e6662e60af3d5bc6c30551c85f02fbf7cfe91ccfc1d98c146179cadb6dc4d9"
+    },
+    {
+      "path": "nfq2/crypto/aes.c",
+      "size": 16399,
+      "sha256": "ab7a8f23ccc7df0de53dd4f7d1f088073dd31d7a65753126b15f63f512696407"
+    },
+    {
+      "path": "nfq2/crypto/aes.h",
+      "size": 3385,
+      "sha256": "ece2be199e89bf8a768d2e7ac7f312b4f929e95b3339ffbfcc0483ebe3264e03"
+    },
+    {
+      "path": "nfq2/crypto/gcm.c",
+      "size": 19962,
+      "sha256": "c201c202b52be83ed062ae14d6f7abe47228b8c43fa4b6a99f94688bca8fa302"
+    },
+    {
+      "path": "nfq2/crypto/gcm.h",
+      "size": 8345,
+      "sha256": "079c1e8e887b0af5cf6c66012ed5b5cf0c7f63d6d12163e3bd46c712bcc51b87"
+    },
+    {
+      "path": "nfq2/crypto/hkdf.c",
+      "size": 9936,
+      "sha256": "74da498ddedf86e7676c9314c53205d49aaf700f3be0467f5e619caec009d9c7"
+    },
+    {
+      "path": "nfq2/crypto/hmac.c",
+      "size": 6935,
+      "sha256": "16ffc2e3938090c9c7295be66ac02c520cf8b9a291a3644e721983d3632ca301"
+    },
+    {
+      "path": "nfq2/crypto/sha-private.h",
+      "size": 824,
+      "sha256": "254a93ec9133b9f542a4c2000f164df43181e1d8d2a8c4e188463d7269f4a19b"
+    },
+    {
+      "path": "nfq2/crypto/sha.h",
+      "size": 10614,
+      "sha256": "d6a9d51a495ea0703c17e992a41a99e16c6eeffbe16d1fc695f14b780c770e39"
+    },
+    {
+      "path": "nfq2/crypto/sha224-256.c",
+      "size": 18067,
+      "sha256": "199148de999c68ee19ff4fd2a6366c10aebcef2d98f4e15eb0560b8c2706fa90"
+    },
+    {
+      "path": "nfq2/crypto/usha.c",
+      "size": 4593,
+      "sha256": "40fa0167b022ef63622aaa00f8b41e40023fc9a4748a0eda497bde515351470a"
+    },
+    {
+      "path": "nfq2/darkmagic.c",
+      "size": 69113,
+      "sha256": "6b566fc1b070217eed2ed1e0532b73c165816e323ac5b25d27963b346395e467"
+    },
+    {
+      "path": "nfq2/darkmagic.h",
+      "size": 8237,
+      "sha256": "a1599f765c66e67ee8620f75cbb799d98ac06dbfd753082de205483cac419750"
+    },
+    {
+      "path": "nfq2/desync.c",
+      "size": 74463,
+      "sha256": "54e3c9d03f62a844ee549e2ddc036c0253147c9aae67d937da8cc29c67a026bd"
+    },
+    {
+      "path": "nfq2/desync.h",
+      "size": 540,
+      "sha256": "d4d6e77cc59abbc4a2eb7001c138319282a5a9cefe38bfa8a0345a6b5a3386f8"
+    },
+    {
+      "path": "nfq2/filter.c",
+      "size": 4802,
+      "sha256": "c096dcf31efdfd689d1700fab27843f0673478f7f3f0890ec82c2f223dfedfce"
+    },
+    {
+      "path": "nfq2/filter.h",
+      "size": 1689,
+      "sha256": "c303845a1427a72afe060686af12326fdf626efe2010fe076a3c63551712a651"
+    },
+    {
+      "path": "nfq2/gzip.c",
+      "size": 1769,
+      "sha256": "cb6ed86ff18208d437c7c4a7cc2c71e13295d627f54f62ab717ce1fdc6ff61e1"
+    },
+    {
+      "path": "nfq2/gzip.h",
+      "size": 167,
+      "sha256": "3b1d2fae7264c9f94eefdac06a343c552d8636f97fc3a246d0229ec365bfe774"
+    },
+    {
+      "path": "nfq2/helpers.c",
+      "size": 16457,
+      "sha256": "1a9ba7d5d6fcc927e6d18223564c88b1a6d6b54bae72a088ec577c6c76bd46c3"
+    },
+    {
+      "path": "nfq2/helpers.h",
+      "size": 4324,
+      "sha256": "13772a53449d07c773c31bcf177bd673f926e2466d1572f170bc73957ea173dd"
+    },
+    {
+      "path": "nfq2/hostlist.c",
+      "size": 10041,
+      "sha256": "4a7b2c67d89b6547bf01ac47f19fcd21e9de1e888bba1b40c76e555a7e47c82f"
+    },
+    {
+      "path": "nfq2/hostlist.h",
+      "size": 749,
+      "sha256": "f9ab9aa124bfb0a9e785fd68794bf709fd9e5b30db004edd58fcbc20060adccf"
+    },
+    {
+      "path": "nfq2/ipset.c",
+      "size": 9320,
+      "sha256": "46bd987cc7166f014ccc46d999041767699f6184cd6d1671667448eb97e4c35c"
+    },
+    {
+      "path": "nfq2/ipset.h",
+      "size": 526,
+      "sha256": "db5b08771b457472538500ed4c3f927946e7765fd665ea49be3f97f768d51f50"
+    },
+    {
+      "path": "nfq2/kavl.h",
+      "size": 13752,
+      "sha256": "b68b731517555e9af3439e0ce0fc904c027196d1300a65c3eecf81a4fee838c0"
+    },
+    {
+      "path": "nfq2/lua.c",
+      "size": 117825,
+      "sha256": "5f53a586f6e3b11ff133c6f2c428db479a5a8bc6bbb5bd449378ad0ac179f128"
+    },
+    {
+      "path": "nfq2/lua.h",
+      "size": 6019,
+      "sha256": "9d956bf5c38a3ab1aae3c65cc6667e9a71a68391790c86005e7499371e7bf95e"
+    },
+    {
+      "path": "nfq2/Makefile",
+      "size": 4955,
+      "sha256": "3700c0c91f185354a5ea137b319eb333e654d7181e48d45f03d71ee25bf7bbb7"
+    },
+    {
+      "path": "nfq2/nfqws.c",
+      "size": 94119,
+      "sha256": "b8b4e04f94e9ff246a39cc71dbc7f25e9a39ab5ecefcd2e6c6daa25f06745e61"
+    },
+    {
+      "path": "nfq2/nfqws.h",
+      "size": 274,
+      "sha256": "745fb0d415b51827eb0fb6fa0354bf0cac8ab015870cafd26e2bc6c095304cce"
+    },
+    {
+      "path": "nfq2/packet_queue.c",
+      "size": 1930,
+      "sha256": "24a976512b7c8e496300fbc71792e557881e1c3d8792506803cf4b6d025d8e28"
+    },
+    {
+      "path": "nfq2/packet_queue.h",
+      "size": 1242,
+      "sha256": "7acabcbef44badd5584789e1f4f30b66d4b69e5991962d361fc2d78f4c2b47ed"
+    },
+    {
+      "path": "nfq2/params.c",
+      "size": 18197,
+      "sha256": "9d2affab92d86dcff3a11b6a61cd06ad3e186485d55542493a0d272de73de7cc"
+    },
+    {
+      "path": "nfq2/params.h",
+      "size": 6981,
+      "sha256": "59d8586735b79fe53475dfba83f8430814c4e8d7a954fbacbb1fbf784db326ce"
+    },
+    {
+      "path": "nfq2/pools.c",
+      "size": 28590,
+      "sha256": "92fee05b489e1f009c0c9f43b2f98e4482295b0450bfa652681c86c15e22a2a1"
+    },
+    {
+      "path": "nfq2/pools.h",
+      "size": 10323,
+      "sha256": "c62ae5058bdd2f5b13d7f52e608b0132168b4e283c9f66a78236fec34a800277"
+    },
+    {
+      "path": "nfq2/protocol.c",
+      "size": 44955,
+      "sha256": "4624702e17aba6c2ca507ed9efd5fc4aa9689e1dbe4303aaee220ae4097f1e8b"
+    },
+    {
+      "path": "nfq2/protocol.h",
+      "size": 7272,
+      "sha256": "96c18c251efd79c6e53281552c56f524d07c545afb227b6ec0077ef8220d3577"
+    },
+    {
+      "path": "nfq2/random.c",
+      "size": 626,
+      "sha256": "5a6fae1d800c311455c5a63a94c848bf08e2b71a1cd2d4dc533a679a0b20c839"
+    },
+    {
+      "path": "nfq2/random.h",
+      "size": 469,
+      "sha256": "e4cc045ee120fe85f813a172625f088ade4fceea998a540884ab071c5fc11629"
+    },
+    {
+      "path": "nfq2/sec.c",
+      "size": 8273,
+      "sha256": "d6f338d48de0e3a5b378063f1ca72d5da35795f1e2c889cadda18813ce97e28a"
+    },
+    {
+      "path": "nfq2/sec.h",
+      "size": 2416,
+      "sha256": "c393644d52d0887d8a3245615f8015cb44dae0de2c3b23f26f740f6b4b4adae9"
+    },
+    {
+      "path": "nfq2/timer.c",
+      "size": 3858,
+      "sha256": "ebcd8a2dc3ea454edff81d14a8e2e4a3cbcecb30e5e604e02ee18f31c361dc38"
+    },
+    {
+      "path": "nfq2/timer.h",
+      "size": 742,
+      "sha256": "60a69a768d405c9e892b364b20f320f27ab303e8721ed8a9cb666ca940506ae4"
+    },
+    {
+      "path": "nfq2/uthash.h",
+      "size": 73749,
+      "sha256": "61bf8a411bcd81f6e67fe8281001a444ebae51560b3df15ff13bb018fe51f18c"
+    },
+    {
+      "path": "nfq2/win.c",
+      "size": 1814,
+      "sha256": "ce2af2ee0f20830a10089d9e2bbd4228cedcf1320c49206e7459344f5c5fc6e4"
+    },
+    {
+      "path": "nfq2/win.h",
+      "size": 105,
+      "sha256": "4caaa6ec2f5cabe4b776e84ba655f2f787da3a6bbd0fe1b223e89d0e1b107e46"
+    },
+    {
+      "path": "nfq2/windows/netinet/icmp6.h",
+      "size": 11597,
+      "sha256": "3eebf1627311674c9114ff54b9928dafdf9ccc627ef3827c7c3647285381b6b8"
+    },
+    {
+      "path": "nfq2/windows/netinet/ip_icmp.h",
+      "size": 10892,
+      "sha256": "9a21cff8fb6e88e31d621d579b46f17e16073aa58b430d56d00032b50218ee09"
+    },
+    {
+      "path": "nfq2/windows/nthacks.h",
+      "size": 1098,
+      "sha256": "083c9a928f987caa65caba38fc23459b760beea4ffe38331281e086f1fa26a78"
+    },
+    {
+      "path": "nfq2/windows/res/howto.txt",
+      "size": 122,
+      "sha256": "ef72794b7aeb7b171c048a6ac2be7eb32a5114b30c3ae5f70eaa0644b8f20dc4"
+    },
+    {
+      "path": "nfq2/windows/res/winws.ico",
+      "size": 29109,
+      "sha256": "bb4c83e11025f783ea6aab240ed17be456790308b1698e1b2cad0ebeeeb30eab"
+    },
+    {
+      "path": "nfq2/windows/res/winws.manifest",
+      "size": 1060,
+      "sha256": "74b286227979f123f7aae867eb3a93c9347021751bd1dedbc60bd2d3f42861ec"
+    },
+    {
+      "path": "nfq2/windows/res/winws.rc",
+      "size": 57,
+      "sha256": "73fa4c13bb8a90229c5a3e893a0d5cbfc3b596b5b1c77543cc0e1eeea83304c4"
+    },
+    {
+      "path": "nfq2/windows/res/winws_res32.o",
+      "size": 30686,
+      "sha256": "f66b7d5c33548a199354bdb44d84adb6226e6be19d64c69d4d2a2e76fd5f32fa"
+    },
+    {
+      "path": "nfq2/windows/res/winws_res64.o",
+      "size": 30686,
+      "sha256": "08d0a1fb79f01c9c76975023ff4c111947c5d9d6a034d3c28ec4c87a5db6595a"
+    },
+    {
+      "path": "nfq2/windows/windivert/libwindivert32.a",
+      "size": 25308,
+      "sha256": "19194f0a3add1cc2637b86ae1e83706059b8d3ed750b3c6383138f3cbacf56a2"
+    },
+    {
+      "path": "nfq2/windows/windivert/libwindivert64.a",
+      "size": 25372,
+      "sha256": "8f992a067455aeea5cc5f828f124034b0c897cd8fec5cff614f0f90884f01ecd"
+    },
+    {
+      "path": "nfq2/windows/windivert/windivert.h",
+      "size": 20041,
+      "sha256": "5017a1768c1592fd664c0c2d3d2d30f81fad4ab98d322b1914c6f0a33fcacdf9"
+    },
+    {
+      "path": "uninstall_easy.sh",
+      "size": 1772,
+      "sha256": "6d4f8364b7d7ea1595fb74315b8c61c2757f5d278f79a022a71389beeced958f"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "scope": "IAPP missing receipt cannot authorize terminal cleanup",
+  "checks": {
+    "actual_process_pipe_faults": "PASS;9079",
+    "native_preparation": "PASS;42381"
+  },
+  "source_sha256": {
+    "tools/iot/restart-iapp-child.c": "584a69699a24293f39ab97df71b02ed3d8041e9caa565758bc037f2dcf209b06",
+    "tools/iot/check-restart-iapp-child.py": "afbbbe061d6c7f698b6e5484d4438c65f1c09b39cca92ca578209ec5d967bbcd"
+  },
+  "remaining": [
+    "root/cleanup integration",
+    "firewall writer ownership",
+    "MIPS/device acceptance"
+  ],
+  "scratch_removed": {
+    "bytes": 307,
+    "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  }
+}

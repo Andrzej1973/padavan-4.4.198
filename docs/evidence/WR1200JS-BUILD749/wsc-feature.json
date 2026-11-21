@@ -1,0 +1,94 @@
+{
+  "scope": "complete isolated MT7603 WSC module",
+  "repository_revision": "07ea86de014e104ea2a3092d24b252288558025f",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "baseline_module_sha256": "7f1c00b4fe376a2c73dff6a6493c7de9e24561f3fc3268cbcedc211d65f95bcd",
+  "baseline_report_sha256": "e36d47a0482f89baa053b3f2185514e27ffb80b108fd12c02331d7927c5fff9f",
+  "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+  "make_overrides": {
+    "CONFIG_MT7603E_WSC_INCLUDED": "y",
+    "CONFIG_MT7603E_WSC_V2_SUPPORT": "y"
+  },
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "module_bytes": 6204012,
+  "module_sha256": "c43a6aa647b29d6d063c0b1ddc42641e0f7ece3d80bb8fef817b08ba893804b5",
+  "task_macros": {
+    "KTHREAD_SUPPORT": true,
+    "OS_ABL_FUNC_SUPPORT": false,
+    "CONFIG_PM": false,
+    "RTMP_TIMER_TASK_SUPPORT": false,
+    "WSC_INCLUDED": true,
+    "WSC_AP_SUPPORT": true,
+    "WSC_V2_SUPPORT": true,
+    "WORKQUEUE_BH": false,
+    "CONFIG_ANDES_SUPPORT": true,
+    "MT_MAC": true,
+    "RTMP_PCI_SUPPORT": true,
+    "RESOURCE_PRE_ALLOC": true,
+    "LOAD_FW_ONE_TIME": true
+  },
+  "task_command_sha256": "14fec49c671c74150b0bda64987cad524f053243d646946bd18b3be722a2482b",
+  "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+  "wsc_objects": {
+    "wsc": {
+      "bytes": 304328,
+      "sha256": "06c6f7a8054294f8b9ebee2ace2297d9a4236b8cc25cd075c1a0314aa00e2329",
+      "command_sha256": "f53c4167278294fab487422e690e855beb259d0b88ef3ada1453e2e946abf67c",
+      "source_sha256": "da7be986af56fe086fd9cefad8641fe79e41f0b4400a43f8a2c8ec2669abef99"
+    },
+    "wsc_tlv": {
+      "bytes": 115944,
+      "sha256": "c2336b2aa4caf9f1f6050a18c97988e033df9ff66821929255b6fe7d90a033cc",
+      "command_sha256": "b3c54f3d92e684fc58c6e781f8f3a14d303775c6abb11e17dca4558035499bc4",
+      "source_sha256": "05cd26aa666d13f7b2923bb351bb87713cb9b2ad7bbeeaf55872b42f0eb81b39"
+    },
+    "wsc_ufd": {
+      "bytes": 3072,
+      "sha256": "96cd20712d29c9936062c2101922f61d449912812317ee91409acce6c3554823",
+      "command_sha256": "e53acf4e111d68d29fbfb06abb47f807c79e1d12b80a065c026234dc776d8383",
+      "source_sha256": "3b49482afd0ba7f014e755c9d8ab22d1ff5e60c5b49bc0e5525217fae4471200"
+    },
+    "wsc_v2": {
+      "bytes": 12460,
+      "sha256": "2848b6f243813b6c5d40b94107deb7df1d634a6dbc03f5e40cb62d1e0a2d636e",
+      "command_sha256": "7fca19f602de4a2d2dcc2ae48a4b491cf378ae77f496ef0329b224f31817d5fb",
+      "source_sha256": "64ac3633848dd71317c0711ea3c83e0b1e28e865647b398194cea6c92f384e27"
+    },
+    "crypt_dh": {
+      "bytes": 8840,
+      "sha256": "d3745c13b85f6c6a477f0c179073174d8c84aed95e88fdb90762627b003b46d7",
+      "command_sha256": "49da8d2d355ad57f3522c10537660a07bb7da694ff026e62a5eb9ee6962f4a58",
+      "source_sha256": "3bacd3c878762a7a5384ede7a06d9e1d9c5decfa1469be4f54187684030aba15"
+    },
+    "crypt_biginteger": {
+      "bytes": 36772,
+      "sha256": "b28cb8821c1d22a65c3879acb55637ec3a38881d016d326db8bd9c6f6c2e6aaa",
+      "command_sha256": "5d24ecfe64c35c8e287f79dff256ee365301646e66cde969ef706fb13c8884c3",
+      "source_sha256": "a775812b25eb8de52b3aad11118cbaf078e6356433bf4996b78418c73381ef63"
+    }
+  },
+  "apcli_probe_source": {
+    "scope": "isolated WSC feature only",
+    "source": "ap/apcli_sync.c",
+    "input_sha256": "2252b15357451acf6908af84bdae71f6bee2ca1bf0b2355dc1c8e2f90c91c067",
+    "output_sha256": "81e6daaa7592df458356558e9ca68ab97460c7ae0f59aaa3d55b1ad8216d94bf",
+    "changed_sources": {
+      "ap/apcli_sync.c": {
+        "input_sha256": "2252b15357451acf6908af84bdae71f6bee2ca1bf0b2355dc1c8e2f90c91c067",
+        "output_sha256": "81e6daaa7592df458356558e9ca68ab97460c7ae0f59aaa3d55b1ad8216d94bf"
+      },
+      "common/wsc.c": {
+        "input_sha256": "8280845ea389550b63ebdac42d851e84adb2002443021b94c492181cc57f3fea",
+        "output_sha256": "da7be986af56fe086fd9cefad8641fe79e41f0b4400a43f8a2c8ec2669abef99"
+      },
+      "common/crypt_biginteger.c": {
+        "input_sha256": "55d2e1d84cda96eb3d3624ca673d8f3cfb5855cdffd7421e41d63988ac78d769",
+        "output_sha256": "a775812b25eb8de52b3aad11118cbaf078e6356433bf4996b78418c73381ef63"
+      }
+    },
+    "production_installed": false,
+    "runtime_verified": false
+  }
+}

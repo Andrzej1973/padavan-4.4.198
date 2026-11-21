@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-02",
+  "checks": [
+    "exact merged WDS generation/stale receipt ASan UBSan PASS",
+    "merged WDS MIPS TU PASS",
+    "all downstream source gates PASS",
+    "family snapshots and identity fixtures ASan UBSan PASS",
+    "YAML/full bash syntax PASS"
+  ],
+  "source_bound": [
+    "WDS pre-unregister generation transport"
+  ],
+  "not_source_bound": [
+    "family close/identity snapshot helpers"
+  ],
+  "full_target_module_verified": false,
+  "runtime_verified": false,
+  "cleanup": "temporary candidates objects and executables removed"
+}

@@ -1,0 +1,121 @@
+{
+  "scope": "Pinned SDK source audit only; conditional R1KH_HARD_RETRY activity not established for exact image",
+  "source": "/home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+  "evidence": {
+    "common/ft.c": {
+      "sha256": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+      "references": [
+        {
+          "line": 1767,
+          "text": "FT_KDP_EVENT_INFORM(pAd, pEntry->func_tb_idx, FT_KDP_SIG_KEY_REQ_AUTO,",
+          "anchor": "FT_KDP_SIG_KEY_REQ_AUTO"
+        },
+        {
+          "line": 1775,
+          "text": "if (!RTMP_OS_WAIT_FOR_COMPLETION_TIMEOUT(&pEntry->ack_r1kh, RTMPMsecsToJiffies(30)))",
+          "anchor": "RTMP_OS_WAIT_FOR_COMPLETION_TIMEOUT(&pEntry->ack_r1kh"
+        },
+        {
+          "line": 1754,
+          "text": "pEntry->FT_R1kh_CacheMiss_Times++;",
+          "anchor": "FT_R1kh_CacheMiss_Times++"
+        },
+        {
+          "line": 1786,
+          "text": "pEntry->FT_R1kh_CacheMiss_Times++;",
+          "anchor": "FT_R1kh_CacheMiss_Times++"
+        },
+        {
+          "line": 1780,
+          "text": "if ((pEntry->FT_R1kh_CacheMiss_Hard++) < FT_R1KH_CACHE_MISS_HARD_RETRY_THRESHOLD)",
+          "anchor": "FT_R1kh_CacheMiss_Hard++"
+        }
+      ]
+    },
+    "ap/ap_ftkd.c": {
+      "sha256": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
+      "references": [
+        {
+          "line": 97,
+          "text": "#define IAPP_DAEMON_CMD_PARSE(__pInfo, __InfoLen, __PeerIP, __pData, __DataLen)\t\\",
+          "anchor": "#define IAPP_DAEMON_CMD_PARSE"
+        },
+        {
+          "line": 799,
+          "text": "VOID TYPE_FUNC FT_KDP_KeyResponseToUs(",
+          "anchor": "VOID TYPE_FUNC FT_KDP_KeyResponseToUs("
+        },
+        {
+          "line": 888,
+          "text": "pEntry = MacTableLookup(pAd, pEvtKeyRsp->MacAddr);",
+          "anchor": "pEntry = MacTableLookup(pAd, pEvtKeyRsp->MacAddr);"
+        },
+        {
+          "line": 910,
+          "text": "pEntry->FT_R1kh_CacheMiss_Times = 0;",
+          "anchor": "pEntry->FT_R1kh_CacheMiss_Times = 0;"
+        },
+        {
+          "line": 913,
+          "text": "RTMP_OS_COMPLETE(&pEntry->ack_r1kh);",
+          "anchor": "RTMP_OS_COMPLETE(&pEntry->ack_r1kh);"
+        }
+      ]
+    },
+    "ap/ap_auth.c": {
+      "sha256": "eba4dd8dfb4b3ae1e737e6162f7acc66412a9f6d403586e28a0377b6271870c5",
+      "references": [
+        {
+          "line": 851,
+          "text": "result = FT_AuthReqHandler(pAd, pEntry, &auth_info.FtInfo, pFtInfoBuf);",
+          "anchor": "FT_AuthReqHandler("
+        },
+        {
+          "line": 1187,
+          "text": "result = FT_AuthConfirmHandler(pAd, pEntry, &auth_info.FtInfo, pFtInfoBuf);",
+          "anchor": "FT_AuthConfirmHandler("
+        }
+      ]
+    },
+    "include/ft.h": {
+      "sha256": "95465f2a5f52e84a9663de511a5df9d47edcbbfd386dabb60863bd2d5ab67d9b",
+      "references": [
+        {
+          "line": 75,
+          "text": "typedef struct GNU_PACKED _FT_KDP_PMK_KEY_INFO {",
+          "anchor": "typedef struct GNU_PACKED _FT_KDP_PMK_KEY_INFO"
+        },
+        {
+          "line": 220,
+          "text": "typedef struct GNU_PACKED _FT_KDP_EVT_KEY_ELM",
+          "anchor": "typedef struct GNU_PACKED _FT_KDP_EVT_KEY_ELM"
+        }
+      ]
+    },
+    "include/ft_cmm.h": {
+      "sha256": "7af0481ba05e85d3da97e340d0e85ae9325eae070432e52089c0ee4d4bd6ad93",
+      "references": [
+        {
+          "line": 65,
+          "text": "#define FT_IP_ADDRESS_SIZE\t\t\t\t4",
+          "anchor": "#define FT_IP_ADDRESS_SIZE"
+        },
+        {
+          "line": 66,
+          "text": "#define FT_NONCE_SIZE\t\t\t\t\t8",
+          "anchor": "#define FT_NONCE_SIZE"
+        }
+      ]
+    }
+  },
+  "observations": [
+    "FT request populates S1KHID from station MAC and R1KHID from wdev BSSID",
+    "conditional native handler waits up to30ms for same peer ack_r1kh",
+    "daemon response resets peer retry counters and conditionally completes ack_r1kh after MAC-only lookup",
+    "response pNonce assigned but not compared within FT_KDP_KeyResponseToUs",
+    "current generation lease alone cannot attribute asynchronous daemon response to original request"
+  ],
+  "implementation_requirement": "Track native request identity plus association generation and BSS; completion must remain possible while matching request owns peer scope, without reopening station mutation to unrelated writers. Validate actual feature macros before runtime claims.",
+  "producer_installed": false,
+  "runtime_verified": false
+}

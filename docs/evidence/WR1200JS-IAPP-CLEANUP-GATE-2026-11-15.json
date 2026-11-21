@@ -1,0 +1,32 @@
+{
+  "scope": "embedded IAPP context and terminal cleanup guard; root launch disabled",
+  "checks": {
+    "finish_retirement": "PASS;90180",
+    "cancel_unknown_refusal": "PASS;85973",
+    "child_process_prehandoff": "PASS;37618",
+    "native_preparation": "PASS;6794 from previous continuation"
+  },
+  "source_sha256": {
+    "tools/iot/rc-physical-stop.c": "1a5453db99e253a611a13a99b7522e940b1a7a647ec74242f987cb061024aefe",
+    "tools/iot/restart-finish-check.c": "59cc40ecc7a11809d52a6ec332a5fe7c5081bb735ddae398b318b7834dcaebb2",
+    "tools/iot/restart-resume-retire.c": "aaa299d38fa185bcc9f58532d4b15c376d0dd9b7c90bdb8fe2d77d19d8f3e0ba",
+    "tools/iot/restart-iapp-child.h": "591384c4af426591796ac9e3b6092cd94744dabd0e22a021759a33a6b032d6ce"
+  },
+  "pending": [
+    "firewall writer ownership",
+    "root child begin and receipt pumping",
+    "target/image/device acceptance"
+  ],
+  "scratch_removed": [
+    {
+      "path": "/tmp/wr-iapp-root-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-iapp-root-finish.log",
+      "bytes": 311,
+      "sha256": "9272de1b1bac2a60c393a7778bd966d812ba9fd623ae146ef9b4e01c0b8e6680"
+    }
+  ]
+}

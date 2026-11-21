@@ -1,0 +1,45 @@
+{
+  "input_sha256": {
+    "ap/ap_wds.c": "773738dd130e696682909188f894d274e7163a8f60f607b327b34ef675f584ad",
+    "include/ap_wds.h": "9e4aeacc595eda48e3372f0c157c9868a2b268657af82e7ba6e94afd693875e1"
+  },
+  "output_sha256": {
+    "ap/ap_wds.c": "bfe68aba15f5fca95a6d29503b85fefba719a03ccb08f7a5b54a167fc6bf3449",
+    "include/ap_wds.h": "d29e3ef00b09db8a7e7ab40e20bb72f9743da4dd6669b384f93511830547560d"
+  },
+  "scope": "checked configured WDS loop; old generic loop preserved, APStartUp caller absent",
+  "apstartup_caller_bound": false,
+  "first_open_record_ready": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "passed": true,
+  "host_check": "whole legacy and checked configured loops, lower insertion mocked",
+  "compiler_flags": [
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror"
+  ],
+  "fixture_sha256": "f2dda13608a003b5f827368d53de337c1f97fead941d4e89359f83d90245da34",
+  "covered": [
+    "no active entries",
+    "skip invalid entries",
+    "lazy PHY mode CCK/OFDM/HTMIX",
+    "checked failure stops later entries",
+    "legacy failure continues to later entries unchanged",
+    "final retained phase rejected",
+    "stale and null ticket refusal"
+  ],
+  "source_findings": [
+    "old configured WDS loop byte-equivalent text retained",
+    "rt28xx_init invokes APStartUp before outer RT28xx_WDS_Init",
+    "counted WDS transaction requires published WR_REF_OWNED WDS interface"
+  ],
+  "required_next": "defer configured WDS completion until owned/registered record ready, retaining exact open identity and references; do not report startup complete or bypass registry",
+  "full_regression_run": false,
+  "full47_replay_run": false
+}

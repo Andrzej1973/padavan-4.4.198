@@ -1,0 +1,22 @@
+{
+  "scope": "pending cold prehandoff shutdown software proof, no cleanup yet",
+  "checks": {
+    "actual_cold_parent_profile_Guest_and_RC_backend_predicate_asan_ubsan": "PASS",
+    "enabled_and_disabled_intents": "PASS",
+    "owned_Guest_DOWN_required": "PASS",
+    "new_epoch_same_ra2_registration_two_fresh_IDLE_reads": "PASS",
+    "claimed_backend_foreign_profile_epoch_serial_refused": "PASS",
+    "no_Main_replay_or_profile_rollback": "PASS",
+    "prepared_backend_GNU11_and_component_C11": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-prehandoff.c": "84b7ed11a809a88184caeda2ac005feff0f6bba75b60b717d489e32715a7762e",
+    "tools/iot/cold-on-prehandoff.h": "5fa78f4ee9a8692ad600505c4d1ceecb0033140f69ba1abd301373aff361a12b",
+    "tools/iot/rc-cold-prehandoff.inc": "89120c1bb6d5bdeb0d856ae102f25dfe89aa688b8150b18fa9af87b06b3110f6",
+    "tools/iot/check-cold-on-prehandoff.py": "1bf76d0e3c845fb609c5db5c49277117a4053ed07f2f38d74bfdc002a7717389"
+  },
+  "cleanup_connected": false,
+  "public_entry_bound": false,
+  "target_verified": false,
+  "physical_verified": false
+}

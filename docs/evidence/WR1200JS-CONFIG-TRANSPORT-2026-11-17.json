@@ -1,0 +1,89 @@
+{
+  "date": "2026-11-17",
+  "published_base": "fc82dfe640fdcd14bca5fc74d4b27ef0a3eac6ed",
+  "scope": "Uncommitted experimental configuration transport; host evidence only",
+  "source_sha256": {
+    "tools/band-steering/prepare-nvram-snapshot.py": "d79788070d25cca139e56f434b51bbfc136cb57c9d2daceb251cb34c6a9fd207",
+    "tools/iot/check-config-channel-composition.py": "3a5f781c3d05c42349db62799678697f4ec96dec5d45997fa3083e680a149d6e",
+    "tools/iot/check-config-mailbox.c": "89156877c2da9a72b2d7c3e3248beaf16b122a158f769b78d8504a97bbe4b634",
+    "tools/iot/check-config-owner-backend.py": "024175d99f0f97d2ab39bdcb50745e74ab55f953bb0c29d7154fefd34558502d",
+    "tools/iot/check-config-runtime-staging.py": "4fd064e020d8541a0301c421f670f96c68005375a0b0fcab084050fbc3000b81",
+    "tools/iot/check-config-server-unused.h": "6651462e85e338af27010f81bfb2372ab3f27fd35cc7fa762c0dbf4ec8980463",
+    "tools/iot/check-config-snapshot-guard.py": "48ab5305ab4e318fe50e7fc79f1c0831103b4a179401b6b9dc0dfc9134ad80f1",
+    "tools/iot/check-config-transport.py": "b71ca46eb6dd6c089ac6ad5984491f37ea242c25defbf8e10f6be1a2d3f7c7c8",
+    "tools/iot/check-control-record.c": "e7bfb05875477bf32f1fb3694994e3e3fc7caf48f8b244682cbd8ab413003567",
+    "tools/iot/check-host-compatibility.py": "86816e3a611a0ca76e4799d1df4dfa6393cd4e81727d7277f654adde43f819b6",
+    "tools/iot/check-http-handler.c": "b756bcfd32671b972c56e942c791a1c3f13f79b2b7d1face6bffab0f62da1749",
+    "tools/iot/check-http-source.py": "7fede8c04d9f1d0aa09fe0b84e2b43c2f4a0c19256b35faf7171e811ec086975",
+    "tools/iot/check-mailbox-normal-consumer.h": "28b3dc5a290de80925e7af84350862037a2ec66e1d6b4768a369878be9a482a5",
+    "tools/iot/check-mailbox-route-actor.h": "0d90d819b376ac14295629a4c3ade72c14b1f5c4e2e8a773dd4da727ff2990c9",
+    "tools/iot/check-native-config-overflow.py": "aea86cb85bb345ba0e4c0ab26b32405a5c5796fa7da2a057ec96e58540ca17c4",
+    "tools/iot/check-package-candidate-pair.py": "0369aad13289e6cb3def7e50cda9cd1bba120ff17f91dc7bde8f3730e5323e32",
+    "tools/iot/check-rebind-owner-unused.h": "5cef6190765c39e2f902d9508dc05d4c672bc1e42d56de7a679cb68c924d248f",
+    "tools/iot/check-reopen-unused.h": "44baa45e9bc6cdb5ba9b04992e391680740e0ecfc94a89b577b4fc2c2f1174bc",
+    "tools/iot/check-runtime-source.py": "806f47a2e08324745fc31109ef393647268d8f52759bb3d7caf38dd621946318",
+    "tools/iot/check-saved-config-store.c": "460f09686f2a2291f4c1f90b2c07b279d784fd11b8741404d163d45a97836e86",
+    "tools/iot/check-saved-config-store.py": "3c3dc54b73debd2e0f390ac9c504880aacecdc4bde301ae64cbc0ab06edc0506",
+    "tools/iot/check-status-channel.c": "d6aeaf2a6492841bce5e9f7dd9b54c10069c40b5a5423ad2851f8c7048964c64",
+    "tools/iot/compile-runtime-link.sh": "8b5fddff11ba73f3b055d444355d2f971e9ea85c236b305215c90020414437f9",
+    "tools/iot/config-owner.c": "e5d415b6cf53d1a438cad82e14afd82aefa5720172a4522a4f372b749963105d",
+    "tools/iot/config-owner.h": "0721c41c65dbaf971c249c0ef77c0744146195da377c5de9fced6d44dd06b91c",
+    "tools/iot/config-server.c": "2bc7cc7351d2dadf6e1aa95ac513bee7c516d052816ee66e978ba1c83b42a1cb",
+    "tools/iot/config-snapshot-guard.py": "118346e1a0695af26b4c657afba924ac7ddd7276579f20ac948b6cda1a8a7aa2",
+    "tools/iot/config-snapshot-prepared.h": "e1e79f4073c8063071066965a7d1f43c49101761fda341fd4d24df64f8d1208c",
+    "tools/iot/control-channel.h": "de4c8d0ed327ce71718f8943ac65877d0f60d92c7f85d6119b951e30e0164101",
+    "tools/iot/control-client.c": "b2f7e2f0fb3cf5f0087c459b732791836ab2a9864483a3f638e04ad0daa370ac",
+    "tools/iot/control-mailbox.c": "ae0ea885482f8670a3d3b0b4deeac2dc2874d80ec8f317ea740233aac4abbf70",
+    "tools/iot/control-mailbox.h": "0b48aaa2dbc667cad3e74d9b57d2a785fb81c9aedcbb52508b316202b368b3d2",
+    "tools/iot/control-record.h": "1a8f057dbd23cf507bd77d9cf9ee3f3aa22181f5d39a829e0fa9a517177cbfd7",
+    "tools/iot/control-server.c": "936a7c9d90ec5cc4e87eaf240694f6d4ff99ce18f87100cd4975710c54c54fca",
+    "tools/iot/fixtures/config-bcmnvram.h": "411b381cdff5d6fea5fda76510e7a5dacff591dd067ce47c3cc3e225ae42b33e",
+    "tools/iot/fixtures/config-native-getall.c": "8de978d0679322c899ac8cbeafc74d4b1c7c4e7d86356814e2a9e45f03634fa8",
+    "tools/iot/http-form.h": "ee411752d8853f6ea862f4052d21a2457c13466d02178f798ddc0f580b34f0ad",
+    "tools/iot/http-handler.inc": "943c1c5a6e047451e4196eadc64969381871ae60a312932bbf7a95f646a3afcd",
+    "tools/iot/http-request.h": "9a8ec7e7ff32c0d21d1a0bf3a8aad76250fd0cf85996f5572cc1dcaa5fd41f32",
+    "tools/iot/package-candidate-pair.py": "141c990292b90360a2aba67f367539fef629c29402e029141b024fa5098a7173",
+    "tools/iot/prepare-control.py": "35bb570fd817914de34cd7e629d7f8b900693b7001d9693a4a4e5bd88128be79",
+    "tools/iot/prepare-dispatch-check.py": "bd7a704c04f8b413323d113dcfb6773c8109538f6b8e371a180b45fe48d24302",
+    "tools/iot/prepare-http.py": "578396d654a7ec14320c8e268de8a7bb28c397ae5765102f14ffc7d8c2d034f4",
+    "tools/iot/prepare-rc.py": "60eceb7acf2e848b6e7e5e05840b6ade6e277d69797d68ddec862af48e7fe263",
+    "tools/iot/prepare-runtime.py": "a90b35528cc415edb1ec743498f4f6d86a2e47536bc52cddae5b8678fdb2ff8d",
+    "tools/iot/rc-backend.c": "035d39071f58487b53151f3d495c2b90962e692464ed2fee099354f22df01acb",
+    "tools/iot/saved-config-store.c": "3705d43ea82845300a1a2af7772539ff747f331b9c43b62ae9abfe0bba797a6d",
+    "tools/iot/saved-config-store.h": "fed2a5b784be71fd7b091ab754c7933c14f491d17f75cbd4e4feba2f72bce6db",
+    "tools/iot/status-channel.c": "be0fa68af60465df0239b383ef570d4011e13975a0068fcb34310c26800c6bd6",
+    "tools/iot/status-client.c": "c48b3215eacaa368bcbf4cf4694606cfe4aa1dd21661a2ed1f1da5a3de16b835"
+  },
+  "checks": {
+    "full_lifecycle_suite": {
+      "passed": 287,
+      "accounting": [
+        68,
+        1,
+        218
+      ],
+      "external_SDK_resources": "actors, not hardware"
+    },
+    "focused_native_guard": "native-guard-fixed.log passed",
+    "capacity_store": "store-capacity.log passed",
+    "latest_preflight": "PASS early host compatibility: 71 existing standalone fixtures, CLOSE composition and WDS producer capture; config/transport/native checks also completed",
+    "static": "Changed Python parsed; staged whitespace check passes excluding exact hash-pinned vendor config-bcmnvram.h fixture, which intentionally preserves original trailing whitespace and final blank line"
+  },
+  "ci_base": {
+    "standard1348": "success",
+    "ABI912": "success",
+    "optional1349": {
+      "run": 44095004155,
+      "conclusion": "success",
+      "head": "fc82dfe640fdcd14bca5fc74d4b27ef0a3eac6ed"
+    }
+  },
+  "limitations": [
+    "No target build for these changes",
+    "No new image audit",
+    "No device changes or acceptance",
+    "No flash-save integration",
+    "No desired-to-loaded promotion",
+    "Modern paused"
+  ]
+}

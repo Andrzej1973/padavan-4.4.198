@@ -1,0 +1,38 @@
+{
+  "scope": "local strong RC execute/continue adapter and read-only vendor mode reader; not production scheduler or cross-process status endpoint",
+  "sources": [
+    "tools/iot/rc-backend.c",
+    "tools/iot/rc-backend.h",
+    "tools/iot/rc-mode.c"
+  ],
+  "source_reference": {
+    "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+    "files": [
+      "trunk/user/rc/net_wifi.c",
+      "trunk/user/rc/rc.h",
+      "trunk/user/shared/netutils.c"
+    ],
+    "queries": [
+      "get_ap_mode",
+      "get_enabled_radio_rt",
+      "is_radio_on_rt",
+      "get_mode_radio_rt"
+    ]
+  },
+  "checks": [
+    "Actual backend/server/mailbox/client/owner/runner/OFF composition ASan UBSan PASS",
+    "No shutdown admission refuses before mode read",
+    "Missing mode refuses new ON without guard leak",
+    "Pending operation returns RECOVERY before another mode read",
+    "Actual mode-reader ASan UBSan PASS with injected RC queries: no guard unchanged output, AP/radio disabled and mode0..4"
+  ],
+  "process_boundary": "Owner private to RC; rc_backend_observed is RC-only. HTTPD must use authenticated private IPC, not a forked/static owner copy. Existing status fixture calls observer in-process only.",
+  "remaining": [
+    "Prepared RC compilation and full preflight",
+    "Private status request IPC",
+    "RC dispatch/progress scheduler installation",
+    "Initial OFF and OFF/reopen",
+    "Physical runtime"
+  ],
+  "cleanup": "TemporaryDirectory compile trees removed; no retained scratch"
+}

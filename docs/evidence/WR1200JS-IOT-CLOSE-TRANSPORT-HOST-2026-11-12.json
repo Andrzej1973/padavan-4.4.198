@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-12",
+  "baseline_revision": "b326d099f91a6e60224bb8bb55462281705db96b",
+  "scope": "Isolated Linux CLOSE/progress common dispatch and RC client transport",
+  "source_sha256": {
+    "close-dispatch-composition.py": "07c22ace4fa176740d4ba1bb7796bc535f44f892579156437183dff506d7d20e",
+    "check-close-dispatch-composition.py": "affa0b65a74ae2fa2d030ce6990657f3010dfc71504c04452d3f8bd8527af551",
+    "driver-api-client.c": "88aeed05ba9006f2e42796975e8c8af4d723315aaf611ad9165beb436556efb7",
+    "driver-api-client.h": "826f7c8b36fa2d931ee67ad6a783a1dcd37414c0273d06b98fd357896f75d6fe",
+    "check-driver-api-client.c": "5cb32780e0b6ba971fd066f4d1c355c3a38c8c1e063a6e5b42221a3e458b2e51",
+    "prepare-driver-api.py": "65835a80dcfc9ea0264886e778d589ecc32129d43066ae3aed891b4655478962",
+    "prepare-rc.py": "4233453cf9441fe27b9019cf3e5f887a289421d2267b1afe8b12da9eedef1306",
+    "ci-compile-merged-candidate.sh": "b1829bf7cf0d6b52119533e4529dbe12db8ea17a1b421a903d2405ba5cac4645"
+  },
+  "host_checks": {
+    "58_existing_standalone_fixtures_asan_ubsan": true,
+    "generated_common_dispatch_34_fault_cases_asan_ubsan": true,
+    "legacy_configuration_refusal_uncertain_queries": true,
+    "combined_open_current_and_close_composition": true,
+    "actual_close_progress_reply_functions_executor_injected": true,
+    "rc_client_single_submission_and_errno_classification": true,
+    "pinned_rc_prepare_and_generated_client_host_compile": true,
+    "full_close_bundle_dependency_verifier": true
+  },
+  "host_log_sha256": "52ab976a84ee0d53854cbf608a3268910577ebd70aa8c6c4913c3dbab3bd07dc",
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false,
+  "remaining": [
+    "target compilation for this continuation",
+    "RC controller activation binding",
+    "checked owner release/reopen",
+    "physical Main/Guest/IoT and DMA runtime acceptance"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "scope": "Experimental retained RC physical-stop admission and wait continuation",
+  "implementation": [
+    "copy validated stop/restart intent into private same-PID owner",
+    "retain service guard and normal-shutdown fence across ARM/DOWN/QUERY/RELEASE",
+    "fresh private backend OFF/CLOSE plus nonblocking entropy before ARM",
+    "refused preparation receives deferred balanced cleanup",
+    "guard revalidation refusal retains state",
+    "one terminal intent consumption, no stock restart/reopen execution",
+    "PID1 wait continuation at existing 100ms cadence"
+  ],
+  "checks": {
+    "physical_stop_host_suite_parts": 32,
+    "suite_session": 79301,
+    "suite_exit": 0,
+    "sanitizers": "O2 ASan/UBSan",
+    "prepared_runtime_TUs": "client/down/session/RC guard strict C11 PASS",
+    "actual_backend_composition": "PASS",
+    "actual_observer_second_read_drift": "PASS",
+    "deferred_SIGTERM": "actual signal delivered once after guard cleanup"
+  },
+  "pending": [
+    "start admission from actual stock stop/restart entrypoints",
+    "active IoT OFF initiation before physical stop",
+    "Guest/AUX-before-Main ordering",
+    "terminal intent consumer and fresh reopen identity",
+    "MIPS full link",
+    "hardware/runtime acceptance"
+  ],
+  "ci_failure_followup": {
+    "run": 43563375905,
+    "verified_revision": "a3b1b6c54e8806deede51308f169a8f6380b143b",
+    "monitor_run": 43564902591,
+    "monitor_artifact": 14101657931,
+    "original_log_confirmed": "physical-stop-record.h missing; same source-copy failure already corrected in 5eb67f9",
+    "monitor_useful": true,
+    "new_fix_required": false
+  },
+  "production_orchestration": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch": "Temporary binaries/prepared trees automatically removed; suite log removed after PASS; monitor ZIP in memory"
+}

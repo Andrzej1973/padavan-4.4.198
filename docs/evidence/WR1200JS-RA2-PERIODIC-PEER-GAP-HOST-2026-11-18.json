@@ -1,0 +1,13 @@
+{
+  "native_timer_sha256": "31830943b74b95311408ca51f3f1a69584e15a488c258a467a462fde0ecea5cd",
+  "wrapped_timer_sha256": "858710d21c698bbc9f176765292e3b9fbcc7b38632f3cbd09e50831773de32f9",
+  "native_ap_wpa_sha256": "0b502f4e25100c73b33abb166b727ba2afafb1d057afdfae23ffa9bbd7556c97",
+  "candidate_ap_wpa_sha256": "3d8a8e0f82e747399d861cbbd4417a0d26fbdc3da1ae7951b26c83d5e6350205",
+  "prepared_driver_verified": false,
+  "host_contract_verified": true,
+  "native_per_peer_branch_executed": true,
+  "peer_reuse_in_nonce_boundary_actor_reaches_handshake": true,
+  "periodic_peer_lifetime_verified": false,
+  "target_verified": false,
+  "runtime_verified": false
+}

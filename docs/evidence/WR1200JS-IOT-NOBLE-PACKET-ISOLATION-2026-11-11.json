@@ -1,0 +1,41 @@
+{
+  "checks": {
+    "tcp_dns_allowed": true,
+    "router_admin_blocked": true,
+    "lan_blocked": true,
+    "wan_and_return_allowed": true,
+    "lan_unsolicited_blocked": true,
+    "wan_unsolicited_blocked": true,
+    "main_lan_wan_preserved": true,
+    "preexisting_lan_connection_blocked": true,
+    "udp_dns_allowed": true,
+    "dhcp_ports_allowed": true,
+    "dhcp_wrong_source_port_blocked": true,
+    "udp_wan_return_allowed": true,
+    "udp_lan_blocked": true,
+    "ipv6_router_tcp_blocked": true,
+    "ipv6_router_udp_blocked": true,
+    "ipv6_lan_tcp_blocked": true,
+    "ipv6_wan_tcp_blocked": true,
+    "ipv6_lan_udp_blocked": true,
+    "ipv6_wan_udp_blocked": true,
+    "ipv6_unsolicited_lan_blocked": true,
+    "ipv6_unsolicited_wan_blocked": true
+  },
+  "scope": "Host-kernel IPv4 TCP/UDP and DHCP-port filtering, stale conntrack isolation, IPv6 TCP/UDP router and inter-network isolation in both directions; static IPv6 neighbor entries make packet baselines deterministic; IPv6 neighbor discovery, actual DNS/DHCP transactions and target runtime are unverified",
+  "runtime_verified": false,
+  "os": "Ubuntu24.04.5",
+  "kernel": "6.18.58.1-microsoft-standard-WSL2",
+  "source": "abeb21c6e3fe3862eeb55f156f9e0d6bdf740b4c",
+  "harness_fix": "Mount private tmpfs /run before creating /run/netns, independent of parent mountpoint existence",
+  "parent_run_netns_absent_after_test": true,
+  "files_sha256": {
+    "tools/iot/check-firewall-packets.py": "431d92a14d27c7bc2c0a03f7979a427630881fbc4e4d67abe9a75dc1c5ddabdb",
+    "tools/iot/emit-firewall.c": "15493bfad4c2bfc78159dd305e6464bf612e8b78ae3ba10996d30f7d3faabad3",
+    "tools/iot/firewall.h": "9e84b33900a53d1b50455c1810c76251603d8ec58762f6fc43000328c6420763"
+  },
+  "rule_sha256": {
+    "iot-filter.v4": "781b821f72c446186d5dbedde28ed827974c5b5136ca2b0f0dbe1d4de89738bd",
+    "iot-filter.v6": "5e23fd895326532b6caf9b3a8b800eb4a6ee70ba6ea3ae8bb44e261b2060fc5f"
+  }
+}

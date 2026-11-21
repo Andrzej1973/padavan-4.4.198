@@ -1,0 +1,33 @@
+{
+  "run_id": 41263036826,
+  "build": 660,
+  "attempt": 1,
+  "repository_revision": "69a70ba8f1a96a70b3fe0c13fdd7908365be07b9",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "target_compiled": true,
+  "module_bytes": 5456200,
+  "module_sha256": "0619759a62972f62bbca917a91786a5ea815c94992b969a5786d3135ca737fca",
+  "independent_module_hash_elf_symbols_config_checks_passed": true,
+  "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+  "compiled_task_macros": {
+    "KTHREAD_SUPPORT": true,
+    "OS_ABL_FUNC_SUPPORT": false,
+    "CONFIG_PM": false,
+    "RTMP_TIMER_TASK_SUPPORT": false,
+    "WSC_INCLUDED": false
+  },
+  "task_macro_scope": "actual rt_linux.c preprocessing; not all TUs/feature variants",
+  "three_bss_source_capacity_verified": true,
+  "effective_source_bss_limit": 16,
+  "production_installed": false,
+  "runtime_verified": false,
+  "local_comparison": "Local source inventory lacks CI build artifacts and differs in common/ft_tlv.c and include/rtmp_def.h (existing production preparations). Do not call inventories byte-identical.",
+  "artifacts_sha256": {
+    "target-compile-result.json": "a74f37ee8297241e45ffc4e87b6a5499245710b9d1bf9463c5e2db7802a26703",
+    "merged-source-manifest.json": "6aa58fd922b5849064aedfadbb867fe9de7a6f99a1a1cf64ef39ff67191ea32d",
+    "merged-task-config.json": "c882be5f86df6e1846955afcc5bb28c40b4a47173642e4ebbaa436142fe90207",
+    "merged-capacity.json": "4501e58a9675c9a887be301f449925acf3857795e42475a96889ab3c88daba13",
+    "peer-chain.json": "e10797c2fd1bb85ceb07e1fc17352fe2cd3e579fb63d40e6af50555c723beec4",
+    "build.log": "c077f36e2b01b9db27cec3c6b562ae237f15b79025ccb9fa33884383d1e741f0"
+  }
+}

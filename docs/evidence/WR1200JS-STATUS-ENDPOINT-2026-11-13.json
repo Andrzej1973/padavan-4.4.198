@@ -1,0 +1,37 @@
+{
+  "scope": "local private status socket lifecycle + HTTPD fixed-peer adapter; RC loop integration pending",
+  "implementation": [
+    "Private0700 owned directory and socket0600",
+    "Existing endpoint/file refused, no speculative stale removal",
+    "Original directory/device/inode checked before query/service and unlink",
+    "Nonblocking listener, one retained accepted client with1000ms expiry",
+    "Child process cannot close/unlink parent ownership",
+    "HTTPD status-client fixes private control directory/PID1/UID0",
+    "Capture descriptor device/inode for directory/listener/accepted socket",
+    "Only poll/close matching held descriptor identity; forget replacements"
+  ],
+  "checks": [
+    "Actual fork/listen/connect endpoint ASan UBSan PASS",
+    "Existing regular file, duplicate socket and dead-listener path refused/preserved",
+    "Wrong directory0755 rejected",
+    "Owned close removes only own inode",
+    "Idle accepted client expiry closes descriptor",
+    "Foreign replacement retained on cleanup",
+    "HTTPD fixed-peer status-client native TU PASS",
+    "ASan UBSan: listener and accepted-client descriptor slots reused for /dev/null survive poll/cleanup",
+    "RC ppoll real signal/socket regression PASS after descriptor validation"
+  ],
+  "remaining": [
+    "Production RC event-loop status/progress scheduling",
+    "Prepared RC and HTTPD transport/backend target staging",
+    "Full package preflight and publication",
+    "Initial OFF and OFF/reopen",
+    "Physical runtime"
+  ],
+  "ci": {
+    "standard1112": 43506687640,
+    "conclusion": "success",
+    "exact_optional_4626dc9": 43510708252
+  },
+  "cleanup": "All test socket directories and TemporaryDirectory compilation trees removed; no retained scratch"
+}

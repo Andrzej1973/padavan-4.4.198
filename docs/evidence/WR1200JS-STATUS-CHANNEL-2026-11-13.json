@@ -1,0 +1,28 @@
+{
+  "scope": "local connected-fd IPC transport, not installed private socket service",
+  "implementation": [
+    "AF_UNIX SOCK_SEQPACKET and SO_PEERCRED PID/UID/type validation",
+    "Portable 84-byte request: magic/ID/big-endian created+observed/32-byte getrandom nonblocking challenge; no credentials",
+    "Exact request echo plus success byte1 only",
+    "Nonblocking server recv/send; client monotonic total poll deadline1000ms",
+    "Failed/timed-out connection must be closed by caller"
+  ],
+  "checks": [
+    "Real fork/Unix listener-connect processes with ASan UBSan PASS",
+    "Correct peer/current nonce returns success",
+    "Explicit refusal and noncanonical observer2 return failure",
+    "Wrong server PID refuses",
+    "Corrupted challenge, truncated/oversized reply fail",
+    "No response times out",
+    "Malformed/truncated/oversized query refused"
+  ],
+  "integration": "early host and optional checks registered",
+  "remaining": [
+    "Fixed root-only socket path lifecycle and stale endpoint ownership",
+    "Accepted connection/lifetime scheduling in actual RC",
+    "HTTPD fixed endpoint client binding",
+    "Strong RC mode/backend prepared target staging and full preflight",
+    "OFF/reopen and runtime acceptance"
+  ],
+  "cleanup": "Compile TemporaryDirectories and each test private socket directory removed; no retained scratch"
+}

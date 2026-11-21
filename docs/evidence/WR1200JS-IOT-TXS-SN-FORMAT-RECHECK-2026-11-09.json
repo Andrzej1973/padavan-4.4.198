@@ -1,0 +1,30 @@
+{
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "prior_evidence": "WR1200JS-IOT-TXS-CORRELATION-SOURCE-2026-11-08.json",
+  "incremental_findings": [
+    {
+      "source": "tx_rx/txs.c:316-318",
+      "fact": "Beacon policy registers TXS_FORMAT0. TXS_TYPE1 in AddTxSStatus is allocator routing and must not be confused with TXS_FORMAT1."
+    },
+    {
+      "source": "ap/ap_connect.c:110-134",
+      "fact": "Beacon wrapper sets NSeq TRUE and zeroes long TXD before write_tmac_info; does not itself assign unique SN."
+    },
+    {
+      "source": "mac/mt_mac.c:792,902-912",
+      "fact": "Long builder zeroes descriptor; DWORD3 assigns retry fields but no host-selected sn/sn_vld. Search found no direct TXD3 sequence writes in pinned C/H; alias/raw writes outside this search are not excluded."
+    },
+    {
+      "source": "mac/mt_mac.c:1023; include/mac/mac_mt/mt_mac.h:358-360",
+      "fact": "bar_sn_ctrl=1 is documented as SW BAR control; does not prove beacon sequence override or echo."
+    },
+    {
+      "source": "tx_rx/txs.c:651-654,691",
+      "fact": "FORMAT0 timestamp is exposed but no proven domain/wrap/epoch contract. Parser removes software status by PID before handler; safe extra validation would need to precede destructive removal."
+    }
+  ],
+  "conclusion": "No proven nonrepeating host-selected beacon identity or safe timestamp correlation. Neither hardware-owned SN nor host SN echo may be assumed. Do not patch ACK/TxS reuse on field names alone.",
+  "runtime_verified": false,
+  "production_patch_applied": false,
+  "cleanup": "Source read from existing archive in memory; no retained scratch."
+}

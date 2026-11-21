@@ -1,0 +1,10 @@
+{
+  "dispatch_revision": "7bedb0018ac881ff6cfb38f537413638ff716523",
+  "requested_revision": "2278e41529772025f87f81ebd537a16e78b5b010",
+  "verified_revision": "2278e41529772025f87f81ebd537a16e78b5b010",
+  "runtime_verified": false,
+  "run_id": 42377606982,
+  "artifact_id": 13576347361,
+  "inspection": "Verified source artifact ZIP in memory; no extracted binary retained.",
+  "build_success_claimed": false
+}

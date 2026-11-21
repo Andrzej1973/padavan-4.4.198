@@ -1,0 +1,13 @@
+{
+  "scope": "auxiliary stop admission composed and compiled; not terminal quiescence",
+  "source_sha256": "c87385175da2da1d886e5e28b0c63ab23c8fc422d78a8441630e7bf09f704eff",
+  "object_sha256": "3c78663c581a2ad5891a10102c9548ea79c8006a416743b16073a1827eed86f9",
+  "checks": [
+    "74-stage replay",
+    "strict production/RSSI merge",
+    "joined rearm/entry/OPEN barrier/aux stop order fixture",
+    "actual PCI MIPS TU"
+  ],
+  "runtime_verified": false,
+  "full_module_verified": false
+}

@@ -1,0 +1,19 @@
+{
+  "scope": "LOCAL cancellation of prepared but unwoken designated task; actual kernel API host-stubbed",
+  "hashes": {
+    "tools/iot/driver-api-close-retirement-cancel.inc": "f84b0cc8f868ad4cabffbe367686321e66ed61e69ad47184eaded4d456839535",
+    "tools/iot/driver-api-close-owner.h": "d84a35c0ebee6aad7514a9c49a8e11861fe89c591b43d107074464b63467628c",
+    "tools/iot/driver-api-close-retirement-binding.inc": "6e333bded9b7c6100e7cd5d75492c2a6163b72275e279dd672547f8c7abfea97",
+    "tools/iot/driver-api-close-retirement-create.inc": "93ae3ae902a76f13ac06158690f0be032f4d9fe4fda5d4a13ce2ac27286663b8",
+    "tools/iot/check-driver-api-close-retirement.c": "94f35afd73c7ca1d5733519240ca5bdba09bc480b776c9b870085bf502db1da7",
+    "tools/iot/check-close-bindings-target-tu.py": "93e3927469200d40d0a0ae846e5a1c266f0d6bc54818b680f4006fbb5af70663"
+  },
+  "host_asan_ubsan": "PASS normal stop/ref return; foreign, self, started and duplicate refusal; unexpected stop result and post-stop generation drift retain handle/ref/fence",
+  "module_reference_released": false,
+  "thread_woken": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "endpoint_installed": false,
+  "caller_contract": "Own extra task reference, pin adapter, serialize wake/stop; no cancellation from designated task",
+  "package_checks": "PASS9 C fixtures ASan/UBSan +2 actual compositions, Python generation/syntax and shell syntax"
+}

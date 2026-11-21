@@ -9,6 +9,10 @@
 *.diff text eol=lf
 Makefile text eol=lf
 
+# Keep the reviewed vendor-driver overlay text-viewable while preserving
+# inherited vendor whitespace; its manifest hashes the LF checkout bytes.
+tools/iot/candidates/aux-remove-close-v39/** text eol=lf whitespace=-trailing-space,-blank-at-eof,-space-before-tab
+
 # Keep binary assets byte-for-byte.
 *.zip binary
 *.tar binary
@@ -26,3 +30,6 @@ Makefile text eol=lf
 # Keep router configurations in source archives for downloads and forks.
 # Do not mark configs.build or configs.release configurations export-ignore.
 
+
+# Preserve native SDK context whitespace in the reviewed association patch.
+docs/iot/WR1200JS-ASSOC-GENERATION.patch whitespace=-trailing-space,-space-before-tab

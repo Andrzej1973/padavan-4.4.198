@@ -1,0 +1,11 @@
+{
+  "host_suite_session": 25952,
+  "host_suite_exit": 0,
+  "log_sha256": "4e0310a9f3e7af3f7b51a8faf31bda33528666b9173d4e5866625a3c6b4a8305",
+  "prepared_runtime_and_headers": "PASS",
+  "prepared_backend_and_fence_native_TUs": "PASS GNU11 -Werror O2",
+  "prepared_actual_radio_functions": "PASS GNU11 ASan/UBSan WR and OTHER with SIGTERM refusal/success",
+  "remaining": "physical stop/restart after IoT OPEN not admitted; full target link and device acceptance pending",
+  "pinned_close_chain": "common/rtmp_init_inf.c:762; tasks875/878/888; disable902-907; IRQ943; rings963/966",
+  "composed_caution": "prepare-peer-legacy-close.py already bounds dequeue and propagates radio-off failure; raw pinned unbounded loop is not a newly confirmed candidate regression"
+}

@@ -1,0 +1,18 @@
+{
+  "scope": "Actual pinned vendor TxS transformed ledger/claimed-slot/handler-snapshot source extracted and host executed",
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "transformed_txs_sha256": "db696253451cae6754f02532cfeb00999829e6d2e2d985b80c424112836ff2f5",
+  "fixture_sha256": "0aed1d74ba906cdeae492b5ab0f301dd6094d7b87bd05f26af95e53a21194099",
+  "result": [
+    "PASS extracted TxS ledger/parser; NEGATIVE WITNESSES: stale PID report; generation exhaustion refused; no RF proof"
+  ],
+  "conclusions": [
+    "Shared ParseTxSPacket accounting covers callbacks regardless of PCI/Andes caller",
+    "Claimed slot remains unavailable until parser completion; callback ledger covers PID-to-handler gap",
+    "Existing actual-source fixture reproduces duplicate old PID misattributed after slot reuse despite new software generation",
+    "Do not add redundant caller-specific ledger; missing proof is hardware report-delivery/reuse boundary"
+  ],
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": "4-file input, overlays, extracted fixture and executable automatically removed"
+}

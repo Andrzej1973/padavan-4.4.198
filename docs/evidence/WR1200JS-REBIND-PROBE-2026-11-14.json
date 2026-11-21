@@ -1,0 +1,27 @@
+{
+  "scope": "Local current-epoch BSS observation contract for physical restart rebind",
+  "implementation": [
+    "existing BSS_OBSERVE ticket begin/end",
+    "preserve old ra2 CLOSE history",
+    "retain exact issuer/devices/original RELEASE tuple through unlocked readback",
+    "snapshot current Main generation and token",
+    "reject epoch/token/ra2 identity drift and failed readback",
+    "replacement terminal nonce/attempt cannot complete earlier probe",
+    "failed retirement retains active context"
+  ],
+  "checks": "Strict O2 ASan/UBSan origin fixture PASS;62 preflight refusal cases plus7 observation outcomes including duplicates and replaced terminal",
+  "actual_hardware_observer": "Existing wr_iot_mt7603_closed_config_observed identified; binding not implemented yet",
+  "target_installed": false,
+  "transport_bound": false,
+  "OPEN_permission": false,
+  "runtime_verified": false,
+  "pending": [
+    "persistent adapter-owned probe and teardown fencing",
+    "actual RTNL/transition/BcnRing observer binding",
+    "actual task_pid(current) supplier",
+    "single-use handoff and OPEN admission",
+    "RC resume",
+    "target and device verification"
+  ],
+  "scratch": "Native temporary tests auto-removed"
+}

@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "reference_nilabsent": {
+    "repository": "https://github.com/nilabsent/padavan-ng",
+    "revision": "c29b12da69b1593a6e8cf65cd43767fc99bb6386",
+    "mechanism": "crosstool-NG source build; its Linux3.4/GCC7 profile is not used for WR1200JS"
+  },
+  "padavan": {
+    "repository": "https://github.com/vipshmily/padavan-4.4.git",
+    "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+    "profile": "toolchain/configs/mipsel-linux-uclibc-gcc10/crosstool.config",
+    "libc_config": "trunk/configs/boards/uclibc-mipsel.config",
+    "kernel": "trunk/linux-4.4.x"
+  },
+  "ctng": {
+    "version": "1.26.0",
+    "url": "https://api.github.com/repos/crosstool-ng/crosstool-ng/releases/assets/127452677",
+    "sha256": "e8ce69c5c8ca8d904e6923ccf86c53576761b9cf219e2e69235b139c8e1b74fc",
+    "checksum_evidence": "Downloaded official release and verified official .sha512 asset127452653 before recording SHA256"
+  },
+  "libc": {
+    "version": "1.0.48",
+    "url": "https://sources.buildroot.net/uclibc/uClibc-ng-1.0.48.tar.xz",
+    "sha256": "3bf5fc6cc5cbc454b6c478424755c6f71e7c15578a2c966f02606aa5c5596e21",
+    "origin": "https://downloads.uclibc-ng.org/releases/1.0.48/uClibc-ng-1.0.48.tar.xz",
+    "checksum_evidence": "SHA256 computed from Buildroot source mirror download; archive retained in generated source bundle"
+  },
+  "expected": {
+    "target": "mipsel-linux-uclibc",
+    "gcc": "10.5.0",
+    "libc": "1.0.48",
+    "linux_headers": "4.4.198"
+  },
+  "production_promoted": false
+}

@@ -1,0 +1,27 @@
+{
+  "scope": "Local new-epoch snapshot/staging and seven-step network preparation",
+  "implementation": [
+    "separate rebind admission never substitutes old CLOSE/initial idle",
+    "double current rebind observation around snapshot",
+    "one guarded writer attempt, mutation marked first",
+    "existing bridge/quarantine/attach/up/network/DNS/policy operations preserved",
+    "before/after resource operation rebind identity validation",
+    "failed operation/readback moves RECOVERY, retains baseline/attempted bits, no implicit retry/rollback"
+  ],
+  "checks": [
+    "check-rebind-start.py PASS O2 ASan/UBSan failed read-only cleanup retained, writer failure and post-stage drift",
+    "check-rebind-network.py PASS actual sequencer/matcher, seven ordered steps and each failure/pending shutdown, initial observation refusal and post-operation epoch drift; adapters injected"
+  ],
+  "new_suite_parts": 44,
+  "full44_claimed": false,
+  "pending": [
+    "rollback and commit with rebind witness",
+    "experimental runtime preparation/full target compilation",
+    "actual RC restart/resume owner and scheduler",
+    "physical runtime acceptance"
+  ],
+  "runtime_installed": false,
+  "production_orchestration": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native fixture trees auto-removed"
+}

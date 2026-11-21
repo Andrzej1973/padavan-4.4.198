@@ -1,0 +1,30 @@
+{
+  "failed_run": 42554631707,
+  "revision": "ae1a32b46b77ba227ebd116508bcd00ef3530c6d",
+  "monitor_run": 42561214839,
+  "monitor_artifacts": "No artifacts returned by API; original monitor job log inspected",
+  "original_job": 128973622285,
+  "evidence": {
+    "monitor_log_excerpt": [
+      "2026-11-09T04:20:11.3943806Z   | 2026-11-09T04:11:08.4789291Z   724 |                 fprintf(stderr, \"Scanner error: %s at line %lu, column %lu\\n\",",
+      "2026-11-09T04:20:11.3944424Z   | 2026-11-09T04:11:08.4795285Z   724 |                 fprintf(stderr, \"Scanner error: %s at line %lu, column %lu\\n\",",
+      "2026-11-09T04:20:11.3945039Z   | 2026-11-09T04:11:08.4801808Z   732 |                 fprintf(stderr, \"Parser error: %s at line %lu, column %lu\\n\"",
+      "2026-11-09T04:20:11.3945890Z   | 2026-11-09T04:11:08.4808040Z   732 |                 fprintf(stderr, \"Parser error: %s at line %lu, column %lu\\n\"",
+      "2026-11-09T04:20:11.3946501Z   | 2026-11-09T04:11:08.4854961Z   732 |                 fprintf(stderr, \"Parser error: %s at line %lu, column %lu\\n\"",
+      "2026-11-09T04:20:11.3947097Z   | 2026-11-09T04:11:08.4862977Z   732 |                 fprintf(stderr, \"Parser error: %s at line %lu, column %lu\\n\"",
+      "2026-11-09T04:20:11.3947714Z   | 2026-11-09T04:11:08.4870668Z   739 |                 fprintf(stderr, \"Parser error: %s at line %lu, column %lu\\n\",",
+      "2026-11-09T04:20:11.3948320Z   | 2026-11-09T04:11:08.4876590Z   739 |                 fprintf(stderr, \"Parser error: %s at line %lu, column %lu\\n\",",
+      "2026-11-09T04:20:11.3974839Z   | 2026-11-09T04:19:12.2343191Z drivers/net/wireless/mediatek/mt76x3/include/driver-api-close-progress-ioctl.inc:4:12: error: 'wr_iot_driver_close_progress_ioctl' defined but not used [-Werror=unused-function]",
+      "2026-11-09T04:20:11.3976530Z   | 2026-11-09T04:19:12.2348192Z drivers/net/wireless/mediatek/mt76x3/include/driver-api-close-entry.inc:6:12: error: 'wr_iot_driver_close_reply' defined but not used [-Werror=unused-function]",
+      "2026-11-09T04:20:12.2293345Z   path: .codex/last_build_error.log",
+      "2026-11-09T04:20:12.3928695Z No files were found with the provided path: .codex/last_build_error.log. No artifacts will be uploaded."
+    ],
+    "original_errors": [
+      "2026-11-09T04:19:12.2343191Z drivers/net/wireless/mediatek/mt76x3/include/driver-api-close-progress-ioctl.inc:4:12: error: 'wr_iot_driver_close_progress_ioctl' defined but not used [-Werror=unused-function]",
+      "2026-11-09T04:19:12.2348192Z drivers/net/wireless/mediatek/mt76x3/include/driver-api-close-entry.inc:6:12: error: 'wr_iot_driver_close_reply' defined but not used [-Werror=unused-function]"
+    ]
+  },
+  "classification": "Compare confirmed original errors with unbound-root class fixed by2c915ce; old revision is not verified",
+  "runtime_verified": false,
+  "cleanup": "Logs read in memory"
+}

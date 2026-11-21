@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-16",
+  "problem": "Candidate pair previously accepted empty runtime and restart manifests, so coherent binaries alone did not prove lifecycle hook preparation",
+  "change": "Require WR1200JS experimental manifests with exact boolean lifecycle/INITIAL/normal shutdown binding evidence before pair construction",
+  "checks": {
+    "check-package-candidate-pair.py": "PASS; empty/missing/disabled/untyped lifecycle flags refused",
+    "check-stage-candidate-romfs.py": "PASS",
+    "check-isolated-trx.py": "PASS"
+  },
+  "scope": "Host/synthetic packaging admission; not target compilation or hardware lifecycle proof",
+  "target_verified": false,
+  "runtime_verified": false,
+  "source_sha256": {
+    "tools/iot/package-candidate-pair.py": "69eec0c72cbef0fb2d15e339997f665e60ddc120f639f12ebde31be96a712a0c",
+    "tools/iot/check-package-candidate-pair.py": "dbbaeb0a2e5cba35b6f7f4732bd24eeec8f673275972a949a801362bbebcd0c7"
+  }
+}

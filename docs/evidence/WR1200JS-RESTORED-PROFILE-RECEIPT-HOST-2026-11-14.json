@@ -1,0 +1,38 @@
+{
+  "scope": "isolated candidate helper, not integrated generation/finalizer",
+  "checks": [
+    "capture only owned completed restoration",
+    "refusal leaves zero output",
+    "receipt survives actual radio_profile_finish snapshot disposal",
+    "missing guard refuses",
+    "foreign same-content inode refuses",
+    "actual generation rollback fixture passes",
+    "actual pre-Main three-scenario receipt survives baseline disposal"
+  ],
+  "contents": "PID,path,existence and stat metadata only; no profile bytes/credentials",
+  "limitation": "Metadata identity including nanoseconds, not cryptographic integrity; caller must retain serialized writers. Target libc timestamp declarations not yet cross-compiled.",
+  "sanitizers": "ASan/UBSan O2 Werror PASS",
+  "target_verified": false,
+  "runtime_verified": false,
+  "additional_checks": [
+    "mtime nanosecond mismatch refuses",
+    "ctime nanosecond mismatch refuses",
+    "foreign PID refuses",
+    "unterminated path refuses",
+    "invalid receipt refuses",
+    "deleted file refuses",
+    "symlink replacement refuses"
+  ],
+  "integration": "restart-generation RESTORED captures/checks receipt before profile_finish, retains receipt after credential/snapshot wipe; RC runtime preparer copies header",
+  "native_preparation": {
+    "session": 34097,
+    "exit_code": 0,
+    "translation_units": 31
+  },
+  "prior_suite91": {
+    "session": 45123,
+    "exit_code": 0,
+    "scope": "before receipt integration",
+    "log_sha256": "e2d960ec4636115f8a7192b4c76c64c2e41e1d4ea724d5b4da9010be7404b1fd"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "file": "ap/ap_cfg.c",
+  "sha256": "109ff5b56b55a7862cb6e5d615b5ce87a92936e527667b52ce958059864d368a",
+  "line": 10613,
+  "device_sample": {
+    "rx_success": 24654644,
+    "rx_crc": 19546857,
+    "reported_percent": 5.3
+  },
+  "reproduction": {
+    "32_bit_wrapped_numerator": 2366987816,
+    "vendor_tenths": 53,
+    "wide_tenths": 442
+  },
+  "finding": "On 32-bit MIPS, multiplication by1000 overflows the LowPart unsigned counter before division. Exact replay gives5.3%, matching device output; wide arithmetic gives44.2%.",
+  "additional_issue": {
+    "line": 10732,
+    "finding": "AMPDU no-BA ratio divides by OneSecTxAMpduCnt without a zero guard. Owner sample displayed -1% (0/0). Requires safe diagnostic formatting and zero-sample handling."
+  },
+  "scope": "Diagnostic arithmetic source defect confirmed by exact numerical reproduction. Counter collection semantics and current link quality still need separate validation.",
+  "fix_requirements": [
+    "Use reviewed kernel64-bit division helper with widened numerator and denominator",
+    "Preserve radio and ACK behavior",
+    "Handle zero denominator explicitly",
+    "Audit neighboring TX/RX/AMPDU statistics expressions",
+    "Compile actual changed target translation unit"
+  ],
+  "runtime_fix_verified": false,
+  "implementation": {
+    "generator": "tools/iot/prepare-wifi-stats-ratio.py",
+    "helper": "tools/iot/wifi-stats-ratio.h",
+    "integration": "WR1200JS normal workflow after RSSI query preparation",
+    "changed_ratios": 7,
+    "checks": [
+      "Exact pinned source transformation",
+      "Helper host ASan/UBSan on device sample and32-bit boundary cases",
+      "Installer header equality and repeated preparation refusal"
+    ],
+    "target_compiled": false,
+    "runtime_verified": false
+  }
+}

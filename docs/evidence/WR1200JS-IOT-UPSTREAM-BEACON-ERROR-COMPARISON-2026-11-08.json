@@ -1,0 +1,13 @@
+{
+  "upstream_commit": "965cbdbdfbd37a659a05ff88e49c216975bd9d2e",
+  "source": "https://github.com/torvalds/linux/commit/965cbdbdfbd37a659a05ff88e49c216975bd9d2e",
+  "verified": "Downloaded original commit patch; two dev_kfree_skb additions on BCN/BMC FQCR0 poll failure before goto out",
+  "vendor_comparison": "ap/ap_connect.c builds from existing bcn_buf.BeaconPkt; recovery cmm_asic_mt.c operates on existing per-BSS state, not a newly obtained mac80211 SKB",
+  "conclusion": "Not a direct vendor fix; no new flush completion, RF empty or delayed TxS guarantee. Do not copy free calls onto retained vendor BeaconPkt.",
+  "not_claimed": [
+    "Absence of any vendor buffer leak",
+    "Hardware flush acceptance",
+    "IoT completion"
+  ],
+  "runtime_verified": false
+}

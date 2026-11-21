@@ -1,0 +1,12 @@
+{
+  "session": 3167,
+  "exit_code": 0,
+  "registered_input_base": "c40e389a96b930f89017039e48bc11aa6243be9a",
+  "input_hashes_unchanged": true,
+  "log_sha256": "f25c2574e05207dd28674b4b9b9bcff3aa11f80e7b2362d02141ec9cb4388a50",
+  "log_bytes": 53185,
+  "final_marker": "PASS physical-stop candidate host suite: uninstalled driver bindings, API transport and target/device acceptance remain pending",
+  "scope": "registered enabled cold completion/policy/cleanup tests; new standalone disabled package not included",
+  "target_verified": false,
+  "physical_verified": false
+}

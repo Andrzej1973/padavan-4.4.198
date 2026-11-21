@@ -1,0 +1,11 @@
+{
+  "registered_input_base": "43b943dd",
+  "session": 89960,
+  "exit_code": 0,
+  "final_marker": "PASS physical-stop candidate host suite: uninstalled driver bindings, API transport and target/device acceptance remain pending",
+  "log_sha256": "93facf04d5fb6a3b9cd4cbd50435bb578739e0faf0f477a0d205855e7bc3eda3",
+  "log_bytes": 49048,
+  "scope": "registered host suite on unchanged inputs; new pending recovery/Main tests not registered during this run",
+  "target_verified": false,
+  "physical_verified": false
+}

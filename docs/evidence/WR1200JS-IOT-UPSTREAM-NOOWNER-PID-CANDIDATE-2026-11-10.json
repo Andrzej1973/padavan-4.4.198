@@ -1,0 +1,62 @@
+{
+  "upstream_revision": "0936617dc529ff9da0385221d3fa6de732231177",
+  "sources": {
+    "mt7603/mac.c": {
+      "sha256": "2ddca5b165e98034a1bf5cd185b62f9af805d5cf970e79a54b1bff912397995a",
+      "url": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/mac.c"
+    },
+    "mt7603/beacon.c": {
+      "sha256": "273ffc26ce26d80d00926cfea02606e233acc1ce93b2fad0f508ccfe4b2ab747",
+      "url": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/mt7603/beacon.c"
+    },
+    "tx.c": {
+      "sha256": "ed812c25d895c8e0f839f46b6e3bfaaf02d7223770c3c8bf9f91123a1f7052c5",
+      "url": "https://github.com/openwrt/mt76/blob/0936617dc529ff9da0385221d3fa6de732231177/tx.c"
+    }
+  },
+  "facts": [
+    {
+      "source": "mt7603/mac.c:1013-1015",
+      "fact": "TXD requests host TxS and supplies pid."
+    },
+    {
+      "source": "tx.c:132-136",
+      "fact": "Missing WCID or NO_ACK flag returns MT_PACKET_ID_NO_ACK without software status allocation."
+    },
+    {
+      "source": "mt7603/mac.c:1287-1291",
+      "fact": "Reserved NO_ACK PID is discarded before WCID lookup."
+    },
+    {
+      "source": "mt7603/mac.c:1044-1054",
+      "fact": "SN_VALID is cleared for frames other than QoS data or BAR; upstream is not evidence of unique beacon SN."
+    },
+    {
+      "source": "mt7603/beacon.c:43-63",
+      "fact": "Per-BSS BCN/BMC flush polls busy and returns on timeout. This is register/queue behavior, not a no-future-vendor-TxS protocol specification."
+    }
+  ],
+  "vendor_comparison": {
+    "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+    "wire_pid_slots": 256,
+    "existing_reserved_wire_pid": false,
+    "logical_pid_enum_is_wire_reservation": false,
+    "candidate_status": "No no-owner-PID patch implemented."
+  },
+  "conditional_host_invariant": [
+    "One permanent P is excluded from every software reservation/allocation/init/reset path.",
+    "Only intended ra2 beacon submissions use P; no software status metadata is created for P.",
+    "All P reports exit before lookup, slot removal, callback or ownership accounting.",
+    "No previously status-tracked ra2 non-P report may be treated as covered by the P invariant."
+  ],
+  "proven_if_invariant_holds": "Arbitrarily late or duplicate P reports cannot consume a current software reservation, independent of reply latency or PID wrap.",
+  "remaining": [
+    "Implement and verify invariant in actual generated source before claiming host fix.",
+    "Replace TxS-IDLE beacon pacing with a separately justified DMA/queue lifecycle.",
+    "Establish per-ra2 RF/BCN/BMC/AC stop boundary and old non-P report transition.",
+    "Preserve Main/Guest and MCU ACK stale protection."
+  ],
+  "production_patch_applied": false,
+  "runtime_verified": false,
+  "cleanup": "Upstream source read in memory; only source hashes/facts retained."
+}

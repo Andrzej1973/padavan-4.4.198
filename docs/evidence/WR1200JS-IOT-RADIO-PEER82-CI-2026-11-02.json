@@ -1,0 +1,300 @@
+{
+  "date": "2026-11-02",
+  "run_id": 41385359881,
+  "commit": "5376f81702aa98c3a332bd90b68f042914350af2",
+  "jobs": [
+    {
+      "name": "select",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "name": "build (wr1200js) / build-wr1200js",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Validate optional candidate selection",
+          "conclusion": "success"
+        },
+        {
+          "name": "Probe effective IoT third-BSS radio capacity",
+          "conclusion": "success"
+        },
+        {
+          "name": "Preserve effective IoT radio-capacity diagnostics",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compile isolated merged IoT MT7603 candidate",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload isolated merged IoT driver diagnostics",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compile EoIP IPv4 candidate module",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Upload EoIP candidate diagnostics",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Compile PCRE2 candidate for modern Privoxy",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Upload PCRE2 candidate diagnostics",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Compile Privoxy 4.2 candidate",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Upload Privoxy candidate diagnostics",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Compile Stubby DoT candidate",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Upload Stubby candidate diagnostics",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Link isolated MT7621 systick candidate kernel",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Compile ZeroTier 1.16.2 source candidate",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Upload ZeroTier source candidate diagnostics",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "name": "firmware-zip (wr1200js)",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "name": "downloads",
+      "conclusion": "success",
+      "steps": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 13115845233,
+      "name": "tmp-upload-image-checks",
+      "size_in_bytes": 247,
+      "digest": "sha256:2df45e93496bc0254f2bc061f26623609d33a53762b78a96b0b753817eb97591",
+      "expired": false
+    },
+    {
+      "id": 13115741750,
+      "name": "board-build-status-wr1200js",
+      "size_in_bytes": 203,
+      "digest": "sha256:124efdc6309b0df825aa3df6308ace8d284cf686ae682fafc95a8c4f5310ebb1",
+      "expired": false
+    },
+    {
+      "id": 13115661268,
+      "name": "privoxy-image-checks",
+      "size_in_bytes": 994,
+      "digest": "sha256:946e9cd21920459bb9c4243794548629848a4275282eb93cc5c98001f73ca267",
+      "expired": false
+    },
+    {
+      "id": 13115611567,
+      "name": "strongswan-image-checks",
+      "size_in_bytes": 456,
+      "digest": "sha256:2c8fd10c1236dc64288b105bba7e3e560b8f27ead4e58cdb0e98c10b3301cfdb",
+      "expired": false
+    },
+    {
+      "id": 13115586619,
+      "name": "rssi-image-checks",
+      "size_in_bytes": 640,
+      "digest": "sha256:42723e8f8307b6e6a13836890f7077b8cd2df903ac6be32d27a9d6f0345c7ace",
+      "expired": false
+    },
+    {
+      "id": 13115567623,
+      "name": "iot-merged-driver-probe",
+      "size_in_bytes": 2947655,
+      "digest": "sha256:738ff7e481c288cb34030f1c0190eeed022ff3d9f24fd064b29762fba224ec3d",
+      "expired": false
+    },
+    {
+      "id": 13115566663,
+      "name": "vpn-profile-image",
+      "size_in_bytes": 3068,
+      "digest": "sha256:f15f6060692356cf799384e7c06ae68a3572cdc97326977c3be6712998b8129c",
+      "expired": false
+    },
+    {
+      "id": 13115551988,
+      "name": "zerotier-image-checks",
+      "size_in_bytes": 1240,
+      "digest": "sha256:144dee453a03be44dd1989f3bcfedd64d4b22bc46de00a63d859122ce69e4b2a",
+      "expired": false
+    },
+    {
+      "id": 13115551966,
+      "name": "iperf3-image-checks",
+      "size_in_bytes": 931,
+      "digest": "sha256:bedb66acc7fec32d0b65804569174648540b76b197b2dba978553f024b4067e9",
+      "expired": false
+    },
+    {
+      "id": 13115536896,
+      "name": "stubby-image-checks",
+      "size_in_bytes": 1536,
+      "digest": "sha256:f2be3a321c2861fbe008d49d29138723e7afb5681b0c53b2a2f7a6af57b17d7a",
+      "expired": false
+    },
+    {
+      "id": 13115528029,
+      "name": "WR1200JS_4.4.198.9-677_5376f817_TEST",
+      "size_in_bytes": 13027019,
+      "digest": "sha256:bb94dbc39f46eca679c33e990c76c01d9605250cb3840c1a446a04a503a64869",
+      "expired": false
+    },
+    {
+      "id": 13115502013,
+      "name": "padavan-4.4.198-router-downloads",
+      "size_in_bytes": 13072934,
+      "digest": "sha256:450fa4f241c74d89cd581bd3c4883a83ad7def0f552058006b44e309362dca39",
+      "expired": false
+    },
+    {
+      "id": 13115477238,
+      "name": "target-busybox-audit",
+      "size_in_bytes": 18541,
+      "digest": "sha256:29f58c8af14e13c98dd13dccf3ee5d04438ac002ba6bfac69a6cea0b7e50951c",
+      "expired": false
+    },
+    {
+      "id": 13115467353,
+      "name": "doh-image-checks",
+      "size_in_bytes": 650,
+      "digest": "sha256:25f8fa51fa2132ec3833c70aea0e1c37075bac1c0bbc4196f8111b624c4be49b",
+      "expired": false
+    },
+    {
+      "id": 13115432421,
+      "name": "zram-image-checks",
+      "size_in_bytes": 256,
+      "digest": "sha256:3ca29145e2b4dd73ada4bbec7a28aac4c5a2c1d303a740f8f38980ac590cc7b0",
+      "expired": false
+    },
+    {
+      "id": 13115432410,
+      "name": "usbip-settings-image",
+      "size_in_bytes": 995,
+      "digest": "sha256:7327eb2246952f55dfa2a286f2888d0448edc1e4456a6fa97fe0650c7b3084df",
+      "expired": false
+    },
+    {
+      "id": 13115303337,
+      "name": "ssh-image-checks",
+      "size_in_bytes": 775,
+      "digest": "sha256:d5c49ccbe2ff250d36f45f8f4a2f733af597c3d3dfba73d7f3e62e68bc5b45df",
+      "expired": false
+    },
+    {
+      "id": 13115298290,
+      "name": "wan-web-image-checks",
+      "size_in_bytes": 689,
+      "digest": "sha256:3adb1de156b03d65ae431c1d233f82d6ef737cc3597bbe5d25dd817d923a56a4",
+      "expired": false
+    },
+    {
+      "id": 13115283300,
+      "name": "settings-backup-image-checks",
+      "size_in_bytes": 647,
+      "digest": "sha256:9699d79d56cd93adf30e366d3f1f8a7fae93cb9368d37334e0f160eaa85deca2",
+      "expired": false
+    },
+    {
+      "id": 13115248278,
+      "name": "eoip-image-checks",
+      "size_in_bytes": 496,
+      "digest": "sha256:74861cdf5799b2b1004e92a322e871637009710c57f5106fe4aa46eed02739ed",
+      "expired": false
+    },
+    {
+      "id": 13115238397,
+      "name": "wan-port-topology",
+      "size_in_bytes": 678,
+      "digest": "sha256:3b67280cad1a55b8dfbe7810c75d152eef9d4eabf1b66dbf93210ecc78c3793a",
+      "expired": false
+    },
+    {
+      "id": 13115073907,
+      "name": "wr1200js-web-route-checks",
+      "size_in_bytes": 2410,
+      "digest": "sha256:43527666c5d1ccaa48c2a4ab39f4dda2632919b6c3361d4c995e7af82e41a820",
+      "expired": false
+    },
+    {
+      "id": 13115064002,
+      "name": "wr1200js-wifi-capabilities",
+      "size_in_bytes": 396,
+      "digest": "sha256:429d4f6e34288553d41652ec8ece4803b2eaa10a4f62cc2d47840543a5310db6",
+      "expired": false
+    },
+    {
+      "id": 13115039143,
+      "name": "padavan-linux-4.4.198-wr1200js",
+      "size_in_bytes": 13071563,
+      "digest": "sha256:e82a8107c029412a63d6673e116debcbdd2b5395f298a49e8ab460d490394bc2",
+      "expired": false
+    },
+    {
+      "id": 13115034150,
+      "name": "wr1200js-kvr-image",
+      "size_in_bytes": 813,
+      "digest": "sha256:9a1396be39f1140b0440aea038d1380b8ce45ecad8cf0f57d33e1e254ced0fc6",
+      "expired": false
+    },
+    {
+      "id": 13115029209,
+      "name": "wr1200js-iot-radio-capacity",
+      "size_in_bytes": 370592,
+      "digest": "sha256:e1a484c810301d49ee8fa198aa7946ce75944dea41e5058af4ecf263b3ec107d",
+      "expired": false
+    },
+    {
+      "id": 13114934825,
+      "name": "wr1200js-config-checks",
+      "size_in_bytes": 1838,
+      "digest": "sha256:4f3ee2977c191ae14bebbe0665bc1f50cc559f4218505cec4e559751df1709d1",
+      "expired": false
+    },
+    {
+      "id": 13114934785,
+      "name": "wr1200js-radio-capacity",
+      "size_in_bytes": 2346,
+      "digest": "sha256:23061930ca5180fdea63c99e930d2df4ed1b9e5379ccfdaf572b30a9584e9b9c",
+      "expired": false
+    },
+    {
+      "id": 13114877255,
+      "name": "selected-board-profiles",
+      "size_in_bytes": 305,
+      "digest": "sha256:8cc0488df33f34dbcc7c27549f02b8122a89179cf7ffcced12d0bacdbc17e976",
+      "expired": false
+    }
+  ],
+  "independent_module_verification": false,
+  "runtime_verified": false,
+  "local_sequence_candidate_included": false
+}

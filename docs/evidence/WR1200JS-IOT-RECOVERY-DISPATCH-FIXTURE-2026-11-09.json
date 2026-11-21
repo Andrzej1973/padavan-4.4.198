@@ -1,0 +1,15 @@
+{
+  "scope": "Actual control-server dispatch extracted and executed with injected IPC, real admission header and signal delivery.",
+  "verified": [
+    "RECOVERY holds pending SIGTERM and admission on successful result publication.",
+    "RECOVERY holds admission when second mailbox open fails.",
+    "RECOVERY holds admission when result finish fails.",
+    "Invalid activation result normalizes to RECOVERY and blocks repeated dispatch.",
+    "Terminal signal paths and early failures preserve prior behavior."
+  ],
+  "fixture_change": "Explicit test-only recovery release between independent scenarios, never silently reset admission.",
+  "checks": "Werror ASan/UBSan execution passed; diff check passed.",
+  "production_installed": false,
+  "runtime_verified": false,
+  "cleanup": "Generated fixture and executable removed with temporary directory."
+}

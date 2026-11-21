@@ -1,5 +1,7 @@
 #include "loop.h"
 #include <errno.h>
+#include <string.h>
+#include <syslog.h>
 struct dispatch { struct wr_band_coordinator *coordinator; uint64_t now; int failed; };
 static void event(size_t radio, const struct wr_band_event *e, void *ctx)
 {
@@ -8,6 +10,9 @@ static void event(size_t radio, const struct wr_band_event *e, void *ctx)
 }
 static int fault(struct wr_band_coordinator *c)
 {
+    int saved = errno;
+    /* Diagnosis only: the loop still fails closed on unknown state. */
+    syslog(LOG_ERR, "band-steering loop fault: %s (%d)", strerror(saved), saved);
     wr_band_coordinator_fault(c); return -1;
 }
 static int read_clock(const struct wr_band_loop_io *io, void *ctx, uint64_t *now, uint64_t *last)

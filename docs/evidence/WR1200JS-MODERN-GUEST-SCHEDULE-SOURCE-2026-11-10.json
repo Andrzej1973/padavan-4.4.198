@@ -1,0 +1,46 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "runtime_verified": false,
+  "sources": [
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/Advanced_WGuest2g_Content.asp",
+      "sha256": "b7aa424deee8f9c984071791bb540f77cff8562e2ea6d4f3b6b2e0a4a3c6ff14",
+      "snippets": [
+        {
+          "line": 40,
+          "text": "\tshow_banner(1);\n\tshow_menu(5,1,2);\n\tshow_footer();\n\n\tdocument.form.rt_guest_date_x_Sun.checked = getDateCheck(document.form.rt_guest_date_x.value, 0);\n\tdocument.form.rt_guest_date_x_Mon.checked = getDateCheck(document.form.rt_guest_date_x.value, 1);\n\tdocument.form.rt_guest_date_x_Tue.checked = getDateCheck(document.form.rt_guest_date_x.value, 2);\n\tdocument.form.rt_guest_date_x_Wed.checked = getDateCheck(document.form.rt_guest_date_x.value, 3);\n\tdocument.form.rt_guest_date_x_Thu.checked = getDateCheck(document.form.rt_guest_date_x.value, 4);\n\tdocument.form.rt_guest_date_x_Fri.checked = getDateCheck(document.form.rt_guest_date_x.value, 5);\n\tdocument.form.rt_guest_date_x_Sat.checked = getDateCheck(document.form.rt_guest_date_x.value, 6);\n\tdocument.form.rt_guest_time_x_starthour.value = getTimeRange(document.form.rt_guest_time_x.value, 0);\n\tdocument.form.rt_guest_time_x_startmin.value = getTimeRange(document.form.rt_guest_time_x.value, 1);\n\tdocument.form.rt_guest_time_x_endhour.value = getTimeRange(document.form.rt_guest_time_x.value, 2);\n\tdocument.form.rt_guest_time_x_endmin.value = getTimeRange(document.form.rt_guest_time_x.value, 3);\n\tdocument.form.rt_guest_time2_x_starthour.value = getTimeRange(document.form.rt_guest_time2_x.value, 0);\n\tdocument.form.rt_guest_time2_x_startmin.value = getTimeRange(document.form.rt_guest_time2_x.value, 1);\n\tdocument.form.rt_guest_time2_x_endhour.value = getTimeRange(document.form.rt_guest_time2_x.value, 2);\n\tdocument.form.rt_guest_time2_x_endmin.value = getTimeRange(document.form.rt_guest_time2_x.value, 3);"
+        },
+        {
+          "line": 76,
+          "text": "\nfunction applyRule(){\n\tif(validForm()){\n\t\tdocument.form.rt_guest_date_x.value = setDateCheck(\n\t\t    document.form.rt_guest_date_x_Sun,\n\t\t    document.form.rt_guest_date_x_Mon,\n\t\t    document.form.rt_guest_date_x_Tue,\n\t\t    document.form.rt_guest_date_x_Wed,\n\t\t    document.form.rt_guest_date_x_Thu,\n\t\t    document.form.rt_guest_date_x_Fri,\n\t\t    document.form.rt_guest_date_x_Sat);\n\t\tdocument.form.rt_guest_time_x.value = setTimeRange(\n\t\t    document.form.rt_guest_time_x_starthour,\n\t\t    document.form.rt_guest_time_x_startmin,\n\t\t    document.form.rt_guest_time_x_endhour,\n\t\t    document.form.rt_guest_time_x_endmin);\n\t\tdocument.form.rt_guest_time2_x.value = setTimeRange(\n\t\t    document.form.rt_guest_time2_x_starthour,\n\t\t    document.form.rt_guest_time2_x_startmin,\n\t\t    document.form.rt_guest_time2_x_endhour,\n\t\t    document.form.rt_guest_time2_x_endmin);\n\t\t"
+        },
+        {
+          "line": 110,
+          "text": "\n\tvar mode = document.form.rt_guest_auth_mode.value;\n\n\tif(!validate_string_ssid(document.form.rt_guest_ssid))\n\t\treturn false;\n\n\tif(!validate_timerange(document.form.rt_guest_time_x_starthour, 0)\n\t\t\t|| !validate_timerange(document.form.rt_guest_time_x_startmin, 1)\n\t\t\t|| !validate_timerange(document.form.rt_guest_time_x_endhour, 2)\n\t\t\t|| !validate_timerange(document.form.rt_guest_time_x_endmin, 3)\n\t\t\t)\n\t\treturn false;\n\n\tvar starttime = eval(document.form.rt_guest_time_x_starthour.value + document.form.rt_guest_time_x_startmin.value);\n\tvar endtime = eval(document.form.rt_guest_time_x_endhour.value + document.form.rt_guest_time_x_endmin.value);\n\tif(starttime == endtime){\n\t\talert(\"<#FirewallConfig_URLActiveTime_itemhint2#>\");\n\t\t\tdocument.form.rt_guest_time_x_starthour.focus();\n\t\t\tdocument.form.rt_guest_time_x_starthour.select;\n\t\treturn false;\n\t}\n\n\tif(!validate_timerange(document.form.rt_guest_time2_x_starthour, 0)\n\t\t\t|| !validate_timerange(document.form.rt_guest_time2_x_startmin, 1)\n\t\t\t|| !validate_timerange(document.form.rt_guest_time2_x_endhour, 2)\n\t\t\t|| !validate_timerange(document.form.rt_guest_time2_x_endmin, 3)\n\t\t\t)\n\t\treturn false;\n\n\tvar starttime2 = eval(document.form.rt_guest_time2_x_starthour.value + document.form.rt_guest_time2_x_startmin.value);\n\tvar endtime2 = eval(document.form.rt_guest_time2_x_endhour.value + document.form.rt_guest_time2_x_endmin.value);\n\tif(starttime2 == endtime2){\n\t\talert(\"<#FirewallConfig_URLActiveTime_itemhint2#>\");\n\t\t\tdocument.form.rt_guest_time2_x_starthour.focus();\n\t\t\tdocument.form.rt_guest_time2_x_starthour.select;\n\t\treturn false;\n\t}\n\n\tif(document.form.rt_guest_ssid.value == \"\") {"
+        }
+      ]
+    },
+    {
+      "path": "trunk/user/www/n56u_ribbon_fixed/general.js",
+      "sha256": "19ac7fc98a8fe5f4112cb126d7be38cdc65e6d30bba56dc5b33ccb65786ed729",
+      "snippets": [
+        {
+          "line": 1018,
+          "text": "function getDateCheck(str, pos) {\n    if (str.charAt(pos) == '1')\n        return true;\n    else\n        return false;\n}\n\nfunction getTimeRange(str, pos) {\n    if (pos == 0)\n        return str.substring(0, 2);\n    else if (pos == 1)\n        return str.substring(2, 4);\n    else if (pos == 2)\n        return str.substring(4, 6);\n    else if (pos == 3)\n        return str.substring(6, 8);\n}\n\nfunction setDateCheck(d1, d2, d3, d4, d5, d6, d7) {\n    str = \"\";"
+        },
+        {
+          "line": 1025,
+          "text": "function getTimeRange(str, pos) {\n    if (pos == 0)\n        return str.substring(0, 2);\n    else if (pos == 1)\n        return str.substring(2, 4);\n    else if (pos == 2)\n        return str.substring(4, 6);\n    else if (pos == 3)\n        return str.substring(6, 8);\n}\n\nfunction setDateCheck(d1, d2, d3, d4, d5, d6, d7) {\n    str = \"\";\n    if (d7.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    if (d6.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    if (d5.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    if (d4.checked == true) str = \"1\" + str;"
+        },
+        {
+          "line": 1036,
+          "text": "function setDateCheck(d1, d2, d3, d4, d5, d6, d7) {\n    str = \"\";\n    if (d7.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    if (d6.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    if (d5.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    if (d4.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    if (d3.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    if (d2.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    if (d1.checked == true) str = \"1\" + str;\n    else str = \"0\" + str;\n    return str;\n}\n\nfunction setTimeRange(sh, sm, eh, em) {"
+        },
+        {
+          "line": 1055,
+          "text": "function setTimeRange(sh, sm, eh, em) {\n    return(sh.value + sm.value + eh.value + em.value);\n}\n\nfunction load_body() {\n    document.form.next_host.value = location.host;\n    change = 0;\n}\n\nfunction onSubmit() {\n    change = 0;\n    pageChanged = 0;\n\n    return true;\n}\n\nfunction onSubmitCtrl(o, s) {\n    document.form.action_mode.value = s;\n    return (onSubmit());\n}"
+        }
+      ]
+    }
+  ]
+}

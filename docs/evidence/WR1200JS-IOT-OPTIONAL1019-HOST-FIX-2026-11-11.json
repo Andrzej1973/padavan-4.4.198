@@ -1,0 +1,23 @@
+{
+  "failed_run": 43058278935,
+  "failed_job": 130653688364,
+  "monitor_run": 43060966514,
+  "monitor_artifact": 13873362794,
+  "monitor_assessment": "Actionable compiler file/line retained; no monitor parser change needed",
+  "source_before": "4f80200ee6cd969a96f7319b0839b23606ac1038",
+  "failure": "check-driver-api-close-binding.c:27:9: iot_dev may be used uninitialized [-Werror=maybe-uninitialized]",
+  "analysis": "Fixture uses addresses of distinct automatic int objects as opaque netdevice identity tags; neither pointed-to int is read by binding helper",
+  "fix": "Initialize both main_dev and iot_dev to zero; keep separate objects, all assertions and warning-as-error policy",
+  "local_checks": {
+    "compiler": "GCC11.4.0",
+    "options": [
+      "-std=c11 -O0 -Wall -Wextra -Werror -Wmaybe-uninitialized -fsanitize=address,undefined -fno-pie -no-pie",
+      "same options at -O2"
+    ],
+    "result": "PASS both execution modes"
+  },
+  "ci_change": "Run this same host fixture early on optional before source fetch/firmware build",
+  "runtime_change": false,
+  "ubuntu24_recheck": "pending new-SHA CI; local GCC11 does not prove GCC13 acceptance",
+  "target_driver_acceptance": "not established by host fixture"
+}

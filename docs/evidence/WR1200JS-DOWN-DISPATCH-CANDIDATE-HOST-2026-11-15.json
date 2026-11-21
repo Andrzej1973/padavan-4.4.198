@@ -1,0 +1,16 @@
+{
+  "status": "PROPOSED_NOT_APPLIED",
+  "transform": "tools/iot/down-dispatch-composition.py",
+  "test": "check-down-dispatch-composition.py",
+  "result": "PASS GCC actual common dispatcher fixture",
+  "covered": [
+    "RTNL/capability precede single common copy-in",
+    "DOWN uses in-place typed reply without second copy-in",
+    "typed DOWN roundtrip Main close serial",
+    "existing closed/release routes unchanged",
+    "duplicate/changed privilege or copy anchor refused"
+  ],
+  "boundary": "DOWN observation injected in dispatcher test; actual reply/reference binding tested separately",
+  "target_verified": false,
+  "runtime_verified": false
+}

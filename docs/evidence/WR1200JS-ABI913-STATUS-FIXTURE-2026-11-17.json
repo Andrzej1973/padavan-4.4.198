@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-17",
+  "failed_run": 44110010197,
+  "number": 913,
+  "revision": "a396c4ce9c7c26fc086de0e8e6fcaf1525174f8d",
+  "step": "Check private IoT request mailbox",
+  "root_cause": "prepare-status-check.py copied actual typed status function but emitted an old fixture enum and omitted the configuration observer actor",
+  "monitor": {
+    "run": 44111886514,
+    "artifact": 14340008424,
+    "useful": true,
+    "confirmed_against": "original failed step log",
+    "parser_changes": "none required"
+  },
+  "fix": [
+    "Add RAM-only enum and separate configuration observer actor",
+    "Exercise success/failure/changed-record/open/read refusal for RAM status",
+    "Run the generated actual status under strict C11/Werror/ASan/UBSan in preflight"
+  ],
+  "verification": "check-status-core.py PASS",
+  "device_changes": false,
+  "generation_work": "Unrelated pending local source excluded from this repair"
+}

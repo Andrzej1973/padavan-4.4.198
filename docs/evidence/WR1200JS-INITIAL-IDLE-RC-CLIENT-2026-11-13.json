@@ -1,0 +1,9 @@
+{
+  "scope": "Local RC initial-idle query17/reply18 client",
+  "source": "driver-api-client.c:wr_iot_driver_initial_idle_read",
+  "checks": "PASS actual client ASan/UBSan fixed ra2/CLOEXEC, nonce/format/type rejection, socket/ioctl/close failure and output zeroing; no network mutation. Prepared pinned RC client native TU compiles.",
+  "semantics": "Observation serial is not CLOSE token, loaded-key or future OPEN permission. Caller owns config/service guard. Query does not arm OPEN.",
+  "target": "Pending for this local change; activation binding incomplete",
+  "runtime_verified": false,
+  "cleanup": "Temporary test/staging trees and binaries removed automatically"
+}

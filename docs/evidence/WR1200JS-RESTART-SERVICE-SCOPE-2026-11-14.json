@@ -1,0 +1,14 @@
+{
+  "scope": "pinned SDK source inspection; no service invoked",
+  "source": "trunk/user/rc/net_wifi.c",
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "mode0": {
+    "wds": "start_wifi_wds_rt561: activates only modes1/2, so mode0 must not activate WDS",
+    "apcli": "start_wifi_apcli_rt642: activates only modes3/4 and nonempty sta_ssid, so mode0 must not activate APCLI",
+    "auth": "start_8021x_rt847-848: is_need_8021x(auth_mode) -> rtinicapd -i ra0",
+    "rssi": "start_8021x_rt850-858: find live WLAN; KickStaRssiLow and AssocReqRssiThres applied separately"
+  },
+  "next": "Implement one-shot checked enterprise daemon/RSSI restoration preserving existing values, distinguish process submission/current observation from client authentication acceptance. Do not call combined restart or start WDS/APCLI for mode0.",
+  "implemented": false,
+  "runtime_verified": false
+}

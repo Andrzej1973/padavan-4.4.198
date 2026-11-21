@@ -1,0 +1,20 @@
+{
+  "scope": "local candidate source and host fixture only",
+  "problem": "main recovery owner reset before actual dev_put returned",
+  "change": "claim release once under transition lock; preserve deferred owner across actual unlocked dev_put; reject concurrent generic completion; finish with exact device after reference return",
+  "checks": [
+    "main-recovery-reaper actual include: in-dev_put retained-owner, duplicate claim, generic completion, false returned receipt and wrong-device refusals",
+    "main-open-recovery-owner",
+    "main-close-recovery-queue",
+    "pci-recovery-drain (separate drain model, not full PCI binding)"
+  ],
+  "compiler": "C11 -Wall -Wextra -Werror -O2 ASan UBSan",
+  "result": "PASS",
+  "target_build_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "bind exact deferred recovery ticket to physical stop transaction",
+    "full prepared candidate and target build",
+    "physical acceptance"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "failed_run": 44127251709,
+  "standard": 1357,
+  "first_error": "check-flash-image.py:14 full vendor file SHA256 mismatch before firmware compilation",
+  "cause": "Earlier local cached native source had an extra final blank line; pinned SDK file does not. Native CRC/commit function content unchanged.",
+  "pinned_sdk": "c25283e915a2a00a763774dd255b14aff997285e",
+  "pinned_path": "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c",
+  "actual_pinned_sha256": "5bdfa51add776cfe46eabd5c328859d74822220e7772335d08e21b91750190c1",
+  "old_cache_sha256": "eb8ec04cf2c454dc9bc469f7f89a2540724bcb2cda2d76e310e1e29ab7c20487",
+  "correction": "Pin exact fetched SDK bytes, retaining full-file hash verification",
+  "host_checks": [
+    "flash image/vendor CRC/typed revision PASS on freshly fetched pinned input",
+    "original/prepared native commit order PASS on same pinned input"
+  ],
+  "kernel_behavior_changed_by_this_fix": false,
+  "runtime_verified": false
+}

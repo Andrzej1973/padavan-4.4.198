@@ -193,6 +193,7 @@ def main():
         (assets / "libyaml/Makefile", trunk / "libs/libyaml/Makefile"),
         (assets / "Makefile", trunk / "user/stubby/Makefile"),
         (assets / "stubby.sh", trunk / "user/stubby/stubby.sh"),
+        (assets.parent / "dns-common/dns-listener-guard.sh", trunk / "user/stubby/dns-listener-guard.sh"),
         (assets / "dot.json", trunk / "user/stubby/dot.json"),
         (assets / "cacert-2026-09-25.pem", trunk / "user/stubby/cacert-2026-09-25.pem"),
         (assets / "services-stubby.c", trunk / "user/rc/services-stubby.c"),

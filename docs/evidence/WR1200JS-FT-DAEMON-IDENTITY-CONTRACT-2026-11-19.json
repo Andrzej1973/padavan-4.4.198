@@ -1,0 +1,39 @@
+{
+  "scope": "Source-only automatic FT daemon response identity inventory",
+  "source_sha256": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
+  "handler": "FT_KDP_KeyResponseToUs",
+  "nonce_uses": [
+    {
+      "line": 809,
+      "text": "UCHAR *pNonce;"
+    },
+    {
+      "line": 823,
+      "text": "pNonce = pData;"
+    },
+    {
+      "line": 824,
+      "text": "pEvtKeyRsp = (FT_KDP_EVT_KEY_ELM *)(pNonce + FT_NONCE_SIZE);"
+    }
+  ],
+  "facts": [
+    "Response handler declares nonce pointer, assigns pData and advances past eight nonce bytes; no equality comparison or request lookup in that body",
+    "Automatic key request event carries KeyInfo R1KHID/S1KHID and station MAC; current prepared peer stamp is not part of daemon request ABI",
+    "Native handler can wait on station completion under R1KH_HARD_RETRY; matching completion needs lifetime-safe admission while request is pending"
+  ],
+  "required_contract": [
+    "Establish what daemon echoes without changing wire ABI speculatively",
+    "Publish pending native request identity with generation/BSS before event submission",
+    "Retire pending identity on timeout, association change and teardown",
+    "Validate response against pending identity before retry-counter reset/completion",
+    "Preserve native completion progress while peer lease is held"
+  ],
+  "runtime_verified": false,
+  "implementation_complete": false,
+  "ci_observation": {
+    "run_id": 44576631105,
+    "job_id": 135745996024,
+    "status": "in_progress",
+    "step": "Check IoT host compiler compatibility early"
+  }
+}

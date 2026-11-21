@@ -1,0 +1,21 @@
+{
+  "problem": "Prepared RC physical-stop preflight bypassed controller when bridge absent and internal NVRAM gates empty/zero. These do not prove absence of pending driver ownership.",
+  "change": "Always require strong activation_prepare_radio_stop result exactly1; controller must establish no IoT work or safe completion. No administrative/bridge/NVRAM fallback.",
+  "files": [
+    "tools/iot/prepare-rc.py",
+    "tools/iot/check-radio-stop-contract.py"
+  ],
+  "verification": [
+    "Generated actual helper executed with ASan/UBSan; negative, zero,1 and other positive results checked.",
+    "Forbidden observation macros reject reintroduction of bridge/config shortcut.",
+    "New regression rejects previous HEAD generator.",
+    "git diff --check passed."
+  ],
+  "production_installed": false,
+  "runtime_verified": false,
+  "limitations": [
+    "Strong lifecycle controller remains unbound; no successful empty-state or RF retirement implementation claimed.",
+    "Prepared RC cannot be deployed until controller and lifetime contracts are fulfilled."
+  ],
+  "cleanup": "Temporary generated test and negative fixture removed automatically; no build artifact retained."
+}

@@ -1,0 +1,25 @@
+{
+  "scope": "isolated final-stage candidate; two actual MIPS TUs; no full module or runtime acceptance",
+  "head_before_edit": "9555bcd4a7e029ea87a5957a5e62109ebeb0aa6e",
+  "candidate_sha256": {
+    "os/linux/rt_rbus_pci_drv.c": "3e6e2e31acd35271c01a499e2be327c823d2c6f5997be31259bf95df7a1d970e",
+    "include/wr-iot-nettask-schedule.inc": "40b5cc74449db36ab4aa46892669df3c4cde8c3fd448b605b2d263f20dbbdd88",
+    "include/wr-iot-peer-adapter-release.inc": "1812b0b12502e6c5d371d43da8840b978ac389206eb469b281afca59e22756dd"
+  },
+  "compiled_units": [
+    "os/linux/rt_rbus_pci_drv.c",
+    "os/linux/rt_profile.c"
+  ],
+  "actual_preprocessed_rbus_nettask_irqsave_sites": 9,
+  "actual_preprocessed_rbus_nettask_irqrestore_sites": 10,
+  "preprocessed_sha256": "8c776cb5925f0f451f2b0affc71f0d5715aa4e19b17b6bd0e3dff750c917b154",
+  "remaining": [
+    "tasklet IRQ re-enable after mask",
+    "other lock hard-IRQ contexts",
+    "firmware LOAD_FW_ONE_TIME completion",
+    "terminal DMA/IRQ/callback fence",
+    "full chain and module validation"
+  ],
+  "production_accepted": false,
+  "runtime_verified": false
+}

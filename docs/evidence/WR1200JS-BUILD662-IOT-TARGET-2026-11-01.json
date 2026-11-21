@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "candidate_variant": "peer82",
+  "repository_revision": "4df93b13d368f062482b075ea55d3c9bd305b7f7",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "module": "mt76x3_ap.ko",
+  "module_bytes": 5456200,
+  "module_sha256": "5e9640f79a50d48c606679d686feb6d3944ff5572cbd17ad43f84a9153052170",
+  "compiled_task_macros": {
+    "KTHREAD_SUPPORT": true,
+    "OS_ABL_FUNC_SUPPORT": false,
+    "CONFIG_PM": false,
+    "RTMP_TIMER_TASK_SUPPORT": false,
+    "WSC_INCLUDED": false
+  },
+  "task_command_sha256": "e9addb3d8cfcda2f3a89a7a70134683210111815dd50009cef63b4a26e0de3cd",
+  "task_source_sha256": "0a85539938acd21d242ec2f1941fbac0f61f419ff91855ef5798118bee64cbee",
+  "run_id": 41274058519,
+  "build": 662,
+  "independent_module_hash_verified": true,
+  "before_after_config_identical": true,
+  "scope": "complete isolated peer82 MIPS build; exact recorded features only; no production installation/runtime",
+  "report_sha256": "ba9552867edbcb8d91c355f4a716bcff97f066520e32568973d056c387afb7d6"
+}

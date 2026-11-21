@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "candidate_variant": "peer82",
+  "repository_revision": "1dcec2dc020a9a998b2d2cd5cb4db8c48395072f",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "module": "mt76x3_ap.ko",
+  "module_bytes": 5490856,
+  "module_sha256": "2d9039abe0ebf7a4e062fe1c94271857682190fb023f012908513d49b734f779",
+  "compiled_task_macros": {
+    "KTHREAD_SUPPORT": true,
+    "OS_ABL_FUNC_SUPPORT": false,
+    "CONFIG_PM": false,
+    "RTMP_TIMER_TASK_SUPPORT": false,
+    "WSC_INCLUDED": false
+  },
+  "task_command_sha256": "e3429db730f91aaf443d5da6269dcc64d0fa8889d6f7c68f384f99873377954f",
+  "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+  "run_id": 41324029887,
+  "independent_checks": [
+    "ELF32 little-endian MIPS header",
+    "downloaded SHA256 matches report",
+    "new AP cleanup entry symbol present",
+    "merged manifest contains AP layer"
+  ],
+  "ap_layer": {
+    "input_sha256": {
+      "ap/ap.c": "05a10ae140184a7c09257df0c9f89a23e6b0172a729872c4aaf2e8ff1e95d8b6",
+      "include/ap.h": "eaaae8eb8854dede4be05da3a8e3a49cf868eadd9edaa354614d0a554de509b1"
+    },
+    "output_sha256": {
+      "ap/ap.c": "d72e6df304a9fe288fbe6a63ef80e5fe4f8e3dc5fdd0937dc40cd8b5f3b6cd9a",
+      "include/ap.h": "916e7c6620f12073a3f5eb85c299a17c0d6b993f9a04d7e50e4444cdf6e00bae"
+    },
+    "scope": "unbound AP cleanup entry before radio-off; legacy wrappers retain hardware actions",
+    "production_installed": false,
+    "target_compiled": false,
+    "runtime_verified": false
+  },
+  "limits": "Entry unbound to runtime close; OFF ACK ordering, sender ownership, firmware epoch and terminal DMA/IRQ proof remain open."
+}

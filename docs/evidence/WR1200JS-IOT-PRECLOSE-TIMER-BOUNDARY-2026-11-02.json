@@ -1,0 +1,15 @@
+{
+  "defect_reproduced": true,
+  "timer_join_accepted": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "scope": "actual extracted branch with injected kernel timer states; not on-device race execution",
+  "source": "os/linux/rt_linux.c",
+  "source_line": 186,
+  "source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+  "extracted_sha256": "3421f92e5e6fbc523e7e928cb2dd104479df3d29b780671b99b5ad4f4920aa64",
+  "finding": "running + not pending returns cancelled TRUE without del_timer_sync",
+  "next": "Establish exclusive terminal timer ownership/list stability, bind checked join before timer release, then derive callback retirement. Do not treat empty timer list or joined tasklets as all-callback proof.",
+  "context": "Exact merged candidate including PCI preclose; software close completion is not timer callback retirement.",
+  "existing_checked_api": "include/wr-iot-timer-checked-join.inc:wr_iot_timer_join_checked; currently no source caller"
+}

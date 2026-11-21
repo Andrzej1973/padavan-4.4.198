@@ -1,0 +1,173 @@
+{
+  "date": "2026-11-18",
+  "run": 44233288115,
+  "artifact": 14396853113,
+  "source_revision": "746ea2cc05c9b73db8a0e51eb2441856500352e1",
+  "verification_source": {
+    "verified_revision": "746ea2cc05c9b73db8a0e51eb2441856500352e1",
+    "github_run": {
+      "conclusion": "success",
+      "displayTitle": "Padavan #1382 [optional] 746ea2cc05c9b73db8a0e51eb2441856500352e1 host=ubuntu-24.04 tc=source iot/peer82",
+      "headSha": "05e77d6195e38107c1a1fca41f4f39c5d3e0484c",
+      "url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/44233288115"
+    }
+  },
+  "github_run": {
+    "conclusion": "success",
+    "displayTitle": "Padavan #1382 [optional] 746ea2cc05c9b73db8a0e51eb2441856500352e1 host=ubuntu-24.04 tc=source iot/peer82",
+    "headSha": "05e77d6195e38107c1a1fca41f4f39c5d3e0484c",
+    "url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/44233288115"
+  },
+  "status": "INDEPENDENT_CANDIDATE_IMAGE_AND_LIFECYCLE_PAIR_PASS",
+  "image_sha256": "7fef94d7faea2d76b2398a1ce24b3686108a0c393165ade45361c0e2d1b1d3a6",
+  "image_bytes": 14527853,
+  "remaining_partition_bytes": 1659539,
+  "header_payload_crc_verified": true,
+  "squashfs_offset": 1982176,
+  "lifecycle_pair_recomputed": true,
+  "native_snapshot_evidence": {
+    "verified": true,
+    "kernel_getall_sha256": "1328a1e4fa4f098286ce7a30561ebb51f645010e6fcb6c4b7182000bb721ef08",
+    "kernel_generate_sha256": "c25f6619194849e9c2897c6ea73aff9b935aaf88a52afb037a2a2069a5d3cef1",
+    "native_header_sha256": "411b381cdff5d6fea5fda76510e7a5dacff591dd067ce47c3cc3e225ae42b33e",
+    "nvram_space": 61440,
+    "nvram_header_bytes": 20,
+    "snapshot_c_sha256": "4f305b1bf4a647c209c4aa39550b4678ed8afbc125601eadb62fc49957388203",
+    "snapshot_h_sha256": "d31c873448a171b3d8c127ba5daedd774e756448fd6273ffa9179f0b0c856f55"
+  },
+  "configuration_ram_target_symbols": true,
+  "desired_generation_target_symbols": true,
+  "automatic_initial_shutdown_target_symbols": true,
+  "automatic_cold_shutdown_target_symbols": true,
+  "automatic_mailbox_shutdown_target_symbols": true,
+  "embedded_replacements": {
+    "sbin/rc": {
+      "bytes": 1103052,
+      "sha256": "c8f25c8bed0a31edcb3ff4e8bf7710cc149cefa986d7cf784484a7be734e00c0",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 425680,
+      "sha256": "2eb9755132d0e8c4a9e653e836de457f2d7849490c25a37acd8b39e981b08cb4",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/bin/iappd.sh": {
+      "bytes": 1567,
+      "sha256": "020f6b714bc6c174681b2ce040a9d57ba7d9943679591f00a8b8b17ea29a62fa"
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "bytes": 6300076,
+      "sha256": "810cf6eac6a4f5ecc6081fc9717569b7d476114830bebf78425e72a67a9c6ca6",
+      "elf": "ELF32 LE MIPS"
+    }
+  },
+  "embedded_classic_assets": {
+    "www/Advanced_IoT_Content.asp": {
+      "bytes": 3467,
+      "sha256": "8d52070d609aff78b1fefddfd350519d4bb8394005b23c68a9303c9428c0b552"
+    },
+    "www/classic-iot-config.js": {
+      "bytes": 6608,
+      "sha256": "e04d9338a5435089bbf1ab804523aadabac08735f78f1f719a331b45f520d601"
+    }
+  },
+  "edit_view_target_symbols_verified": true,
+  "edit_view_source_manifest": {
+    "board": "WR1200JS",
+    "edit_startup_attempt_prepared": true,
+    "view_startup_attempt_prepared": true,
+    "native_capabilities_verified": true,
+    "http_view_bound": true,
+    "http_edit_bound": true,
+    "http_bound": true,
+    "target_verified": false,
+    "runtime_verified": false,
+    "production_ready": false
+  },
+  "dependency_closure": {
+    "runtime_verified": false,
+    "production_installed": false,
+    "dependency_closure_verified": true,
+    "elf_files": {
+      "candidate:sbin/rc": {
+        "sha256": "c8f25c8bed0a31edcb3ff4e8bf7710cc149cefa986d7cf784484a7be734e00c0",
+        "needed": [
+          "libiw.so.30",
+          "libshared.so",
+          "libdisk.so",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libiw.so.30": {
+        "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+        "needed": [
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libuClibc-1.0.48.so": {
+        "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+        "needed": [
+          "ld-uClibc.so.1"
+        ]
+      },
+      "image:lib/ld-uClibc-1.0.48.so": {
+        "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+        "needed": []
+      },
+      "image:lib/libshared.so": {
+        "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+        "needed": []
+      },
+      "image:lib/libdisk.so": {
+        "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+        "needed": []
+      },
+      "candidate:usr/sbin/httpd": {
+        "sha256": "2eb9755132d0e8c4a9e653e836de457f2d7849490c25a37acd8b39e981b08cb4",
+        "needed": [
+          "libshared.so",
+          "libiw.so.30",
+          "libdisk.so",
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libssl.so.3": {
+        "sha256": "3cb01582ae199b37e864e0470a2418d9c0023805e6fa11ecf6e0a3dfdcaaa938",
+        "needed": [
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libcrypto.so.3": {
+        "sha256": "59c454c4d8b448ac1e568ba1767f33ddff984121dfdfbf261fe678bc53b1b3de",
+        "needed": [
+          "libc.so.0"
+        ]
+      }
+    },
+    "errors": []
+  },
+  "board_checks": {
+    "uimage_magic": true,
+    "product_id": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "size_range": true,
+    "iot_hwnat_dtb": true
+  },
+  "module_vermagic_4_4_198": true,
+  "limits": [
+    "Selected embedded replacements and dependencies independently extracted; full unchanged-ROMFS proof remains CI scope",
+    "Covers746ea2cc initial saved boot selector and browser lease hardening; excludes later Classic navigation and runtime toggles",
+    "Candidate not main-image promoted or device accepted",
+    "Selector has a strong T definition in the target object; its final dynsym name is absent. Final caller/provider binding is not claimed; retain link map and caller relocations in a subsequent candidate."
+  ],
+  "runtime_verified": false,
+  "production_promoted": false,
+  "selector_final_binding_independently_verified": false,
+  "audit_script_sha256": "c64c7b916e547812b1c2e6a4645976aa1e22b2126724be180db09aecdf4b372a",
+  "downloaded_archive_sha256": "be7fd7385fcadbe6831ae0145839b8ee91c20159f3c27059ccb45f2d96984ef1"
+}

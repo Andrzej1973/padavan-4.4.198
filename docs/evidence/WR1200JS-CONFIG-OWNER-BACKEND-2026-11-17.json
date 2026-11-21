@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-17",
+  "base_revision": "a176a11f67031a878f9c82a3ec009fe6ddf0b849",
+  "status": "LOCAL_PRIVATE_CONFIG_OWNER_BACKEND_COMPOSITION_PASS_UNINSTALLED",
+  "composition_session": 58406,
+  "composition_exit_code": 0,
+  "compatibility_session": 15851,
+  "compatibility_exit_code": 0,
+  "verified_config_backend_states": [
+    "IDLE",
+    "ACTIVE",
+    "OFF",
+    "INITIAL_OFF",
+    "REBIND_ACTIVE",
+    "REBIND_OFF"
+  ],
+  "direct_config_tests_still_missing": [],
+  "actual_components": [
+    "config-owner.c",
+    "saved-config-store.c",
+    "rc-backend.c",
+    "existing runtime owner/runner/normal OFF",
+    "band-steering/settings-snapshot.c"
+  ],
+  "actors": [
+    "SDK resource/driver observers",
+    "native NVRAM syscalls",
+    "normal consumer (real normal/physical covered separately)"
+  ],
+  "no_actual_configuration_transport": true,
+  "no_flash_commit": true,
+  "no_loaded_profile_mutation": true,
+  "target_verified": false,
+  "runtime_verified": false,
+  "production_promoted": false,
+  "source_sha256": {
+    "tools/iot/saved-config.h": "a5e525d402b3f06b4617184cace64b31d1025ea5510974dbb59cb94fc08b0a31",
+    "tools/iot/check-saved-config.c": "838760cda7fb58e994f5949d0cf8ba52300dc4853247008ef09b643f62646855",
+    "tools/iot/check-saved-config.py": "94b1e1d3b57f04ca948c1833094db0659c0f542463529af9b1b04dfd158cb421",
+    "tools/iot/saved-config-store.c": "1a6ea4e275fde4e38e2da25c7fa39c291748c61e9fca70a1c76a39be2d058e94",
+    "tools/iot/saved-config-store.h": "21551f8b1d9da2aa734c13448597567a05301fec6b672bba180bdc40eefa3d92",
+    "tools/iot/check-saved-config-store.c": "5e6e706d1ce45e337099d5484c3583d26f57de1204f1896a7a00bb1d391f0129",
+    "tools/iot/check-saved-config-store.py": "a7bc8b49dcd4dd965c97746ba48c4a8cca0794b844e0daca999c3f3564009ea9",
+    "tools/iot/config-backend.h": "90d6e73360ecc6dc18add9adf7de088c5c1c5fc294c7b53b07235d5a89f2b3a3",
+    "tools/iot/config-owner.c": "7f5bb20dc6130ad7bb14ece8cb2240bd5c8aee1fe44a16abc4a831ba12515a4e",
+    "tools/iot/config-owner.h": "e3b86c6cf7a41f13a5d54760ad59a6fa41f841ddd30d895db02128984770ce05",
+    "tools/iot/check-config-owner-backend.py": "ec3330201c710029ca77d32b7415774ef9ba6d829c5f0079a31093714b1280b6",
+    "tools/iot/rc-backend.c": "f22b115eeac7ea87e863f78575f799c83e0cf298c17dbc84db28591cf69d7377",
+    "tools/iot/prepare-runtime.py": "36f1f5ce746f97f6452d80438c08e1cf66b578730afd2ce91450a61a8541dd06",
+    "tools/iot/check-runtime-source.py": "e7ea9e1609831bac2b18813804ef38ff0557d0122b5c83c96fa2d05076bd05d9",
+    "tools/iot/check-host-compatibility.py": "5c6847314c6ba87d23ec422642a6f0a266d8d65c18fc07830eb067258ea06795",
+    "tools/iot/check-rc-rebind-owner.py": "443c4abfb00b7016c5a88ed988e977790461a1e3993d4e7e15b558775d11a91d",
+    "tools/iot/check-mailbox-active-normal-shutdown.py": "ac835e7cccd35ff62eb34b59958647c5ed987aaaa1b43647cdb8c84ab371c80d"
+  },
+  "log_sha256": {
+    "config-owner-states-fixed.log": "b3c324036986ff47b4cb8f968b2d7fbd03085000fbb9dbe95a62c9bdd83a81fb",
+    "config-compat.log": "23b6c3d934d31949c807d707a06dbdfd91c841954eb66e7eaa1447e6df23dba9",
+    "config-extra-states.log": "ed38d2bb0b6a33d3f68e925646e286d77ee95f7b1a1c7b2ef41348d04670e57c",
+    "config-owner-cancel-read-error.log": "b3c324036986ff47b4cb8f968b2d7fbd03085000fbb9dbe95a62c9bdd83a81fb",
+    "config-full-preflight.log": "218a2a2c4c583adafd5d767725aed3784f9ccb931bfed433a673eb0300fd27c8"
+  },
+  "ci_for_published_base": {
+    "standard1346": {
+      "run": 44017829836,
+      "conclusion": "success"
+    },
+    "abi911": {
+      "run": 44017850437,
+      "conclusion": "success"
+    },
+    "optional1347": {
+      "run": 44019168668,
+      "status": "in_progress",
+      "verified_revision": "a176a11f67031a878f9c82a3ec009fe6ddf0b849"
+    }
+  },
+  "additional_config_states": {
+    "session": 13942,
+    "exit_code": 0,
+    "scope": "Actual INITIAL/rebind retained observers; spent consumer and stale ACTIVE token refusal"
+  },
+  "cancel_read_error": {
+    "session": 53899,
+    "exit_code": 0,
+    "scope": "Explicit cancellation with unknown read must not fall through to SET; fresh prior then proven cancel"
+  },
+  "full_preflight": {
+    "session": 36520,
+    "status": "completed",
+    "exit_code": 0,
+    "scope": "71 existing standalone fixtures, existing composition/CLOSE/WDS and three new configuration fixtures"
+  },
+  "verification_note": "Production C unchanged during full preflight; additional cancellation assertion and new rebind/INITIAL fixture assertions were separately verified in sessions53899/13942."
+}

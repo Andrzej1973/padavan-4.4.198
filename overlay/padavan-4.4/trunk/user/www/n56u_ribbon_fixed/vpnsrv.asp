@@ -59,7 +59,7 @@ function initial(){
 	show_footer();
 
 	if (!found_app_ovpn())
-		document.form.vpns_type.remove(2);
+		$j("#vpns_type option[value='2']").remove();
 	else
 	if (!support_ipv6() || ip6_service == ''){
 		var o = document.form.vpns_ov_prot;

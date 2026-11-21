@@ -1,0 +1,48 @@
+{
+  "scope": "isolated Guest JSON route using existing update/apply/commit/notify",
+  "route": "wr_modern_guest_apply.json",
+  "json_replies_checked": 77,
+  "states": [
+    "configuration_matches",
+    "reload_required",
+    "busy",
+    "rejected",
+    "unconfirmed",
+    "unavailable"
+  ],
+  "checks": [
+    "strict nine-key JSON schema and no secret echo",
+    "24 band/shared/manual/keep-change-open operations, stale replay, fresh no-op",
+    "readback of all13 public fields and owned key before commit/notification",
+    "snapshot missing/mismatch reject before secret reads",
+    "busy/invalid/unavailable before writes",
+    "fault-injected write returns unconfirmed and suppresses deferred commit/notification",
+    "raw HTTP/CGI/body protections and171-field injection regressions pass"
+  ],
+  "response_limits": [
+    "configuration_matches is RAM readback observation, not transaction/durability/runtime acceptance",
+    "flash and notification are requested_unverified, not acknowledged",
+    "runtimeVerified false and automaticRetry false always",
+    "HTTP200 application states; HTTP transport failures can be HTML400/401"
+  ],
+  "unresolved": [
+    "external NVRAM writer races and secret-only changes",
+    "partial write rollback/atomicity",
+    "real browser/sockets/auth/template-engine acceptance",
+    "UI result/retry integration",
+    "target compile for this version",
+    "physical board runtime"
+  ],
+  "production_installed": false,
+  "runtime_verified": false,
+  "scratch_removed": true,
+  "files_sha256": {
+    "guest-json-output.c.inc": "7e4f2fb01a12572b5131b0da0d6f6e15b9eaecf2b689f846bde9df09ae7d1c26",
+    "prepare-guest-json.py": "066117bb9a2304a0f07ddfa11b838881555599aa73e4ad9c71d9e19d8091b15b",
+    "guest-adapter.h": "bf9d9cbd4a4aa2bd7ff01c862bcfc17a5b73d08ce0ed932f53f33cbc2eed7712",
+    "prepare-guest-candidate.py": "6d06ca587c77939d98ec5d5d78136c30e421c170b83a9a835bdd090525d87649",
+    "guest_endpoint_fixture.py": "3abf3d8a2e2b6c3d18ce4844e062c2507e95ff5c7e5137282bc1efe6cfbdbc9b",
+    "guest-endpoint-main.c.inc": "06d2ff270fd4ca947998994e11cde2f19559ccc026fa84675990534ddd166739",
+    "check_guest_candidate.py": "9f5434e0466cb26fb97172c92c6f19ea4b3a96c9aac04e088ac68510beebb982"
+  }
+}

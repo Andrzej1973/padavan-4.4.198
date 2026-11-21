@@ -1,0 +1,17 @@
+{
+  "scope": "Staged actual kernel scheduling binding with host work/lock stubs and real recovery transfer",
+  "hashes": {
+    "tools/iot/driver-api-close-recovery-binding.inc": "e4cd77a065049c8d91cff779c37c7274ba65ad42b344f0fb326a1c54a5b16290",
+    "tools/iot/check-driver-api-close-recovery-binding.c": "f5acd4764a35487e086338304750a3b0d41807455178815b01ce3cacb0c4983c",
+    "tools/iot/check-driver-api-close-enter.c": "88d10ef2d9993601d1be5b50fc26fda83be0a4919448c8beeff44f549c507656"
+  },
+  "asan_ubsan": "PASS",
+  "schedule_cases": 6,
+  "schedule_failure_retains_owner": true,
+  "duplicate_transfer_refused": true,
+  "ioctl_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "module_retirement_bound": false,
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
+}

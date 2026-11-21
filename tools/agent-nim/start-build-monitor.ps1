@@ -17,8 +17,11 @@ $taskOldPath = $env:PATH
 $taskOldCa = $env:SSL_CERT_FILE
 try {
     if (-not $env:GITHUB_TOKEN -and (Get-Command gh -ErrorAction SilentlyContinue)) {
-        $taskToken = & gh auth token 2>$null
-        if ($LASTEXITCODE -eq 0) { $env:GITHUB_TOKEN = $taskToken }
+        & gh auth status --hostname github.com 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            $taskToken = & gh auth token 2>$null
+            if ($LASTEXITCODE -eq 0) { $env:GITHUB_TOKEN = $taskToken }
+        }
     }
     if (Test-Path -LiteralPath 'C:/nim/bin') { $env:PATH = 'C:/nim/bin;' + $env:PATH }
     if (-not $env:SSL_CERT_FILE -and (Test-Path -LiteralPath 'C:/Program Files/Git/mingw64/etc/ssl/cert.pem')) {

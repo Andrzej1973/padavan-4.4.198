@@ -2,6 +2,7 @@
 """Add the read-only stored-profile table to the VPN client page."""
 import argparse
 from pathlib import Path
+from type_ui import remove_unavailable_legacy_types
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("tree", type=Path, help="Padavan tree root")
@@ -11,8 +12,16 @@ here = Path(__file__).resolve().parent
 httpd = args.tree / "trunk/user/httpd"
 web = httpd / "web_ex.c"
 page = args.tree / "trunk/user/www/n56u_ribbon_fixed/vpncli.asp"
+server_page = args.tree / "trunk/user/www/n56u_ribbon_fixed/vpnsrv.asp"
 text = web.read_text(encoding="utf-8")
 html = page.read_text(encoding="utf-8")
+server_html = server_page.read_text(encoding="utf-8")
+
+# WR1200JS deliberately excludes PPTP and standalone L2TP. Remove their
+# choices from both legacy selectors; OpenVPN remains capability-gated by the
+# inherited found_app_ovpn() check in each page.
+html = remove_unavailable_legacy_types(html, "vpnc_type")
+server_html = remove_unavailable_legacy_types(server_html, "vpns_type")
 
 if "wr_vpn_profile_rows" in text:
     raise RuntimeError("VPN profile rows already integrated")
@@ -159,4 +168,5 @@ for name, entries in texts.items():
 
 web.write_text(text, encoding="utf-8", newline="\n")
 page.write_text(html, encoding="utf-8", newline="\n")
+server_page.write_text(server_html, encoding="utf-8", newline="\n")
 print("PASS added the stored-profile table and action endpoint to the VPN page")

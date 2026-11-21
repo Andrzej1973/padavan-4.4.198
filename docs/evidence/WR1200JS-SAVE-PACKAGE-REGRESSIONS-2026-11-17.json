@@ -1,0 +1,72 @@
+{
+  "tests": [
+    {
+      "test": "check-save-transport.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-save-transport.py.log",
+      "log_sha256": "3c79417a0acd423ad5c91c72f02c288c727bf3704e1af7990a26783c125efd3b"
+    },
+    {
+      "test": "check-config-save-server.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-config-save-server.py.log",
+      "log_sha256": "db78469f988270d501dac629bf0c6b0c094448c88e1c9cff78184dc4a378235c"
+    },
+    {
+      "test": "check-save-route.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-save-route.py.log",
+      "log_sha256": "b6c7af7d4378696307fbbeda94dbcd8fb1c7d5a3795b8f5b43f842187c334dfd"
+    },
+    {
+      "test": "check-config-owner-backend.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-config-owner-backend.py.log",
+      "log_sha256": "b3c324036986ff47b4cb8f968b2d7fbd03085000fbb9dbe95a62c9bdd83a81fb"
+    },
+    {
+      "test": "check-config-transport.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-config-transport.py.log",
+      "log_sha256": "f7882d0f20948a748ee709fcddb62301f606822ed256e9844f9c236e71e6bc40"
+    },
+    {
+      "test": "check-rc-runtime.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-rc-runtime.py.log",
+      "log_sha256": "3324f0ae6da441913ff90bec899e6c616e37efc55268adda1e68c7150f0e691f"
+    },
+    {
+      "test": "check-rc-boot-scheduling.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-rc-boot-scheduling.py.log",
+      "log_sha256": "272cd95e6a22ac0843977431c9408b04694687a63342e43c6eac89051cd69bbc"
+    },
+    {
+      "test": "check-rc-scheduler-composition.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-rc-scheduler-composition.py.log",
+      "log_sha256": "47921ce192e2fef308ce9cc8b145b102c2e01fff659a58587d98f8a27f7c627d"
+    },
+    {
+      "test": "check-rc-radio-off-composition.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-rc-radio-off-composition.py.log",
+      "log_sha256": "21d3ef801dec38e8a2de65a2bc1c718cb1a2f9ee8b47f756b093511a0e7f40f4"
+    },
+    {
+      "test": "check-rc-radio-on-composition.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-rc-radio-on-composition.py.log",
+      "log_sha256": "3838fe7d00d074f2245e5c5fb9c9f70561ec06bce22534b2c4e5f51e922cd259"
+    },
+    {
+      "test": "check-save-startup.py",
+      "exit_code": 0,
+      "log": ".scratch/config-transport-20261117/save-final-check-save-startup.py.log",
+      "log_sha256": "3d723da934b847e976d6863160bde24b80b370f48c455439b661b9be41334f42"
+    }
+  ],
+  "completed": true,
+  "host_only": true
+}

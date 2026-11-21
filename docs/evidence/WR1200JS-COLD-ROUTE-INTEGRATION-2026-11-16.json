@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-16",
+  "status": "LOCAL_COLD_ROUTE_HOST_SUITE_VERIFIED_TARGET_PENDING",
+  "base_revision": "502d497e4e0e584ee793d5cad7290aa1a03b54d7",
+  "implementation": [
+    "Cold ACTIVE exact preflight requires available normal consumer under OFF exclusion",
+    "Parent cleanup arms route before fence/admission release",
+    "Private routed handoff requires exact released root/no live child/no allocations/fresh ACTIVE/available normal consumer",
+    "Root returns checked cancellation and does not start new IAPP",
+    "Existing live-child final shutdown preserved",
+    "Runtime staging includes private API; target linker and paired manifest require cold bindings"
+  ],
+  "verified": [
+    {
+      "session": 23779,
+      "exit_code": 0,
+      "scope": "Nine focused integrated cold tests; first full fixture used real root_step after driven parent stages"
+    },
+    {
+      "session": 13813,
+      "exit_code": 0,
+      "scope": "Permanent fixture now actual root_begin/root_step all startup phases, same real backend, cleanup TERM, normal OFF/physical RELEASE"
+    },
+    {
+      "session": 55914,
+      "exit_code": 0,
+      "scope": "Live IAPP drain with armed normal route; failure/unmask retains; no premature stock signal"
+    },
+    {
+      "session": 32367,
+      "exit_code": 0,
+      "scope": "Typed lifecycle pair mutations and routed root signal cases"
+    },
+    {
+      "session": 29058,
+      "exit_code": 0,
+      "scope": "Actual normal controller cold readiness/handoff refusal predicates"
+    },
+    {
+      "session": 28741,
+      "exit_code": 0,
+      "scope": "Full physical-stop host suite including actual cold root begin/step, spent-consumer refusal, stale ACTIVE refusal, cleanup TERM, normal OFF and physical RELEASE"
+    }
+  ],
+  "pending": [
+    "Target build/link and staged-runtime source verification for this package",
+    "New candidate image audit and physical runtime acceptance"
+  ],
+  "scope_limits": [
+    "Full enabled composition hardware/SDK/network/commit observations remain injected",
+    "Legacy cold-only tests use explicitly reduced normal-consumer actor; full composition uses actual normal controller",
+    "Candidate not yet committed/published; no target/device acceptance"
+  ],
+  "sha256": {
+    "rc-normal-shutdown.c": "b0957c7ccd3b6020b67b334c720e65a521e669c8a287e37838b4f82e666cf906",
+    "rc-normal-shutdown.h": "b5d685c053585a1b72f7fa2749a3aa11a34c700a03f07c10d02dab25bb3a29ff",
+    "rc-cold-detach.inc": "e8c8f6586ec78693bde016716a7e67e88478b4b4b24045603c174528c6f14a08",
+    "rc-cold-release.inc": "5e87c71d211f4bcd127625ee0519c1764ca29cecadfad36a3e3b3cc5d368c85f",
+    "rc-cold-route-handoff.inc": "4c6bce78d1b2827dcf9196ae4e822d47b1a6c987194953c940d6866570b90033",
+    "cold-on-root-signal.c": "d6b5f18013b124e2add9685dda071f8227002c22b8b63a659beef447f8307f96",
+    "cold-on-root.h": "47a9219aad6ff29e28bfce814a1c5eee62d6d77fd1c1fa64892de82f47a383e4",
+    "prepare-runtime.py": "dd39a4e866c43017a3214fac1f8c5a0bba103f20f403d1ef62166a047237b8e9",
+    "compile-runtime-link.sh": "76fe3762f4ab54f4959676e22bfe0d017865daddaad7e564d0449ba0951306ad",
+    "package-candidate-pair.py": "d06c80fc03672d9262bdd921f71a03abe5fde7cb797c22c9210f020960369be0",
+    "check-cold-normal-backend-composition.py": "a3d3e93bef7f44017e875a5d77abb09f81766a90429fcde83848fb347b1d45ef",
+    "check-cold-live-iapp-normal-route.py": "bce6afc86cdbcb15b92ea49b6c141f442a158a59d6c2d2b2fee16d6244a246b2"
+  },
+  "runtime_verified": false,
+  "production_promoted": false,
+  "prepublication_checks": {
+    "python_ast": "PASS scoped changed/new scripts",
+    "shell_syntax": "PASS compile-runtime-link.sh",
+    "whitespace": "PASS tools/iot diff",
+    "remote_branch_revision": "502d497e4e0e584ee793d5cad7290aa1a03b54d7",
+    "outgoing_local_commits": 0,
+    "shared_unrelated_changes_preserved": true
+  },
+  "full_suite_log_sha256": "50c54c3d5a0f346dbed260e76c6f75681116bf6121ab32b0b3157d375998e956",
+  "target_build_verified": false
+}

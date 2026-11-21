@@ -1,10 +1,12 @@
 # WR1200JS device readiness and first Linux 4.4 validation
 
-Updated 2026-10-16. A successful build does not establish a working device port.
+Updated 2026-10-18. A successful build does not establish a working device port.
 
 ## Current evidence and authorization
 
-Physical follow-up, 2026-10-13: SSH was restored and direct read-only commands confirmed the installed Linux 4.4.198 firmware is operating in **test mode**, as designated by the owner. See [installed test-mode baseline](runtime/WR1200JS-2026-10-13-TEST-MODE.md). Ordinary local DNS answered; Stubby/DoH remain disabled and ZRAM remains requested but inactive. Exact installed CI artifact identity and final port acceptance are not established. Earlier timeout observations below are historical and superseded by this connection.
+Physical follow-up, 2026-10-18: read-only SSH confirms Stubby is enabled in strict mode, listening on `127.0.0.1:5453`, with established TCP sessions to configured DoT resolvers on port 853; dnsmasq selects the local Stubby listener and a local DNS query answered. The external DNS-check screenshot reports different resolver addresses and does not by itself show the router's DoT path is failing. See [DoT runtime check](runtime/WR1200JS-2026-10-18-DOT-CHECK.md). DoH is disabled (`doh_enable=0` in the later sample). Earlier 2026-10-13/14 Stubby-disabled observations are superseded for Stubby state by this check. Exact installed CI artifact identity and full DNS-path acceptance are not established.
+
+Later read-only snapshot, 2026-10-18 18:19 device time: ZRAM is active with 30,912 kB swap; `hw_nat_mode=2` and `hw_nat` are present with the kernel reporting requested WAN↔LAN offload; Band Steering daemon/control returned `active` and both radio interfaces were up. These observations do not prove measured packet acceleration or client roaming. See [acceleration and steering snapshot](runtime/WR1200JS-2026-10-18-ACCELERATION-STEERING-SNAPSHOT.md). This later ZRAM observation supersedes the older inactive-swap report for the current sample only.
 
 The latest independently downloaded and hashed artifact is test build 354,
 `WR1200JS_4.4.198.9-354_d690a6a8.trx`, SHA256
@@ -16,7 +18,7 @@ live router. Build 266 and earlier candidate records remain historical evidence.
 
 The user deferred installation and requested continued code work. Read-only SSH checks are authorized; flashing, rebooting and enabling disabled DNS services are not authorized by that instruction. Preserve the AmneziaWG tunnel. SSH subsequently succeeded after the owner restored access. The older live image still reports no active swap and intentionally disabled Stubby/DoH; its client HTTP endpoint returns `source_unavailable`. Current standalone MIPS collectors ran successfully against the live sources: 19 networkmap records, a valid empty 58-entry radio-0 table and a valid 64-entry radio-1 table with three clients. See [client collection evidence](CLIENT-OBSERVATION-STATUS.md) and [diagnostic scope](CLIENT-DIAGNOSTICS.md). These probes do not replace testing the newly built HTTP handler or firmware.
 
-VPN handshake/interface observation, DNS process-state refresh and ZRAM swap-state refresh now have source/native/image evidence. They still require physical browser and router verification. Process presence does not establish DNS/TLS health; a handshake does not establish routing. Keep the full hardware/configuration/features checklist below open, including reboot persistence and sustained traffic stability. CAKE/SQM is excluded from the requested profile.
+VPN handshake/interface observation, DNS process-state refresh and ZRAM swap-state refresh now have source/native/image evidence. They still require physical browser and router verification. Process presence does not establish DNS/TLS health; a handshake does not establish routing. Keep the full hardware/configuration/features checklist below open, including reboot persistence and sustained traffic stability. CAKE/SQM is selected for inclusion with factory runtime OFF; its new target image and device acceptance remain pending.
 
 ## Historical candidate identity — 2026-10-03
 

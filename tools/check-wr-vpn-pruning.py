@@ -25,6 +25,9 @@ for page,field,allowed,legacy in [
   js.append('(()=>{const document={form:{'+field+':{selectedIndex:2}}};'+code+
    ';assert.strictEqual(document.form.'+field+'.selectedIndex,'+str(-1 if saved in legacy else 2)+');})();')
  if field!='wan_proto':
+  value_hook='$j("#'+field+" option[value='2']\").remove();"
+  assert text.count(value_hook)==1,page+' OpenVPN capability hook changed'
+  assert 'document.form.'+field+'.remove(2);' not in text,page+' legacy index hook remains'
   role=field[:-5];protocol=role+'_wg_protocol'
   control=re.search(r'<select\b[^>]*name="'+protocol+r'"[^>]*>(.*?)</select>',text,re.S)
   assert control and re.findall(r'<option value="([^"]*)"',control.group(1))==['','wireguard','amneziawg']

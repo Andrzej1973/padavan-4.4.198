@@ -1,0 +1,12 @@
+{
+  "revision": "6b042e90",
+  "suite": "tools/iot/check-physical-stop-suite.py",
+  "exit_code": 0,
+  "log_sha256": "c30c9f918408a9147c5ebea9c73d045ac33a44d82fb9435d2fe7da56100db052",
+  "log_bytes": 45243,
+  "pass_markers": 221,
+  "source_changed_during_run": false,
+  "scope": "complete registered host suite including disabled restoration/root/shutdown",
+  "target_verified": false,
+  "runtime_verified": false
+}

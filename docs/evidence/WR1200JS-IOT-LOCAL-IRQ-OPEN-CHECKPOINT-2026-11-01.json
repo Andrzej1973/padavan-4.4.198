@@ -1,0 +1,29 @@
+{
+  "scope": "local coherent IRQ/OPEN barrier validation checkpoint",
+  "head": "9555bcd4a7e029ea87a5957a5e62109ebeb0aa6e",
+  "working_files_sha256": {
+    "tools/iot/prepare-aux-family-retry-scheduler.py": "2f862be4f83fd442127460c091db32087912ba4ad537e8239f7c43a93d1f53b0",
+    "tools/iot/check-joined-rearm.py": "613d61c26f4aff561a5fb245c1a418ee4ebde2790083457f23285c14c770d6a8",
+    "tools/iot/check-tasklet-irq-rearm.py": "f905a11ebb925c5c8e739486d40c355f22c3069045e5703e306303ce0bd5cb96",
+    "tools/iot/check-radio-transition.c": "5bdfc4cdd869a7ae99cdc909d83ddb027c73e9605b2d14daf03a7cf6d90da97f",
+    ".github/workflows/build-padavan-4.4-wr1200js.yml": "7ce13f6ac3de87d7876afe19ea55e9c1f0d5e4d10b3426cf811119d5f612c107"
+  },
+  "validated": [
+    "74-stage replay and strict production/RSSI merge",
+    "exact merged PCI MIPS TU",
+    "joined rearm/PCI entry/barrier fixture",
+    "tasklet rearm and partial disable fixture",
+    "AGG_TEMP lock fixture",
+    "checked-send fixture",
+    "Python AST, YAML, complete affected bash step, git diff --check"
+  ],
+  "full_module_verified": false,
+  "device_runtime_verified": false,
+  "terminal_cleanup_complete": false,
+  "remaining": [
+    "early PCI refusal bypasses terminal quiescence",
+    "firmware LOAD_FW_ONE_TIME checked-off refusal",
+    "direct startup/reset IRQ/DMA producer admission",
+    "full target module link and image validation"
+  ]
+}

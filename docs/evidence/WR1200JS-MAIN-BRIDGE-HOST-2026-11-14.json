@@ -1,0 +1,47 @@
+{
+  "base": "5282c6084c97b34c2759eaa5ac27102a3a804e32",
+  "sdk_source": [
+    "trunk/user/shared/netutils.h IFNAME_BR br0, IFNAME_2G_MAIN ra0",
+    "trunk/user/shared/netutils.c br_add_del_if uses SIOCBRADDIF without readback"
+  ],
+  "implementation": "local restart-main-bridge.c/h",
+  "check": "check-restart-main-bridge.py PASS O2 ASan/UBSan syscall injection",
+  "invariants": [
+    "fixed ra0/br0 only",
+    "service guard",
+    "Main UP before add",
+    "bridge directory and stable indexes",
+    "foreign master refused",
+    "already attached readback without duplicate ioctl",
+    "ioctl/close errors uncertain"
+  ],
+  "runtime_linked": true,
+  "controller_bound": true,
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": {
+    "log_bytes_removed": 18042,
+    "native_test_trees": "automatic removal"
+  },
+  "checks": [
+    "check-restart-main-lan.py PASS one-shot bridge phase, actors injected",
+    "check-restart-main-composition.py PASS regression",
+    "check-restart-main-transport-composition.py PASS regression",
+    "prepared runtime19863 exit0:22 copied TUs native C11",
+    "check-restart-main-lan-composition.py PASS actual controller/bridge transport, kernel calls injected"
+  ],
+  "full_suite_parts": 66,
+  "full_suite_run": true,
+  "remaining": [
+    "Guest/services",
+    "post-UP recovery and baseline finalization",
+    "scheduler",
+    "target/device acceptance"
+  ],
+  "full_suite": {
+    "session": 9035,
+    "parts": 66,
+    "exit_code": 0,
+    "sha256": "a762974fcae9f7b9868fb0ec064b65814b7a4a3ebd9f231c831c9d39cdcd2676"
+  }
+}

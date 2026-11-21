@@ -1,0 +1,89 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "Pinned vendor source TxS on-wire correlation investigation, no protocol changes",
+  "files": {
+    "include/mac/mac_mt/mt_mac.h": {
+      "sha256": "32835ba6b46e2bd3995986e1a48114242a755d128ab8bfc10238f5fdf4ce7002",
+      "excerpts": [
+        {
+          "line": 308,
+          "text": "typedef struct GNU_PACKED tmac_txd_3 {\n\t/* DWORD 3 */\n\tUINT32 rsv3_0:6;\n\tUINT32 tx_cnt:5;\n\tUINT32 remain_tx_cnt:5;\n\tUINT32 sn:12;\n\tUINT32 rsv3_28:2;\n\tUINT32 pn_vld:1;\n\tUINT32 sn_vld:1;\n} TMAC_TXD_3;"
+        },
+        {
+          "line": 1164,
+          "text": "typedef union GNU_PACKED txs_d_1 {\n\tstruct {\n\t\tUINT32 noise_0:8;\n\t\tUINT32 noise_1:8;\n\t\tUINT32 noise_2:8;\n\t\tUINT32 rsv:8;\n\t} field_noise;\n\n\tUINT32 timestamp;\n\n\tUINT32 word;\n} TXS_D_1;"
+        },
+        {
+          "line": 1221,
+          "text": "typedef struct GNU_PACKED txs_d_3 {\n\tUINT32 transmission_delay:16;\n\tUINT32 rxv_sn:8;\n\tUINT32 wlan_idx:8;\n} TXS_D_3;\n#endif\n\n#ifdef RT_BIG_ENDIAN\ntypedef struct GNU_PACKED txs_d_4 {\n\tUINT32 last_tx_rate_idx:3;\n\tUINT32 mpdu_tx_cnt:5;\n\tUINT32 am:1;\n\tUINT32 fm:1;\n\tUINT32 pid:8;\n\tUINT32 tbw:2;\n\tUINT32 sn:12;\n} TXS_D_4;\n#else\ntypedef struct GNU_PACKED txs_d_4 {\n\tUINT32 sn:12;\n\tUINT32 tbw:2;\n\tUINT32 pid:8;\n\tUINT32 fm:1;\n\tUINT32 am:1;\n\tUINT32 mpdu_tx_cnt:5;\n\tUINT32 last_tx_rate_idx:3;\n} TXS_D_4;"
+        }
+      ]
+    },
+    "mac/mt_mac.c": {
+      "sha256": "0503f18843b3ddc5206b6f2565c7a57aedbe7e64f7591f0dc5d6aa5be1355576",
+      "excerpts": [
+        {
+          "line": 1007,
+          "text": "\t\t\t\tif (TxSCtl->TxS2HostStatusPerPktType[txd_2->frm_type] & (1 << txd_2->sub_type))\n\t\t\t\t{\n\t\t\t\t\ttxd_5->pid = AddTxSStatus(pAd, TXS_TYPE1, 0, \n\t\t\t\t\t\t\t\ttxd_2->frm_type, txd_2->sub_type, txd_6->tx_rate, info->TxSPriv); \n\t\t\t\t\ttxd_5->tx_status_2_host = 1;\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\ttxd_5->tx_status_2_host = 0;"
+        }
+      ]
+    },
+    "tx_rx/txs.c": {
+      "sha256": "58f963297852e7a864be13a7b9b7ea5ffd2a394a36309e736eef6691acee0524",
+      "excerpts": [
+        {
+          "line": 77,
+          "text": "INT32 BcnTxSHandler(RTMP_ADAPTER *pAd, CHAR *Data, UINT32 Priv)\n{\t\n\tTXS_STRUC *txs_entry = (TXS_STRUC *)Data;\n\t//TXS_D_0 *txs_d0 = &txs_entry->txs_d0;\n#if defined(CONFIG_AP_SUPPORT) && defined(DBG)\n\tTXS_D_1 *txs_d1 = &txs_entry->txs_d1;\n#endif /* defined(CONFIG_AP_SUPPORT) && defined(DBG) */\n\t//TXS_D_2 *txs_d2 = &txs_entry->txs_d2;\n\t//TXS_D_3 *txs_d3 = &txs_entry->txs_d3;\n#if defined(CONFIG_AP_SUPPORT) && defined(DBG)\n\tTXS_D_4 *txs_d4 = &txs_entry->txs_d4;\n#endif /* defined(CONFIG_AP_SUPPORT) && defined(DBG) */\n\n#ifdef CONFIG_AP_SUPPORT\n\tif ((pAd->OpMode == OPMODE_AP) \n\t\t)\n\t\t{\n\t\t\tUCHAR bss_idx = 0;\n\t\t\tBSS_STRUCT *pMbss = NULL;\n\t\t\tbss_idx = Priv;\n\t\t\tpMbss = &pAd->ApCfg.MBSSID[bss_idx];\n\t\t\tpMbss->bcn_buf.bcn_state = BCN_TX_IDLE;\n\t\t\tpMbss->bcn_not_idle_time = 0;\n\t\t\tDBGPRINT(RT_DEBUG_INFO, (\"%s():idx: %x, change state as idle\\n\", __FUNCTION__, bss_idx));\n\n#ifdef DBG\n\t\t\tpMbss->TXS_TSF[pMbss->timer_loop] = txs_d1->timestamp;\n\t\t\tpMbss->TXS_SN[pMbss->timer_loop] = txs_d4->sn;\n#endif /* DBG */\n\t\t\tpMbss->timer_loop++;\n\t\t\tif (pMbss->timer_loop >= MAX_TIME_RECORD)\n\t\t\t\tpMbss->timer_loop = 0;\n\n\t\t\treturn 0;\n\t\t}\n#endif /* CONFIG_AP_SUPPORT */\n\n\treturn 0;\n}"
+        },
+        {
+          "line": 675,
+          "text": "INT32 ParseTxSPacket(RTMP_ADAPTER *pAd, UINT32 Pid, UINT8 Format, CHAR *Data)\n{\n\tULONG Flags;\n\tTXS_CTL *TxSCtl = &pAd->TxSCtl;\n\tTXS_TYPE *TxSType = NULL;\n\tUINT8 Type, PktPid, PktType, PktSubType;\n\tUINT16 TxRate;\n\tUINT32 Priv;\n\n\tif (TxSCtl->TxSValid == FALSE)\n\t{\n\t\tDBGPRINT(RT_DEBUG_ERROR, (\"%s ==> Ignore this TxValid\\n\", __FUNCTION__));\n\t\tDumpTxSFormat(pAd, Format, Data);\n\t\treturn -1;\n\t}\n\n\tRemoveTxSStatus(pAd, Pid, &Type, &PktPid, &PktType, &PktSubType, &TxRate, &Priv);\n\t"
+        }
+      ]
+    },
+    "chips/mt7603.c": {
+      "sha256": "97febaaa4efad09884e6e5daf832da9b57a3a6118d9235458f1aa53648379996",
+      "excerpts": [
+        {
+          "line": 88,
+          "text": "/*\n    Init TxD short format template which will copy by PSE-Client to LMAC\n*/\nstatic INT asic_set_tmac_info_template(RTMP_ADAPTER *pAd)\n{\n\t\tUINT32 dw[5];\n\t\tTMAC_TXD_2 *dw2 = (TMAC_TXD_2 *)(&dw[0]);\n\t\tTMAC_TXD_3 *dw3 = (TMAC_TXD_3 *)(&dw[1]);\n\t\t//TMAC_TXD_4 *dw4 = (TMAC_TXD_4 *)(&dw[2]);\n\t\tTMAC_TXD_5 *dw5 = (TMAC_TXD_5 *)(&dw[3]);\n\t\t//TMAC_TXD_6 *dw6 = (TMAC_TXD_6 *)(&dw[4]);\n\n\t\tNdisZeroMemory((UCHAR *)(&dw[0]), sizeof(dw));\n\n\t\tdw2->htc_vld = 0;\n\t\tdw2->frag = 0;\n\t\tdw2->max_tx_time = 0;\n\t\tdw2->fix_rate = 0;\n\n\t\tdw3->remain_tx_cnt = MT_TX_SHORT_RETRY;\n\t\tdw3->sn_vld = 0;\n\t\tdw3->pn_vld = 0;\n\n\t\tdw5->pid = PID_DATA_AMPDU;\n\t\tdw5->tx_status_fmt = 0;\n\t\tdw5->tx_status_2_host = 0; // Disable TxS\n\t\tdw5->bar_sn_ctrl = 0; //HW\n\t\tdw5->pwr_mgmt= TMI_PM_BIT_CFG_BY_SW;"
+        }
+      ]
+    }
+  },
+  "sequence_write_sites": [
+    {
+      "path": "chips/mt7603.c",
+      "line": 108,
+      "text": "dw3->sn_vld = 0;"
+    },
+    {
+      "path": "chips/mt7628.c",
+      "line": 182,
+      "text": "dw3->sn_vld = 0;"
+    },
+    {
+      "path": "chips/mt7636.c",
+      "line": 204,
+      "text": "dw3->sn_vld = 0;"
+    }
+  ],
+  "findings": [
+    "TXS_D_4 contains 8-bit PID and 12-bit SN; TXS_D_3 contains 8-bit WLAN index; TXS_D_1 exposes timestamp",
+    "TX descriptor has 12-bit SN and sn_vld; descriptor existence does not prove beacon builder sets it or exact hardware echo behavior",
+    "ParseTxSPacket removes status by PID before callback; original beacon callback indexes current BSS using software Priv",
+    "Original beacon SN/timestamp are recorded only under DBG and not compared against expected submission identity",
+    "Candidate software reservation generation is not an on-wire TxS field; host-only generation cannot disambiguate reused PID",
+    "Explicit sn_vld assignments found only in chip short-template setup and set zero; this template is not itself proof of beacon descriptor path"
+  ],
+  "missing_evidence": [
+    "Exact beacon submission path SN assignment and hardware override for MT7603 E1/E2",
+    "Meaning/time domain and wrap behavior of TxS timestamp for beacon reports",
+    "Firmware/hardware contract for duplicate/late report delivery and PID reuse boundary",
+    "Safe per-BSS FIFO drain/completion that preserves Main/Guest, or equivalent demonstrably unique on-wire correlation"
+  ],
+  "decision": "Investigate existing PID+SN/timestamp further; no safe reuse/reopen fix proven. Do not enable active OPEN release, invent cookie field or use bounded delay as proof.",
+  "runtime_verified": false,
+  "cleanup": "Archive streamed in memory, no vendor extraction retained",
+  "sequence_search_scope": "All pinned mt76x3 .c/.h scanned for explicit ->/.sn_vld assignment and txd_3/txd3->sn assignment; aliases, raw MMIO and other names not excluded"
+}

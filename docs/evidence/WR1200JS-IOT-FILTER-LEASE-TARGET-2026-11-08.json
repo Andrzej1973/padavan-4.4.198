@@ -1,0 +1,30 @@
+{
+  "run_id": 42463260687,
+  "source_sha": "83675c9a6edb2a9ec6f2235681de7e895dbda1cc",
+  "runtime_verified": false,
+  "production_installed": false,
+  "artifacts": [
+    {
+      "id": 13610269211,
+      "archive_sha256": "ebad846f4814dbbf61952b05e62cafc76ceeb104e5fb0af8de687b267077cb3f",
+      "source": {
+        "dispatch_revision": "83675c9a6edb2a9ec6f2235681de7e895dbda1cc",
+        "requested_revision": "83675c9a6edb2a9ec6f2235681de7e895dbda1cc",
+        "verified_revision": "83675c9a6edb2a9ec6f2235681de7e895dbda1cc",
+        "runtime_verified": false
+      }
+    },
+    {
+      "id": 13611481510,
+      "archive_sha256": "f8de5f80b6e80060146c9ad7e5aa12845cf045529043440cc10f59ec06339a1d",
+      "module": {
+        "path": "mt76x3_ap.ko",
+        "bytes": 5861168,
+        "sha256": "9cba72a0ac5f399fb1181a572b8e932903082fc2ae7259484ab866564b3c8048",
+        "elf": "ELF32 LE MIPS"
+      },
+      "lease_header_sha256": "af73957f7001c4eadbbbc6614102833d31697964c29b7a604b82b4208db9d122",
+      "host_wrapper_result": "PASS actual recovery wrapper: shared BSS exclusion, reentry, early return release, stale token and exhaustion refusal, other chip bypass; vendor body injected, no MMIO proof\n"
+    }
+  ]
+}

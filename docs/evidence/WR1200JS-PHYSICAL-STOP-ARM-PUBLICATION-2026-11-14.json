@@ -1,0 +1,24 @@
+{
+  "scope": "local actual adapter ARM admission plus caller-owned reference publication",
+  "implementation": "retain full IoT ARM request in lifetime; match saved Main/radio state under transition lock; transfer local kernel reference bundle into persistent caller-supplied slot with physical record under disjoint MacTabLock",
+  "checks": [
+    "wrong nonce/generation leaves local references owned and output unchanged",
+    "success transfers once into slot",
+    "unpublished abort refuses after publication and after detach serial advances",
+    "record cancel detach and actual mocked reference returns restore only extras",
+    "19part suite65826 exit0 O2 ASan UBSan",
+    "installer asserts two adapter fields and exactly-once fresh zero init",
+    "abort refuses until both adapter reference bundles empty under MacTabLock",
+    "19part suite58200 PASS, latest combined adapter fixture rerun PASS after empty-bundle guard"
+  ],
+  "target_preparation": "dormant no-host installer stages publication and pin source includes; no dispatch endpoint",
+  "endpoint_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "adapter-owned persistent slot and transaction handler",
+    "deferred physical record completion binding",
+    "full target and runtime checks"
+  ],
+  "persistent_storage": "pending and published bundles are fresh-only zeroed adapter fields; publication rejects all other storage addresses"
+}

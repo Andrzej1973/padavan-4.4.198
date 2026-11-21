@@ -1,0 +1,23 @@
+{
+  "missing_strong_provider": "wr_iot_activation_prepare_radio_stop",
+  "actual_c_or_inc_definitions": [],
+  "references": {
+    "tools/iot/radio-stop-contract.h": [
+      15
+    ],
+    "tools/iot/prepare-rc.py": [
+      60
+    ]
+  },
+  "backend_source_sha256": "89720fdfa58438b58407c6ab45cc921bdcc541e6fa1110a37fa53da255e05253",
+  "effect": "prepared net_wifi.o requires symbol; complete RC executable cannot link until implementation exists",
+  "contract": "not a weak or constant-success hook; current CLOSED API is configuration/reference observation, not RF/DMA retirement permission",
+  "required_next_work": [
+    "implement backend-owned bounded radio-stop admission and recovery",
+    "preserve pending START/STOP and isolation; no recursive radio restart",
+    "separate never-opened initial-off proof from previously opened context",
+    "test shutdown/active/uncertain/rejected states before full-link dispatch"
+  ],
+  "ci_state": "standard/ABI jobs do not prove full RC link; new optional script target not run yet",
+  "device_modified": false
+}

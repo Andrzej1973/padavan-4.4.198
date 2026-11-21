@@ -1,0 +1,36 @@
+{
+  "preservation_run": 42483890602,
+  "preservation_workflow_sha": "a26123aa0d94bc0fc52cb261328f99b914faef24",
+  "release_url": "https://github.com/Andrzej1973/padavan-4.4.198/releases/tag/toolchain-source-candidate-v1",
+  "release_id": 438256507,
+  "tag": "toolchain-source-candidate-v1",
+  "original_generator_revision": "5ef6a8577ae24be27d8d81b3fe44a587d8491a16",
+  "source_run": 42467546674,
+  "archives": [
+    {
+      "name": "mipsel-linux-uclibc-source-candidate.tar.xz",
+      "asset_id": 723985597,
+      "bytes": 28505088,
+      "sha256": "5a9254920f52954b2910ad968086135436e320bfb1360928cf96f4f0bf03870a",
+      "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723985597"
+    },
+    {
+      "name": "toolchain-build-sources.tar.xz",
+      "asset_id": 723985602,
+      "bytes": 110258788,
+      "sha256": "6864c435e6af725a69f2739cee199d9e707c22e08f9d4dbf835312050272167b",
+      "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723985602"
+    },
+    {
+      "name": "toolchain-package-sources.tar.xz",
+      "asset_id": 723985600,
+      "bytes": 135448580,
+      "sha256": "eb3c39cfad40751e287e5d3651a8416ec57bf2b4f1dd4d8489781683bb96b12b",
+      "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723985600"
+    }
+  ],
+  "github_asset_digests_match_original_reports": true,
+  "new_compilation_performed": false,
+  "compiler_promoted": false,
+  "runtime_verified": false
+}

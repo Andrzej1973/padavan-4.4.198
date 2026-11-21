@@ -1,0 +1,20 @@
+{
+  "run_id": 43733787256,
+  "monitor_run_id": 43740817521,
+  "monitor_correct_causal_error": true,
+  "source_revision": "029c22285f4cb62502c96f8b0f58f0e993d17de0",
+  "root_cause": "Committed CI script loads untracked tools/repository/board_catalog.py; clean GitHub checkout lacks file.",
+  "original_excerpt": [
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:22:41.5387805Z PASS isolated TRX gate: actual SquashFS extraction, complete entry/mode/link comparison, header/payload CRC and unrelated-setting/mode corruption refusals; synthetic kernel/header, not firmware acceptance",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:22:41.5744480Z PASS paired candidate identities recorded; image assembly and runtime acceptance remain unverified",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:22:41.6466775Z Traceback (most recent call last):",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:22:41.6467219Z   File \"<stdin>\", line 3, in <module>",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:22:41.6467604Z   File \"<frozen runpy>\", line 285, in run_path",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:22:41.6468010Z   File \"<frozen runpy>\", line 254, in _get_code_from_file",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:22:41.6468651Z FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/padavan-4.4.198/padavan-4.4.198/tools/repository/board_catalog.py'",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-15T17:22:41.6599625Z ##[error]Process completed with exit code 1."
+  ],
+  "fix": "Self-contained tracked IoT board layout verifier; git-show-only fixture excludes every untracked dependency. Existing DTS/partition/max-size checks preserved.",
+  "host_regression": "PASS",
+  "ci_confirmation": false
+}

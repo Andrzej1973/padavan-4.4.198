@@ -1,0 +1,31 @@
+{
+  "failed_run": 42561950989,
+  "revision": "2c915ceafa4deb828a5b803b45ddbfcfbf4cf7ab",
+  "monitor_run": 42563397043,
+  "monitor_artifact": 13650492049,
+  "original_job": 128980143791,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "diagnostic_artifact": 13650331666,
+  "diagnostic_file": "close-bindings-target-tu.json",
+  "confirmed_error": "Missing copied driver sibling mt76x3.manifest.json",
+  "root_cause": "Verifier guessed manifest location from copied kernel driver path. CI keeps generator manifest at results/merged-source-manifest.json. Hash verification failed before standalone target TU compilation.",
+  "fix": "Pass explicit --manifest from CI; require explicit path when ordinary bundle exists. Keep verified_inputs hash closure and drift refusal. Print bounded actionable error in job log.",
+  "local_verification": [
+    "Bundle closure/integration/manifest regression PASS",
+    "Explicit results-directory manifest PASS",
+    "Missing or implicit manifest REFUSED",
+    "Tampered manifest/compiled source still REFUSED",
+    "Failure CLI prints CLOSE target TU error and writes failed JSON",
+    "Unbound roots warnings-as-errors PASS",
+    "bash syntax and git diff whitespace PASS"
+  ],
+  "monitor_assessment": "Monitor identified failed step but generic diagnostic hid causal file error. Improved smallest diagnostic producer; added failure-output regression. Existing error: filter recognizes new prefix; no parser change.",
+  "source_sha256": {
+    "tools/iot/check-close-bindings-target-tu.py": "3bd23d975d4e16aaf5ac8daf947a012e034cb5bd84aeb880001aa5538ddac115",
+    "tools/iot/ci-compile-merged-candidate.sh": "73a0703816f328743484e9dffff3c434afd1a8c015d00766f1db9dc767188bae",
+    "tools/iot/check-close-bundle-assets.py": "a04e13d57665326dcac568ec8859b9d12cb56582fadbbf66d01023fa04ef1f6c"
+  },
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": "Monitor/job logs and diagnostic ZIP memory-only; temporary native fixtures removed"
+}

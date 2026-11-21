@@ -1,0 +1,18 @@
+{
+  "prepared_rc": "PASS exact source/header checking",
+  "native_compilation": "PASS GNU11 -Wall -Wextra -Werror -O2 six prepared units",
+  "units": [
+    "reopen-admission",
+    "reopen-start",
+    "reopen-network",
+    "reopen-rollback",
+    "start-runner",
+    "activation-owner"
+  ],
+  "sdk_pin": "c25283e915a2a00a763774dd255b14aff997285e",
+  "mips": "coverage added, unpublished/not executed",
+  "runtime_metadata": "off_reopen_admission true; production_ready/runtime_verified false",
+  "ci_host_checks": "all10 reopen scenarios added to ABI, last3 added to optional where7 already registered",
+  "pending": "full suite14475; prepared runtime metadata check; publish coherent package and run MIPS",
+  "cleanup": "prepared subset/objects removed by TemporaryDirectory"
+}

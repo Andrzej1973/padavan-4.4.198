@@ -1,0 +1,21 @@
+{
+  "scope": "RC read-only double DOWN observation; not reopen authorization",
+  "checks": {
+    "actual_observer_host_gcc_werror_asan_ubsan": "PASS",
+    "prepared_runtime_c11_units": "PASS",
+    "identity_drift_zero_fields_pending_inactive_guard_policy": "PASS",
+    "captured_identity_revalidation_and_second_read_failure": "PASS"
+  },
+  "sha256": {
+    "tools/iot/precreated-down-observe.c": "1d2adf3f66613cd56b33e8d0b1968181602c9aec168e41215b01c9be25b55418",
+    "tools/iot/precreated-down-observe.h": "9e1f1cf46d709f74f512d8f0013001aee7e57d9a903ae6e23cb6409b83509d15",
+    "tools/iot/check-precreated-down-observe.py": "fbe05f9984ecb5cbebbcea611890950d977b9cbf1fd3994ae8b2827a172150f1"
+  },
+  "target_build_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "cold RC admission and safe startup integration",
+    "target build and image verification",
+    "physical acceptance"
+  ]
+}

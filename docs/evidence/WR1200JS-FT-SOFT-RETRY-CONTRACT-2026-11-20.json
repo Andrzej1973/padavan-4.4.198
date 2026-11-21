@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-20",
+  "source_sha256": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+  "native_contract": [
+    "Without R1KH_HARD_RETRY, automatic KEY_REQ is emitted and AUTH proceeds to the null-cache/PMKID refusal without waiting. The later IAPP cache update supports a subsequent AUTH attempt.",
+    "With R1KH_HARD_RETRY, native code waits up to 30ms and loops at R1KH_QUERY."
+  ],
+  "integration_correction": "The earlier blanket request-end-at-return rule is insufficient for native soft retry. Choose explicit synchronous end/cancel versus detached adapter-owned waiting request; never cancel every request solely because AUTH returned.",
+  "prepared_host_evidence": "WR1200JS-FT-AUTH-REQUEST-CONTEXT-HOST-2026-11-20.json",
+  "remaining": [
+    "Independent detached-response ownership/admission and atomic cache update",
+    "No completion of a subsequent invocation from a detached reply",
+    "Detached request expiry/retry replacement and delete/generation retirement",
+    "Native producer/consumer integration and target feature compilation"
+  ],
+  "installed": false,
+  "target_verified": false,
+  "device_verified": false
+}

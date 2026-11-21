@@ -1,0 +1,39 @@
+{
+  "source_sha256": {
+    "hw_ctrl/cmm_asic_mt.c": "a2bcc245b48f709164dcc3bbe73267cb8c7c4f4abe8fc6bebdcd6de5d53e6e45",
+    "mac/mt_mac.c": "0503f18843b3ddc5206b6f2565c7a57aedbe7e64f7591f0dc5d6aa5be1355576",
+    "include/wpa_cmm.h": "e57030510720f3f3afa5aea2d81ee26928628789f82c83ce5ca86fa2eaacc194",
+    "include/rtmp_def.h": "24bb65ea9dbe7e78df545a592fb4bb3be3ad7a8e4a2d9c48821fb92dbe549653",
+    "include/mac/mac_mt/wf_wtblon.h": "9dcfc701eed4f7b39f385a0dd405648138850a46fe1bab5c0b4d820ddf298c92"
+  },
+  "source_git_blob_sha1": {
+    "hw_ctrl/cmm_asic_mt.c": "a8c0c0ec59c7e51c88296111934597064cf36c4a",
+    "mac/mt_mac.c": "8aa1a977e043cb6060990dcc89a5ebe605af0918",
+    "include/wpa_cmm.h": "0dcfe6c9a34212f67ebc9005d6ed3d96cd80223f",
+    "include/rtmp_def.h": "54d4f14cbc7d5a8d0dbfbea350d0843455c73462",
+    "include/mac/mac_mt/wf_wtblon.h": "c630c51d9e34641fdabae68fd5c9512c52eaf33e"
+  },
+  "native_function_sha256": {
+    "CmdProcAddRemoveKey": "db90891c857b01c5365b6099368f927be1f3f0cf18fed33fa0aac2e640f4a91d",
+    "mt_wtbl_get_entry234": "c21fe87a7916740e03779cc8d58f4d7693920e28b34309e2e0161323c30a9eec"
+  },
+  "native_signed_shift_ub_reproduced": true,
+  "corrected_writer_sha256": "535d4ee1ec3197327cd2137e6532ec98ca7651bedad96a9f04c2ba6d2a4afbce",
+  "packing_composer_sha256": "89c5098fafc1942baba83095e36c98c6edf72e4d5f1273eff50277467cd4308b",
+  "corrected_host_cases_passed": true,
+  "hardware_mmio_verified": false,
+  "production_installed": false,
+  "runtime_verified": false,
+  "date": "2026-11-18",
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "github_blob_identities_verified": true,
+  "driver_patch_installed": false,
+  "target_build_verified": false,
+  "fix_scope": "Isolated candidate producer replaces two signed peer-byte packing expressions with UINT32 shifts/OR; no ACK, timing or queue change",
+  "limitations": [
+    "Synthetic host MMIO/layout configuration is not ASIC readback or RF/DMA/IRQ completion.",
+    "Host executes extracted native writer with only the reviewed packing correction; it does not execute full driver or all feature combinations.",
+    "Native invalid-WCID clamp and absent BSS-to-WCID validation are observations requiring admission checks in a future closed-profile transaction, not a new API or a runtime acceptance claim.",
+    "Does not fix the original MCU stale ACK exhaustion issue or complete IoT provisioning."
+  ]
+}

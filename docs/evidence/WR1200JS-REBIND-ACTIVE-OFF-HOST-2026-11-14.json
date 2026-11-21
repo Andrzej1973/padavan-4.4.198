@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-14",
+  "source_base": "847a96dc378bc3e0952198c44f6987fbc41cbc0c",
+  "implementation": [
+    "tools/iot/rebind-active-stop.c",
+    "tools/iot/rebind-observe.c"
+  ],
+  "behavior": [
+    "retained rebind runner referenced by pointer, never copied",
+    "normal OFF resumes same suspended baseline and existing precreated stop",
+    "failed isolation retains three nested guards and both snapshots",
+    "completed OFF discards baseline rather than restoring gates; clears copied request credentials",
+    "fresh read-only ACTIVE observation validates nonce/identity/current OPEN token and network services",
+    "OFF observation requires exact stop pointer and released CLOSE plus cleared temporary configuration",
+    "fresh CLOSE extraction holds service guard across observer and second exact identity read"
+  ],
+  "host_checks": {
+    "check-rebind-active-stop.py": "PASS actual snapshot/stage/suspend/resume/normal OFF/CLOSE controller/observer; driver/resources injected",
+    "prepared_runtime": "PASS session69281 exit0:15 actual copied TUs strict native C11",
+    "physical_stop_suite": {
+      "session": 61639,
+      "status": "PASS",
+      "parts": 52,
+      "exit_code": 0,
+      "log_sha256": "c0eaabd4177d798c21153b56297a57b162bc11fb8d52981de771e0c56f51a023"
+    }
+  },
+  "runtime_linked": true,
+  "backend_routing_bound": false,
+  "physical_resume_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "backend ownership/routing for retained rebind runner",
+    "checked Main startup and RC scheduler integration",
+    "target compilation and physical acceptance"
+  ],
+  "ci": {
+    "b9a554a_standard": 43596436130,
+    "b9a554a_standard_conclusion": "success",
+    "b9a554a_optional_dispatched": 43597655297
+  },
+  "cleanup": {
+    "test_trees": "TemporaryDirectory automatic removal",
+    "completed_log_bytes": 14459,
+    "completed_log_retained": false
+  }
+}

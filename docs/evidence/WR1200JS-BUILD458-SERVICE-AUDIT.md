@@ -46,6 +46,24 @@ sets `whole_service_audit_complete: false` and `runtime_verified: false`.
 - Keep device runtime, radio exchanges, VPN handshake/routing, service
   connectivity and reboot persistence explicitly unverified until observed.
 
+## Follow-up — build 478 administration and navigation gates, 2026-10-18
+
+GitHub Actions build #478 (run `39139346947`, source `d1dc0eb`) also passed
+the final-ROMFS settings backup check. Its log states: “Settings backup/restore
+page, menu route, secure gate, actions and EN/UK/RU labels are present in
+ROMFS”; artifact `settings-backup-image-checks` (ID `12141023552`) was uploaded.
+The checker explicitly requires the `login_safe()` gate, administration menu
+route, NVRAM and `/etc/storage` backup/restore rows and handlers, and EN/UK/RU
+keys. This proves those source elements survived packaging, not that an
+authenticated user can successfully upload, restore, commit settings or
+recover from the device UI.
+
+The same run passed the final service navigation verifier for routes, pages
+and EN/UK/RU labels; see
+[the navigation evidence](WR1200JS-SERVICE-NAV-LAYOUT-2026-10-18.md). Build
+#478 predates the current local regression fixture and stricter capability
+parser. Neither result substitutes for a router browser/session check.
+
 ## Interpretation
 
 Build #458 is successful firmware/packaging evidence and establishes that the

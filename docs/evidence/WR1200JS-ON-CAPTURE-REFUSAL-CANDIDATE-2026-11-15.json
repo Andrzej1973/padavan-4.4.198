@@ -1,0 +1,21 @@
+{
+  "status": "APPLIED_HOST_VERIFIED",
+  "patch": "docs/iot/WR1200JS-ON-CAPTURE-REFUSAL-CANDIDATE.patch",
+  "base": "a1502a1afdb8f086340d8b0ae483754e298d39d3",
+  "isolated_host_test": "PASS GCC C11 Werror ASan/UBSan actual root with candidate source: stale DOWN, RAM not OFF, changed profile, failed signal unmask, fresh proof cleanup, real deferred SIGTERM after root wipe",
+  "scope": "capture-only refusal before generation owner; exact original profile and OFF receipt checks reused",
+  "remaining_checks": [
+    "target build",
+    "image and device acceptance"
+  ],
+  "production_source_changed": true,
+  "runtime_verified": false,
+  "test": "tools/iot/check-radio-on-capture-refusal.py",
+  "test_sha256": "70cb9e5def0f26c71b1130cee59cc5783a10116ed88bf96ba9218b4801e9900d",
+  "checks_passed": [
+    "check-radio-on-capture-refusal.py (actual source)",
+    "check-radio-on-cancel.py",
+    "check-radio-on-owner.py",
+    "check-physical-stop-client-preparation.py"
+  ]
+}

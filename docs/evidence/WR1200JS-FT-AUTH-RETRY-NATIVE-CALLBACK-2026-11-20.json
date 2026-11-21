@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-20",
+  "scope": "Uninstalled native over-air AUTH retry callback composition",
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-auth-callback.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3 --retry --request-context",
+      "exit": 0,
+      "coverage": [
+        "Native composed FT branch calls retry helper before ordinary existing/pending selection when retry serial exists.",
+        "Exact retry enters pending scope and passes explicit invocation context to mocked crypto handler; successful generation is published before reply under live lease.",
+        "Retry allocation/resource exits balance lease and buffers. Changed provenance serial refuses before crypto handler or reply.",
+        "Original existing and pending first-peer branch scenarios still execute; duplicate retry composer refuses.",
+        "Host ASan/UBSan; adapter/MLME schemas and entry initialization are explicit actors."
+      ]
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-auth-callback-composition.py": "a44f76ab73cf2899a7649a667342176e48635a25fa3f06670277c4ba2b993330",
+    "tools/iot/check-ft-auth-callback.py": "623d921c37887f29b44ab401836a35b99eda3db3c3fa7e32fa77bab055142203",
+    "tools/iot/ft-auth-retry-peer-scope.h": "7ab15dfd395c9b00d627e5c600a1bd5876be6c4fdeecae021e02727316284cac"
+  },
+  "limits": [
+    "Retry RX selector remains unconnected; no end-to-end RX retry queue-to-callback run yet.",
+    "FT crypto handler is mocked in this callback fixture. Full target TUs not compiled.",
+    "Native token emission/IAPP/cache/completion integration and provenance retirement remain open.",
+    "Composer remains uninstalled; no final image or device acceptance claimed."
+  ]
+}

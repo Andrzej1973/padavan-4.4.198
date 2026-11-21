@@ -1,0 +1,44 @@
+{
+  "scope": "host cancellation gate/fence/pump component checks",
+  "checks": [
+    "pending normal shutdown and exact retained origin",
+    "exact backend shutdown CLOSED observer and Guest DOWN required",
+    "obsolete startup profile never restored after owned normal OFF",
+    "mask restore failure retains heap/guard and allows retry",
+    "success wipes snapshot/copies before real queued signal delivery",
+    "terminal cancellation result -1 consumed once",
+    "pump never repeats cleanup when take is retried",
+    "normal resume finish regression passes"
+  ],
+  "actors_injected": "complementary tests inject backend/finish-gate/origin/driver/network actors; not one full actual chain",
+  "preparation": {
+    "session": 69122,
+    "exit_code": 0,
+    "translation_units": 31,
+    "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  },
+  "scheduler_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "actual_pump_backend_composition": {
+    "session": 75361,
+    "exit_code": 0,
+    "scope": "actual resume pump + RC backend/rebind owner/normal OFF; driver/network and final cancellation gate actors injected",
+    "checks": [
+      "pending shutdown selects existing OFF",
+      "isolation failure retains guard",
+      "exact CLOSED observer",
+      "OPEN/CLOSE/progress/release once",
+      "no ordinary ACTIVE finish after CLOSED"
+    ],
+    "log_sha256": "0d56ef74ab740feeb20bf5b81433344da58403d73a7c65446a6b88bb420b57d3"
+  },
+  "suite85": {
+    "session": 53165,
+    "exit_code": 0,
+    "log_sha256": "264de356db8b56b02482acfa740128d997b66c69c229b4958e69bfcfd14d5a4a"
+  },
+  "preopen_pending_scope": "Actual pump/runner test PASS: one rollback to REJECTED with no OPEN, old baseline/admission retained. Separate verified rejected-state completion remains unimplemented. Do not bind RC entrypoints yet.",
+  "new_suite_parts": 87,
+  "full87_run": false
+}

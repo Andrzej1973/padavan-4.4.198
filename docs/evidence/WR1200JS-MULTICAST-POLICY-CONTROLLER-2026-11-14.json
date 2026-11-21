@@ -1,0 +1,38 @@
+{
+  "scope": "SDK saved multicast policy plus staged one-shot controller; root restore not bound",
+  "checks": {
+    "both_snoop_branches": "PASS",
+    "controller": "PASS;6935",
+    "native_preparation": "PASS;6935 exit0 after missing GNU feature macro correction"
+  },
+  "source_sha256": {
+    "tools/iot/restart-multicast-controller.c": "7bcea687828248157c707d407f77a94891483e4d242dac08dd35695ada589869",
+    "tools/iot/restart-multicast-controller.h": "cd37704883ca27cdbc27164fabc9378c79543b444decf6d97bb25817899d462a",
+    "tools/iot/restart-multicast-policy-sdk.inc": "dd5f06ce6a17e3629b72fc68afd44491b8971b3b0c4ca1a049e629773ff5bd53",
+    "tools/iot/check-restart-multicast-controller.py": "9b04d97d41cb125c60dbcbec8ec48a7265d666e189c11e32b64d1db8b625c693",
+    "tools/iot/check-restart-multicast-policy.py": "d8c28ad708d25b95a7c2dc8575c37284c7f42c8a8ed06725b2e4a37d5578cd25"
+  },
+  "prior_ABI": {
+    "run": 43636119731,
+    "result": "success",
+    "revision": "9e38dff",
+    "covers_new_multicast": false
+  },
+  "completed_scratch_removed": [
+    {
+      "path": "/tmp/wr-multicast-policy-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-multicast-controller-native.log",
+      "bytes": 5689,
+      "sha256": "a7b89184a68d48d6da58e39c3209b4c30149441329d1260b3fc58ca54750fa83"
+    },
+    {
+      "path": "/tmp/wr-multicast-controller-native-retry.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    }
+  ]
+}

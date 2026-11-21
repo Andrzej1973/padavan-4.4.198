@@ -1,0 +1,67 @@
+{
+  "run_id": 42626775333,
+  "revision": "ee6cc2ba4eeb4a22bf43661771d4a45a10868b22",
+  "artifact_id": 13680072968,
+  "trx_bytes": 13071921,
+  "trx_sha256": "744bf087fc2b33aeb4cf5bcd2b84b943c67c1addd1f6401bdaf2d16dffca1b69",
+  "independent_checks": [
+    "TRX size/SHA match CI report",
+    "uImage header/payload CRC and declared length independently recalculated",
+    "Actual embedded DTB re-inspected with current verifier and matches CI report",
+    "Effective kernel HW_NAT=y and RA_NAT_NONE=y; config mismatches empty"
+  ],
+  "image_report": {
+    "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
+    "image": "WR1200JS_4.4.198.9-953_ee6cc2ba.trx",
+    "bytes": 13071921,
+    "sha256": "744bf087fc2b33aeb4cf5bcd2b84b943c67c1addd1f6401bdaf2d16dffca1b69",
+    "declared_payload_bytes": 13071857,
+    "architecture_id": 5,
+    "compression_id": 3,
+    "checks": {
+      "uimage_magic": true,
+      "product_id": true,
+      "header_crc": true,
+      "declared_length": true,
+      "payload_crc": true,
+      "size_range": true,
+      "iot_hwnat_dtb": true
+    },
+    "iot_hwnat_dtb_policy": {
+      "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+      "external_devices": [
+        "usb0",
+        "wwan0",
+        "rax0",
+        "ra0",
+        "rai0",
+        "apclii0",
+        "apclix0",
+        "apcli0"
+      ],
+      "lan": [
+        "eth2"
+      ],
+      "wan": [
+        "eth3"
+      ],
+      "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+      "kernel_sha256": "21cff495e8b3c1ee9e898d889737e3cc48a3fb0fe5d29f70282238bdb72ae924",
+      "runtime_verified": false
+    }
+  },
+  "kernel_policy": {
+    "required": {
+      "CONFIG_HW_NAT": "y",
+      "CONFIG_RA_NAT_NONE": "y"
+    },
+    "effective": {
+      "CONFIG_HW_NAT": "y",
+      "CONFIG_RA_NAT_NONE": "y"
+    },
+    "scope": "Preserves audited kernel assumptions only; not driver macro, DTB, route or runtime isolation proof"
+  },
+  "scope": "Exact standard image gate verification; not isolated candidate CLOSE, physical runtime, final release or port acceptance",
+  "runtime_verified": false,
+  "cleanup": "ZIP and TRX inspected in memory only; no extracted files"
+}

@@ -1,0 +1,25 @@
+{
+  "scope": "uncomposed private RC cold parent cleanup candidate",
+  "checks": {
+    "actual_cold_parent_profile_handoff_binding_real_fence_asan_ubsan": "PASS",
+    "failed_unmask_retains_binding_profile_guard": "PASS",
+    "success_detaches_and_wipes_parent_credentials_profile_guard": "PASS",
+    "ACTIVE_backend_bytewise_preserved": "PASS",
+    "live_fence_token_preserved_until_fence_end": "PASS",
+    "WAN_not_submitted": "PASS"
+  },
+  "sha256": {
+    "tools/iot/rc-cold-release.inc": "8db5d8e611320c93835b64738c9fcc7173906f49b6eaf7788ef966358e1998f8",
+    "tools/iot/check-rc-cold-release.py": "807c418eca6a95369a1bdd25a24151da07551c9d49bb0c6a03bce0ac22dbdd0b"
+  },
+  "remaining": [
+    "pending signal replay composition",
+    "post-release WAN/IAPP owner and terminal retirement",
+    "post-UP shutdown",
+    "runtime staging/public binding",
+    "target/image/device evidence"
+  ],
+  "runtime_composed": false,
+  "target_verified": false,
+  "physical_verified": false
+}

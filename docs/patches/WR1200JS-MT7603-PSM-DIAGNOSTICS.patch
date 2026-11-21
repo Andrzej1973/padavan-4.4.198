@@ -1,0 +1,116 @@
+--- /dev/null
++++ b/include/wr-iot-psm-diag.h
+@@ -0,0 +1,24 @@
++/* Diagnostic only. Build with -DWR_IOT_PSM_DIAG; off by default.
++ * Per-translation-unit event counters count instrumented hits even when log
++ * lines are suppressed. Not hardware totals, per-BSS totals or retry rate.
++ * Caller supplies only stable scalar values, never borrowed peer pointers. */
++#ifndef WR_IOT_PSM_DIAG_H
++#define WR_IOT_PSM_DIAG_H
++#ifdef WR_IOT_PSM_DIAG
++#include <linux/atomic.h>
++#include <linux/ratelimit.h>
++static inline void wr_iot_ps_diag(unsigned int event,unsigned int bss,
++ unsigned int peer,unsigned int x,unsigned int y){
++ static atomic_t hits[5]={ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0),ATOMIC_INIT(0)};
++ static DEFINE_RATELIMIT_STATE(limit,5*HZ,8);
++ unsigned int count;
++ if(event>=5)return;
++ count=(unsigned int)atomic_inc_return(&hits[event]);
++ if(__ratelimit(&limit))
++  printk(KERN_INFO "wr_ps event=%u bss=%u peer=%u x=%u y=%u hits=%u site=%s\n",
++   event,bss,peer,x,y,count,__FILE__);
++}
++#else
++#define wr_iot_ps_diag(event,bss,peer,x,y) do {} while(0)
++#endif
++#endif
+--- a/common/mt_ps.c
++++ b/common/mt_ps.c
+@@ -21,6 +21,7 @@
+ ***************************************************************************/
+ 
+ #include "rt_config.h"
++#include "wr-iot-psm-diag.h"
+ 
+ #ifdef MT_PS
+ static VOID MtReadPseRdTabAccessReg(
+@@ -396,6 +397,7 @@
+ 		RTMPDeQueuePacket().
+ 	*/
+ 	old_psmode = pEntry->PsMode;
++ if(old_psmode!=Psm)wr_iot_ps_diag(0,pEntry->func_tb_idx,wcid,old_psmode,Psm);
+ 	pEntry->NoDataIdleCount = 0;
+ 	pEntry->PsMode = Psm;
+ 	pAd->MacTab.tr_entry[wcid].PsMode = Psm;
+--- a/ap/ap.c
++++ b/ap/ap.c
+@@ -27,6 +27,7 @@
+  */
+ 
+ #include "rt_config.h"
++#include "wr-iot-psm-diag.h"
+ #include "ap.h"
+ 
+ 
+@@ -2209,6 +2210,7 @@
+ 		/* 2. delete those MAC entry that has been idle for a long time */
+ 		if ((pEntry->TxSucCnt == 0) && (pEntry->NoDataIdleCount >= pEntry->StaIdleTimeout))
+ 		{
++   wr_iot_ps_diag(2,pEntry->func_tb_idx,pEntry->wcid,pEntry->NoDataIdleCount,pEntry->StaIdleTimeout);
+ 			bDisconnectSta = TRUE;
+ 			DBGPRINT(RT_DEBUG_WARN, ("ageout %02x:%02x:%02x:%02x:%02x:%02x after %d-sec silence\n",
+ 					PRINT_MAC(pEntry->Addr), pEntry->StaIdleTimeout));
+@@ -2510,6 +2512,7 @@
+ 				tr_entry->PsQIdleCount++;
+ 				if (tr_entry->PsQIdleCount > 2)
+ 				{
++     wr_iot_ps_diag(1,pEntry->func_tb_idx,pEntry->wcid,tr_entry->PsQIdleCount,tr_entry->enqCount);
+ 					rtmp_tx_swq_exit(pAd, pEntry->wcid);
+ 					tr_entry->PsQIdleCount = 0;
+ 					WLAN_MR_TIM_BIT_CLEAR(pAd, pEntry->func_tb_idx, pEntry->Aid);
+--- a/ap/ap_connect.c
++++ b/ap/ap_connect.c
+@@ -26,6 +26,7 @@
+  */
+ 
+ #include "rt_config.h"
++#include "wr-iot-psm-diag.h"
+ 
+ UCHAR PowerConstraintIE[3] = {IE_POWER_CONSTRAINT, 1, 3};
+ 
+@@ -891,6 +892,7 @@
+ 	*ptr = IE_TIM;
+ 	*(ptr + 2) = pAd->ApCfg.DtimCount;
+ 	*(ptr + 3) = pAd->ApCfg.DtimPeriod;
++ wr_iot_ps_diag(3,apidx,0,pAd->ApCfg.DtimCount,pAd->ApCfg.DtimPeriod);
+ 
+ 	/* find the smallest AID (PS mode) */
+ 	TimFirst = 0; /* record first TIM byte != 0x00 */
+--- a/tx_rx/txs.c
++++ b/tx_rx/txs.c
+@@ -15,6 +15,7 @@
+ */
+ 
+ #include	"rt_config.h"
++#include "wr-iot-psm-diag.h"
+ 
+ #ifdef CFG_TDLS_SUPPORT
+ INT32 TdlsTxSHandler(RTMP_ADAPTER *pAd, CHAR *Data, UINT32 Priv)
+@@ -681,6 +682,16 @@
+ 	UINT16 TxRate;
+ 	UINT32 Priv;
+ 
++
++#ifdef WR_IOT_PSM_DIAG
++ TXS_STRUC *diag=(TXS_STRUC *)Data;
++ /* Format0 only; WCID is a report identity, never dereferenced for attribution.
++  * x=ME/RE/LE/BE bits, y=raw MPDU transmit count, NOT retry count. */
++ if(Format==TXS_FORMAT0 && Data)
++  wr_iot_ps_diag(4,~0U,diag->txs_d3.wlan_idx,
++   diag->txs_d0.ME|(diag->txs_d0.RE<<1)|(diag->txs_d0.LE<<2)|(diag->txs_d0.BE<<3),
++   diag->txs_d4.mpdu_tx_cnt);
++#endif
+ 	if (TxSCtl->TxSValid == FALSE)
+ 	{
+ 		DBGPRINT(RT_DEBUG_ERROR, ("%s ==> Ignore this TxValid\n", __FUNCTION__));

@@ -1,0 +1,22 @@
+{
+  "scope": "local main recovery source/host fixture",
+  "receipt": "exact main device identity, generation, OPEN token, close serial, original physical WR_RADIO_CLOSE ticket",
+  "publication": "finish_netdev_release after actual dev_put return, transition lock held",
+  "invalidated": "fresh owner initialization and accepted new recovery queue",
+  "checks": [
+    "actual owner close lifecycle produces matching receipt only after final reference-return receipt",
+    "actual reaper include retains ownership during put",
+    "close recovery queue regression",
+    "observer positive completed lifecycle and 10 negative stale/state cases",
+    "extracted main-close-checked.inc fixture with temporary radio header transformations matching prepare-composed-mt7603-radio-off.py PASS"
+  ],
+  "result": "PASS C11 -Werror -O2 ASan UBSan",
+  "not_proven": [
+    "physical-stop ARM handoff",
+    "DMA RF IRQ and firmware ACK retirement",
+    "target compilation of this new receipt",
+    "device runtime"
+  ],
+  "freshness": "transition-locked observer requires exact observed completion epoch, current and retired serial, idle main registry identity, published nonremoving main family, zero vendor count; refuses reset/retirement/PM/active TX",
+  "limits": "No full SDK candidate built locally; untransformed baseline radio header initially failed missing mt_radio_off_stage, expected staged header then used"
+}

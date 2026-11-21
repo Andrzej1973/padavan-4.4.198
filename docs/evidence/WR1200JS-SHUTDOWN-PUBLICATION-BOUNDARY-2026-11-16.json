@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-16",
+  "status": "HOST_SIGNAL_PUBLICATION_BOUNDARY_PASS",
+  "scenarios": 10,
+  "checks": [
+    "TERM and QUIT before publication during cleanup",
+    "TERM and QUIT after publication during cleanup",
+    "late signals after fence release",
+    "precleanup pending retains admission and refuses cleanup",
+    "inherited blocked shutdown mask restored then signal routed",
+    "first requested signal retained; faults unchanged"
+  ],
+  "source_sha256": "2f129da0f807f3ab0021793ce6c85e501f8f389de2380f937c45cbcf1b68a733",
+  "fence_sha256": "657b40b6e02361b02f05c267d49dda10f28b72914f2959c64f733d6a7db190c3",
+  "limits": [
+    "Route publication is explicit test actor",
+    "Actual ACTIVE readiness and automatic consumer binding remain unimplemented",
+    "No target/device acceptance"
+  ]
+}

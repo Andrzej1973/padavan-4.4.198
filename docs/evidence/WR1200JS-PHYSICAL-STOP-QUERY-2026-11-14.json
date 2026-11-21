@@ -1,0 +1,15 @@
+{
+  "scope": "actual adapter QUERY primitive, dormant no endpoint",
+  "implementation": "MacTabLock exact issuer/record/pin snapshot then disjoint transition-lock ARM request and live IoT/Main registry verification; running accepts exact current recovery ticket or released Main receipt; complete requires current epoch and drained table/executor",
+  "checks": [
+    "ARMED typed response",
+    "RUNNING while active Main recovery and after native references returned across epoch change",
+    "COMPLETE typed response after explicit main_complete",
+    "wrong nonce and changed IoT registration refuse with zero output",
+    "installer source composition PASS",
+    "latest fixture27937 exit0 C11 -Werror O2 ASan UBSan includes bytewise adapter unchanged on QUERY"
+  ],
+  "limitations": "uncertain/failed recovery returns EAGAIN without releasing ownership; hardware receipts injected in host fixture; target/runtime unverified",
+  "target_compiled": false,
+  "runtime_verified": false
+}

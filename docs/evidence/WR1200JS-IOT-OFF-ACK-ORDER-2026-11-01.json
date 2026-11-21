@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-01",
+  "scope": "fresh isolated peer checked shutdown source",
+  "observed_order": [
+    "RtmpNetTaskExit blocks network scheduling and kills rx1 tasklet",
+    "RTMPDisableRxTx / DISABLE_TX_RX and RTMP_ASIC_INTERRUPT_DISABLE",
+    "wr_iot_mt_radio_off_checked invokes synchronous checked MCU send on non-LOAD_FW_ONE_TIME path"
+  ],
+  "ack_path": "PCI ring1 -> RxRing1DoneInterruptHandle -> GetPacketFromRxRing -> parse_rx_packet_type -> AndesMTRxEventHandler -> ack_done",
+  "finding": "No traced live RX tasklet/IRQ delivery path remains for the later synchronous ACK. Removing LOAD_FW_ONE_TIME refusal alone cannot make this shutdown usable.",
+  "required_change": "Split checked AP software teardown from legacy MlmeRadioOff/APStop hardware effects, preserving peer/beacon ownership. Place exactly one owned checked OFF while MCU RX/IRQ delivery remains live; then join producers and complete teardown. Retain legacy behavior for unrelated paths and validate retry stages.",
+  "limits": "Source ordering proof; no device test. Alternate polled ACK path not found in reviewed call chain.",
+  "production_installed": false,
+  "earlier_radio_off_path": [
+    "checked shutdown -> APShutdown",
+    "APShutdown -> MlmeRadioOff -> PciMlmeRadioOFF",
+    "MT branch -> MTPciMlmeRadioOff before checked radio-off",
+    "APStop additionally disables interrupts under CONFIG_MAC_PCI; effective macro must be checked"
+  ],
+  "legacy_effects_confirmed": [
+    "MTPciMlmeRadioOff stops netdev queues and sets DISABLE_DEQUEUEPACKET",
+    "disables MAC RX and polls TX/RX",
+    "LOAD_FW_ONE_TIME writes AGG_TEMP without ACK; alternate branch sends legacy CmdRadioOnOffCtrl",
+    "AsicSetWPDMA(PDMA_TX_RX,0), sets RADIO_OFF and disables active interrupts"
+  ],
+  "implementation_dependency": "Do not move checked OFF behind APShutdown. First provide checked AP software-only shutdown entry or split ownership stages, retaining peer/beacon cleanup and legacy callers. ACK must precede both legacy PDMA stop and RX tasklet join.",
+  "ack_delivery_flags": {
+    "HALT_IN_PROGRESS": "MT ISR masks to MT_INT_CMD|MT_INT_RX|WF_MAC_INT_3; MT_INT_RX includes MT_INT_R1_DONE = MT_INT_RX_CMD, so HALT alone retains ACK IRQ source",
+    "ring1_handler": "RxRing1DoneInterruptHandle refuses RADIO_OFF or RESET_IN_PROGRESS or missing START_UP; HALT test is commented out",
+    "required_preflight": "Before checked OFF mutation, prove live initialized RX tasklets/IRQ and START_UP, no RESET/RADIO_OFF, plus pinned sender ownership. Recheck under appropriate serialization; flag observation alone cannot establish lifetime."
+  },
+  "close_ownership_review": {
+    "peer_executor": "wr_iot_drv_close_checked reserves peer close executor across entire body, excluding legacy close and peer-table conflicts",
+    "management_join": "wr_iot_mgmt_exit_checked records command task join (and optional WSC join) for exact CLOSE serial",
+    "limit": "These receipts do not establish exclusion of all direct AndesSendCmdMsg issuers; moving owned OFF requires explicit sender exclusion while RX ACK remains live."
+  }
+}

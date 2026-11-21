@@ -1,0 +1,38 @@
+{
+  "scope": "prepared fixed-service adapter and private physical auth stop binding",
+  "checks": {
+    "physical_auth_order_and_reappearance": "PASS;7937",
+    "native_preparation": "PASS;27883",
+    "physical_quiesce_scheduler": "PASS;88247",
+    "finish_cancel": "PASS;7937"
+  },
+  "sources": {
+    "tools/iot/rc-physical-stop.c": "376a0d30c358db62724cdbb1831a8792588e03c1576591580f65e50d2468ee4d",
+    "tools/iot/prepare-rc.py": "dfabf3ac33df1108bf2915d7111b2e502993669ff4212473f57711ba2491a421",
+    "tools/iot/prepare-runtime.py": "1d05acce33f55ed1b8ab29a5188ae9f2680da32fce60fe4be4e12acf519188af",
+    "tools/iot/check-physical-auth-stop.py": "e72009e578ee9b974a37d51867b31bfa3748b31f1644bc38a26f232d93c576ca"
+  },
+  "old_full_suite": "d7fdc49 exit0; does not cover auth binding",
+  "remaining": [
+    "pre-ARM pending shutdown recovery",
+    "net_wifi entrypoints",
+    "target/image/device acceptance"
+  ],
+  "completed_scratch_removed": [
+    {
+      "path": "/tmp/wr-d7fdc49-suite.log",
+      "bytes": 28838,
+      "sha256": "87fd95f6292a170ff082608ddef131e8311a78c238c4f9ce8469c9927a6c08cd"
+    },
+    {
+      "path": "/tmp/wr-auth-bound-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-auth-bound-quiesce.log",
+      "bytes": 406,
+      "sha256": "799edcee5ea83360144b40d10ff9e960df1e639185d691f5baee09762e488a05"
+    }
+  ]
+}

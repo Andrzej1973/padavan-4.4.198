@@ -1,0 +1,8 @@
+{
+  "source": "common/cmm_cfg.c",
+  "source_sha256": "8ba11a6c5fb2fb2494c3b3d79a79cd91297ccbdb6512be9da59b264616b5c154",
+  "extracted_sha256": "465c364c49ab4267e7d57e908e6d0c886097f49d957ccf220d4511686f7dddb1",
+  "host_result": "PASS actual vendor dispatcher:1000 third-reference UP/DOWN cycles retain Main+Guest, no physical open/close hook; last-reference close and first-reference open remain distinct. Beacon/hardware hooks injected; no association/runtime proof.",
+  "scope": "Vendor reference dispatcher only, not current candidate composition, beacon descendants, concurrency, dynamic credentials or isolation.",
+  "runtime_verified": false
+}

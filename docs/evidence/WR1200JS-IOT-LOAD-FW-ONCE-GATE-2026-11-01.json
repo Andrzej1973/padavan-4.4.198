@@ -1,0 +1,16 @@
+{
+  "scope": "actual compiled rt_linux macro evidence combined with candidate radio-off source; no runtime claim",
+  "evidence_run": 41274058519,
+  "effective_LOAD_FW_ONE_TIME": true,
+  "macro_scope": "rt_linux.c Kbuild preprocessing; confirm exact cmm_asic_mt TU flags before final conclusion",
+  "macro_dump_sha256": "f35b24454ceddf03f1dda9d8d39698876a180abc4a1827a67f9d5d1c0b61b1be",
+  "radio_off_source_sha256": "f458a63ab47cfc210273bd16c3b9f2369a9d0cea332c56eef001ff4927a69521",
+  "candidate_rejects_LOAD_FW_ONE_TIME_before_mutation": true,
+  "vendor_path": "AGG_TEMP upper16 bits set for off, cleared for on; no acknowledged MCU result",
+  "required": "verify exact chip/firmware meaning and safe completion/readback protocol; do not delete guard or force new MCU command as substitute",
+  "production_accepted": false,
+  "compiled_symbol_nm": "000ad0d8 00000008 T wr_iot_mt_radio_off_checked",
+  "compiled_symbol_disassembly": "\n/mnt/c/Users/ANDRZEJ/Documents/Codex/iot662-target/mt76x3_ap.ko:     file format elf32-tradlittlemips\n\n\nDisassembly of section .text:\n\n000ad0d8 <wr_iot_mt_radio_off_checked>:\n   ad0d8:\t03e00008 \tjr\tra\n   ad0dc:\t00001025 \tmove\tv0,zero\n",
+  "module_sha256": "5e9640f79a50d48c606679d686feb6d3944ff5572cbd17ad43f84a9153052170",
+  "evidence_level": "actual target module symbol disassembly, not just another TU macros"
+}

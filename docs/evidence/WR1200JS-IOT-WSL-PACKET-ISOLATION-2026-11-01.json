@@ -1,0 +1,36 @@
+{
+  "checks": {
+    "tcp_dns_allowed": true,
+    "router_admin_blocked": true,
+    "lan_blocked": true,
+    "wan_and_return_allowed": true,
+    "lan_unsolicited_blocked": true,
+    "wan_unsolicited_blocked": true,
+    "main_lan_wan_preserved": true,
+    "preexisting_lan_connection_blocked": true,
+    "udp_dns_allowed": true,
+    "dhcp_ports_allowed": true,
+    "dhcp_wrong_source_port_blocked": true,
+    "udp_wan_return_allowed": true,
+    "udp_lan_blocked": true,
+    "ipv6_router_tcp_blocked": true,
+    "ipv6_router_udp_blocked": true,
+    "ipv6_lan_tcp_blocked": true,
+    "ipv6_wan_tcp_blocked": true,
+    "ipv6_lan_udp_blocked": true,
+    "ipv6_wan_udp_blocked": true,
+    "ipv6_unsolicited_lan_blocked": true,
+    "ipv6_unsolicited_wan_blocked": true
+  },
+  "scope": "Host-kernel IPv4 TCP/UDP and DHCP-port filtering, stale conntrack isolation, IPv6 TCP/UDP router and inter-network isolation in both directions; static IPv6 neighbor entries make packet baselines deterministic; IPv6 neighbor discovery, actual DNS/DHCP transactions and target runtime are unverified",
+  "runtime_verified": false,
+  "host_kernel": "6.18.54.1-microsoft-standard-WSL2",
+  "source_revision": "6f9a481b61022aa9ccd4c4a6cce7faa0e1260553",
+  "source_sha256": {
+    "tools/iot/check-firewall-packets.py": "65141c1cd5092b3a85776e68932a1c8b89345ada6f5a772e6e5b65168482f4ec",
+    "tools/iot/emit-firewall.c": "15493bfad4c2bfc78159dd305e6464bf612e8b78ae3ba10996d30f7d3faabad3",
+    "tools/iot/firewall.h": "9e84b33900a53d1b50455c1810c76251603d8ec58762f6fc43000328c6420763"
+  },
+  "actual_router_checked": false,
+  "isolated_network_and_mount_namespaces": true
+}

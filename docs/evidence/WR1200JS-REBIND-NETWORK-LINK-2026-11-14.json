@@ -1,0 +1,21 @@
+{
+  "scope": "Experimental RC link of rebind staging/network/rollback/commit helpers",
+  "checks": {
+    "full46_suite_session": 34134,
+    "full46_suite_exit": 0,
+    "prepared_runtime_session": 10040,
+    "prepared_runtime": "ten actual prepared translation units strict C11 PASS",
+    "target_link": "required strong symbols added for four helpers, target run pending"
+  },
+  "metadata": {
+    "rebind_network_helpers_linked": true,
+    "physical_stop_restart_resume_bound": false
+  },
+  "pending": [
+    "runner composition and post-OPEN CLOSE recovery",
+    "actual physical restart/scheduler entrypoints",
+    "target/image/device acceptance"
+  ],
+  "runtime_verified": false,
+  "scratch": "Temp prepared/native trees auto-removed; full46 log removed after result recorded"
+}

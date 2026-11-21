@@ -1,0 +1,25 @@
+{
+  "scope": "unrouted internal fixed64 DOWN reply builder",
+  "source": "tools/iot/precreated-down-reply.inc",
+  "test": "check-precreated-down-reply.py",
+  "result": "PASS GCC gnu11 Werror ASan/UBSan",
+  "checks": [
+    "decode before clearing supports in-place query/reply",
+    "nonce echo",
+    "capture Main ticket serial and ra2 generation under transition lock",
+    "actual peer/reference observer",
+    "final exact epoch/serial/reference recheck",
+    "malformed/control/RTNL refusal clears reply",
+    "adapter unchanged",
+    "epoch drift injected at final transition-lock acquisition returns EAGAIN and zero reply",
+    "Main close ticket serial drift at final snapshot returns EAGAIN and zero reply"
+  ],
+  "limits": [
+    "outer caller must protect adapter lifetime",
+    "not atomic drain or future lease",
+    "no ioctl privilege/user-copy route installed",
+    "target compile pending",
+    "not firmware protocol change"
+  ],
+  "runtime_verified": false
+}

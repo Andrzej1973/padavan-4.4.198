@@ -1,0 +1,81 @@
+{
+  "scope": "candidate terminal command-worker software receipt model",
+  "sha256": {
+    "tools/iot/terminal-command-owner.h": "c47b005a3aa69f56ca70a262d188ecc7bed007c9914d0b2f078b3cadc206c913",
+    "tools/iot/check-terminal-command-owner.c": "dd7e9d3c25bfb4d5134edf56151c71f35b454d6f5125ea800b37220a7fb26dd0"
+  },
+  "host_sanitized_fixture_passed": true,
+  "cases": [
+    "missing handle never proves join",
+    "failed join leaves admission closed",
+    "concurrent join refused",
+    "stale generation and stale attempt refused",
+    "successful receipt reusable by later close without another kill",
+    "attempt exhaustion refuses join"
+  ],
+  "binding_required": [
+    "one-time adapter initialization before publication",
+    "permanent admission predicate and CmdQState close under IRQ-safe CmdQLock",
+    "join outside RTNL/spinlocks",
+    "actual synchronous task result wired to exact attempt",
+    "later checked close consumes terminal receipt",
+    "timer producer and callback joins remain distinct"
+  ],
+  "driver_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "join_helper": {
+    "path": "tools/iot/terminal-command-join.inc",
+    "sha256": "c32ab94c7b21f391de60fde674438dd9ebec2cd5fcfce9fab61db4074912d625",
+    "context_guard": "existing OS atomic/IRQ rejection",
+    "identity_guard": "new command-specific OS helper rejects IS_ERR_OR_NULL(kthread_task), then compares self identity",
+    "calls_task_kill_outside_lock": true,
+    "driver_bound": false,
+    "helper_fixture_verified": true,
+    "remaining": "normal close/task attach must share execution ownership; reentrant helper fixture does not prove all thread races",
+    "fixture_sha256": "bc08d21b504dd9c8ef23e41df1523a251eee81966c5c38b38cff9c34e9a73910",
+    "verified_cases": [
+      "null adapter",
+      "admission not closed",
+      "atomic context",
+      "unknown/self task",
+      "failed kill retains closure",
+      "reentrant join cannot kill twice",
+      "successful receipt bypasses stale task identity"
+    ]
+  },
+  "normal_close_reopen_model": {
+    "verified": true,
+    "cases": [
+      "normal join active when retirement closes admission",
+      "normal success becomes terminal receipt only after closure",
+      "reopen invalidates prior join before attach",
+      "closure while attach pending prevents premature join",
+      "stale normal completion cannot validate reopened task"
+    ],
+    "driver_bound": false,
+    "first_attach_failure_and_never_started_semantics": "still require separate binding review"
+  },
+  "creation_failure_followup": {
+    "finding": "generic timer identity helper only checked NULL; kthread_run ERR_PTR could be classified as other task",
+    "candidate_os_helper_sha256": "ef7f366dd619b3ca748bb6cb6eab0e02ab9926e5c48be85e41ebc3cf280df0ad",
+    "four_host_macro_variants_passed": true,
+    "target_compiled": false,
+    "driver_export_bound": false
+  },
+  "shared_join_helper": {
+    "sha256": "082617a89fb132659e8df7a886d764c0343b937b58f1b7caec2155f984344297",
+    "first_attach_reserved": true,
+    "normal_then_terminal_no_duplicate_kill_fixture_passed": true,
+    "driver_bound": false,
+    "target_compiled": false,
+    "limits": "attach_finish only retires software creation reservation; failed creation is not worker-absence proof"
+  },
+  "explicit_create_failure_model": {
+    "receipt": "only exact failed reserved creation plus native kthread ERR_PTR",
+    "null_handle_receipt": false,
+    "legacy_unknown_remains_failure": true,
+    "model_and_os_fixtures_passed": true,
+    "driver_bound": false
+  }
+}

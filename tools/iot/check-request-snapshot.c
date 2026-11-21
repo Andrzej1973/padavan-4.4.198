@@ -1,26 +1,54 @@
 #include "request-snapshot.h"
 #include "request-stage.h"
+#include "disable-services.h"
+#include "disable-controller.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include "request.h"
 
 struct entry {const char *key;char value[128];};
 static struct entry values[]={
- {"wr_iot_enable","1"},{"wr_iot_ssid","IoT test"},{"wr_iot_psk","password123"},
- {"wr_iot_gateway","192.168.50.1"},{"wr_iot_mask","255.255.255.0"},
- {"wr_iot_start","192.168.50.20"},{"wr_iot_end","192.168.50.200"},
+ {"wr_iot_request_enable","1"},{"wr_iot_request_ssid","IoT test"},{"wr_iot_request_psk","password123"},
+ {"wr_iot_request_gateway","192.168.50.1"},{"wr_iot_request_mask","255.255.255.0"},
+ {"wr_iot_request_start","192.168.50.20"},{"wr_iot_request_end","192.168.50.200"},
  {"wr_iot_profile_t","0"},{"wr_iot_network_t","0"},{"wr_iot_firewall_t","0"},
  {"wr_iot_ssid_t","old SSID"},{"wr_iot_psk_t","old password"},
  {"wr_iot_gateway_t",""},{"wr_iot_mask_t",""},{"wr_iot_start_t",""},{"wr_iot_end_t",""}
 };
 static int depth,busy,writes,fail_write,silent_write,guard_invalid;
 static unsigned int bridge_index;
+static int bridge_owned=1,bss_down=1;
+static int bridge_address_ok=1;
+int wr_iot_bridge_address_matches(const char *g,const char *m){assert(depth&&g&&m);return bridge_address_ok;}
+static int dns_prepare_error,dns_commit_ready=1,dns_prepares,dns_commits;
+static int quarantine_ready=1,quarantine_calls;
+int wr_iot_quarantine_reapply(void){
+ assert(depth&&bridge_index&&bridge_owned&&bss_down);
+ assert(!strcmp(values[7].value,"0")&&!strcmp(values[8].value,"0")&&!strcmp(values[9].value,"0"));
+ quarantine_calls++;return quarantine_ready;
+}
+int wr_iot_dns_disable_prepare(void){
+ assert(depth&&bridge_index&&bss_down);
+ assert(!strcmp(values[7].value,"0")&&!strcmp(values[8].value,"0")&&!strcmp(values[9].value,"0"));
+ dns_prepares++;return dns_prepare_error;
+}
+int wr_iot_dns_disable_commit(void){assert(depth&&bridge_index);dns_commits++;return dns_commit_ready;}
+int wr_iot_bridge_is_owned(void){assert(depth);return bridge_owned;}
+int wr_iot_bss_is_down(void){assert(depth);return bss_down;}
 static struct entry *find(const char *key){size_t i;for(i=0;i<sizeof(values)/sizeof(values[0]);i++)if(!strcmp(values[i].key,key))return values+i;assert(0);return NULL;}
 int wr_iot_service_guard_enter(int enabled){assert(enabled==1);if(!depth&&busy)return 0;depth++;return 1;}
 void wr_iot_service_guard_leave(int token){assert(token==1&&depth>0);depth--;}
-int wr_iot_service_guard_dup(void){assert(depth>0);return guard_invalid?-1:open("/dev/null",O_RDONLY);}
+int wr_iot_service_guard_dup(void){
+ if(depth<=0)return -1; /* Match actual service-guard refusal without ownership. */
+#ifdef _WIN32
+ return guard_invalid?-1:open("NUL",O_RDONLY);
+#else
+ return guard_invalid?-1:open("/dev/null",O_RDONLY);
+#endif
+}
 unsigned int if_nametoindex(const char *name){assert(depth&&!strcmp(name,"br-iot"));return bridge_index;}
 const char *nvram_safe_get(const char *key){assert(depth);return find(key)->value;}
 int nvram_set_temp(const char *key,const char *value){assert(depth);writes++;if(writes==fail_write)return -1;if(writes==silent_write)return 0;assert(strlen(value)<sizeof(find(key)->value));strcpy(find(key)->value,value);return 0;}
@@ -35,6 +63,21 @@ int main(void){
  assert(!wr_iot_request_snapshot_finish(&s)&&!wr_iot_request_snapshot_suspend(&s));
  guard_invalid=0;assert(wr_iot_request_snapshot_restore(&s));
  assert(wr_iot_request_snapshot_finish(&s)&&!depth);
+ for(failure=0;failure<9;failure++){
+  char previous[128];
+  prepared(&s);assert(wr_iot_request_snapshot_suspend(&s)&&!depth);
+  strcpy(previous,values[7+failure].value);
+  strcpy(values[7+failure].value,"foreign change");
+  assert(!wr_iot_request_snapshot_resume(&s)&&!depth&&!writes&&s.active&&!s.token);
+  assert(!strcmp(values[7+failure].value,"foreign change"));
+  strcpy(values[7+failure].value,previous);
+  assert(wr_iot_request_snapshot_resume(&s)&&depth==1);
+  assert(wr_iot_request_snapshot_restore(&s)&&wr_iot_request_snapshot_finish(&s)&&!depth);
+ }
+ prepared(&s);
+ memset(find("wr_iot_psk_t")->value,'x',80);find("wr_iot_psk_t")->value[80]=0;
+ assert(!wr_iot_request_snapshot_suspend(&s)&&depth==1&&s.token==1&&!s.expected_valid&&!writes);
+ assert(wr_iot_request_snapshot_restore(&s)&&wr_iot_request_snapshot_finish(&s)&&!depth);
  prepared(&s);assert(wr_iot_request_snapshot_suspend(&s)&&!depth&&s.active&&!s.token);
  assert(!wr_iot_request_snapshot_suspend(&s)&&!wr_iot_request_snapshot_restore(&s)&&!wr_iot_request_snapshot_finish(&s));
  busy=1;assert(!wr_iot_request_snapshot_resume(&s)&&!depth&&s.active);
@@ -67,5 +110,145 @@ int main(void){
  reset();assert(wr_iot_request_snapshot_take(&s));s.owner++;
  assert(!wr_iot_request_snapshot_restore(&s)&&!wr_iot_request_snapshot_finish(&s)&&!writes&&depth==1);
  s.owner=getpid();assert(wr_iot_request_snapshot_finish(&s)&&!depth);
- puts("PASS IoT temporary snapshot: nested stage retains outer guard, rollback/readback failures retain recovery, no bridge adoption; production startup not bound");return 0;
+ reset();memset(&s,0,sizeof(s));bridge_index=7;bridge_owned=0;
+ assert(!wr_iot_request_disable_take(&s)&&!depth&&!writes);
+ bridge_owned=1;assert(wr_iot_request_disable_take(&s)&&depth==1);
+ assert(wr_iot_request_disable_cancel(&s)&&!depth&&!writes&&!s.active);
+ assert(wr_iot_request_disable_take(&s)&&depth==1);
+ bss_down=0;assert(!wr_iot_request_disable_close_gates(&s)&&!writes);
+ bss_down=1;
+ assert(!wr_iot_request_snapshot_restore(&s)&&!wr_iot_request_snapshot_suspend(&s)&&!writes);
+ assert(wr_iot_request_disable_close_gates(&s));
+  assert(wr_iot_request_disable_ready(&s));
+  strcpy(find("wr_iot_psk_t")->value,"foreign credential");
+  assert(!wr_iot_request_disable_ready(&s));
+  strcpy(find("wr_iot_psk_t")->value,s.expected[4]);
+  assert(wr_iot_request_disable_ready(&s));
+ assert(!wr_iot_request_disable_forget(&s)&&!wr_iot_request_snapshot_finish(&s));
+ bridge_index=0;assert(wr_iot_request_disable_forget(&s));
+ assert(wr_iot_request_snapshot_finish(&s)&&!depth);
+ for(failure=1;failure<=3;failure++){
+  reset();memset(&s,0,sizeof(s));bridge_index=7;
+  strcpy(find("wr_iot_profile_t")->value,"1");strcpy(find("wr_iot_network_t")->value,"1");strcpy(find("wr_iot_firewall_t")->value,"1");
+  assert(wr_iot_request_disable_take(&s));fail_write=failure;
+  assert(!wr_iot_request_disable_close_gates(&s)&&s.active&&depth==1);
+  assert(!wr_iot_request_disable_cancel(&s));
+  fail_write=0;assert(wr_iot_request_disable_close_gates(&s));
+  bridge_index=0;assert(wr_iot_request_disable_forget(&s)&&wr_iot_request_snapshot_finish(&s)&&!depth);
+ }
+ for(failure=1;failure<=6;failure++){
+  int i;reset();memset(&s,0,sizeof(s));bridge_index=7;
+  for(i=10;i<16;i++)strcpy(values[i].value,"owned");
+  assert(wr_iot_request_disable_take(&s)&&wr_iot_request_disable_close_gates(&s));
+  bridge_index=0;writes=0;fail_write=failure;
+  assert(!wr_iot_request_disable_forget(&s)&&s.active&&depth==1);
+  assert(!wr_iot_request_snapshot_finish(&s));
+  fail_write=0;assert(wr_iot_request_disable_forget(&s));
+  assert(wr_iot_request_snapshot_finish(&s)&&!depth&&!s.values[4][0]);
+ }
+ for(failure=0;failure<9;failure++){
+  char previous[128];reset();memset(&s,0,sizeof(s));bridge_index=7;
+  assert(wr_iot_request_disable_take(&s));
+  strcpy(previous,values[7+failure].value);strcpy(values[7+failure].value,"newer value");
+  assert(!wr_iot_request_disable_close_gates(&s)&&!writes&&depth==1);
+  assert(!strcmp(values[7+failure].value,"newer value"));
+  strcpy(values[7+failure].value,previous);
+  bridge_index=8;assert(!wr_iot_request_disable_close_gates(&s)&&!writes);
+  bridge_index=7;assert(wr_iot_request_disable_close_gates(&s));bridge_index=0;
+  assert(wr_iot_request_disable_forget(&s)&&wr_iot_request_snapshot_finish(&s)&&!depth);
+ }
+ {
+  struct wr_iot_disable_services stop={0};
+  reset();bridge_index=7;
+  for(int i=7;i<10;i++)strcpy(values[i].value,"1");
+  assert(wr_iot_disable_services_begin(&stop)&&depth==1);
+  /* Failed firewall observation preserves snapshot, bridge and service guard.
+   * Retry never opens a gate or starts DNS before quarantine is observed. */
+  bss_down=0;assert(!wr_iot_disable_services_isolate(&stop)&&!quarantine_calls);
+  bss_down=1;quarantine_ready=0;
+  assert(!wr_iot_disable_services_isolate(&stop)&&quarantine_calls==1);
+  assert(depth==1&&bridge_index==7&&stop.settings.active&&!dns_prepares);
+  quarantine_ready=1;assert(wr_iot_disable_services_isolate(&stop)&&quarantine_calls==2);
+  quarantine_ready=0;assert(!wr_iot_disable_services_apply(&stop));
+  assert(!dns_prepares&&depth==1&&stop.settings.active&&bridge_index==7);
+  quarantine_ready=1;
+  dns_prepare_error=1;
+  assert(!wr_iot_disable_services_apply(&stop)&&dns_prepares==1&&!dns_commits&&depth==1);
+  assert(!wr_iot_disable_services_finish(&stop));
+  dns_prepare_error=0;dns_commit_ready=0;
+  assert(!wr_iot_disable_services_apply(&stop)&&dns_prepares==2&&dns_commits==1);
+  assert(!wr_iot_disable_services_finish(&stop)&&stop.settings.active);
+  dns_commit_ready=1;assert(wr_iot_disable_services_apply(&stop)&&stop.committed);
+  assert(dns_prepares==3&&dns_commits==2);
+  assert(wr_iot_disable_services_apply(&stop)&&dns_prepares==3&&dns_commits==2);
+  assert(!wr_iot_disable_services_finish(&stop)&&depth==1);
+  bridge_index=0;assert(wr_iot_disable_services_finish(&stop)&&!depth&&!stop.settings.active&&!stop.committed);
+ }
+ /* Compose actual reserved controller, service adapter and NVRAM snapshot.
+  * Fault each credential cleanup write: partial progress must retain the
+  * guard/receipt and retry without radio-profile removal or gate reopening. */
+ for(failure=1;failure<=6;failure++){
+  struct wr_iot_disable_controller stop={0};
+  reset();bridge_index=7;dns_prepare_error=0;dns_commit_ready=1;
+  for(int i=7;i<10;i++)strcpy(values[i].value,"1");
+  for(int i=10;i<16;i++)strcpy(values[i].value,"owned");
+  assert(wr_iot_disable_begin_precreated(&stop)&&depth==1);
+  assert(!stop.radio.active&&!stop.radio.files.count);
+  assert(wr_iot_disable_apply_services(&stop));
+  assert(!wr_iot_disable_apply_profile(&stop));
+  bridge_index=0;assert(wr_iot_disable_apply_reserved(&stop));
+  writes=0;fail_write=failure;
+  assert(!wr_iot_disable_commit(&stop));
+  assert(stop.precreated&&stop.reserved_applied&&stop.services.committed);
+  assert(stop.services.settings.active&&depth==1&&!stop.radio.active);
+  for(int i=7;i<10;i++)assert(!strcmp(values[i].value,"0"));
+  fail_write=0;assert(wr_iot_disable_commit(&stop)&&!depth);
+  assert(!stop.precreated&&!stop.reserved_applied&&!stop.services.settings.active);
+  for(int i=10;i<16;i++)assert(!values[i].value[0]);
+ }
+ {
+  struct wr_iot_disable_controller stop={0};
+  reset();bridge_index=7;
+  assert(wr_iot_disable_begin_precreated(&stop));
+  assert(wr_iot_disable_apply_services(&stop));
+  bridge_index=0;assert(wr_iot_disable_apply_reserved(&stop));
+  char saved[128];strcpy(saved,find("wr_iot_psk_t")->value);
+  strcpy(find("wr_iot_psk_t")->value,"foreign writer");writes=0;
+  assert(!wr_iot_disable_commit(&stop)&&!writes&&depth==1);
+  assert(stop.precreated&&stop.reserved_applied&&stop.services.settings.active);
+  assert(!strcmp(find("wr_iot_psk_t")->value,"foreign writer"));
+  strcpy(find("wr_iot_psk_t")->value,saved);
+  assert(wr_iot_disable_commit(&stop)&&!depth);
+ }
+ {
+  struct wr_iot_request request={.enabled=1,.ssid="IoT test",.password="password123",
+   .gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"};
+  prepared(&s);strcpy(values[8].value,"1");strcpy(values[9].value,"1");
+  int before=writes;
+  assert(wr_iot_request_stage_matches(&request)&&writes==before);
+  for(int field=7;field<16;field++){
+   char saved[128];strcpy(saved,values[field].value);strcpy(values[field].value,"foreign");
+   assert(!wr_iot_request_stage_matches(&request)&&writes==before);
+   strcpy(values[field].value,saved);
+  }
+  guard_invalid=1;assert(!wr_iot_request_stage_matches(&request));guard_invalid=0;
+  memset(request.ssid,'x',sizeof(request.ssid));assert(!wr_iot_request_stage_matches(&request));
+  strcpy(values[8].value,"0");strcpy(values[9].value,"0");
+  assert(wr_iot_request_snapshot_restore(&s)&&wr_iot_request_snapshot_finish(&s)&&!depth);
+ }
+ {
+  struct wr_iot_request request={.enabled=1,.ssid="IoT test",.password="password123",
+   .gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.20",.last="192.168.50.200"};
+  prepared(&s);bridge_index=7;writes=0;
+  bridge_owned=0;assert(!wr_iot_request_network_enable(&request)&&!writes);bridge_owned=1;
+  bss_down=0;assert(!wr_iot_request_network_enable(&request)&&!writes);bss_down=1;
+  bridge_address_ok=0;assert(!wr_iot_request_network_enable(&request)&&!writes);bridge_address_ok=1;
+  fail_write=1;assert(!wr_iot_request_network_enable(&request)&&depth==1);fail_write=0;
+  silent_write=writes+1;assert(!wr_iot_request_network_enable(&request));silent_write=0;
+  assert(wr_iot_request_network_enable(&request));
+  assert(!strcmp(values[8].value,"1")&&!strcmp(values[9].value,"0")&&bss_down);
+  int before=writes;assert(!wr_iot_request_network_enable(&request)&&writes==before);
+  bridge_index=0;assert(wr_iot_request_snapshot_restore(&s)&&wr_iot_request_snapshot_finish(&s)&&!depth);
+ }
+ puts("PASS IoT temporary snapshot and actual reserved OFF composition: guarded rollback/resume, gate ownership, all6 partial credential cleanup retries; NVRAM/DNS/netdev hooks injected, production startup and RF unverified");return 0;
 }

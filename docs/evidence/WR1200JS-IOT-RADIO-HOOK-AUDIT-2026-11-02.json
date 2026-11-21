@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-02",
+  "scope": "pinned full MT7603 source hook audit",
+  "hashes": {
+    "os/linux/rt_txrx_hook.c": "d82a684d3532d337ffd3f674019ecd0cb53f59b0f86c4768518722a9f1cea6b9",
+    "include/os/rt_linux_txrx_hook.h": "11d78f7656672b4fd42735f5b54c4d49a416e642382fa51a0bed3af589bad490",
+    "include/os/rt_linux.h": "64fa14e65eda5427286237bf57f80d7c995f20e7eb4e7ac546b7c8b201cd0350",
+    "os/linux/config.mk": "7e3ec752b2e8a6a65b6892166e67e6d185a702aa1a1825dd778afdf19df1b840"
+  },
+  "findings": [
+    "WLAN_CALIB_TEST_RSP dispatches registered hookfun callbacks via hookHead",
+    "registration and unregistration APIs are exported symbols",
+    "no registration call sites or calibration hook consumers found inside pinned full-driver source",
+    "no matching consumers found in tracked checkout C/H search",
+    "callback status is passed as unsigned char queIdx, truncating 32-bit status; not usable as semantic success receipt"
+  ],
+  "conclusion": "no internal dependency found; external module consumers remain possible and were not inspected in final ROMFS or on device",
+  "runtime_verified": false,
+  "next": "verify effective build hook option and image module dependency closure before accepting bypass"
+}

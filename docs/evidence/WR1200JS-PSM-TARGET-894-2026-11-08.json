@@ -1,0 +1,80 @@
+{
+  "run_id": 42461141753,
+  "runtime_verified": false,
+  "production_installed": false,
+  "artifacts": [
+    {
+      "id": 13609671732,
+      "archive_sha256": "44395a127d108239b9060656cdc6ddc5c39cc00b6d9c84ee631b4aac1c3b4754",
+      "source": {
+        "dispatch_revision": "8f5c5c7e3dbe112fedd7f73996a7c97c5ebd1448",
+        "requested_revision": "8f5c5c7e3dbe112fedd7f73996a7c97c5ebd1448",
+        "verified_revision": "8f5c5c7e3dbe112fedd7f73996a7c97c5ebd1448",
+        "runtime_verified": false
+      }
+    },
+    {
+      "id": 13610391749,
+      "archive_sha256": "53d6dc3098fd7afa5d1d4d688984999d2a23844514f7f92c0f25b43b05c7077f",
+      "report": {
+        "target_compiled": true,
+        "production_installed": false,
+        "runtime_verified": false,
+        "variants": {
+          "off": {
+            "bytes": 5858712,
+            "sha256": "66280cc3d8d56ffa2330f4b09d597f0c3e00cba4f5311454c70299a29b445f6e",
+            "objects": {
+              "txs": {
+                "object_sha256": "7201b9084542f62dccd27eaffd4e59ce243813c67d6af41a1a4ceb45601b645c",
+                "command_sha256": "f42801e4d2ad6a07ddbcce30843e4797c3e56567bbcca10ba5d7c8ffb75072c3"
+              },
+              "ap_connect": {
+                "object_sha256": "9f22ed87cea8a75bd510d90d7fc20979721d5215a0280153bcdd8d270ec12648",
+                "command_sha256": "e56b75459396db175b833447f9ebc030791a0ed307eff72fdb431ecab874627b"
+              },
+              "ap": {
+                "object_sha256": "88f9ec6fe4aa103c6460a3914abdb67fe1338fcbedbaec382b0e387f321e1456",
+                "command_sha256": "cf97981da001ebd2e11781949ae3806ccbe39d49a2952282f76c54d50cf9fca1"
+              },
+              "mt_ps": {
+                "object_sha256": "3aac48c0fa24140586c6b98bf58d930992ea96bde933e749d9898f187ebcef2e",
+                "command_sha256": "61bd632c01b8abde17b005fa43e4265dbaaa6b4e0601dc72c9868b2945fc65ea"
+              }
+            }
+          },
+          "on": {
+            "bytes": 5864056,
+            "sha256": "a9e07cb913c43a416e1a13c057a4fd4cb5d8914de1dabc7e71d9ea4d2bd921e0",
+            "objects": {
+              "txs": {
+                "object_sha256": "f94aa7c8d20a1c485043114913620a2fb9a8d845ece2a0a4f416f8246b2ee7f9",
+                "command_sha256": "9e7631c5622aa2d6933d8bd1969036420c78be0a3419ca3879da160c48535fd5"
+              },
+              "ap_connect": {
+                "object_sha256": "7703860cb296fe66e72076d739639f3aa5bb4dc022f118ba0eb6d3ebf311bf27",
+                "command_sha256": "5c32f249765cd05cdd9ad790c36dcd7f608742e0976bcbea1f45045458849f84"
+              },
+              "ap": {
+                "object_sha256": "8e12c22c91fa28f245e8de4ef9f0211bc8039d13acc7aecd52f73bbcd53690a9",
+                "command_sha256": "957db24d8e2bf486fa36ef76aa9fbc763c86ff704120bfe7fc5a37363ca6d42b"
+              },
+              "mt_ps": {
+                "object_sha256": "fc4ce9aaaa932f54012b3f65aac6a1fa34a4162fa6a716f8f2badf2d15c54610",
+                "command_sha256": "e21fee33fd2a95bf9f7fec6903f6a82a4b75deb5f7e1de27b802fe7f556e480d"
+              }
+            }
+          }
+        },
+        "source_sha256": {
+          "common/mt_ps.c": "6c14d46ffd82b480094f2dddfdadfe9324c17ebe3d0b6dcb7a6980f38d022389",
+          "ap/ap.c": "6f7357346cb30184bfdc808f9f48d22fedb99029cba1919fc733c6fcb1b98482",
+          "ap/ap_connect.c": "b23799750f6f2ca03d72579903345c77982104a3a2fc10b8c52388b8446d7b8e",
+          "tx_rx/txs.c": "0ee869b07fae1c1a9e255b40b09a478cafb5ab1fafc73545f25edf195587e42e",
+          "include/wr-iot-psm-diag.h": "e6a6f5f9ceecf22e8f32ebbebb00fdec8148bb53ea4462e6721fd5d72636f3ab"
+        }
+      },
+      "independent_binary_checks": "PASS MIPS module/object headers, hashes, exact four compiler commands, OFF/ON diagnostic string"
+    }
+  ]
+}

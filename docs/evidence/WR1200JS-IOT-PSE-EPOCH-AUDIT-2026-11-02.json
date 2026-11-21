@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-02",
+  "source_sha256": "f013d5b5c91924564050db44198c70dc87ca5814502ee74601eb211dd95e3622",
+  "function_sha256": "e24e182a70e374ae81d59c6d6d769a68f46556f370e610f6cc4188d7aee08530",
+  "function": "wr_iot_pse_reset_raw",
+  "handshake": [
+    "read register 0x816c and clear old bit1 if set",
+    "read register and set request bit0",
+    "poll bit1 <=501 iterations then clear result bit1",
+    "timeout updates recovery/failure counters and returns",
+    "success clears AC/Mgmt hit bits then invokes raw PDMA reset"
+  ],
+  "missing_epoch_receipts": [
+    "old-result clear is not verified before request",
+    "bit1 has no command sequence or firmware generation echo",
+    "no explicit MCU ackq/rxq/rx_doneq drain in PSE function",
+    "raw reset returns VOID; wrapper finishes ticket unverified"
+  ],
+  "claims": {
+    "firmware_epoch_proven": false,
+    "runtime_verified": false
+  },
+  "next": "trace firmware-defined event/queue reset contract or hardware reset boundary; do not promote PSE success bit to ACK freshness"
+}

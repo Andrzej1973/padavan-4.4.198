@@ -19,6 +19,21 @@ for name in ("wpad.dat", "wpad.da", "proxy.pac"):
     checks["link_" + name] = link.is_symlink() and os.readlink(link) == "/etc/storage/wpad.dat"
 page = (romfs / "www/Advanced_DHCP_Content.asp").read_text()
 checks["editor"] = 'name="scripts.wpad.dat"' in page
+checks["localized_help_token"] = '<#WRWpadHelp#>' in page
+help_markers = {
+    "en": ("the router serves", "does not announce"),
+    "uk": ("маршрутизатор надає", "не оголошується"),
+    "ru": ("маршрутизатор предоставляет", "не объявляется"),
+}
+for language, filename in (("en", "EN.dict"), ("uk", "UK.dict"), ("ru", "RU.dict")):
+    dictionary = (romfs / "www" / filename).read_text(encoding="utf-8")
+    entries = [line.partition("=")[2] for line in dictionary.splitlines()
+               if line.startswith("WRWpadHelp=")]
+    normalized = entries[0].lower() if len(entries) == 1 else ""
+    checks["help_translation_" + language] = all(
+        marker.lower() in normalized
+        for marker in ("/wpad.dat", "/proxy.pac", "DHCP", "DNS", *help_markers[language])
+    )
 checks["capability_guard"] = "found_support_wpad() && !get_ap_mode()" in page
 checks["login_guard"] = "inputCtrl(document.form['scripts.wpad.dat'], login_safe())" in page
 server = (romfs / "usr/sbin/httpd").read_bytes()

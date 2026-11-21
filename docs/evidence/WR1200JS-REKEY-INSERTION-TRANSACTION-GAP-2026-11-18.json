@@ -1,0 +1,20 @@
+{
+  "scope": "Executed actual peer-table-owner header; no native insertion body or hardware executed",
+  "source_sha256": {
+    "peer-table-owner.h": "e1700ff1576b60796d7909a4a3628d0d6ca7418b9fd6e300b6da3cd1538fed38",
+    "peer-table-insertion-gate.inc": "d44df2c6696dbb6ed4be57d4ce19e5abdf20aae29ba058dbf128fc99599566b3",
+    "peer-normal-insert.inc": "36a9adc5beeff3afb274f4cd299ad0dbc7e1df037948e0d1fb0253ea59a58cef"
+  },
+  "active_transaction_allows_another_transaction": true,
+  "insertion_gate_allows_active_transaction": true,
+  "exclusive_reset_refused_during_transactions": true,
+  "periodic_peer_snapshot_alone_sufficient": false,
+  "required_next_binding": [
+    "Reserve exact ra2 peer generations before timer body",
+    "Exclude new ra2 insertions and early association mutation for the complete periodic operation",
+    "Preserve existing Main/Guest behavior",
+    "Do not hold table lock across timer cancellation/send"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false
+}

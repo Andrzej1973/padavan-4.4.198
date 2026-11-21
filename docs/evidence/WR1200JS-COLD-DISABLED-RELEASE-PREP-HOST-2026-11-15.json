@@ -1,0 +1,19 @@
+{
+  "scope": "standalone disabled-IoT cold release preparation, not resource cleanup",
+  "checks": {
+    "actual_cold_parent_initial_OFF_profile_policy_asan_ubsan": "PASS",
+    "identity_envelope_auth_aux_Guest_drift_refuse": "PASS",
+    "WAN_intent_captured_once": "PASS",
+    "parent_profile_and_guard_retained": "PASS",
+    "no_OPEN_RELEASE_fabrication_or_WAN_submission": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-disabled-release.c": "7078901b0a2729cb21007bb5f93f3ad286b16824a9844faccf8344ff17b30912",
+    "tools/iot/cold-on-disabled-release.h": "049eab134832ac4762d5697f5953d1b75fd31a7cb8353356c2fa85019703ccf0",
+    "tools/iot/check-cold-on-disabled-release.py": "19e7b9e1ff0002f915cb54d055dcad151962aaa82895db5ede91eae7e02bdcf6"
+  },
+  "runtime_staged": false,
+  "cleanup_connected": false,
+  "target_verified": false,
+  "physical_verified": false
+}

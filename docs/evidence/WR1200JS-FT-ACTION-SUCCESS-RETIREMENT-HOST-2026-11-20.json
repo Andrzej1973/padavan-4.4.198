@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-20",
+  "scope": "Prepared FT Action success request/provenance boundary",
+  "changes": [
+    "Native FT_FtAction success calls shared exact-invocation success preparation under MacTabLock before SST_AUTH and generation publication.",
+    "Retirement refusal poisons reset ownership and follows existing out cleanup; poisoned peer leave retains ownership, while native buffers follow out cleanup."
+  ],
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-generation-binding.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3 --success-context",
+      "exit": 0,
+      "coverage": "Full prepared FT Action and RRB host bodies with modeled crypto/insertion, default and CUSTOMER_DCC_FEATURE. Existing and first-peer success advance generation and balance leases; stale callback and enqueue/insertion race/failure fixtures pass. Full action-specific injections execute detached WAITING, detached CLAIMED and synchronous WAITING records. WAITING cancels before success generation; CLAIMED/synchronous paths leave SST_ASSOC and generation unchanged, emit no reply, preserve exact current handle/ledger state and retain poisoned transaction/event lease; native buffer allocation/free balances. Default and CUSTOMER_DCC_FEATURE pass without compile diagnostics."
+    },
+    {
+      "command": "python3 tools/iot/check-ft-auth-request-context.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": "Success preparation structurally precedes state/generation in pinned action; full handler, shared retirement helper and request lifecycle ASan/UBSan checks pass."
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-auth-request-context-composition.py": "5be909b03e6866913a3274f986fff707b7aaed5871be3bdf9c3bb5ed0d2a639a",
+    "tools/iot/check-ft-auth-request-context.py": "666729d4d82c0301cb71803946c6077a05ef84ade9027dc61dc3d86db9f098ef",
+    "tools/iot/check-ft-generation-binding.py": "482fca5a4a7a86e0f86f81f37c499901eefd6688b3942700cfd507286988c558",
+    "tools/iot/ft-auth-request-context.h": "dcfe26e0b3b0dade6a087e8f541f9f5180e13f4881c236a2c4af8dddea8ca039"
+  },
+  "limits": [
+    "FT Action preauth retry producer remains distinct from over-air retry selector.",
+    "Native KEY_REQ/IAPP/cache/completion and delete/reset retirement remain open.",
+    "Composers remain uninstalled; no target/image/device acceptance claimed."
+  ]
+}

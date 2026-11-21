@@ -1,0 +1,24 @@
+{
+  "run_id": 42377606982,
+  "artifact_id": 13576577878,
+  "repository_revision": "2278e41529772025f87f81ebd537a16e78b5b010",
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "inspection": "Artifact inspected in memory during Mi Mini audit; each module length, SHA256, ELF32 LE MIPS relocatable header and feature baseline-report binding independently checked.",
+  "modules": {
+    "baseline": {
+      "module_bytes": 5788828,
+      "module_sha256": "fb871074b9a3f8c15167d18c59e1813171c91ef1ed98391d6c15394953fe23d5"
+    },
+    "wsc": {
+      "module_bytes": 6398316,
+      "module_sha256": "0bbdb3022b5674497d1703a0a2853efa1c6018d5837880347c3b6caccca74c78"
+    },
+    "reload": {
+      "module_bytes": 5790896,
+      "module_sha256": "47c289cb976b613a92cd079cd3cd3e151eabbd29a9d56d307395632dbd632aa0"
+    }
+  },
+  "scope": "Isolated channel-latch change only; later caller, scan, normal promotion and runtime not covered."
+}

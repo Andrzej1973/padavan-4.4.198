@@ -1,0 +1,212 @@
+{
+  "date": "2026-11-18",
+  "run": 44324809566,
+  "artifact": 14437966997,
+  "source_revision": "7c3cbc5578b9dee163b400b017a449195c60aab7",
+  "verification_source": {
+    "verified_revision": "7c3cbc5578b9dee163b400b017a449195c60aab7",
+    "github_run": {
+      "conclusion": "success",
+      "displayTitle": "Padavan #1390 [optional] 7c3cbc5578b9dee163b400b017a449195c60aab7 host=ubuntu-24.04 tc=source iot/peer82",
+      "headSha": "7c3cbc5578b9dee163b400b017a449195c60aab7",
+      "status": "completed",
+      "url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/44324809566"
+    }
+  },
+  "github_run": {
+    "conclusion": "success",
+    "displayTitle": "Padavan #1390 [optional] 7c3cbc5578b9dee163b400b017a449195c60aab7 host=ubuntu-24.04 tc=source iot/peer82",
+    "headSha": "7c3cbc5578b9dee163b400b017a449195c60aab7",
+    "status": "completed",
+    "url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/44324809566"
+  },
+  "status": "INDEPENDENT_CANDIDATE_IMAGE_AND_LIFECYCLE_PAIR_PASS",
+  "image_sha256": "d4af268cc2465e1ea340b65678c47c37c2bf00d4229d2694b7192818a79efc97",
+  "image_bytes": 14531114,
+  "remaining_partition_bytes": 1656278,
+  "header_payload_crc_verified": true,
+  "squashfs_offset": 1982224,
+  "lifecycle_pair_recomputed": true,
+  "native_snapshot_evidence": {
+    "verified": true,
+    "kernel_getall_sha256": "1328a1e4fa4f098286ce7a30561ebb51f645010e6fcb6c4b7182000bb721ef08",
+    "kernel_generate_sha256": "c25f6619194849e9c2897c6ea73aff9b935aaf88a52afb037a2a2069a5d3cef1",
+    "native_header_sha256": "411b381cdff5d6fea5fda76510e7a5dacff591dd067ce47c3cc3e225ae42b33e",
+    "nvram_space": 61440,
+    "nvram_header_bytes": 20,
+    "snapshot_c_sha256": "4f305b1bf4a647c209c4aa39550b4678ed8afbc125601eadb62fc49957388203",
+    "snapshot_h_sha256": "d31c873448a171b3d8c127ba5daedd774e756448fd6273ffa9179f0b0c856f55"
+  },
+  "configuration_ram_target_symbols": true,
+  "desired_generation_target_symbols": true,
+  "automatic_initial_shutdown_target_symbols": true,
+  "automatic_cold_shutdown_target_symbols": true,
+  "automatic_mailbox_shutdown_target_symbols": true,
+  "embedded_replacements": {
+    "sbin/rc": {
+      "bytes": 1104224,
+      "sha256": "71a92b2972455cbcbea0d6a9be6b0c23d48856b64ab254503cfed9ae715d2062",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 426016,
+      "sha256": "a3ec65d2ec29aba7cde3004525cbfffaf06b49557cb704e0087168f2e8f50bda",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/bin/iappd.sh": {
+      "bytes": 1567,
+      "sha256": "020f6b714bc6c174681b2ce040a9d57ba7d9943679591f00a8b8b17ea29a62fa"
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "bytes": 6300180,
+      "sha256": "0b9eb09d5424f6fa397c5c12aaeea46e7a3c05340db3034cc4fee1b1c5bac115",
+      "elf": "ELF32 LE MIPS"
+    }
+  },
+  "embedded_classic_assets": {
+    "www/Advanced_IoT_Content.asp": {
+      "bytes": 3979,
+      "sha256": "0dc9c09a824ab751d16c76c20c4c5708d8b4a33b80037ff07c9b1ff75d89d29a"
+    },
+    "www/classic-iot-config.js": {
+      "bytes": 7958,
+      "sha256": "f370bb65e836c79cb5e7cad1d4f260f74afd5862e7c361170f54d76647d27394"
+    },
+    "www/state.js": {
+      "bytes": 53017,
+      "sha256": "4e91ebdc867d0176aed6a1c286f44cee857473b1462e0a5729296937b8fd338e"
+    },
+    "www/classic-iot-navigation.js": {
+      "bytes": 3716,
+      "sha256": "ad088221c85749ea6582748a3fe95b58cb37df9aedc4885c9570192630b2c39c"
+    }
+  },
+  "runtime_toggle_source_binding_verified": true,
+  "four_classic_assets_pinned_verified": true,
+  "selector_final_binding_independently_verified": true,
+  "selector_link_evidence": {
+    "selector_link_provider_verified": true,
+    "selector_caller_relocation_verified": true,
+    "selector_object_strong_definition_verified": true,
+    "definition_object": "wr-iot-saved-config-store.o",
+    "caller_object": "ralink.o",
+    "rc_sha256": "71a92b2972455cbcbea0d6a9be6b0c23d48856b64ab254503cfed9ae715d2062",
+    "input_sha256": {
+      "generation-selector-store-symbols.txt": "92bc50d5d330eb1548b5de03a99ae8a21d1a63b8221b2cd709da57a456be0b76",
+      "generation-selector-caller-relocations.txt": "7e244cc722d57cc6fe5cdd9ef5f297598d41e6e43393de6812b787569f0514ab",
+      "rc-link-map.txt": "2030c356523c4bfab4346e565a01c59b5ca6f66961ab6c1b6359cf8f147d3372"
+    },
+    "production_installed": false,
+    "runtime_verified": false
+  },
+  "edit_view_target_symbols_verified": true,
+  "edit_view_source_manifest": {
+    "board": "WR1200JS",
+    "edit_startup_attempt_prepared": true,
+    "view_startup_attempt_prepared": true,
+    "native_capabilities_verified": true,
+    "http_view_bound": true,
+    "http_edit_bound": true,
+    "http_runtime_toggle_bound": true,
+    "http_bound": true,
+    "target_verified": false,
+    "runtime_verified": false,
+    "production_ready": false
+  },
+  "dependency_closure": {
+    "runtime_verified": false,
+    "production_installed": false,
+    "dependency_closure_verified": true,
+    "elf_files": {
+      "candidate:sbin/rc": {
+        "sha256": "71a92b2972455cbcbea0d6a9be6b0c23d48856b64ab254503cfed9ae715d2062",
+        "needed": [
+          "libiw.so.30",
+          "libshared.so",
+          "libdisk.so",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libiw.so.30": {
+        "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+        "needed": [
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libuClibc-1.0.48.so": {
+        "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+        "needed": [
+          "ld-uClibc.so.1"
+        ]
+      },
+      "image:lib/ld-uClibc-1.0.48.so": {
+        "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+        "needed": []
+      },
+      "image:lib/libshared.so": {
+        "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+        "needed": []
+      },
+      "image:lib/libdisk.so": {
+        "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+        "needed": []
+      },
+      "candidate:usr/sbin/httpd": {
+        "sha256": "a3ec65d2ec29aba7cde3004525cbfffaf06b49557cb704e0087168f2e8f50bda",
+        "needed": [
+          "libshared.so",
+          "libiw.so.30",
+          "libdisk.so",
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libssl.so.3": {
+        "sha256": "3cb01582ae199b37e864e0470a2418d9c0023805e6fa11ecf6e0a3dfdcaaa938",
+        "needed": [
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libcrypto.so.3": {
+        "sha256": "c65c49b0317b339dc9fc6350f2ca4309707dd905a45017b5af811c666bb9faed",
+        "needed": [
+          "libc.so.0"
+        ]
+      }
+    },
+    "errors": []
+  },
+  "board_checks": {
+    "uimage_magic": true,
+    "product_id": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "size_range": true,
+    "iot_hwnat_dtb": true
+  },
+  "module_vermagic_4_4_198": true,
+  "limits": [
+    "Selected embedded replacements and dependencies independently extracted; full unchanged-ROMFS proof remains CI scope",
+    "Covers7c3cbc55 explicit strong selector map proof and defined group-key packing; excludes later GTK timer/CLOSE changes",
+    "Candidate not main-image promoted or device accepted"
+  ],
+  "runtime_verified": false,
+  "production_promoted": false,
+  "audit_script_sha256": "8927bf10d5a008ca1c80b1e876ff2b527e3295ee4f57e72f2210f975e00b779d",
+  "retained_selector_excerpt": {
+    "generation-selector-store-symbols.txt": [
+      "00002640 T wr_iot_generation_profile_request"
+    ],
+    "generation-selector-caller-relocations.txt": [
+      "\t\t\t2120: R_MIPS_CALL16\twr_iot_generation_profile_request",
+      "\t\t\t2128: R_MIPS_JALR\twr_iot_generation_profile_request"
+    ],
+    "selector_cref_block": [
+      "wr_iot_generation_profile_request                 wr-iot-saved-config-store.o",
+      "                                                  ralink.o"
+    ]
+  }
+}

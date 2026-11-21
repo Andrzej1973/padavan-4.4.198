@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-14",
+  "source_base": "ecad41d0cdc0e969f5ea9aec0dbb4609739c6e10",
+  "implementation": [
+    "tools/iot/restart-generation.c",
+    "tools/iot/restart-main-state.c",
+    "tools/iot/prepare-rc.py"
+  ],
+  "behavior": [
+    "capture profile baseline only under exact retained physical RELEASE and administrative Main DOWN",
+    "one generator attempt with UNCERTAIN phase before possible mutation",
+    "no-reload intent verifies existing profile without generation",
+    "valid profile readback reaches VERIFIED while retaining baseline; no Main UP or outer guard release",
+    "owned partial failure restores baseline through existing journal; foreign inode or pending write retains context without replay",
+    "normal pending shutdown may recover but cannot start generation",
+    "read-only post-capture cancellation frees capture; rollback clears copied desired credentials"
+  ],
+  "sdk_evidence": {
+    "archive": "padavan-4.4-c25283e-git-exact.tar",
+    "member": "trunk/user/rc/ralink.c",
+    "wrapper": "gen_ralink_config_2g -> gen_ralink_config(BOARD_2G_AS_WSOC,0,disable_autoscan)",
+    "path": "/etc/Wireless/RT2860/RT2860AP.dat",
+    "observed_bug": "generator originally ignored ferror/fflush/fclose and returned0",
+    "fix_scope": "WR1200JS SoC2g checked error return; other boards/bands baseline behavior retained",
+    "source_access": "selected member read in memory; no full extraction"
+  },
+  "host_checks": {
+    "check-restart-generation.py": "PASS actual file capture/journal/restore/observer; physical/Main state and SDK generation injected",
+    "check-restart-main-state.py": "PASS actual fixed ra0 GETFLAGS adapter and extracted generator wrapper, syscall/generator injected",
+    "check-generator-close.py": "PASS extracted checked stdio fragment, WR2g failure propagation and other-board/band regression",
+    "prepared_runtime": "PASS session14179 exit0:19 actual copied TUs native C11",
+    "pre_io_suite": {
+      "session": 83712,
+      "parts": 58,
+      "exit_code": 0,
+      "log_sha256": "8f09cf7e677097db34c1ba2621dc1ef253515a959b45faf2b6b00b79241e451a"
+    },
+    "physical_stop_suite": {
+      "session": 76865,
+      "status": "PASS",
+      "parts": 59,
+      "exit_code": 0,
+      "log_sha256": "fef437d98ef32ef0e807851c36c7337a3df2ab2c4e787919f8a675236b60dda4"
+    }
+  },
+  "runtime_linked": true,
+  "main_startup_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "one-shot checked Main startup and corresponding configuration/readiness proof",
+    "successful generation baseline finalization after verified resume",
+    "physical restart scheduler/outer guard completion",
+    "target compilation and physical acceptance"
+  ],
+  "ci": {
+    "standard1186": "success",
+    "optional1186_source_dispatched": 43603035990
+  },
+  "cleanup": {
+    "test_trees": "TemporaryDirectory automatic removal",
+    "completed_logs_bytes": 33145,
+    "completed_logs_retained": false,
+    "sdk_source": "selected ralink.c read in memory; no extraction"
+  }
+}

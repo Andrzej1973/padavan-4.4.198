@@ -16,7 +16,7 @@ device was changed: no nvram writes, no service restarts, no firmware update.
 | Kernel | `Linux WR1200JS 4.4.198 #1 SMP Sun Oct 11 11:15:59 UTC 2026 mips` |
 | Firmware | `firmver=4.4.198.9` |
 | Uptime / load | 5 days 16:54 / 0.03 0.03 0.02 |
-| WAN | `eth3` 5.58.139.185/18, default via 5.58.128.1 |
+| WAN | `eth3`, public WAN address/18 and gateway (both redacted) |
 | LAN | `br0` 192.168.20.1/24 |
 | Management tunnel | `wg1` 192.168.30.1/24 |
 | Services | httpd, dnsmasq, dropbear running |

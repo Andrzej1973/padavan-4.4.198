@@ -1,0 +1,44 @@
+{
+  "toolchain_sha256": "de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256",
+  "compiler": "mipsel-linux-uclibc-gcc 10.5.0 (crosstool-NG 1.26.0)",
+  "flags": "-std=c11 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float",
+  "objects": [
+    {
+      "name": "pci-probe-work-mips.o",
+      "bytes": 3008,
+      "sha256": "bc267608c2b713c986c1cd6af138cdd4519c9d9e8a6f00c6d7a0501669413ccf"
+    },
+    {
+      "name": "peer-rssi-delete-mips.o",
+      "bytes": 9028,
+      "sha256": "0e8c1da4a74db9c76c56fdebce5e2f1719fb2006d4e1423703a4bf3cb8497d24"
+    },
+    {
+      "name": "successor-close-mips.o",
+      "bytes": 8292,
+      "sha256": "d77839d415237d6c5b1d2db6153585520d674fc054a93f3b9bb79beb302179b3"
+    },
+    {
+      "name": "successor-ledger-mips.o",
+      "bytes": 21024,
+      "sha256": "1284d50a29112aa95baa936d559dce07cb01ad9378ad0bf0f7e133fe1fa2b2b9"
+    },
+    {
+      "name": "successor-post-open-mips.o",
+      "bytes": 12012,
+      "sha256": "cd7ea06bdddd23bc0b2e784dce7578e178bc23a71d0005e131a5dd9da4068098"
+    },
+    {
+      "name": "uapsd-retire-queues-mips.o",
+      "bytes": 5112,
+      "sha256": "c6ad2bbb5ce7bea0208fedded9ee96fa6042bd3405a2878e25b225b909c836ca"
+    },
+    {
+      "name": "wcid-fifo-retirement-mips.o",
+      "bytes": 3868,
+      "sha256": "f3c79d3b8b0a367557db01f307d657209428d18d28ab98b46ef07fa6b61c31b2"
+    }
+  ],
+  "whole_driver_kbuild": false,
+  "runtime_verified": false
+}

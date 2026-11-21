@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-20",
+  "scope": "Uninstalled AUTH success predecessor/provenance retirement",
+  "changes": [
+    "Success preparation validates exact live invocation and preauth identity under MacTabLock before native SST_AUTH publication.",
+    "Exact WAITING detached predecessor cancels and registry/preauth provenance clears; synchronous/CLAIMED/unfinished request refuses success.",
+    "Prepared retry callback refusal preserves peer ownership and poisons reset admission; no reply, no SST/generation success, FT buffer freed."
+  ],
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-auth-callback.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3 --retry --request-context",
+      "exit": 0,
+      "coverage": "Full native prepared AUTH branch with mocked crypto: successful retry clears provenance, resource/allocation exits preserve it, stale serial refuses, open synchronous record retains poisoned ownership before SST_AUTH."
+    },
+    {
+      "command": "python3 tools/iot/check-ft-auth-request-context.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": "Full handler and standalone lifecycle; WAITING predecessor cancellation rejects old token, CLAIMED/unfinished response blocks preparation; lease retained; O2 Werror ASan/UBSan standalone helpers."
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-auth-request-context.h": "dcfe26e0b3b0dade6a087e8f541f9f5180e13f4881c236a2c4af8dddea8ca039",
+    "tools/iot/ft-auth-callback-composition.py": "9109fa7aac73f191d54d34022cb4863f47a19cbd57ee8641f43dae0e8d135171",
+    "tools/iot/check-ft-auth-callback.py": "6a3589f2f5b21827b03e3da0f9633b39e2030f340d128a2510b8424c7e835cb4",
+    "tools/iot/check-ft-auth-request-context.py": "284bea4a2a9df5197cc015881ae054a2c4b4d013c01928fa49d49520a805fbab",
+    "tools/iot/check-ft-iapp-detached-admission.c": "88ec845d93501d7a9c603c552662b47416691c3a7e4a60ac091ddd668a4be68e"
+  },
+  "limits": [
+    "FT Action success path and delete/reset retirement still require matching integration.",
+    "Native KEY_REQ/IAPP/cache/completion path remains unconnected; helpers use explicit host schemas and crypto actors.",
+    "Prepared composers remain uninstalled; target feature TUs, final image and device acceptance unverified."
+  ]
+}

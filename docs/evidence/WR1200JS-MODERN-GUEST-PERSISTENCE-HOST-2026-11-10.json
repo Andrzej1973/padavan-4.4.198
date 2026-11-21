@@ -1,0 +1,38 @@
+{
+  "scope": "isolated Modern Guest CGI candidate; actual generated host C functions, framework substitutes",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "guest_scenarios": 24,
+  "main_credential_regression_scenarios": 16,
+  "wlan_field_name_type_union": [
+    86,
+    85
+  ],
+  "checks": [
+    "ASan/UBSan actual preflight",
+    "complete validate_asp_apply",
+    "actual commit and notify functions",
+    "both source bands/shared flag/manual commit/keep-change-open",
+    "all13 Guest public fields persisted",
+    "Main/other Guest/radio/file/shared selector preserved",
+    "no extra writes/commits/notify on replay",
+    "non-Guest field injection across actual table-name union"
+  ],
+  "limitations": [
+    "fixture event constants and NVRAM store, no flash/services",
+    "not entire HTTP dispatcher or update_variables_ex service loop",
+    "stale configuration/concurrency/response contract unresolved",
+    "Guest-only control notification cases separate from full credential restart scenarios",
+    "not production installed",
+    "target compile pending",
+    "router runtime unverified"
+  ],
+  "runtime_verified": false,
+  "scratch_removed": true,
+  "files_sha256": {
+    "guest-adapter.h": "95662b7808bd12ea03ef97f02186f131f944897253539edaf399ec1a5a4281a7",
+    "guest-request.h": "f3be64128acdd44bc2a5d2259eb0af88c156a8539224baeffef5c291824be93b",
+    "guest-schedule.h": "da216a1fc4815368638015598a5c2b843f65dc0a286eccf4d29b4688a5c7fe3a",
+    "prepare-guest-candidate.py": "078b4fe78699c98100a0c8b62a5cec72042fe0d1ff3097d370c931e7031aec44",
+    "guest-persistence-main.c.inc": "75f872039ddc6936c35eedae82c5d9444e1cfd3b3f1a52097bf9c7e9ce14fba9"
+  }
+}

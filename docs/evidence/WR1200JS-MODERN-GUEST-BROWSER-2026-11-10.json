@@ -1,0 +1,43 @@
+{
+  "kind": "host-browser-fixture",
+  "runtime_verified": false,
+  "browser": "Windows Edge headless",
+  "source": "current uncommitted Modern assets; actual C JSON fixture, no router access",
+  "checks": [
+    {
+      "requested_window": "1536x1100",
+      "inner_width": 1512,
+      "document_scroll_width": 1497,
+      "guest_dom": true
+    },
+    {
+      "requested_window": "500x1000",
+      "inner_width": 492,
+      "document_scroll_width": 477,
+      "guest_dom": true
+    }
+  ],
+  "limitations": [
+    "390px viewport not verified: initial screenshot cropped a larger browser viewport",
+    "Screenshots cover viewport, not whole page",
+    "Global shell differs from accepted YOUHUA design; spacing remains to refine",
+    "Read-only Guest; persistence and device behavior unverified"
+  ],
+  "screenshots": [
+    {
+      "label": "desktop",
+      "sha256": "c52e9b5847ca996d10c3b2209a75d4f3812c1f06dfa971cf57d15210c506c1f8",
+      "bytes": 435659,
+      "inspected": true,
+      "retained": false
+    },
+    {
+      "label": "mobile",
+      "sha256": "717fc12e79e282280c35c3ab38bdd4042dd3ee50303ae81adedb45a79289a68d",
+      "bytes": 140010,
+      "inspected": true,
+      "retained": false
+    }
+  ],
+  "scratch_removed_bytes": 28416822
+}

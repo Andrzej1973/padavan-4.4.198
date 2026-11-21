@@ -1,0 +1,45 @@
+{
+  "scope": "Host strict form reader and pinned corrected CGI parser joined to candidate batch HTTP handler and actual pinned NVRAM core",
+  "runtime_verified": false,
+  "network_socket_verified": false,
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "cases": {
+    "bands": [
+      "rt",
+      "wl"
+    ],
+    "accepted_ssid": "Дім &;=%+",
+    "keep_key_unchanged": true,
+    "stale_public_snapshot_no_ioctl_or_commit": true,
+    "per_band_rejections": [
+      "literal duplicate",
+      "percent alias duplicate",
+      "encoded NUL",
+      "invalid hex"
+    ],
+    "main_iot_and_other_guest_sentinels_unchanged": true
+  },
+  "substitutes": [
+    "HTTP authorization",
+    "device fd/ioctl transport and user-copy",
+    "kernel locking/heap",
+    "flash commit",
+    "RC notification"
+  ],
+  "checks": [
+    "GCC -Wall -Wextra -Werror ASan/UBSan",
+    "existing 23 JSON replies through actual Modern decoder",
+    "200 synchronized writer trials",
+    "compiled native client/kernel fixture ABI agrees"
+  ],
+  "cleanup": {
+    "successful_scratch_removed_bytes": 832432,
+    "failed_attempt": "TemporaryDirectory removed automatically; test used wrong-band duplicate suffix, corrected; no checkout core found"
+  },
+  "sha256": {
+    "tools/webui-preview/check_nvram_batch_core.py": "6d30b4b26ed77ccf844f4fff07dd370a86fe68fb04f3cf15d681c79a06c58850",
+    "tools/webui-preview/guest-batch-cgi-fixture.c.inc": "1453ffe284144b7af9346be63f0d8a70b6c43cfad69a641b474f9d2a2400f36a",
+    "tools/webui-preview/guest-batch-http.c.inc": "d9eddff6ed20806025890fbb8e5d57284594566cc423160e2af0efc3cba9eb61",
+    "tools/webui-preview/modern-body.h": "cbd6d947111caf331919ff983bb6abb0bb74f734fd590c6465c0f2a6d35d10ec"
+  }
+}

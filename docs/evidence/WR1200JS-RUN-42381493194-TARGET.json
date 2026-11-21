@@ -1,0 +1,317 @@
+{
+  "run_id": 42381493194,
+  "artifact_id": 13579601009,
+  "source": {
+    "dispatch_revision": "7bedb0018ac881ff6cfb38f537413638ff716523",
+    "requested_revision": "c4e2973ef48bcd36803390a3e4c1ef2398846d08",
+    "verified_revision": "c4e2973ef48bcd36803390a3e4c1ef2398846d08",
+    "runtime_verified": false
+  },
+  "modules": {
+    "baseline": {
+      "module_bytes": 5789168,
+      "module_sha256": "c37062db073a4e913600fe3ac7384f0b2d3d21ef409431c9dc75d6588aa6212b",
+      "report_sha256": "68aee6e956a281f1692fd0b22593f610437f6e508b42fa99271fc7b6aec7d5e3",
+      "channel_report_sha256": "2dcdd15073b196939ce86dfa4292fd517890038d53cce2158cf09b672b368feb",
+      "channel_units": {
+        "mt7603": {
+          "source": "chips/mt7603.c",
+          "source_sha256": "c00e85ce9e23bf0a59b81529d1c6ab5e3da1d36b781377e35215b6c0de5862cd",
+          "command_sha256": "0db2004080225911834856a8e207d8eabe3a41d06086598c7abffd53227045ee",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": false,
+            "WSC_AP_SUPPORT": false,
+            "WSC_V2_SUPPORT": false,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": true
+          },
+          "object_bytes": 197008,
+          "object_sha256": "19b4d77e628c319b2531f9cad554d3f16929a5e8283a8bef97e27037671fbd7f"
+        },
+        "cmm_asic_mt": {
+          "source": "hw_ctrl/cmm_asic_mt.c",
+          "source_sha256": "f44fdbab2f5e2da4e4d5e3118efc2c867f7feed064f78cfcc0514d41f662cf99",
+          "command_sha256": "b4aafc0b1ff905637e7197bafd33137d826964a4be0de4b7c3ad5d1a3e87fc3d",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": false,
+            "WSC_AP_SUPPORT": false,
+            "WSC_V2_SUPPORT": false,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": true
+          },
+          "object_bytes": 233404,
+          "object_sha256": "a14274ccfc03ccaf9a45e20bf171bc32abefd6fdb2725abd96ee9b9906ed30b3"
+        },
+        "ap_autoChSel": {
+          "source": "ap/ap_autoChSel.c",
+          "source_sha256": "4e23e7ea9eacbb38ece91825e92ade73d8e1e189f0807f7690a36628ce80e491",
+          "command_sha256": "ce14eada34193bda4f8961c9ef4c57998a8ba402d916b9f3f1041b51bfe142cc",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": false,
+            "WSC_AP_SUPPORT": false,
+            "WSC_V2_SUPPORT": false,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": true
+          },
+          "object_bytes": 56604,
+          "object_sha256": "5ac19acc84eaf269106fddffb14f9bf25ed3ad24d7ef6fe7f83770b71dcfd283"
+        },
+        "rtmp_init_inf": {
+          "source": "common/rtmp_init_inf.c",
+          "source_sha256": "d2a9e2ba812c508a2444a1dc969a3fb2b84af029df681ee974f57666a16f4169",
+          "command_sha256": "f604d7aff6c1167186404ee98623f6219d17c1d2db281fc5805914f114978ccf",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": false,
+            "WSC_AP_SUPPORT": false,
+            "WSC_V2_SUPPORT": false,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": true
+          },
+          "object_bytes": 51348,
+          "object_sha256": "092dc4633805fa3093c2d7988093e9ef41c58bba708f2886e52caab37c876a4e"
+        }
+      }
+    },
+    "wsc": {
+      "module_bytes": 6398660,
+      "module_sha256": "4070b00abf6d0dff20d9291ce82216c45deec854770ff377bc00d7283cf543f0",
+      "report_sha256": "1d59d26794d813df436e069cd4722f44263d97f7ae0051ebaf4f2dcfe5ed59e2",
+      "channel_report_sha256": "88a86842cf5f5d83cf3a6939c9bbea2c54fa60d6bfe1920636877da228a490da",
+      "channel_units": {
+        "mt7603": {
+          "source": "chips/mt7603.c",
+          "source_sha256": "c00e85ce9e23bf0a59b81529d1c6ab5e3da1d36b781377e35215b6c0de5862cd",
+          "command_sha256": "8f7260546e3a1796c6552fcf28294f12dbbc97950a9be0c191546e819d9ecb37",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": true,
+            "WSC_AP_SUPPORT": true,
+            "WSC_V2_SUPPORT": true,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": true
+          },
+          "object_bytes": 196984,
+          "object_sha256": "9f5089e1c6f045213f577eea1dce7b635934ac04e92a38752a4f8a905370a1a2"
+        },
+        "cmm_asic_mt": {
+          "source": "hw_ctrl/cmm_asic_mt.c",
+          "source_sha256": "f44fdbab2f5e2da4e4d5e3118efc2c867f7feed064f78cfcc0514d41f662cf99",
+          "command_sha256": "16c3a77e447a3b0bc64e324e5ab3ad968bf198175911d0cc3fda901f718790a4",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": true,
+            "WSC_AP_SUPPORT": true,
+            "WSC_V2_SUPPORT": true,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": true
+          },
+          "object_bytes": 233348,
+          "object_sha256": "034801af1bc11fdf51a113c2f92c08322615c6db92dd5952df297625f17cc582"
+        },
+        "ap_autoChSel": {
+          "source": "ap/ap_autoChSel.c",
+          "source_sha256": "4e23e7ea9eacbb38ece91825e92ade73d8e1e189f0807f7690a36628ce80e491",
+          "command_sha256": "52965de6af23515d21948276567325c4a51016f67f169c2f01d63da77b5bf635",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": true,
+            "WSC_AP_SUPPORT": true,
+            "WSC_V2_SUPPORT": true,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": true
+          },
+          "object_bytes": 56588,
+          "object_sha256": "fbeb1f14fb09fb53beac32ae2dee79d0753f4c9253c8c7ba6a47b6521323897c"
+        },
+        "rtmp_init_inf": {
+          "source": "common/rtmp_init_inf.c",
+          "source_sha256": "d2a9e2ba812c508a2444a1dc969a3fb2b84af029df681ee974f57666a16f4169",
+          "command_sha256": "c49509ae0eba24c2a17bf6d07234221c71f8039e40a257eef99a43e53b848b79",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": true,
+            "WSC_AP_SUPPORT": true,
+            "WSC_V2_SUPPORT": true,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": true
+          },
+          "object_bytes": 54928,
+          "object_sha256": "f94bfddbd6a0cd1161d241bd3fa7536a55845c78634e95fdb72c7073c63f3ee0"
+        }
+      }
+    },
+    "reload": {
+      "module_bytes": 5791240,
+      "module_sha256": "93b98c6f1237b0b4f568090fd6c62d5b69067c212d5699e0b129562a8a877756",
+      "report_sha256": "a433c1e864df4555bad544859de99eca6241ac575a10577795bd6fc41c40e9c2",
+      "channel_report_sha256": "9308e62d8ef4dc8eed7d43f2127fba66dda7bf029237d5b2d9070314176e8e83",
+      "channel_units": {
+        "mt7603": {
+          "source": "chips/mt7603.c",
+          "source_sha256": "c00e85ce9e23bf0a59b81529d1c6ab5e3da1d36b781377e35215b6c0de5862cd",
+          "command_sha256": "a3075f7c14e192b0b271268539f7d1f581979d81348c59ffd49bd6e2001a7094",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": false,
+            "WSC_AP_SUPPORT": false,
+            "WSC_V2_SUPPORT": false,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": false
+          },
+          "object_bytes": 196988,
+          "object_sha256": "4dfeb3f9519ebc73d9885b6a29a7ad577430f71d05c3edc8087db16c7a578e27"
+        },
+        "cmm_asic_mt": {
+          "source": "hw_ctrl/cmm_asic_mt.c",
+          "source_sha256": "f44fdbab2f5e2da4e4d5e3118efc2c867f7feed064f78cfcc0514d41f662cf99",
+          "command_sha256": "6b6d1f132d2129cfcd6c2711e094b1d657be0d3fab6a4cb836d0d837117a8c01",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": false,
+            "WSC_AP_SUPPORT": false,
+            "WSC_V2_SUPPORT": false,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": false
+          },
+          "object_bytes": 238516,
+          "object_sha256": "38784a9c5d58ac3f0fae154e4307e6c1ddc4f8964956c773a599ee538c51f271"
+        },
+        "ap_autoChSel": {
+          "source": "ap/ap_autoChSel.c",
+          "source_sha256": "4e23e7ea9eacbb38ece91825e92ade73d8e1e189f0807f7690a36628ce80e491",
+          "command_sha256": "62842b2318fd6de670eaea2c6be3704fae0cb1323918377ce6c59d5630b3ee82",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": false,
+            "WSC_AP_SUPPORT": false,
+            "WSC_V2_SUPPORT": false,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": false
+          },
+          "object_bytes": 56584,
+          "object_sha256": "fa9dea68be85e9138b582bd722ec7f471d0f103fe06868ed5ee80821a1913761"
+        },
+        "rtmp_init_inf": {
+          "source": "common/rtmp_init_inf.c",
+          "source_sha256": "d2a9e2ba812c508a2444a1dc969a3fb2b84af029df681ee974f57666a16f4169",
+          "command_sha256": "2fb3c6f169e3c2ada2f32860cbee8a1074810e8a884c20f179d0c5ca3c5d5413",
+          "effective_macros": {
+            "KTHREAD_SUPPORT": true,
+            "OS_ABL_FUNC_SUPPORT": false,
+            "CONFIG_PM": false,
+            "RTMP_TIMER_TASK_SUPPORT": false,
+            "WSC_INCLUDED": false,
+            "WSC_AP_SUPPORT": false,
+            "WSC_V2_SUPPORT": false,
+            "WORKQUEUE_BH": false,
+            "CONFIG_ANDES_SUPPORT": true,
+            "MT7603": true,
+            "MT_MAC": true,
+            "RTMP_PCI_SUPPORT": true,
+            "RESOURCE_PRE_ALLOC": true,
+            "LOAD_FW_ONE_TIME": false
+          },
+          "object_bytes": 50664,
+          "object_sha256": "25c903ddb88d1a93e4231e5cf19edf3e3356d259d1b1cdfaab497dd1f576b9e0"
+        }
+      }
+    }
+  },
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Channel TU guards/source/object reports bound to baseline/WSC/reload; later coexistence change not covered.",
+  "inspection": "ZIP/modules independently checked in memory; exact root entries preferred over feature suffix matches; no binaries retained."
+}

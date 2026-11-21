@@ -1,0 +1,61 @@
+{
+  "scope": "Current prepared FT cache and standalone IAPP token checks; no integrated response lease",
+  "head": "90cdc2881a7c09251e74c4fc830a4f0b69c1600b",
+  "working_tree_hashes": {
+    "tools/iot/ft-r1kh-snapshot-composition.py": "cedaf9c569b0b5ba221adbfaa421c2c7d8076364899683383389ed42219de90e",
+    "tools/iot/check-ft-r1kh-snapshot.py": "2d1a2ec4587c549f7598e7258ab9b5a96e0f231d64d3b69d7cf07689a2a25b90",
+    "tools/iot/ft-iapp-response-token.h": "fa25bc7407521b58448cc08d52bbfa2874e64f1017baac263755d43ec65ad90b",
+    "tools/iot/check-ft-iapp-response-token.c": "d671b335b6ec5b1e42d544a069d1f439c50b3a51572862699c16aef79da70c7c"
+  },
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "tools/iot/check-ft-r1kh-snapshot.py",
+        "/home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3"
+      ],
+      "exit_status": 0,
+      "stdout": "PASS | FT AUTH cache miss | actual composed lookup and native predicate preserve miss request admission and cached hit\nPASS | FT R1KH snapshot | locked value copy survives immediate node retirement; miss, closed cache, invalid length and null refusal\nPASS | FT R1KH atomic store/delete | fields create owned entry; allocation failure preserves prior value; replace/full refusal, key delete and allocation balance\nPASS | FT composition drift | missing/duplicate caller anchors and repeated composition refused\nPASS | FT cache lock negative control | unlocked four-byte cache read rejected\nPASS | FT R1KH snapshot composition | KDP query plus AUTH-CONFIRM and ASSOC readers converted; FT readers, AUTH and cmm writers, and IAPP response cache access compose to owned snapshots/atomic replacement; response identity still unverified\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "gcc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-pie",
+        "-no-pie",
+        "-Itools/iot",
+        "tools/iot/check-ft-iapp-response-token.c",
+        "-o",
+        "/tmp/check-ft-iapp-response-token"
+      ],
+      "exit_status": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/tmp/check-ft-iapp-response-token"
+      ],
+      "exit_status": 0,
+      "stdout": "PASS | FT IAPP response token | exact token/MAC/R1KHID, single claim and BSS/WCID/generation context\nPASS | FT IAPP timeout race | timeout-first cancellation rejects delayed response; stale handle cannot cancel reused slot\nPASS | FT IAPP request supersession | newer attempt retires old waiting token; claimed attempt cannot be replaced\nPASS | FT IAPP claim-first retirement | claimed token cannot be timeout-cancelled; association retirement invalidates cache admission\nPASS | FT IAPP token ledger bounds | bounded capacity refusal preserves existing pending requests\nPASS | FT IAPP reused slot | old claimed handle cannot finish a newer generation request\nPASS | FT IAPP serial exhaustion | no wrap or request admission after serial exhaustion\nPASS | FT IAPP refused output | invalid input and poisoned ledger clear stale output handles\nPASS | FT IAPP poisoned claim | context admission refused while exact claimed cleanup remains single-use\n",
+      "stderr": ""
+    }
+  ],
+  "limitations": [
+    "Cache fixture executes generated helper APIs and AUTH miss predicate, not complete native caller functions",
+    "Related cmm_wpa/ap_ftkd conversion verified structurally only",
+    "Token fixture is standalone and not integrated with native AUTH/response lifetime",
+    "Same-key ACK bypass still requires identity-bound response integration",
+    "Maintenance, teardown and diagnostic cache access require integrated lifetime verification"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "image_verified": false,
+  "device_accepted": false
+}

@@ -1,0 +1,17 @@
+{
+  "scope": "Source-preserving outer wrapper preparation; no Linux admission binding",
+  "files_sha256": {
+    "ra2-mutation-wrappers.py": "325c027efe7bef3055cf6cba68a655e24385715dbed0332aec11275d87142c50",
+    "check-ra2-mutation-wrappers.py": "1e7fec1ff01d7d14e2e36b46fbe9b6ce59dee2c4d64befc86afcf189c854c9ff",
+    "ra2-association-owner.h": "73c2642ace3bdc03cbe80fe27a62f7cfb9ca2313f3008eb7e4a6b888f661df1a",
+    "check-ra2-association-owner.c": "4f9f62e18c1e51ea0e794b74bd869d87b1c928dde8739174bcaf9856723242e5"
+  },
+  "native_sources_restored_byte_exact": true,
+  "three_generated_wrappers_executed_with_boundary_actors": true,
+  "feature_on_and_off_host_asan_ubsan": true,
+  "native_state_machines_executed": false,
+  "linux_admission_implemented": false,
+  "candidate_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

@@ -1,0 +1,39 @@
+{
+  "revision_base": "ed614a72dc5dbb532be49e07b9119e0d398f5af4",
+  "checks": [
+    {
+      "command": "python3 -B tools/iot/check-normal-shutdown-route.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-terminal-iapp-shutdown.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-radio-stop-fence.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-radio-stop-fence-fault.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-runtime.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+      "result": "PASS"
+    }
+  ],
+  "scope": "Actual normal signal handler admission and real fence with queued SIGTERM/QUIT; first request survives transaction replay and late unmask. Default route disabled and no production arm.",
+  "sha256": {
+    "rc-shutdown-admission.h": "c1b698c544f4bb82fb514e2eaa8baef6a7dcec4ca45c4199a460a2584ab78cc6",
+    "check-normal-shutdown-route.py": "4355879fa9163747e69f997d9bd671959f8d62997c2fd00c350a744188ae5d76",
+    "check-physical-stop-suite.py": "7a1a620fe3188e191bfbeb48116be882c8e128850e8b2e9e46395eb58d556bf1"
+  },
+  "normal_route_armed_by_runtime": false,
+  "physical_stop_consumer_bound": false,
+  "general_post_active_shutdown_verified": false,
+  "physical_runtime_verified": false
+}

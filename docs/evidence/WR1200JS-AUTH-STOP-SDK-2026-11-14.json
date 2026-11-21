@@ -1,0 +1,22 @@
+{
+  "scope": "standalone fixed-service auth-stop SDK adapter/controller host composition",
+  "checks": {
+    "ASan_UBSan": "PASS",
+    "guard_mode_unknown_presence": "PASS",
+    "TERM_KILL_once_deadlines": "PASS",
+    "uncertain_command_retention": "PASS"
+  },
+  "source_sha256": {
+    "tools/iot/restart-auth-stop-sdk.inc": "750b069fcaa38fefa88f27b3e57cd6e91f1e12dc94b3a33e13c771dbdb9c70c3",
+    "tools/iot/check-restart-auth-sdk.py": "b1728edfee264aaf43bb54d747f147a74da73055fe8ab045d8fa7de45c46903f",
+    "tools/iot/restart-auth-stop.c": "40875d4e68bec82eadbf552fc4745ca1719435aca55df8328257c010a8af15f9"
+  },
+  "limits": [
+    "SDK process and command functions injected",
+    "process-name absence is not PID ownership",
+    "doSystem command execution is synchronous; no internal sleep/wait loop added",
+    "not linked to prepared physical stop yet",
+    "no MIPS/image/device evidence"
+  ],
+  "cleanup": "fixture TemporaryDirectory removed; no new durable scratch"
+}

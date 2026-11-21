@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""Verify exact experimental RC/HTTP runtime sources and board Make selection."""
+import argparse,json,subprocess
+from pathlib import Path
+p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
+local=Path(__file__).parent;rc=a.source/'trunk/user/rc';http=a.source/'trunk/user/httpd'
+report=json.loads((a.source/'iot-runtime-source.json').read_text())
+assert report['generation_selector_strong_binding_prepared'] is True
+assert report['close_busy_pre_mutation_bound'] is True
+assert type(report['close_busy_request_opcode']) is int and report['close_busy_request_opcode']==21
+client=(rc/'wr-iot-driver-api-client.c').read_text()
+assert 'operation==WR_IOT_DRIVER_CLOSE_DEFER_REQUEST_OPCODE&&result==-1&&saved_error==EBUSY' in client
+ralink=(rc/'ralink.c').read_text()
+assert '__attribute__((weak)) int wr_iot_generation_profile_request' not in ralink
+assert ralink.count('#include "wr-iot/generation-profile.h"')==1
+assert report['radio_off_progress_bound'] and report['radio_off_profile_ram_progress_bound']
+assert report['radio_on_root_progress_bound'] and not report['radio_on_entry_bound']
+assert report['radio_on_followup_linked']
+assert report['radio_on_parent_release_linked']
+assert report['radio_on_handoff_linked']
+assert report['radio_on_restore_linked'] and report['radio_on_aux_observer_linked'] and report['radio_on_multicast_linked']
+assert report['radio_on_guest_linked'] and report['radio_on_services_linked']
+assert report['radio_on_generation_linked'] and report['radio_on_main_linked']
+assert report['radio_on_admission_linked'] and not report['radio_on_entry_bound']
+assert report['radio_off_consumer_linked'] and not report['radio_off_entry_bound']
+assert report['configuration_ram_control_bound'] and not report['configuration_flash_bound']
+assert report['configuration_save_startup_registered']
+startup=(rc/'init.c').read_text()
+assert startup.count('(void)wr_iot_rc_save_backend_install();')==1
+assert startup.index('init_router();')<startup.index('(void)wr_iot_rc_save_backend_install();')<startup.index('wr_iot_rc_boot_arm();')
+view_report=json.loads((a.source/'iot-edit-view-source.json').read_text())
+assert view_report['edit_startup_attempt_prepared'] and view_report['view_startup_attempt_prepared']
+assert view_report['native_capabilities_verified']==bool(report['configuration_snapshot_verified'] and report['configuration_flash_readback_verified'])
+assert view_report['http_bound'] and not view_report['target_verified'] and not view_report['runtime_verified']
+assert view_report['http_view_bound'] and view_report['http_edit_bound']
+assert startup.count('(void)wr_iot_rc_edit_backend_install();')==1
+assert startup.count('(void)wr_iot_rc_view_runtime_install();')==1
+assert startup.index('wr_iot_rc_save_backend_install();')<startup.index('wr_iot_rc_edit_backend_install();')<startup.index('wr_iot_rc_view_runtime_install();')<startup.index('wr_iot_rc_boot_arm();')
+assert not report['configuration_loaded_promotion_bound']
+flash_marker=(rc/'wr-iot/native-flash-prepared.h').read_text()
+assert flash_marker==('#ifndef WR_IOT_NATIVE_FLASH_READBACK_PREPARED\n#define WR_IOT_NATIVE_FLASH_READBACK_PREPARED '+str(int(report['configuration_flash_readback_verified']))+'\n#endif\n')
+marker=(rc/'wr-iot/config-snapshot-prepared.h').read_text()
+snapshot=report['configuration_snapshot_evidence']
+values={'WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED':int(report['configuration_snapshot_verified']),
+ 'WR_IOT_NATIVE_NVRAM_SPACE':snapshot['nvram_space'] if report['configuration_snapshot_verified'] else 0,
+ 'WR_IOT_NATIVE_NVRAM_HEADER_BYTES':snapshot['nvram_header_bytes'] if report['configuration_snapshot_verified'] else 0}
+assert marker==''.join('#ifndef '+key+'\n#define '+key+' '+str(value)+'\n#endif\n' for key,value in values.items())
+assert report['board']=='WR1200JS' and report['activation_backend_installed'] and report['pid1_wait_bound']
+assert report['normal_shutdown_notification_bound']
+assert report['normal_shutdown_initial_active_arm_bound']
+assert report['normal_shutdown_cold_active_arm_bound']
+assert report['normal_shutdown_cold_routed_handoff_bound']
+assert report['normal_shutdown_mailbox_active_arm_bound']
+assert report['normal_shutdown_controller_linked'] and report['normal_shutdown_dispatch_bound'] and not report['normal_shutdown_route_armed']
+assert not report['production_ready'] and not report['runtime_verified'] and report['off_reopen_admission']
+a.output.mkdir(parents=True,exist_ok=True)
+shared=a.output/'make-headers';shared.mkdir(exist_ok=True)
+for name in ['boards.mk','cflags.mk']:(shared/name).write_text('')
+for root,units in [(rc,['config-server','config-owner','saved-config-store','native-flash-reader','flash-save-attempt','flash-save-native','flash-worker','config-save-owner','config-save-server','initial-restart-select','restart-initial-parent','restart-initial-handoff','rc-backend','rc-mode','rc-runtime','physical-initial-client','physical-initial-session','rc-initial-stop','radio-off-owner','radio-off-observe','radio-on-admission','radio-on-generation','radio-on-main','radio-on-guest','radio-on-services','radio-on-multicast','radio-on-restore','radio-on-disabled','precreated-down-client','precreated-down-observe','cold-on-admission','cold-on-generation','precreated-down-recovery','cold-on-recovery','cold-on-main','cold-on-guest','cold-on-services','cold-on-multicast','cold-on-owner','cold-on-handoff','cold-on-release','cold-on-policy','cold-on-disabled','cold-on-disabled-release','cold-on-prehandoff','cold-on-shutdown','cold-on-postshutdown','cold-on-root','cold-on-root-shutdown','cold-on-root-recovery','cold-on-root-signal','cold-on-scheduler','cold-on-select','cold-on-entry','rc-boot','rc-normal-shutdown','radio-on-handoff','radio-on-release','radio-on-followup','radio-on-owner','radio-on-prehandoff','radio-on-shutdown-check','radio-on-shutdown','radio-on-aux','radio-off-profile','radio-off-profile-check','radio-off-followup','radio-off-bridge','radio-off-wan','status-channel','status-endpoint']),(http,['status-client','status-channel','status-endpoint'])]:
+ units+=['config-view-channel','config-view-endpoint']+(['config-edit-server','config-view-runtime'] if root==rc else ['config-view-client'])
+ for u in units:
+  expected=(local/(u+'.c')).read_text()
+  if u=='rc-backend':expected+='\n'+(local/'rc-initial-restart-start.inc').read_text()+(local/'rc-initial-restart-detach.inc').read_text()+'\n#include "rc-cold-start.h"\n'+(local/'rc-cold-start.inc').read_text()+''.join((local/name).read_text() for name in ['rc-cold-detach.inc','rc-cold-release.inc','rc-cold-followup.inc','rc-cold-terminal.inc','rc-cold-completion.inc','rc-cold-disabled-release.inc','rc-cold-disabled-followup.inc','rc-cold-disabled-terminal.inc','rc-cold-disabled-completion.inc','rc-cold-prehandoff.inc','rc-cold-shutdown.inc','rc-cold-shutdown-release.inc','rc-cold-final-shutdown.inc','rc-cold-route-handoff.inc'])
+  for h in local.glob('*.h'):expected=expected.replace('#include "'+h.name+'"','#include "wr-iot/'+h.name+'"')
+  assert (root/('wr-iot-'+u+'.c')).read_text()==expected,u
+ for flag,enabled in [('-DBOARD_WR1200JS',True),('-DBOARD_OTHER',False),('',False)]:
+  run=subprocess.run(['make','--no-print-directory','-f',str((root/'Makefile').resolve()),'SHDIR='+str(shared.resolve()),'CFLAGS='+flag,'--eval=print_iot_runtime:;@echo $(OBJS)','print_iot_runtime'],check=True,capture_output=True,text=True)
+  for u in units:assert (('wr-iot-'+u+'.o') in run.stdout.split())==enabled,(u,flag)
+ for name in ['status-channel.h','status-endpoint.h','precreated-entropy.h']+(['initial-restart-select.h','restart-initial-parent.h','restart-initial-handoff.h','rc-backend.h','config-backend.h','config-owner.h','saved-config-store.h','saved-config.h','config-runtime-request.h','generation-profile.h','native-flash-reader.h','flash-save-attempt.h','flash-worker.h','flash-worker-wire.h','config-save-owner.h','config-save-server.h','native-flash-wire.h','flash-image.h','saved-config-flash.h','rc-runtime.h','physical-initial-client.h','physical-initial-session.h','rc-initial-stop.h','physical-initial-wire.h','radio-off-owner.h','radio-off-observe.h','radio-on-admission.h','radio-on-generation.h','radio-on-main.h','radio-on-guest.h','radio-on-services.h','radio-on-multicast.h','radio-on-restore.h','radio-on-disabled.h','precreated-down-client.h','precreated-down-observe.h','cold-on-admission.h','cold-on-generation.h','precreated-down-recovery.h','cold-on-recovery.h','cold-on-main.h','cold-on-guest.h','cold-on-services.h','cold-on-multicast.h','cold-on-owner.h','cold-on-handoff.h','cold-on-release.h','cold-on-policy.h','cold-on-disabled.h','cold-on-disabled-release.h','cold-on-prehandoff.h','cold-on-shutdown.h','cold-on-postshutdown.h','cold-on-root.h','cold-on-root-recovery.h','cold-on-root-signal.h','cold-on-scheduler.h','cold-on-select.h','cold-on-entry.h','radio-entry-result.h','rc-boot.h','rc-cold-disabled-completion.h','rc-cold-start.h','rc-cold-shutdown.h','rc-cold-completion.h','precreated-down-wire.h','radio-on-handoff.h','radio-on-release.h','radio-on-followup.h','radio-on-owner.h','radio-on-prehandoff.h','radio-on-shutdown-check.h','radio-on-shutdown.h','radio-on-release-runtime.h','radio-on-aux.h','radio-off-profile.h','radio-off-followup.h','radio-off-bridge.h','radio-off-wan.h'] if root==rc else []):
+  assert (root/'wr-iot'/name).read_bytes()==(local/name).read_bytes(),name
+init=(rc/'init.c').read_text()
+anchor='''#if defined(BOARD_WR1200JS)
+\t\t\t\twr_iot_rc_wait(&ss,&sig_usr1_received,&sig_alrm_received);
+#else
+\t\t\t\tsigsuspend(&ss);
+#endif'''
+assert init.count(anchor)==1
+assert init.count('#include "wr-iot/rc-runtime.h"')==1
+assert init.count('#include "wr-iot/rc-boot.h"')==1
+assert init.count('wr_iot_rc_boot_arm();')==1
+assert init.index('\tinit_router();')<init.index('wr_iot_rc_boot_arm();')
+assert '#if defined(BOARD_WR1200JS) && WR_IOT_IAPP_POLICY_PREPARED\n\twr_iot_rc_boot_arm();\n#endif' in init
+assert init.count('if (wr_iot_rc_shutdown_note(sig))')==1
+probe='''#include <signal.h>
+#include <assert.h>
+static int calls,legacy;
+static void wr_iot_rc_wait(const sigset_t *s,const volatile int *n,const volatile int *a){(void)s;(void)n;(void)a;calls++;}
+static int fixture_sigsuspend(const sigset_t *s){(void)s;legacy++;return 0;}
+#define sigsuspend fixture_sigsuspend
+int main(void){sigset_t ss;sigemptyset(&ss);int sig_usr1_received=0,sig_alrm_received=0;(void)sig_usr1_received;(void)sig_alrm_received;
+'''+anchor+'''
+#if defined(BOARD_WR1200JS)
+ assert(calls==1&&!legacy);
+#else
+ assert(!calls&&legacy==1);
+#endif
+return 0;}
+'''
+(a.output/'wait-branch.c').write_text(probe)
+print('PASS exact experimental runtime sources/headers, WR-only objects and retained other-board wait branch; full init target compile separate')

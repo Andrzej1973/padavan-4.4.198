@@ -1,0 +1,21 @@
+{
+  "scope": "disabled cold lifecycle and private completion API in experimental prepared RC",
+  "checks": {
+    "prepared_backend_GNU11_Werror_and_all_disabled_private_T_symbols": "PASS",
+    "prepared_C11_disabled_units": "PASS",
+    "actual_exact_source_verifier_corruption_refusal": "PASS",
+    "exported_disabled_terminal_both_gates_all_WAN_plans": "PASS",
+    "real_disabled_SIGTERM_cleanup": "PASS"
+  },
+  "sha256": {
+    "tools/iot/rc-cold-disabled-completion.h": "a31424cb6a4fcc08e3befa4f085608ba520cd80dc3a33e5524262c0325e9bbef",
+    "tools/iot/rc-cold-disabled-completion.inc": "9314ccd39b223fe1aedc4736075b9b4966f135ecfa6ebed4bf3a70b3b2c227e5",
+    "tools/iot/prepare-runtime.py": "adb5f682bf5d57d319921873df735ef9597d5b5564897de43a4ff176e65de64e",
+    "tools/iot/check-runtime-source.py": "5e4e8529acf0d2174e508085226cbef29e2094d7e478fcbd83f25689c5858177",
+    "tools/iot/check-physical-stop-client-preparation.py": "711bd153d4ec383432bed5b489592b180230b8f988c5c55765fa4a0cfecc87ae"
+  },
+  "public_entry_bound": false,
+  "post_up_shutdown_bound": false,
+  "target_verified": false,
+  "physical_verified": false
+}

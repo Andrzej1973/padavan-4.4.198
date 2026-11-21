@@ -1,0 +1,24 @@
+{
+  "scope": "isolated process-local retirement candidate",
+  "checks": [
+    "DONE/CANCELLED only after root FINISHED/CANCELLED and generation COMMITTED",
+    "active/pending shutdown admission refuses",
+    "live parent pointers refuse",
+    "any saved heap pointer refuses",
+    "active shutdown OFF refuses",
+    "whole context volatile wiped",
+    "duplicate retirement refuses"
+  ],
+  "sanitizer": "ASan/UBSan O2 Werror PASS",
+  "scheduler_bound": false,
+  "runtime_verified": false,
+  "limitation": "Trusts private state invariants established by owning controllers; not a driver completion witness",
+  "actual_pump_composition": "ASan/UBSan PASS two complete resume/retire cycles at same address; begin/handoff/finish/take each once per cycle; retirement while live refuses; owning component actors injected",
+  "native_preparation": {
+    "session": 83734,
+    "exit_code": 0,
+    "translation_units": 33,
+    "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  },
+  "integration": "Public private-RC declaration and experimental object/strong target-symbol gate added; scheduler remains unbound"
+}

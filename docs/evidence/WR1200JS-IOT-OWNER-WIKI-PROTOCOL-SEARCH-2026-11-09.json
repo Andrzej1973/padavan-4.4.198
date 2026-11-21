@@ -1,0 +1,11 @@
+{
+  "archive": "docs/reference/owner-materials-2026-11-03/wiki.tar.gz",
+  "archive_sha256": "dd8aea9a751a3b08173be6cea543817356a8fcf95afc9e91157ae6c8f35ee3f8",
+  "text_files_examined": 38,
+  "text_bytes_examined": 268819,
+  "matches": [],
+  "skipped_size_limit": [],
+  "result": "This owner wiki search supplies no proven ROM ACK/TxS delivery boundary; absence of keyword matches alone does not prove documentation cannot exist elsewhere.",
+  "runtime_verified": false,
+  "cleanup": "Archive read in memory, no extraction; original user material preserved"
+}

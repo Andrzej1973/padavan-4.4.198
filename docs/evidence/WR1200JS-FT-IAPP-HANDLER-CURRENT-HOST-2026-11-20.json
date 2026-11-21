@@ -1,0 +1,62 @@
+{
+  "scope": "Uninstalled FT peer admission and complete prepared response handler host fixture",
+  "hashes": {
+    "tools/iot/ft-iapp-peer-admission.h": "94dd4132566d4381567f0caef352197963a616a788f909aa4b921a069cca36d1",
+    "tools/iot/check-ft-generation-binding.py": "e6f4955da5f2929b65aa00a70c81ceecbb19342bcabe7222a446b6d1dd033a9e",
+    "tools/iot/ft-iapp-response-token.h": "b10928b086487ef8cb795ca19873bb422539d8432600301c76daf6c0e940166b",
+    "tools/iot/check-ft-iapp-response-token.c": "97f4bdecaeae54130995bf4a3b3ca261e9dda67366b2a1d0ea6ec5403e2880be",
+    "tools/iot/check-ft-iapp-response-copy.py": "c22126b83cfc2bc4911c7f77b4960801231d3d61300097a713816fc1763f8a39",
+    "tools/iot/ft-r1kh-snapshot-composition.py": "51d23c0f19722d397f6f31528ce47493a28558d29d4ea3492e47a2d81f4815d1",
+    "tools/iot/check-ft-r1kh-snapshot.py": "d20b39adb842e7a64cb7b5617c5f23830b9263936e7f33839db7e64358a88e67"
+  },
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "tools/iot/check-ft-iapp-response-copy.py",
+        "/home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3"
+      ],
+      "exit_status": 0,
+      "stdout": "PASS | FT IAPP response copy | all short lengths, null/negative refusal, exact size, R0KH bounds and owned copy\nPASS | complete prepared IAPP handler | failed store retains retry state; malformed/inactive inputs have no cache/peer side effects; store failure retains state; same-key bypass reproduced\nPASS | complete prepared IAPP handler | failed store retains retry state; malformed/inactive inputs have no cache/peer side effects; store failure retains state; same-key bypass reproduced\n"
+    },
+    {
+      "argv": [
+        "gcc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-pie",
+        "-no-pie",
+        "-Itools/iot",
+        "tools/iot/check-ft-iapp-response-token.c",
+        "-o",
+        "/tmp/check-ft-iapp-response-token"
+      ],
+      "exit_status": 0,
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "/tmp/check-ft-iapp-response-token"
+      ],
+      "exit_status": 0,
+      "stdout": "PASS | FT IAPP response token | exact token/MAC/R1KHID, single claim and BSS/WCID/generation context\nPASS | FT IAPP timeout race | timeout-first cancellation rejects delayed response; stale handle cannot cancel reused slot\nPASS | FT IAPP request supersession | newer attempt retires old waiting token; claimed attempt cannot be replaced\nPASS | FT IAPP claim-first retirement | claimed token cannot be timeout-cancelled; association retirement invalidates cache admission\nPASS | FT IAPP token ledger bounds | bounded capacity refusal preserves existing pending requests\nPASS | FT IAPP reused slot | old claimed handle cannot finish a newer generation request\nPASS | FT IAPP serial exhaustion | no wrap or request admission after serial exhaustion\nPASS | FT IAPP refused output | invalid input and poisoned ledger clear stale output handles\nPASS | FT IAPP poisoned claim | context admission refused while exact claimed cleanup remains single-use\nPASS | FT IAPP combined admission | stale context retires token without claim leak; exact current context admitted\n"
+    }
+  ],
+  "native_handler_dependencies": "cache, MAC lookup and completion replaced by controlled host actors; actual generated handler body and pinned key payload types executed",
+  "remaining": [
+    "Publish invocation request handle and reserved token in native AUTH path",
+    "Cancel/retire request on every timeout, AUTH return and association retirement",
+    "Wire peer admission and cache/store/ACK under proven lifetime and lock ordering",
+    "Fix same-key ACK after identity admission is integrated",
+    "Verify maintenance, teardown, diagnostics and optional feature compilation",
+    "Target compilation, independent image verification and separately authorized device acceptance"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "image_verified": false,
+  "device_accepted": false
+}

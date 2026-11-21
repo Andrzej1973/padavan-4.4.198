@@ -1,0 +1,34 @@
+{
+  "scope": "root restore existing IAPP receipt drain; launch disabled",
+  "checks": {
+    "root_pending_unknown_confirmed_failure": "PASS;20107",
+    "native": "PASS;20107",
+    "restore_finish_premain": "PASS;14162"
+  },
+  "sources": {
+    "tools/iot/restart-restore.c": "431d4a00dab36d96630cf075c7b79b5cca8b09fcc89b39c3871dc824f95e4279",
+    "tools/iot/check-restore-iapp-drain.py": "ae03498ffa4edda6317e2702b49f672b94ad840353205d4b55e4229a0b7bd4c8"
+  },
+  "remaining": [
+    "paired IAPP CI source result",
+    "root launch and finish ordering",
+    "target/image/runtime acceptance"
+  ],
+  "removed_logs": [
+    {
+      "path": "/tmp/wr-iapp-drain-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-iapp-drain-finish.log",
+      "bytes": 311,
+      "sha256": "9272de1b1bac2a60c393a7778bd966d812ba9fd623ae146ef9b4e01c0b8e6680"
+    },
+    {
+      "path": "/tmp/wr-iapp-drain-shutdown.log",
+      "bytes": 507,
+      "sha256": "301d0507c753eef0264f0097b83b8b92f2f67f8d326c3a6a64f7787ee416007d"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "run_id": 41301536473,
+  "head": "aa69805977d3a71ec1213f452e07d44d072cd096",
+  "job_id": 124833284604,
+  "step": "Verify current IoT recovery successor on host and MIPS",
+  "original_error": "audit-aux-family-retry-scheduler.py:110 AssertionError first_flush<retire<first_join<children<second_join<release_adapter",
+  "cause": "index selected STALLED-path join as first normal-path join and normal-path join as second",
+  "fix": "anchor normal join after retirement_stop_requested, post-unregister join after RtmpPhyNetDevExit",
+  "local_positive_and_negative_passed": true,
+  "monitor": "workflow_run query had no monitor for this new failed run at initial triage; compare artifact once available",
+  "target_rerun": false,
+  "persistent_regression": "tools/iot/check-aux-family-audit-regression.py",
+  "workflow_wired": true,
+  "monitor_followup": "No new workflow_run monitor observed at second check; no artifact exists to compare yet; do not invent parser fix"
+}

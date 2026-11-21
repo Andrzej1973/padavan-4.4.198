@@ -1,0 +1,18 @@
+{
+  "scope": "partial relocatable link of seven actual lifecycle objects; unresolved kernel/other-driver references permitted",
+  "units": [
+    "os/linux/rt_main_dev.c",
+    "common/rtmp_init.c",
+    "ap/ap_mbss_inf.c",
+    "ap/ap_apcli_inf.c",
+    "ap/ap_wds_inf.c",
+    "os/linux/rt_profile.c",
+    "os/linux/pci_main_dev.c"
+  ],
+  "link_exit": 0,
+  "shared_worker_and_submit_defined_once": true,
+  "object_sha256": "8c1afdd6908b49a50c107287112c06ec103109cb7ae147580179b1085fb6b9d0",
+  "object_bytes": 417796,
+  "full_module_link_verified": false,
+  "runtime_verified": false
+}

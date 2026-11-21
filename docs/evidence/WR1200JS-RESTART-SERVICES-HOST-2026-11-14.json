@@ -1,0 +1,41 @@
+{
+  "scope": "host source/native service sequencing only",
+  "prepared_translation_units": 27,
+  "preparation_session": 79776,
+  "preparation_exit": 0,
+  "preparation_log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+  "focused_checks": [
+    "extracted SDK policy and fixed service operations sanitizer pass",
+    "retained controller ordered one-shot slots sanitizer pass",
+    "27 actual prepared C11 Werror O2 TUs pass",
+    "shell syntax and whitespace pass"
+  ],
+  "service_ready_verified": false,
+  "rssi_readback_verified": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "scheduler_bound": false,
+  "suite": {
+    "session": 72559,
+    "parts": 74,
+    "state": "passed",
+    "log": "/tmp/wr-service-suite.log",
+    "exit_code": 0,
+    "log_sha256": "7389cc9b26da036cf9bafac6e781761ae2c100fa9718a451dfa443e4808bfe39"
+  },
+  "composition_check": "Actual controller + extracted SDK adapter ASan/UBSan PASS, each fixed command failure retained; command/process/kernel actors injected",
+  "rssi_source": {
+    "setter": "mt76x3/ap/ap_cfg.c6691-6766",
+    "kick_use": "mt76x3/ap/ap.c2288-2293",
+    "assoc_use": "mt76x3/ap/ap_assoc.c1918-1920",
+    "readback": "No separate readback found in direct field-reference scan of archived mt76x3 C sources; not absence proof for indirect/OID paths"
+  },
+  "final_checks": {
+    "session": 21324,
+    "exit_code": 0,
+    "preparation_log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+    "scope": "Final adapter/controller/composition sanitizer tests and actual27-TU preparation, after final RSSI/liveness edits"
+  },
+  "next_suite_parts": 75,
+  "note": "74 suite pass plus final focused checks; new composition registered afterward; no full75 pass claimed"
+}

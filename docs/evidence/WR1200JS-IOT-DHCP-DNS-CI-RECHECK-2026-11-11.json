@@ -1,0 +1,90 @@
+{
+  "run_id": 42686718338,
+  "artifact_id": 13705960541,
+  "source_revision": "5a3caacbdd6daf64e9ac4354a291ecc9a67788ab",
+  "scope": "Historical successful ABI host tests independently inspected; unchanged protocol/firewall/bridge sources; no router acceptance",
+  "runtime_verified": false,
+  "reports": {
+    "iot-dhcp-transactions.json": {
+      "sha256": "b4d94f3dbd6181fb5714b8ec8f1f6e07c3c65b33ca703795cbb29abe9b8b85fe",
+      "value": {
+        "checks": {
+          "process_owned_dns_dhcp_socket_inventory": true,
+          "iot_owned_gateway_protocol_readiness": true,
+          "local_dhcp_inform_without_lease_changes": true,
+          "iot_dhcp_offer_ack_pool_options": true,
+          "lan_dhcp_offer_ack_pool_options": true,
+          "local_dhcp_inform_preserves_existing_client_leases": true,
+          "iot_dns_transaction": true,
+          "main_lan_dns_preserved": true,
+          "local_dns_handler_default": true,
+          "iot_gateway_stopped_daemon_rejected": true,
+          "local_dns_handler_no_hosts_no_ident": true,
+          "local_dns_handler_lan_with_loopback_excluded": true,
+          "alternate_dhcp_server_port_socket_and_inform": true
+        },
+        "scope": "Pinned native dnsmasq host DHCP OFFER/ACK and DNS over isolated IoT/LAN with generated firewall; production RC and target runtime unverified",
+        "runtime_verified": false
+      }
+    },
+    "iot-firewall-packets.json": {
+      "sha256": "a6408f4c6a45297411e8c746fa781e862fc0e75054db9df6d2dcdc8ca97c883a",
+      "value": {
+        "checks": {
+          "tcp_dns_allowed": true,
+          "router_admin_blocked": true,
+          "lan_blocked": true,
+          "wan_and_return_allowed": true,
+          "lan_unsolicited_blocked": true,
+          "wan_unsolicited_blocked": true,
+          "main_lan_wan_preserved": true,
+          "preexisting_lan_connection_blocked": true,
+          "udp_dns_allowed": true,
+          "dhcp_ports_allowed": true,
+          "dhcp_wrong_source_port_blocked": true,
+          "udp_wan_return_allowed": true,
+          "udp_lan_blocked": true,
+          "ipv6_router_tcp_blocked": true,
+          "ipv6_router_udp_blocked": true,
+          "ipv6_lan_tcp_blocked": true,
+          "ipv6_wan_tcp_blocked": true,
+          "ipv6_lan_udp_blocked": true,
+          "ipv6_wan_udp_blocked": true,
+          "ipv6_unsolicited_lan_blocked": true,
+          "ipv6_unsolicited_wan_blocked": true
+        },
+        "scope": "Host-kernel IPv4 TCP/UDP and DHCP-port filtering, stale conntrack isolation, IPv6 TCP/UDP router and inter-network isolation in both directions; static IPv6 neighbor entries make packet baselines deterministic; IPv6 neighbor discovery, actual DNS/DHCP transactions and target runtime are unverified",
+        "runtime_verified": false
+      }
+    },
+    "iot-dnsmasq-version.txt": {
+      "sha256": "3c70ec67848620e519c7ecde7109cf3b9a328ec4d4fe232bb77110a9e4d6ce3b",
+      "value": "Dnsmasq version 2.90  Copyright (c) 2000-2024 Simon Kelley"
+    },
+    "iot-dnsmasq-parser.txt": {
+      "sha256": "acdc62490b2476226b6ce2fea8c4365884a9836981bb2a24aadb8a0f27c35c6d",
+      "value": "dnsmasq: syntax check OK."
+    }
+  },
+  "current_sources_match_historical_run": true,
+  "c_h_input_comparison": {
+    "roots": [
+      "tools/iot",
+      "tools/shared-wifi"
+    ],
+    "count": 392,
+    "normalization": "CRLF to LF only; this is not a raw-byte equality claim",
+    "line_ending_only_difference_count": 10,
+    "content_differences": [],
+    "normalized_manifest_sha256": "b7256757ee92d97a8aed46d9176a133bc5c77fb7f6b7999cf0a3980cfc7db103",
+    "scope": "C/H inputs only; changed driver-generation Python/shell are excluded from network acceptance"
+  },
+  "dhcp_dns_step_evidence": [
+    {
+      "job_id": 129395824415,
+      "step": "Exercise pinned dnsmasq IoT and LAN DHCP and DNS transactions",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

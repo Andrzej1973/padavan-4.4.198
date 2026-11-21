@@ -1,0 +1,25 @@
+{
+  "failed_run": 43502946668,
+  "failed_sha": "f2a62789ab92b345cdc7426a8bff53967c5dc64d",
+  "job": "inspect-driver-abi",
+  "step": "Check private IoT request mailbox",
+  "cause": "Generated strict C11 dispatch probe uses pid_t without sys/types.h; GNU11 local check hid missing declaration",
+  "monitor": {
+    "run": 43503316173,
+    "artifact": 14074048506,
+    "name": "agent-build-error-43503316173",
+    "assessment": "Correct run, job, step and causal errors; no parser change needed"
+  },
+  "fix": [
+    "Explicit sys/types.h in generated dispatch probe",
+    "Strict C11 -O2 generated dispatch sanitizer check added to early host preflight"
+  ],
+  "verification": [
+    "Original missing-header failure reproduced with strict C11",
+    "Corrected strict C11 -O2 -Wall -Wextra -Werror compile PASS",
+    "ASan/UBSan execution PASS",
+    "Modified preflight Python AST parses"
+  ],
+  "cleanup": "TemporaryDirectory compile outputs removed; monitor extract 1692 bytes removed separately",
+  "device_acceptance": false
+}

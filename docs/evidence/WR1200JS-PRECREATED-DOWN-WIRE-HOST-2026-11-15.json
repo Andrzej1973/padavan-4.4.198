@@ -1,0 +1,30 @@
+{
+  "status": "PROPOSED_UNROUTED",
+  "scope": "Linux-only fixed64-byte DOWN observation codec",
+  "opcodes": {
+    "query": 19,
+    "reply": 20
+  },
+  "fields": [
+    "nonce16",
+    "epoch64",
+    "ra2_registration_generation64",
+    "completed_Main_close_serial64"
+  ],
+  "serial_semantics": "Main software close identity, never IoT CLOSE or permission",
+  "collision_review": "no19/20 discriminator found in current tools/iot source before addition; final dispatcher audit still required",
+  "checks_passed": [
+    "check-precreated-down-wire.py GCC Werror ASan/UBSan"
+  ],
+  "negative_cases": [
+    "READY-idle discriminator",
+    "wrong nonce/header/reserved fields",
+    "zero identities",
+    "short packet",
+    "null nonce"
+  ],
+  "firmware_changed": false,
+  "route_installed": false,
+  "target_verified": false,
+  "runtime_verified": false
+}

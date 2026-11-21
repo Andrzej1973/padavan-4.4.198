@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Padavan — Монітор Wi-Fi та IoT</title>
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="iot-status.css">
+<script defer src="iot-status.js"></script>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="index.html"><strong>Padavan / YOUHUA</strong><span>WR1200JS</span></a><a class="classic" href="/index.asp">Classic / Розширені налаштування</a></header>
+<div class="layout">
+<nav class="sidebar" aria-label="Навігація"><a href="index.html">Стан системи</a><a class="active" aria-current="page" href="iot-status.html">Монітор Wi-Fi та IoT</a><a href="/Advanced_Wireless_Content.asp">Налаштування Wi-Fi</a><a href="/device-map/clients.asp">Усі пристрої</a><a href="/Main_LogStatus_Content.asp">Журнал</a></nav>
+<main>
+<section class="panel">
+<div class="monitor-heading"><h1>Монітор Wi-Fi та IoT</h1><button id="refresh" type="button">Оновити</button><label><input id="automatic" type="checkbox" checked> Автооновлення</label></div>
+<p id="monitor-status" role="status">Завантаження даних…</p>
+<p id="updated">Останнє оновлення —</p>
+<div class="radio-cards">
+<article><h2>Основна мережа 2,4 ГГц</h2><p>ra0</p><dl><dt>SSID / стан</dt><dd>Немає даних</dd><dt>Спостережені клієнти</dt><dd id="count-main">—</dd></dl></article>
+<article class="iot-card"><h2>IoT 2,4 ГГц</h2><p>ra2 · У розробці</p><dl><dt>SSID / фактичний стан</dt><dd>Немає даних</dd><dt>Спостережені клієнти</dt><dd id="count-iot">—</dd></dl></article>
+<article><h2>Основна мережа 5 ГГц</h2><p>5 ГГц</p><dl><dt>SSID / стан</dt><dd>Немає даних</dd><dt>Спостережені клієнти</dt><dd id="count-five">—</dd></dl></article>
+</div>
+<div class="monitor-controls"><label>Мережа <select id="network"><option value="all">Усі</option><option value="main">Основна 2,4 ГГц</option><option value="iot">IoT 2,4 ГГц</option><option value="five">Основна 5 ГГц</option></select></label><label>Пошук <input id="search" type="search" maxlength="128" placeholder="Назва, IP або MAC"></label></div>
+<div class="table-scroll"><table><thead><tr><th scope="col">Пристрій</th><th scope="col">Мережа</th><th scope="col">IP-адреса</th><th scope="col">MAC-адреса</th><th scope="col">RSSI, dBm</th><th scope="col">PSM</th></tr></thead><tbody id="clients"></tbody></table></div>
+<p id="empty" hidden>Клієнтів у доступному знімку за цим фільтром немає.</p>
+<p>Порожній знімок не підтверджує стан радіомодуля. SSID, PSM та стан IoT потребують окремої телеметрії.</p>
+</section>
+<section class="panel log-panel"><h2>Журнал Wi-Fi драйвера</h2><p>Дані драйвера недоступні для цієї сторінки.</p><a class="classic" href="/Main_LogStatus_Content.asp">Відкрити системний журнал у Classic</a></section>
+</main>
+</div>
+</body>
+</html>

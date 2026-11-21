@@ -1,0 +1,15 @@
+{
+  "scope": "actual restore/generation/file journal, driver and Main transport actors injected",
+  "checks": [
+    "pending before generator: zero writes/UP and checked capture rollback",
+    "pending after generator: owned baseline restored, credential copy wiped, zero Main UP",
+    "foreign replacement: no overwrite, recovery snapshot/credentials and physical admission retained",
+    "actual31 prepared C TUs native Werror O2 compile"
+  ],
+  "preparation_session": 51298,
+  "preparation_exit": 0,
+  "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+  "physical_fence_completion_implemented": false,
+  "scheduler_bound": false,
+  "runtime_verified": false
+}

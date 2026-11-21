@@ -1,0 +1,44 @@
+{
+  "scope": "exact current strict-merged command producer/removal source audit",
+  "sha256": {
+    "common/cmm_cmd.c": "72909114adfad77df4bd038c0ef00d480ae3e5de9b8c0cfafbbda4d73bd5d36d",
+    "common/rtmp_init.c": "cd98dd0d73e5f9a3a57fe7705512b579607929e42436b33cd3ed2f7ed6109cb4",
+    "os/linux/rt_rbus_pci_drv.c": "b83006235986d79cb4020c310962e275edb10f8d080ed56fe2492f1cfd23dc40",
+    "os/linux/pci_main_dev.c": "a7635ce354c81da36ae17010655796bf191b44b4b485a7278093c1c52f93ddf0",
+    "include/queued-work.h": "55349a3ced3ce72b434ec3a4a6d81f8bde684afec83a88548b111af000f8f188"
+  },
+  "facts": [
+    "enqueue admission checks CmdQState under IRQ-save CmdQLock",
+    "CMDHandler generic switch checks NIC_NOT_EXIST/HALT flags, not radio retiring",
+    "queued-work dispatch owns only WR_IOT_CMD_QUEUED_RADIO and returns to generic switch for other commands",
+    "PCI retirement begin/drain refusal returns before command-task shutdown",
+    "checked command-task exit closes CmdQState then joins task but reports failure for missing handle; close-ticket joined_workers tracks a different owner"
+  ],
+  "next_contract": [
+    "permanent terminal queue admission closure under existing IRQ-safe CmdQLock",
+    "join active command worker outside RTNL and spinlocks before first removable callback refusal",
+    "record exact successful terminal join independently of missing task handle",
+    "make later CLOSE-ticket shutdown consume terminal join without killing twice",
+    "join timer producer and prevent queue reinitialization after terminal retirement"
+  ],
+  "limits": [
+    "command queue closure is not a DMA/IRQ fence",
+    "no unconditional free or terminal acceptance authorized"
+  ],
+  "runtime_verified": false,
+  "lock_lifetime_followup": {
+    "file": "common/cmm_mac_pci.c",
+    "sha256": "6a165366afaf461b741809213bbd116b205acddb7aab35109ab3c763ba38d534",
+    "allocate_lines": [
+      310,
+      856
+    ],
+    "free_lines": [
+      238,
+      1646
+    ],
+    "finding": "CmdQLock initialized by ring allocation, not at adapter publication; early remove may run before initialization or after ring cleanup",
+    "required_before_binding": "establish adapter-lifetime CmdQLock or separate adapter-lifetime admission owner with proven queue lock ordering; include never-open/probe-unwind and reopen cases",
+    "driver_gate_bound": false
+  }
+}

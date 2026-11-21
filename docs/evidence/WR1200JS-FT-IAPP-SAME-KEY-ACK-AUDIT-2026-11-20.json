@@ -1,0 +1,19 @@
+{
+  "scope": "Prepared IAPP same-key response ACK source audit",
+  "source_sha256": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
+  "prepared_handler_sha256": "407be0679f4e0bcb3f2a7ea91ee673f63af0b486dc784ebd623bc8199a8e66df",
+  "observations": [
+    "ACK and retry counter reset are nested inside bUpdateR1kh",
+    "Same-key snapshot leaves bUpdateR1kh false and skips ACK",
+    "Failed atomic store returns before retry counter reset and ACK"
+  ],
+  "required_integration_cases": [
+    "valid claimed token plus matching BSS/MAC/WCID/generation and same cached key must finish waiter",
+    "same key with wrong token or stale generation must not ACK or alter counters",
+    "store failure must not ACK",
+    "timeout-first response must be rejected; claim-first must hold peer lifetime through ACK"
+  ],
+  "response_lease_integrated": false,
+  "target_verified": false,
+  "device_verified": false
+}

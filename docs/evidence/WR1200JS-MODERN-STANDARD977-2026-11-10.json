@@ -1,0 +1,151 @@
+{
+  "run": 42845751108,
+  "source_sha": "7a7d62075ee31174108863ee75b165179b58c62c",
+  "artifact": 13780280385,
+  "image": "padavan-4.4/trunk/images/WR1200JS_4.4.198.9-977_7a7d6207.trx",
+  "bytes": 13094977,
+  "independent_sha256": "163ed07d30f7cfc8a5c727858c20be2493108ab9e0c72196c2e47cf69467ee8b",
+  "reports": {
+    "modern-image-check.json": {
+      "scope": "ROMFS assets and compiled route literals, not runtime/authentication proof",
+      "classic_destinations": [
+        "Advanced_ACL2g_Content.asp",
+        "Advanced_ACL_Content.asp",
+        "Advanced_WAdvanced2g_Content.asp",
+        "Advanced_WAdvanced_Content.asp",
+        "Advanced_WGuest2g_Content.asp",
+        "Advanced_WGuest_Content.asp",
+        "Advanced_WMode2g_Content.asp",
+        "Advanced_WMode_Content.asp",
+        "Advanced_WSecurity2g_Content.asp",
+        "Advanced_WSecurity_Content.asp",
+        "Advanced_Wireless2g_Content.asp",
+        "Advanced_Wireless_Content.asp"
+      ],
+      "assets_sha256": {
+        "index.html": "1ed975c55042e4b3c995cadcdde970cb419cb3c35ac0dc12b08696a95aebd9f1",
+        "app.js": "1e1d2150bf40b63da19564d679a2eacd3bbb68322cbeb793e7180da6e2bb75e7",
+        "wifi.js": "213d9bb01b0908432f1658c9ddfbda312af4e38ffdbf54891803377dbd58cfbd",
+        "shared-wifi.js": "dc0c4f11c6763a7761e095f616ea0e062c0f96c72ac3ecb6f18af227806e9f23",
+        "wifi-schema.json": "d8b4a8f6d8c8a49938a4142ed33201eaadb3d296f493bbfec72ee3bc18ac7902",
+        "styles.css": "7ef43a79b9dffeeece7e3a89796ab03555efdd7a0a173d9c611436b59358d0da",
+        "favicon.svg": "4734c64a7d01be56789cff09738c90e3905b245f1a2535182c39dc37586d5cb4"
+      },
+      "httpd_sha256": "cedad5a36a3769f6f83acc1ebd82b3093d954755d2cc308d2334988c05092f35"
+    },
+    "final-content-check.json": {
+      "scope": "Final image selected content equals verified ROMFS; no runtime acceptance",
+      "image_sha256": "163ed07d30f7cfc8a5c727858c20be2493108ab9e0c72196c2e47cf69467ee8b",
+      "squashfs_offset": 1981504,
+      "files_sha256": {
+        "www/modern/index.html": "1ed975c55042e4b3c995cadcdde970cb419cb3c35ac0dc12b08696a95aebd9f1",
+        "www/modern/app.js": "1e1d2150bf40b63da19564d679a2eacd3bbb68322cbeb793e7180da6e2bb75e7",
+        "www/modern/wifi.js": "213d9bb01b0908432f1658c9ddfbda312af4e38ffdbf54891803377dbd58cfbd",
+        "www/modern/shared-wifi.js": "dc0c4f11c6763a7761e095f616ea0e062c0f96c72ac3ecb6f18af227806e9f23",
+        "www/modern/wifi-schema.json": "d8b4a8f6d8c8a49938a4142ed33201eaadb3d296f493bbfec72ee3bc18ac7902",
+        "www/modern/styles.css": "7ef43a79b9dffeeece7e3a89796ab03555efdd7a0a173d9c611436b59358d0da",
+        "www/modern/favicon.svg": "4734c64a7d01be56789cff09738c90e3905b245f1a2535182c39dc37586d5cb4",
+        "usr/sbin/httpd": "cedad5a36a3769f6f83acc1ebd82b3093d954755d2cc308d2334988c05092f35",
+        "sbin/rc": "05ada211e9bf18f9a2186076659f2a3e266faca0b26a81b64f572aa18c799654",
+        "www/wr-band-status.js": "0107c10ba54cd1eab287acb2e220fdbf996022fd9609df8d41eb38e9a0e9eedb",
+        "www/Advanced_WAdvanced2g_Content.asp": "fc6dda53e4d1219b3bc187a0bb60fe17521c6ba7ca146e4560559010b2c5ef22",
+        "www/Advanced_Services_Content.asp": "cb26db2efac3d4bcb70e464983d25663835d9f99b78c0320be55ee08f26b219b",
+        "www/EN.dict": "88ac1cc6dd034f2ca3b852f94b18e3d44da000d19ea1db5047445023435584f0",
+        "www/UK.dict": "4ed60731555c749f17314ee82d7c728676df9c69ea0e6be9dadbcd86c8014459",
+        "www/RU.dict": "0afc119a82567228b274d40b477b40253c059f97d5f42a1d4219cfbb81cee309",
+        "usr/sbin/nfqws2": "0e73bef89f8e7ab3731326c12151506fc2f95694a58dfed6007ae67c4c670fb5",
+        "usr/sbin/zapret2": "fe2c2d1fa68bd19e29af03fe3ff8292c3b8e26c57ec96b5e402c51cbc1645456",
+        "usr/share/zapret2/zapret-lib.lua": "6bf528fef1f0fc3c65e189216fc8a06bb873f6e25d1c29d2bfa4695a09b73440",
+        "usr/share/zapret2/zapret-antidpi.lua": "6d1fa9168e5de1682fef91fd174f68b58c50f6739ef00f42ca7db2b940b6246d",
+        "usr/share/zapret2/zapret-auto.lua": "23a9b99a776d868d92f4cc0ee5110f5c1f12fe746620d9c0337022dbc2f52df0",
+        "usr/share/licenses/zapret2/LICENSE.txt": "d089978dd77d53cb6aa5dff51cfdbff617e52dd44af1ac44a6df02c6644f17d5"
+      },
+      "scratch_removed": true
+    },
+    "firmware-image-checks.json": {
+      "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
+      "image": "WR1200JS_4.4.198.9-977_7a7d6207.trx",
+      "bytes": 13094977,
+      "sha256": "163ed07d30f7cfc8a5c727858c20be2493108ab9e0c72196c2e47cf69467ee8b",
+      "declared_payload_bytes": 13094913,
+      "architecture_id": 5,
+      "compression_id": 3,
+      "checks": {
+        "uimage_magic": true,
+        "product_id": true,
+        "header_crc": true,
+        "declared_length": true,
+        "payload_crc": true,
+        "size_range": true,
+        "iot_hwnat_dtb": true
+      },
+      "iot_hwnat_dtb_policy": {
+        "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+        "external_devices": [
+          "usb0",
+          "wwan0",
+          "rax0",
+          "ra0",
+          "rai0",
+          "apclii0",
+          "apclix0",
+          "apcli0"
+        ],
+        "lan": [
+          "eth2"
+        ],
+        "wan": [
+          "eth3"
+        ],
+        "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+        "kernel_sha256": "56914c5eceaf1f851e31d825a047fd1fa99bc27eb329fc6f66164255c7825b38",
+        "runtime_verified": false
+      }
+    }
+  },
+  "scope": "Downloaded TRX hash, independently extracted selected SquashFS files and MIPS identities match CI reports; no device runtime acceptance",
+  "runtime_verified": false,
+  "retained_firmware": false,
+  "independent_extracted_hashes": {
+    "www/modern/index.html": "1ed975c55042e4b3c995cadcdde970cb419cb3c35ac0dc12b08696a95aebd9f1",
+    "www/modern/app.js": "1e1d2150bf40b63da19564d679a2eacd3bbb68322cbeb793e7180da6e2bb75e7",
+    "www/modern/wifi.js": "213d9bb01b0908432f1658c9ddfbda312af4e38ffdbf54891803377dbd58cfbd",
+    "www/modern/shared-wifi.js": "dc0c4f11c6763a7761e095f616ea0e062c0f96c72ac3ecb6f18af227806e9f23",
+    "www/modern/wifi-schema.json": "d8b4a8f6d8c8a49938a4142ed33201eaadb3d296f493bbfec72ee3bc18ac7902",
+    "www/modern/styles.css": "7ef43a79b9dffeeece7e3a89796ab03555efdd7a0a173d9c611436b59358d0da",
+    "www/modern/favicon.svg": "4734c64a7d01be56789cff09738c90e3905b245f1a2535182c39dc37586d5cb4",
+    "usr/sbin/httpd": "cedad5a36a3769f6f83acc1ebd82b3093d954755d2cc308d2334988c05092f35",
+    "sbin/rc": "05ada211e9bf18f9a2186076659f2a3e266faca0b26a81b64f572aa18c799654",
+    "www/wr-band-status.js": "0107c10ba54cd1eab287acb2e220fdbf996022fd9609df8d41eb38e9a0e9eedb",
+    "www/Advanced_WAdvanced2g_Content.asp": "fc6dda53e4d1219b3bc187a0bb60fe17521c6ba7ca146e4560559010b2c5ef22",
+    "www/Advanced_Services_Content.asp": "cb26db2efac3d4bcb70e464983d25663835d9f99b78c0320be55ee08f26b219b",
+    "www/EN.dict": "88ac1cc6dd034f2ca3b852f94b18e3d44da000d19ea1db5047445023435584f0",
+    "www/UK.dict": "4ed60731555c749f17314ee82d7c728676df9c69ea0e6be9dadbcd86c8014459",
+    "www/RU.dict": "0afc119a82567228b274d40b477b40253c059f97d5f42a1d4219cfbb81cee309",
+    "usr/sbin/nfqws2": "0e73bef89f8e7ab3731326c12151506fc2f95694a58dfed6007ae67c4c670fb5",
+    "usr/sbin/zapret2": "fe2c2d1fa68bd19e29af03fe3ff8292c3b8e26c57ec96b5e402c51cbc1645456",
+    "usr/share/zapret2/zapret-lib.lua": "6bf528fef1f0fc3c65e189216fc8a06bb873f6e25d1c29d2bfa4695a09b73440",
+    "usr/share/zapret2/zapret-antidpi.lua": "6d1fa9168e5de1682fef91fd174f68b58c50f6739ef00f42ca7db2b940b6246d",
+    "usr/share/zapret2/zapret-auto.lua": "23a9b99a776d868d92f4cc0ee5110f5c1f12fe746620d9c0337022dbc2f52df0",
+    "usr/share/licenses/zapret2/LICENSE.txt": "d089978dd77d53cb6aa5dff51cfdbff617e52dd44af1ac44a6df02c6644f17d5"
+  },
+  "independent_mips_elf": {
+    "usr/sbin/httpd": {
+      "format": "ELF32 little-endian MIPS",
+      "bytes": 342768,
+      "sha256": "cedad5a36a3769f6f83acc1ebd82b3093d954755d2cc308d2334988c05092f35"
+    },
+    "sbin/rc": {
+      "format": "ELF32 little-endian MIPS",
+      "bytes": 396196,
+      "sha256": "05ada211e9bf18f9a2186076659f2a3e266faca0b26a81b64f572aa18c799654"
+    },
+    "usr/sbin/nfqws2": {
+      "format": "ELF32 little-endian MIPS",
+      "bytes": 565388,
+      "sha256": "0e73bef89f8e7ab3731326c12151506fc2f95694a58dfed6007ae67c4c670fb5"
+    }
+  },
+  "independent_extraction": true,
+  "scratch_removed_bytes": 15419343
+}

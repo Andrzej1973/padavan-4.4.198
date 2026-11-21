@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "scope": "reload-mode hw_ctrl/cmm_asic_mt.c TU only",
+  "production_config_changed": false,
+  "full_reload_module_verified": false,
+  "firmware_shutdown_verified": false,
+  "runtime_verified": false,
+  "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+  "effective_macros": {
+    "LOAD_FW_ONE_TIME": false,
+    "MT_MAC": true,
+    "RTMP_PCI_SUPPORT": true,
+    "CONFIG_AP_SUPPORT": true
+  },
+  "command_sha256": "9460f4fc7fac4e6a855543af10165cde9fd347b2e4d259d5334a2b254bb293f0",
+  "source_sha256": "c7334424b5f128839722c381c9fed5141db7feb9ca2850c1d3b5955e8bfd3672",
+  "macro_sha256": "24a12ea7380929189b3522d8ff48eebd0af2f8affc1773deeeccdaf63fdffbf7",
+  "object_bytes": 227988,
+  "object_sha256": "be5827f76b9c073da078610d1d559e94c31293573730353ab80ae4d011684297",
+  "checked_off_symbol_bytes": 1096
+}

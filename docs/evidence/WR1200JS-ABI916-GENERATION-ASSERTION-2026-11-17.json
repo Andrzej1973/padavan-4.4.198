@@ -1,0 +1,24 @@
+{
+  "source_revision": "832febdea4e5475033d40f892b56cb1035257f55",
+  "failed_run": 44124208040,
+  "abi_number": 916,
+  "failed_step": "Prepare pinned RC IoT bridge and owned radio-stop hook",
+  "first_actionable_error": "inline Python line 10 AssertionError: old wr_iot_precreated_boot_request_read name searched in ralink.c after replacement by generation reader",
+  "mips_ralink_object_compile_completed_before_failure": true,
+  "correction": "Require actual generation-reader invocation, byte-identical staged selector header, and legacy fallback inside selector; retain all ELF/MIPS checks.",
+  "host_check": "python3 tools/iot/check-generation-profile-staging.py PASS original/coordinated fragments and bound/unbound selector",
+  "failure_monitor": {
+    "run": 44126092027,
+    "artifact": 14346474679,
+    "useful": true,
+    "original_log_checked": true
+  },
+  "rerun_pending": true,
+  "firmware_link_verified": false,
+  "runtime_verified": false,
+  "sha256": {
+    ".github/workflows/band-steering-abi.yml": "b635874e74fe634bcf818a86552fd4f870a64d0974a70504e4b4c0d124936a3d",
+    "tools/iot/prepare-rc.py": "4b4943e820da128e38e9f768e7d9ca733684fce59abd22ed4567fb8ab6d5ef1f",
+    "tools/iot/generation-profile.h": "ee9e1542f38c918bd41833e0519e16448a1a5760863a2f016dd3bfd4342ecf6b"
+  }
+}

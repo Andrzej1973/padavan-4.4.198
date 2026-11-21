@@ -1,0 +1,20 @@
+{
+  "scope": "fixed ra0 RC userspace transport, no orchestration",
+  "implementation": "one CLOEXEC datagram socket, existing CLOSED_CONFIG ioctl, exact64-byte request/typed response; no shell, retries or user-selected interface",
+  "checks": [
+    "4 actions x7 cases: socket failure not submitted, ioctl/close/wrong nonce/malformed response uncertain, invalid input not submitted",
+    "response cleared on failure; input/output alias positive",
+    "actual runtime preparer copies/links exactly one client and DOWN object, strict native prepared-source compilation PASS",
+    "DOWN feature macro fixed after strict standalone compilation exposed missing ifreq/IFF_UP",
+    "existing DOWN and client sanitizer regressions PASS",
+    "runtime target link script checks actual client/DOWN object symbols",
+    "full29part suite88875 exit0; source/host only"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "target RC/HTTP link result",
+    "retained RC transaction owner and stop/restart ordering",
+    "physical acceptance"
+  ]
+}

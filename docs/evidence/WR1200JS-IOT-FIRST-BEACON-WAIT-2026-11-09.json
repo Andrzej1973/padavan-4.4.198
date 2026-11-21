@@ -1,0 +1,57 @@
+{
+  "scope": "Isolated OPEN candidate, native actual wait/owner/entry bodies with injected scheduler, jiffies and netdev/hardware. Final composition/target/device pending.",
+  "checks": [
+    {
+      "fixture": "check-precreated-first-beacon-wait",
+      "result": "PASS actual bounded first-beacon wait: shared budget, idle producer retry, identity/owner revalidation, no-progress/reject/cancel refusal and retained references on poison. Scheduler/time/MMIO injected; no RF proof."
+    },
+    {
+      "fixture": "check-first-beacon-owner-snapshot",
+      "result": "PASS actual post-open owner snapshot: retired ticket/owned reference, task/epoch/generation/count and Main lifetime required;24 faults refuse without mutation. No wait/RF acceptance."
+    },
+    {
+      "fixture": "check-driver-api-owner",
+      "result": "PASS OPEN request owner: single reserved ticket, control-user exclusion, task binding, one-use consume, pre-ndo cancellation, stale/reset/PM/removal poison and credential cleanup. Lock/lifetime and real driver bindings pending."
+    },
+    {
+      "fixture": "check-driver-api-owner-binding",
+      "result": "PASS composed actual OPEN entry and adapter owner: privilege, identity/control/bootstrap refusal, single-ticket consume, open error and poisoned leave; dev_open/netdev hooks injected, no real ioctl or RF proof"
+    },
+    {
+      "fixture": "check-driver-api-open-entry",
+      "result": "PASS actual uninstalled OPEN entry: privilege before copy, syntax/owner refusal, exact open error and mandatory leave; injected owner/dev_open, no real ioctl or RF proof"
+    },
+    {
+      "fixture": "check-driver-api-receipt",
+      "result": "PASS successful OPEN receipt: exact nonsecret transaction/epoch/netdev/token, no receipt for unmutated/uncertain OPEN, CLOSED local history composition and fresh-owner refusal. No RF acceptance."
+    },
+    {
+      "fixture": "check-driver-api-open-current",
+      "result": "PASS current OPEN observation and close admission: same successful OPEN nonce/epoch/generation/token and owned Main/count with Guest absent/present;32 refusals, no state mutation; ticket transfer/executor unbound"
+    },
+    {
+      "fixture": "check-driver-api-close-owner",
+      "result": "PASS CLOSE owner: one ticket, one same-task/device consume; identity/race refusals retain reservation, no executor or release bound"
+    }
+  ],
+  "source_sha256": {
+    "driver-api-owner.h": "08042f8c59a83857b42d6d6a8a6380a3b2cf9d80517b3d2be97a88728f2ebbbc",
+    "driver-api-owner-binding.inc": "4c3f8a99773e67706a1d2908ec999f6a9eef06c9db93d39c602af5f2b0f8edea",
+    "driver-api-open-entry.inc": "a8d5f05b0b4fcd17bfda246efcd26760796c7cc0a5d53980acb1840ba472166d",
+    "precreated-first-beacon-wait.inc": "033d143f3a8f165a1f9df213adfd80539d8f19fe8c6abe2f3f7f439602b0a605",
+    "first-beacon-composition.py": "beed9c739a99d4e45af4d86c123853f19ee5e0de1a63d361e5371cb61e16fc7d",
+    "check-first-beacon-composition.py": "f9ce6ce0f2e096ac604ba7bbee1bebcdcc6050cc63a845427dbdd547ed84f230",
+    "check-driver-api-open-entry.c": "47152dc1f93bc4bb6bfc96e66fb408e5fbbffd36eb164b4fb7fced4781dbf585",
+    "check-driver-api-owner-binding.c": "27b4d38b9e186a423df5382523671e7230d301f8ad78848f68e08fd95a6bc3e3",
+    "check-precreated-first-beacon-wait.c": "210d9a5a25a2d1d8d8d7596d531b3df56889f1ea73e49ffa3d65ee3a78d1c581",
+    "check-first-beacon-owner-snapshot.c": "6158d6e447acaeb7133c4cf800ebe9787f7851bcd21f83971d51df6ef1e977df",
+    "ci-compile-merged-candidate.sh": "3f7220522b7bb01c4dddec3603c13a60b2b42a6948fb75d6a53cbf9c66f4d1c3"
+  },
+  "wait_budget_ms": 3000,
+  "failure_policy": "Poison current task/device owner, retain references and recovery identity; no global refresh/restart/dev_close fallback",
+  "production_installed": false,
+  "runtime_verified": false,
+  "scratch_binaries_removed_bytes": 3108272,
+  "wait_fixture_refinement": "Immediate condition check, repeated checks without consumption and spurious no-event recheck before deterministic injected wake; not actual Linux scheduler proof.",
+  "independent_review": "No concrete false-success or lock-order defect found. Immediate condition and repeated/spurious checks added after review. Actual scheduler remains unverified."
+}

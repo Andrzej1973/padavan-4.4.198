@@ -1,0 +1,52 @@
+{
+  "revision_base": "a71fc1a771f5b28b3ccfcfedb39e73d6e9d3d3c9",
+  "checks": [
+    {
+      "command": "python3 -B tools/iot/check-cold-on-root.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-cold-on-root-signal.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-cold-on-root-recovery.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+      "result": "PASS"
+    }
+  ],
+  "scope": "Actual root pre-UP signal/recovery composition with real pending SIGTERM and profile journal. Separate signal test injects entropy/time/child functions and checks identity/refusal/no replay. Prepared RC backend and all root units host Werror compilation.",
+  "sha256": {
+    "cold-on-root.c": "0ff58c0881b71d3f6452a13d3150a7dfaf47765842a50e3e8bed9f581fa4dce7",
+    "cold-on-root.h": "73deb205e5bbcea4c93869d94c3ef0165a08dce34d225259ea3f90f776812f0e",
+    "cold-on-root-signal.c": "4c5d31f51502c3e2ec79db451e9f48b1e53fe65b1611c0e564e9584ea8247b43",
+    "cold-on-root-signal.h": "a056a4821df013452c9be4d470eed3fceae03835598400327c6ae723ac6cd623",
+    "cold-on-root-recovery.c": "eed1c9807ab6606f69349da7600d8a45c76d27aeb3b7b09344fe61b0f2bd5be6",
+    "cold-on-root-recovery.h": "6267d281f3d56a7689b87bbac97b739987e3d9446a5aa8e4925a60dd3c504154",
+    "check-cold-on-root.py": "6aa0d745c263ba00a967b1122e74671c5ce6663640339ea9b288b404413f65c1",
+    "check-cold-on-root-signal.py": "b245ba6e303d8071dd7aefdb114599a62db948d99534b73b797102c174c9c742",
+    "check-cold-on-root-recovery.py": "5d8f773b1573f3029ee5841883769d62e80ee5922181c34b6185ad36744befcd",
+    "prepare-runtime.py": "0b7eba69dcee8d49d153394305caa8c5182ae06eedf7c1b8ec92dbb07671bb6d",
+    "check-runtime-source.py": "69b649b781ee31f06e890e5eb8be19dbbad3bc5622c8293e2ca3b34f9e88538e",
+    "check-physical-stop-client-preparation.py": "3ca250a9aec57988a722bf8aa3fa277909d1cbb48851188cd8fe1b193fc4e057",
+    "check-physical-stop-suite.py": "3e371b85a971a5ba783ef8704c4d4a4ad028607a8f66c073a214160b368f81ee",
+    "compile-runtime-link.sh": "3f4c7717d6da85f53c47f8108572d62e9a6fa3cf762a6c1306a0a8549d6afda1"
+  },
+  "runtime_preparation_registered": true,
+  "public_scheduler_bound": false,
+  "post_parent_release_root_shutdown_bound": false,
+  "target_build_verified": false,
+  "physical_runtime_verified": false,
+  "ci": {
+    "published_fix_revision": "a71fc1a771f5b28b3ccfcfedb39e73d6e9d3d3c9",
+    "abi_run": 43722484605,
+    "standard1292": {
+      "run": 43722488138,
+      "result": "failure before build",
+      "reason": "Author supplied optional-only verification_revision to standard; corrected dispatch omits it"
+    }
+  }
+}

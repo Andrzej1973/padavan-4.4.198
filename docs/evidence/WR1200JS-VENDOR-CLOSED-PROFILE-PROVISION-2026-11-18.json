@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-18",
+  "status": "VENDOR_SOURCE_REPROVISION_PATHS_IDENTIFIED_NOT_IMPLEMENTED",
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source_repository": "vipshmily/padavan-4.4",
+  "source_prefix": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3",
+  "github_blob_identities_verified_current_turn": true,
+  "source_files": {
+    "ap/ap_cfg.c": {
+      "git_blob_sha1": "17853ec17d577021ce876c5ec6d8909e27a7453b",
+      "sha256": "109ff5b56b55a7862cb6e5d615b5ce87a92936e527667b52ce958059864d368a",
+      "bytes": 538197
+    },
+    "ap/ap.c": {
+      "git_blob_sha1": "e452c6f55b4dedb2703f4471f9fd2d2c7cb226ac",
+      "sha256": "307783d34cbec74860ba6bb770b88e84eb88ef3da633b1d973fd7538b4a60aad",
+      "bytes": 120431
+    },
+    "ap/ap_mbss.c": {
+      "git_blob_sha1": "92d3b01b7be6dd7bcdfe2bc8fbc74b6838ac3b9f",
+      "sha256": "402a0a3dfc95bc52347262fcd7ff18f70922a9b2d1dcb72a8c6657c0013bb616",
+      "bytes": 11773
+    }
+  },
+  "functions": {
+    "Set_AP_SSID_Proc": {
+      "file": "ap/ap_cfg.c",
+      "line": 5789,
+      "end_line": 5841,
+      "sha256": "1add59c22a3b1b1152ff09151ce98671115b1a4a55fea8bb8e78b40c5e78dbd4"
+    },
+    "Set_AP_SSIDSingle_Proc": {
+      "file": "ap/ap_cfg.c",
+      "line": 5851,
+      "end_line": 5880,
+      "sha256": "621ea34ff292dd97e00f3233f12d19e4d20d54e17c315a5820cd3f0c9be386db"
+    },
+    "Set_AP_WPAPSK_Proc": {
+      "file": "ap/ap_cfg.c",
+      "line": 7758,
+      "end_line": 7806,
+      "sha256": "fa26d76ae064384e300aec53aa7efa8b35594e3c2c24441d6f65ebc542054f26"
+    },
+    "ap_security_init": {
+      "file": "ap/ap.c",
+      "line": 440,
+      "end_line": 494,
+      "sha256": "3561d31a753b58812a514304c013cbb5e2522345fab2676bdbd277b4855829d0"
+    },
+    "ap_key_tb_single_init": {
+      "file": "ap/ap.c",
+      "line": 637,
+      "end_line": 773,
+      "sha256": "8f4ddf4ad8795ef15e4b00b8291ff90c0b695835481b16e2a7d07e3bae5167eb"
+    },
+    "MBSS_Open": {
+      "file": "ap/ap_mbss.c",
+      "line": 351,
+      "end_line": 392,
+      "sha256": "252b111163151beac66fceef4870e3f9e0c65b357290813d844ce3b797712cf9"
+    }
+  },
+  "findings": [
+    "SSID private setter mutates selected BSS then invokes APStop/APStartUp; excluded from ordinary IoT toggle/provision shortcut.",
+    "SSIDSingle is BSS scoped in source but kicks its stations and initializes security/group keys plus beacon; it is not a pure SSID field update.",
+    "WPAPSK derives PMK using currently loaded SSID and updates WPAKeyString; it does not perform the SSIDSingle group-key/beacon chain.",
+    "WPAPSK contains existing RT_DEBUG_TRACE plaintext key logging; do not invoke that setter from a new credential transport.",
+    "Raw MBSS_Open only enables its beacon request and Band Steering notification; it does not provide a missing key-provision transaction.",
+    "Current OPEN admission in prepare-driver-api.py checks requested key against loaded BSS before raw open. Replacing desired config alone must not override that check.",
+    "ap_security_init ignores the RT_CfgSetWPAPSKKey return and returns TRUE. Its success value alone is not PMK installation evidence.",
+    "ap_key_tb_single_init returns TRUE after invoking WPAInstallSharedKey; lower-level key installation completion is not represented in that return. Before adding a new provision endpoint, propagate or independently observe the relevant existing completion path.",
+    "Further trace reaches WPAInstallSharedKey -> CmdProcAddRemoveKey in hw_ctrl/cmm_asic_mt.c. This exact implementation performs direct WTBL MMIO writes, not an MCU command in its body. AsicAddSharedKeyEntry/AsicUpdateWcidAttributeEntry return early for HIF_MT; they are not the MT7603 group-key install mechanism.",
+    "Executed native WTBL lookup clamps invalid WCID, while key material addressing uses raw WCID. Future scoped provision admission must independently validate exact ra2 group WCID and table bounds; raw helper BssIdx does not enforce this binding.",
+    "Native address packing has signed high-byte shift UB, reproduced with UBSan halt_on_error. Isolated candidate producer now applies a two-expression UINT32 correction; target build pending."
+  ],
+  "next_implementation_requirements": [
+    "Use a separately typed explicit provision operation, retaining ordinary ON/OFF as loaded-profile-only virtual BSS lifecycle.",
+    "Require exact current closed ra2, no retained active/closing identity, current adapter/registry generation, exclusive transition and producer ownership before mutation.",
+    "Derive requested PMK from requested SSID/key outside spinlocks. Atomically stage SSID/key/PMK plus full per-BSS security expectations under existing ownership; preserve previous profile for partial-failure recovery.",
+    "Use the demonstrated direct WTBL path with strict exact group-WCID binding/table bounds and explicit store/readback handling. Retain closed producer/transition ownership; no global radio restart, blind queue release, or presumed success from void helpers.",
+    "Publish applied only after loaded-profile and beacon/key state verification; partial failure remains closed with retained recovery ownership and wiped private buffers.",
+    "Add host boundary/fault injection and actual target compilation, independent image proof, then separately authorized physical acceptance."
+  ],
+  "driver_modified": false,
+  "host_runtime_proof": false,
+  "target_build_proof": false,
+  "device_runtime_verified": false,
+  "rom_documentation_required": false,
+  "verification_limits": [
+    "Pinned vendor identities verified. Host source trace now reaches direct WTBL writer; test uses synthetic MMIO and does not prove ASIC completion or live key behavior.",
+    "No claim that all SSIDSingle callees are radio-local or that Main/Guest cannot be affected.",
+    "Source evidence changes next implementation step: trace existing scoped key completion and current ownership before a new provisioning API; no ROM specification request."
+  ]
+}

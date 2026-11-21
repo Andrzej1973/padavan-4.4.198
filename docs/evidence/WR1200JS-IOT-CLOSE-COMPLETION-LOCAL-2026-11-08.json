@@ -1,0 +1,23 @@
+{
+  "scope": "Locked reference-completion observation only; no owner/resource release",
+  "hashes": {
+    "tools/iot/driver-api-close-completion.h": "dabcc2a5b6d73bdb3086fc804913273a8ff5d1897e385af2971894cc88785996",
+    "tools/iot/check-driver-api-close-completion.c": "b1bea31b8d708107d782bb1d1f191f236087b885b7068bd1a9b81285a12ee7d2"
+  },
+  "host_asan_ubsan": "PASS",
+  "invalid_states": 19,
+  "checks": [
+    "same consumed BSS_CLOSE ticket",
+    "same epoch and exact retired serial",
+    "matching close serial/stage4 and no uncertainty",
+    "post-close count equals pre-close minus one",
+    "owned Main and stable registry",
+    "no reset/PM/active transition"
+  ],
+  "success_releases_owner": false,
+  "rf_dma_quiescence_proof": false,
+  "endpoint_finish_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "publication_scope": "CLOSE components host verified; idle/join fence composed into isolated candidate; mutation endpoint disabled; kernel bindings staged, not target compiled"
+}

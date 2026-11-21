@@ -1,0 +1,36 @@
+{
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "classification": "PROVEN FROM SOURCE; no device test or new patch",
+  "chain": [
+    {
+      "source": "include/os/rt_linux_cmm.h",
+      "line": 438,
+      "fact": "PCI_MAP_SINGLE aliases RtmpDrvPciMapSingle"
+    },
+    {
+      "source": "common/cmm_mac_pci.c",
+      "line": 3161,
+      "fact": "RtmpDrvPciMapSingle calls linux_pci_map_single then dma_mapping_error; mapping error returns0, success returns SrcBufPA"
+    },
+    {
+      "source": "os/linux/rt_rbus_pci_util.c",
+      "line": 139,
+      "fact": "Linux wrapper calls pci_map_single on actual PCI device"
+    },
+    {
+      "source": "tools/iot/prepare-radio-queue-candidate.py",
+      "line": 548,
+      "fact": "Candidate maps before cell mutation; normalized0 returns-1 before descriptor/CIDX publication"
+    }
+  ],
+  "pinned_source_sha256": {
+    "include/os/rt_linux_cmm.h": "effa9f4e64fad8604b9f51cf5443f759d20a72c90247a4001a680d2e12a7d130",
+    "common/cmm_mac_pci.c": "76d7c82652b0e165c8d9af77295c985b99a0f4533373c96defe0ca2dbfbb1042",
+    "os/linux/rt_rbus_pci_util.c": "3ec0508f90e7cab0b3d2e97c23217cbffa6979e0e1cd9c7d13fc2ebe5b9c33cd"
+  },
+  "generator_sha256": "9fd66e641b160feaeedb664e1103e85a7548b4bf2705f1c73b33302667ed2073",
+  "scope": "Existing map-error normalization validates why checking mapped_pa==0 detects Linux DMA map failure here. It does not prove DMA execution, RF delivery, or a future TxS boundary. A valid DMA address0 is conservatively refused by the existing sentinel interface.",
+  "decision": "No duplicate dma_mapping_error check or driver change needed. Preserve existing wrapper and pre-publication refusal.",
+  "runtime_verified": false,
+  "scratch": "Source read in memory only; no extracted tree or binaries retained."
+}

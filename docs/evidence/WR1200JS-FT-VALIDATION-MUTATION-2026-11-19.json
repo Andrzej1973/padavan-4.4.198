@@ -1,0 +1,24 @@
+{
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source_sha256": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+  "call_chain": [
+    "FT_FtAction",
+    "FT_AuthReqHandler",
+    "FT_AuthReqRsnValidation"
+  ],
+  "mutation_sites": [
+    "pEntry->AssocDeadLine =",
+    "NdisMoveMemory(pEntry->FT_PMK_R1,",
+    "NdisMoveMemory(pEntry->SNonce,",
+    "GenRandom(pAd, wdev->bssid, pEntry->ANonce);",
+    "FT_DerivePTK("
+  ],
+  "finding": "Validation-named helper mutates live station deadline, PMK, nonces and PTK before final callback success. Admission/generation retention must precede helper invocation, not only SST_AUTH assignment. No table/transition spinlock may span GenRandom/crypto.",
+  "direct_delete_calls_in_reviewed_validation_body": 0,
+  "limits": [
+    "Zero direct delete calls is not proof that the transitive call graph never deletes",
+    "No runtime race reproduction",
+    "FT association wrapper remains uninstalled"
+  ],
+  "runtime_verified": false
+}

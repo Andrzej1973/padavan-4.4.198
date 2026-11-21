@@ -1,0 +1,37 @@
+{
+  "run_id": 43006952508,
+  "artifact_id": 13848169396,
+  "revision": "66a7ce810cf0246ae03cf21151c972fa4ca3a789",
+  "conclusion": "success",
+  "scope": "Host injected activation fixtures and target MIPS translation units; not production RC linkage or physical lifecycle acceptance",
+  "runtime_verified": false,
+  "files": {
+    "iot-activation-mips.o": {
+      "bytes": 26968,
+      "sha256": "5baa2df07e9bf8baa7708599f3d57ed57d31de2a25fc239370cb17a6d97a2dad",
+      "format": "ELF32LE MIPS relocatable"
+    },
+    "iot-precreated-activation-mips.o": {
+      "bytes": 35376,
+      "sha256": "1de5552e74ab1f8d1b52f24a62551b049c90709d2740c426c0620d7ff4cd6028",
+      "format": "ELF32LE MIPS relocatable"
+    },
+    "iot-activation.txt": {
+      "bytes": 142,
+      "sha256": "7ee1f0caf971615d2358b6315ca5ac4038ce0d9dbda484cda1c0e135d48c0aca",
+      "text": "PASS IoT activation: stale admission, main-radio readiness, signal-marker cancellation and retained uncertain recovery; injected backend only"
+    },
+    "iot-precreated-activation.txt": {
+      "bytes": 258,
+      "sha256": "279ff73e3430b3751107c6762680456ac899404c102c45b6fce79cd34c1b766d",
+      "text": "PASS precreated activation:100 cycles, all11 start-stage and all10 stop-stage failures with persistent-fault retry, loaded-profile refusal, retained rollback, no legacy profile/reload/restore dispatch. Injected backend; loaded identity and hardware pending."
+    }
+  },
+  "source_sha256": {
+    "tools/iot/activation.h": "a63d2d6586f79efcc73b78daa567767f83cff7dee729e6a5c0b57b57a5760f82",
+    "tools/iot/check-activation.c": "622fd6bb346c685352d4b61ef871cc81730f0f52af065276fe00c06a838134f4",
+    "tools/iot/check-precreated-activation.c": "8465bacc0b6db802ea1be07d2b7d96a7978169b65a250536dbbf5c01271ffc59",
+    ".github/workflows/band-steering-abi.yml": "12e944df6868c46158caf5c0dcfafc3bf2762d5b17c25e039198b0fcd3cc60d1"
+  },
+  "cleanup": "Archive and objects inspected only in memory; no extracted scratch files"
+}

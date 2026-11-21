@@ -1,0 +1,1731 @@
+{
+  "source": "4f80200ee6cd969a96f7319b0839b23606ac1038",
+  "scope": "complete regular file/symlink byte,mode,target inventory from actual standard SquashFS; timestamps excluded; device runtime unverified",
+  "artifacts": [
+    13873145263,
+    13871424289
+  ],
+  "effective_configs_identical": true,
+  "config_sha256": {
+    "22": {
+      "firmware-effective.config": "00df5527ab43a0b9525b73073708a0fef09fe5e13b7a6f354d5ec851309fed8b",
+      "kernel-effective.config": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "firmware-requested.config": "67146fca6069e2275397dc81e4a9ff7fdbafda241a4e804515b469d2ed387e9a"
+    },
+    "24": {
+      "firmware-effective.config": "00df5527ab43a0b9525b73073708a0fef09fe5e13b7a6f354d5ec851309fed8b",
+      "kernel-effective.config": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "firmware-requested.config": "67146fca6069e2275397dc81e4a9ff7fdbafda241a4e804515b469d2ed387e9a"
+    }
+  },
+  "counts": {
+    "22": 1534,
+    "24": 1534
+  },
+  "only_ubuntu22": [],
+  "only_ubuntu24": [],
+  "changed": {
+    "bin/busybox": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 711164,
+        "sha256": "badc062cc0d617e547630266d3f7132886926f90c3f38ee9a30ea7e20cacf63a"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 711164,
+        "sha256": "dc2ece7f565c23089299905abfcb74c93e2956204c959919481dc1a8298f4705"
+      }
+    },
+    "usr/bin/ndisc6": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 11464,
+        "sha256": "61e0b4d9d90d26b0029b902a15bc0cfac12b924e3e07c893603788b6e125ed58"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 11464,
+        "sha256": "f2be3754bbc6c98ba08ea9efcf16f306c6ae369aefb36deffbd522eb6309ea86"
+      }
+    },
+    "usr/bin/curl": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 186684,
+        "sha256": "b78dec7cf163d064a6cb1f3837aed06ea73c41b892827f79cb07efdb0da1fc37"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 186684,
+        "sha256": "2d22dbc2a86673d84b4300ebe5cadb910045f0d85c93eeccf8de092293a86123"
+      }
+    },
+    "lib/libcurl.so.4.8.0": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 1338608,
+        "sha256": "2343b64e0e1632bcd2424bce861345641cdf091bd294ef9d8aec832191415cf0"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 1261636,
+        "sha256": "fd0a7900425840096c2c39e96e12936afe43ba39c96a6c9aaa4c02161522d3df"
+      }
+    },
+    "usr/bin/socat": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 385508,
+        "sha256": "2e83feb954d72d5083264c58a7cfc1817b62e5868e8dd135cf97f5f560fa2c32"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 385508,
+        "sha256": "b0efe85a7927e5985ac8d70efb605c65b771dcc2f13c385242ec096b1e815108"
+      }
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x2_ap/mt76x2_ap.ko": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 1473500,
+        "sha256": "ebc99e2b2c3a8cd8723c94f71fb0db6c171a5ed4f84fb9ac2a4f6aac21b87f5e"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 1473500,
+        "sha256": "117c0f0820447fe371768b5a2d2be5d7301e5d8fa47b40636edb074dd7447e99"
+      }
+    },
+    "www/UK.dict": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 225708,
+        "sha256": "fdee5c780059a0d0772e7093310e126f2778d188651f2977727ffc77936f65d6"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 225708,
+        "sha256": "6278dd633984c2ff0782d95001dbfcf6ddb7bf2b7959fc6ac6da46be155030a8"
+      },
+      "text_diff": [
+        "--- \n",
+        "+++ \n",
+        "@@ -1001 +1001 @@\n",
+        "-footer_copyright_desc=\u00a9 2011-2026 Padavan & N56U project community & Firmware build time: 2026.11.12 00:22:00",
+        "+footer_copyright_desc=\u00a9 2011-2026 Padavan & N56U project community & Firmware build time: 2026.11.12 00:22:55"
+      ]
+    },
+    "usr/bin/rdisc6": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 15180,
+        "sha256": "aa4412f293360a5169a4de6f5b6dd0242d9767474c70001336e7c93a9c0bae8d"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 15180,
+        "sha256": "c6de14cf2b4092ae49d086e90e56b8bf229c09631bb62b1b0e7448f679b6ce7d"
+      }
+    },
+    "www/EN.dict": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 149174,
+        "sha256": "6764b2c05f497ea4dad0d9e91b5d59bbb167d421681ac43e43c199f6656bd4a3"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 149174,
+        "sha256": "deb28ef2065751cac355f98f6ef68c446c244dcb791b9b0ea0b2be7bcedb93cc"
+      },
+      "text_diff": [
+        "--- \n",
+        "+++ \n",
+        "@@ -1168 +1168 @@\n",
+        "-footer_copyright_desc=\u00a9 2011-2026 Padavan & N56U project community & Firmware build time: 2026.11.12 00:22:00",
+        "+footer_copyright_desc=\u00a9 2011-2026 Padavan & N56U project community & Firmware build time: 2026.11.12 00:22:55"
+      ]
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 1848404,
+        "sha256": "d61c93de54aa36022e9b47a6df0ee415e84eff1feeb4ff70a9b0172812584a37"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 1848404,
+        "sha256": "1b58507f2e42fad747f9da66c48a285a8b0acec48bf09aea40ea101798b28ccb"
+      }
+    },
+    "sbin/rc": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 396196,
+        "sha256": "9f4e4798680abb4619a4e8aa366f47e0143261f94f2390812f4b15fedcfbb9c5"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 396196,
+        "sha256": "dfa2ddfadf68eb9fb756415c9a7fcae819c0c83527d29612a0032c5d2bbee683"
+      }
+    },
+    "usr/sbin/stubby": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 504808,
+        "sha256": "b9ce202d28e03398809e5909f073b1c93997b0b0594186e335251850b1e5aef7"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 504808,
+        "sha256": "728d412afab07d154848ba76f4e41e8437c6e64180e3a5deed504fbd4f0ce97b"
+      }
+    },
+    "lib/libcrypto.so.3": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 3932832,
+        "sha256": "2cb0c1c5891d7320b3045c0282f8b9e8f3f1f57732d4be392d1c6d3b3768cd94"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 3932832,
+        "sha256": "8b9c21ea26bce052094ce76c6e25e2ee1f655ef08a686c3a5b3e2faa0e71dcbe"
+      }
+    },
+    "usr/sbin/nfqws2": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 565388,
+        "sha256": "029ca7682fc760944e6ae0c0c1252d3e0f92381030f451b76907f64fc3c7a7f6"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 565388,
+        "sha256": "161e1077ade66d5e69b3c3e1e34a4fe3d8d4e16498c4981fe738b28cfeccfae5"
+      }
+    },
+    "usr/sbin/https_dns_proxy": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 65036,
+        "sha256": "f9b361a4642c240bf286a8999ed2bc74e509890e1a49fff29a761db0acb1dc1b"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 65036,
+        "sha256": "9182e4a0cdb679871601dfdf901a35242157937ea06d5f5a99b84ad9c8d9e15c"
+      }
+    },
+    "www/RU.dict": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 228793,
+        "sha256": "b12e43cfdded205955d8cfc9abe69d571d3663a4dcf6d46018db1d4437b391b4"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 420,
+        "bytes": 228793,
+        "sha256": "1e034a6b92b769bcc6237e8893d6d53106563bab40024f7978e5b9c680d4de66"
+      },
+      "text_diff": [
+        "--- \n",
+        "+++ \n",
+        "@@ -1017 +1017 @@\n",
+        "-footer_copyright_desc=\u00a9 2011-2026 Padavan & N56U project community & Firmware build time: 2026.11.12 00:22:00",
+        "+footer_copyright_desc=\u00a9 2011-2026 Padavan & N56U project community & Firmware build time: 2026.11.12 00:22:55"
+      ]
+    },
+    "usr/bin/vlmcsd": {
+      "ubuntu22": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 65720,
+        "sha256": "588c6f9b26109676228a861d5dc77973dc1a8c2a743c5467bcc93305fe90f70a"
+      },
+      "ubuntu24": {
+        "type": "file",
+        "mode": 493,
+        "bytes": 65720,
+        "sha256": "f51ec227e6f6732acd11aeac8656c348aa5c5c34e5ab5adca62d7278330472b6"
+      }
+    }
+  },
+  "changed_elf_contracts": {
+    "bin/busybox": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 16,
+        "export_contract_sha256": "0d27f5775524f5d3d0b98175cf3c6f4a09a905810ae4b0573c2c7c13230e361a"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 16,
+        "export_contract_sha256": "0d27f5775524f5d3d0b98175cf3c6f4a09a905810ae4b0573c2c7c13230e361a"
+      }
+    },
+    "lib/libcrypto.so.3": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [
+          "libcrypto.so.3"
+        ],
+        "interpreter": [],
+        "export_count": 5190,
+        "export_contract_sha256": "7b8891363f115d54a6c71306d0c0f634d4d4a820116a49666bd28f413ab697c5"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [
+          "libcrypto.so.3"
+        ],
+        "interpreter": [],
+        "export_count": 5190,
+        "export_contract_sha256": "7b8891363f115d54a6c71306d0c0f634d4d4a820116a49666bd28f413ab697c5"
+      }
+    },
+    "lib/libcurl.so.4.8.0": {
+      "contract_identical": false,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libcrypto.so.3",
+          "libssl.so.3",
+          "libz.so.1"
+        ],
+        "soname": [
+          "libcurl.so.4"
+        ],
+        "interpreter": [],
+        "export_count": 864,
+        "export_contract_sha256": "41860ece021b70c5e74d0f1bfce664e14c4bc9c3f8a6f16f5b15c6197a856ee0"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libcrypto.so.3",
+          "libssl.so.3",
+          "libz.so.1"
+        ],
+        "soname": [
+          "libcurl.so.4"
+        ],
+        "interpreter": [],
+        "export_count": 101,
+        "export_contract_sha256": "aa2294410709e0c5682fee95a2c68a4cfdb9e862ab357904435712788159de53"
+      }
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x2_ap/mt76x2_ap.ko": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001001, noreorder, o32, mips32r2"
+        },
+        "needed": [],
+        "soname": [],
+        "interpreter": [],
+        "export_count": 0,
+        "export_contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001001, noreorder, o32, mips32r2"
+        },
+        "needed": [],
+        "soname": [],
+        "interpreter": [],
+        "export_count": 0,
+        "export_contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001001, noreorder, o32, mips32r2"
+        },
+        "needed": [],
+        "soname": [],
+        "interpreter": [],
+        "export_count": 0,
+        "export_contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001001, noreorder, o32, mips32r2"
+        },
+        "needed": [],
+        "soname": [],
+        "interpreter": [],
+        "export_count": 0,
+        "export_contract_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "sbin/rc": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libdisk.so",
+          "libiw.so.30",
+          "libshared.so"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 385,
+        "export_contract_sha256": "f54b487756854b1e0da5b48c1de3d1e8a70d76dcd5fd10803ccc0f9ba2bb71c7"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libdisk.so",
+          "libiw.so.30",
+          "libshared.so"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 385,
+        "export_contract_sha256": "f54b487756854b1e0da5b48c1de3d1e8a70d76dcd5fd10803ccc0f9ba2bb71c7"
+      }
+    },
+    "usr/bin/curl": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libcrypto.so.3",
+          "libcurl.so.4",
+          "libssl.so.3",
+          "libz.so.1"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 156,
+        "export_contract_sha256": "9952c5ef628233340853862e280ea23962fce74e6e7210f88f73384efc41b78a"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libcrypto.so.3",
+          "libcurl.so.4",
+          "libssl.so.3",
+          "libz.so.1"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 156,
+        "export_contract_sha256": "9952c5ef628233340853862e280ea23962fce74e6e7210f88f73384efc41b78a"
+      }
+    },
+    "usr/bin/ndisc6": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 5,
+        "export_contract_sha256": "f3cc362b3aa4628d5ed91547b906641b9c72a22cdc139a56a160820810bf426e"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 5,
+        "export_contract_sha256": "f3cc362b3aa4628d5ed91547b906641b9c72a22cdc139a56a160820810bf426e"
+      }
+    },
+    "usr/bin/rdisc6": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 5,
+        "export_contract_sha256": "f3cc362b3aa4628d5ed91547b906641b9c72a22cdc139a56a160820810bf426e"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 5,
+        "export_contract_sha256": "f3cc362b3aa4628d5ed91547b906641b9c72a22cdc139a56a160820810bf426e"
+      }
+    },
+    "usr/bin/socat": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 294,
+        "export_contract_sha256": "04ff5d83bbaf36f9461f9322faacb87da8a5a8d94e11099e93c0f343b731bc23"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 294,
+        "export_contract_sha256": "04ff5d83bbaf36f9461f9322faacb87da8a5a8d94e11099e93c0f343b731bc23"
+      }
+    },
+    "usr/bin/vlmcsd": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 95,
+        "export_contract_sha256": "d85232d21bc9c46ee19611f0d48330a71439c707add1deead3cd98095c4ca176"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 95,
+        "export_contract_sha256": "d85232d21bc9c46ee19611f0d48330a71439c707add1deead3cd98095c4ca176"
+      }
+    },
+    "usr/sbin/https_dns_proxy": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libcares.so.2",
+          "libcrypto.so.3",
+          "libcurl.so.4",
+          "libev.so.4",
+          "libssl.so.3",
+          "libz.so.1"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 43,
+        "export_contract_sha256": "efddd2bc3363b18d6a5c9d9bc337230b208704f4fd2a5ddba6988c2f861b28a5"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libcares.so.2",
+          "libcrypto.so.3",
+          "libcurl.so.4",
+          "libev.so.4",
+          "libssl.so.3",
+          "libz.so.1"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 43,
+        "export_contract_sha256": "efddd2bc3363b18d6a5c9d9bc337230b208704f4fd2a5ddba6988c2f861b28a5"
+      }
+    },
+    "usr/sbin/nfqws2": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 537,
+        "export_contract_sha256": "8f5f55693e5e87906d5e3d57f4639ca1d1f5a487d4201a43474a5c7663e7f5c5"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 537,
+        "export_contract_sha256": "8f5f55693e5e87906d5e3d57f4639ca1d1f5a487d4201a43474a5c7663e7f5c5"
+      }
+    },
+    "usr/sbin/stubby": {
+      "contract_identical": true,
+      "ubuntu22": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libcrypto.so.3",
+          "libssl.so.3"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 19,
+        "export_contract_sha256": "7a6cf68dfd4974e98eca6a9fcf9bf04ecc401d5607adb6d0575b777b42752a36"
+      },
+      "ubuntu24": {
+        "header": {
+          "Class": "ELF32",
+          "Data": "2's complement, little endian",
+          "Machine": "MIPS R3000",
+          "Flags": "0x70001007, noreorder, pic, cpic, o32, mips32r2"
+        },
+        "needed": [
+          "libc.so.0",
+          "libcrypto.so.3",
+          "libssl.so.3"
+        ],
+        "soname": [],
+        "interpreter": [
+          "/lib/ld-uClibc.so.0"
+        ],
+        "export_count": 19,
+        "export_contract_sha256": "7a6cf68dfd4974e98eca6a9fcf9bf04ecc401d5607adb6d0575b777b42752a36"
+      }
+    }
+  },
+  "abi_scope": "Changed ELF class/data/machine/flags, DT_NEEDED/SONAME/interpreter and defined dynamic symbol names/types/bind/visibility/object sizes; excludes semantics, kernel symbol versions and runtime",
+  "libcurl_export_delta": {
+    "removed_count": 763,
+    "removed_symbols": [
+      "_fini",
+      "_init",
+      "huff_decode_table",
+      "huff_sym_table",
+      "huffman_sym_table",
+      "nghttp2_adjust_local_window_size",
+      "nghttp2_buf_free",
+      "nghttp2_buf_init",
+      "nghttp2_buf_init2",
+      "nghttp2_buf_reserve",
+      "nghttp2_buf_reset",
+      "nghttp2_buf_wrap_init",
+      "nghttp2_bufs_add",
+      "nghttp2_bufs_addb",
+      "nghttp2_bufs_addb_hold",
+      "nghttp2_bufs_advance",
+      "nghttp2_bufs_free",
+      "nghttp2_bufs_init",
+      "nghttp2_bufs_init2",
+      "nghttp2_bufs_init3",
+      "nghttp2_bufs_len",
+      "nghttp2_bufs_next_present",
+      "nghttp2_bufs_orb",
+      "nghttp2_bufs_orb_hold",
+      "nghttp2_bufs_realloc",
+      "nghttp2_bufs_remove",
+      "nghttp2_bufs_remove_copy",
+      "nghttp2_bufs_reset",
+      "nghttp2_bufs_seek_last_present",
+      "nghttp2_bufs_wrap_free",
+      "nghttp2_bufs_wrap_init",
+      "nghttp2_bufs_wrap_init2",
+      "nghttp2_check_authority",
+      "nghttp2_check_header_name",
+      "nghttp2_check_header_value",
+      "nghttp2_check_header_value_rfc9113",
+      "nghttp2_check_method",
+      "nghttp2_check_path",
+      "nghttp2_cpymem",
+      "nghttp2_data_provider_wrap_contains_read_callback",
+      "nghttp2_data_provider_wrap_v1",
+      "nghttp2_data_provider_wrap_v2",
+      "nghttp2_downcase",
+      "nghttp2_enable_strict_preface",
+      "nghttp2_extpri_from_uint8",
+      "nghttp2_extpri_parse_priority",
+      "nghttp2_extpri_to_uint8",
+      "nghttp2_frame_add_pad",
+      "nghttp2_frame_altsvc_free",
+      "nghttp2_frame_altsvc_init",
+      "nghttp2_frame_data_free",
+      "nghttp2_frame_data_init",
+      "nghttp2_frame_extension_free",
+      "nghttp2_frame_extension_init",
+      "nghttp2_frame_goaway_free",
+      "nghttp2_frame_goaway_init",
+      "nghttp2_frame_hd_init",
+      "nghttp2_frame_headers_free",
+      "nghttp2_frame_headers_init",
+      "nghttp2_frame_headers_payload_nv_offset",
+      "nghttp2_frame_iv_copy",
+      "nghttp2_frame_origin_free",
+      "nghttp2_frame_origin_init",
+      "nghttp2_frame_pack_altsvc",
+      "nghttp2_frame_pack_frame_hd",
+      "nghttp2_frame_pack_goaway",
+      "nghttp2_frame_pack_headers",
+      "nghttp2_frame_pack_origin",
+      "nghttp2_frame_pack_ping",
+      "nghttp2_frame_pack_priority",
+      "nghttp2_frame_pack_priority_spec",
+      "nghttp2_frame_pack_priority_update",
+      "nghttp2_frame_pack_push_promise",
+      "nghttp2_frame_pack_rst_stream",
+      "nghttp2_frame_pack_settings",
+      "nghttp2_frame_pack_settings_payload",
+      "nghttp2_frame_pack_window_update",
+      "nghttp2_frame_ping_free",
+      "nghttp2_frame_ping_init",
+      "nghttp2_frame_priority_free",
+      "nghttp2_frame_priority_init",
+      "nghttp2_frame_priority_len",
+      "nghttp2_frame_priority_update_free",
+      "nghttp2_frame_priority_update_init",
+      "nghttp2_frame_push_promise_free",
+      "nghttp2_frame_push_promise_init",
+      "nghttp2_frame_rst_stream_free",
+      "nghttp2_frame_rst_stream_init",
+      "nghttp2_frame_settings_free",
+      "nghttp2_frame_settings_init",
+      "nghttp2_frame_trail_padlen",
+      "nghttp2_frame_unpack_altsvc_payload",
+      "nghttp2_frame_unpack_altsvc_payload2",
+      "nghttp2_frame_unpack_frame_hd",
+      "nghttp2_frame_unpack_goaway_payload",
+      "nghttp2_frame_unpack_goaway_payload2",
+      "nghttp2_frame_unpack_headers_payload",
+      "nghttp2_frame_unpack_origin_payload",
+      "nghttp2_frame_unpack_ping_payload",
+      "nghttp2_frame_unpack_priority_payload",
+      "nghttp2_frame_unpack_priority_spec",
+      "nghttp2_frame_unpack_priority_update_payload",
+      "nghttp2_frame_unpack_push_promise_payload",
+      "nghttp2_frame_unpack_rst_stream_payload",
+      "nghttp2_frame_unpack_settings_entry",
+      "nghttp2_frame_unpack_settings_payload",
+      "nghttp2_frame_unpack_settings_payload2",
+      "nghttp2_frame_unpack_window_update_payload",
+      "nghttp2_frame_window_update_free",
+      "nghttp2_frame_window_update_init",
+      "nghttp2_get_uint16",
+      "nghttp2_get_uint32",
+      "nghttp2_hd_decode_length",
+      "nghttp2_hd_deflate_bound",
+      "nghttp2_hd_deflate_change_table_size",
+      "nghttp2_hd_deflate_del",
+      "nghttp2_hd_deflate_free",
+      "nghttp2_hd_deflate_get_dynamic_table_size",
+      "nghttp2_hd_deflate_get_max_dynamic_table_size",
+      "nghttp2_hd_deflate_get_num_table_entries",
+      "nghttp2_hd_deflate_get_table_entry",
+      "nghttp2_hd_deflate_hd",
+      "nghttp2_hd_deflate_hd2",
+      "nghttp2_hd_deflate_hd_bufs",
+      "nghttp2_hd_deflate_hd_vec",
+      "nghttp2_hd_deflate_hd_vec2",
+      "nghttp2_hd_deflate_init",
+      "nghttp2_hd_deflate_init2",
+      "nghttp2_hd_deflate_new",
+      "nghttp2_hd_deflate_new2",
+      "nghttp2_hd_emit_indname_block",
+      "nghttp2_hd_emit_newname_block",
+      "nghttp2_hd_emit_table_size",
+      "nghttp2_hd_entry_free",
+      "nghttp2_hd_entry_init",
+      "nghttp2_hd_huff_decode",
+      "nghttp2_hd_huff_decode_context_init",
+      "nghttp2_hd_huff_decode_failure_state",
+      "nghttp2_hd_huff_encode",
+      "nghttp2_hd_huff_encode_count",
+      "nghttp2_hd_inflate_change_table_size",
+      "nghttp2_hd_inflate_del",
+      "nghttp2_hd_inflate_end_headers",
+      "nghttp2_hd_inflate_free",
+      "nghttp2_hd_inflate_get_dynamic_table_size",
+      "nghttp2_hd_inflate_get_max_dynamic_table_size",
+      "nghttp2_hd_inflate_get_num_table_entries",
+      "nghttp2_hd_inflate_get_table_entry",
+      "nghttp2_hd_inflate_hd",
+      "nghttp2_hd_inflate_hd2",
+      "nghttp2_hd_inflate_hd3",
+      "nghttp2_hd_inflate_hd_nv",
+      "nghttp2_hd_inflate_init",
+      "nghttp2_hd_inflate_new",
+      "nghttp2_hd_inflate_new2",
+      "nghttp2_hd_table_get",
+      "nghttp2_http2_strerror",
+      "nghttp2_http_on_data_chunk",
+      "nghttp2_http_on_header",
+      "nghttp2_http_on_remote_end_stream",
+      "nghttp2_http_on_request_headers",
+      "nghttp2_http_on_response_headers",
+      "nghttp2_http_on_trailer_headers",
+      "nghttp2_http_parse_priority",
+      "nghttp2_http_record_request_method",
+      "nghttp2_increase_local_window_size",
+      "nghttp2_is_fatal",
+      "nghttp2_iv_check",
+      "nghttp2_map_clear",
+      "nghttp2_map_each",
+      "nghttp2_map_find",
+      "nghttp2_map_free",
+      "nghttp2_map_init",
+      "nghttp2_map_insert",
+      "nghttp2_map_print_distance",
+      "nghttp2_map_remove",
+      "nghttp2_map_size",
+      "nghttp2_mem_calloc",
+      "nghttp2_mem_default",
+      "nghttp2_mem_free",
+      "nghttp2_mem_free2",
+      "nghttp2_mem_malloc",
+      "nghttp2_mem_realloc",
+      "nghttp2_nv_array_copy",
+      "nghttp2_nv_array_del",
+      "nghttp2_nv_array_sort",
+      "nghttp2_nv_compare_name",
+      "nghttp2_nv_equal",
+      "nghttp2_option_del",
+      "nghttp2_option_new",
+      "nghttp2_option_set_builtin_recv_extension_type",
+      "nghttp2_option_set_glitch_rate_limit",
+      "nghttp2_option_set_max_continuations",
+      "nghttp2_option_set_max_deflate_dynamic_table_size",
+      "nghttp2_option_set_max_outbound_ack",
+      "nghttp2_option_set_max_reserved_remote_streams",
+      "nghttp2_option_set_max_send_header_block_length",
+      "nghttp2_option_set_max_settings",
+      "nghttp2_option_set_no_auto_ping_ack",
+      "nghttp2_option_set_no_auto_window_update",
+      "nghttp2_option_set_no_closed_streams",
+      "nghttp2_option_set_no_http_messaging",
+      "nghttp2_option_set_no_recv_client_magic",
+      "nghttp2_option_set_no_rfc9113_leading_and_trailing_ws_validation",
+      "nghttp2_option_set_peer_max_concurrent_streams",
+      "nghttp2_option_set_server_fallback_rfc7540_priorities",
+      "nghttp2_option_set_stream_reset_rate_limit",
+      "nghttp2_option_set_user_recv_extension_type",
+      "nghttp2_outbound_item_free",
+      "nghttp2_outbound_item_init",
+      "nghttp2_outbound_queue_init",
+      "nghttp2_outbound_queue_pop",
+      "nghttp2_outbound_queue_push",
+      "nghttp2_pack_settings_payload",
+      "nghttp2_pack_settings_payload2",
+      "nghttp2_pq_each",
+      "nghttp2_pq_empty",
+      "nghttp2_pq_free",
+      "nghttp2_pq_init",
+      "nghttp2_pq_pop",
+      "nghttp2_pq_push",
+      "nghttp2_pq_remove",
+      "nghttp2_pq_size",
+      "nghttp2_pq_top",
+      "nghttp2_pq_update",
+      "nghttp2_priority_spec_check_default",
+      "nghttp2_priority_spec_default_init",
+      "nghttp2_priority_spec_init",
+      "nghttp2_priority_spec_normalize_weight",
+      "nghttp2_put_uint16be",
+      "nghttp2_put_uint32be",
+      "nghttp2_ratelim_drain",
+      "nghttp2_ratelim_init",
+      "nghttp2_ratelim_update",
+      "nghttp2_rcbuf_decref",
+      "nghttp2_rcbuf_del",
+      "nghttp2_rcbuf_get_buf",
+      "nghttp2_rcbuf_incref",
+      "nghttp2_rcbuf_is_static",
+      "nghttp2_rcbuf_new",
+      "nghttp2_rcbuf_new2",
+      "nghttp2_session_add_goaway",
+      "nghttp2_session_add_item",
+      "nghttp2_session_add_ping",
+      "nghttp2_session_add_rst_stream",
+      "nghttp2_session_add_rst_stream_continue",
+      "nghttp2_session_add_settings",
+      "nghttp2_session_add_window_update",
+      "nghttp2_session_callbacks_del",
+      "nghttp2_session_callbacks_new",
+      "nghttp2_session_callbacks_set_before_frame_send_callback",
+      "nghttp2_session_callbacks_set_data_source_read_length_callback",
+      "nghttp2_session_callbacks_set_data_source_read_length_callback2",
+      "nghttp2_session_callbacks_set_error_callback",
+      "nghttp2_session_callbacks_set_error_callback2",
+      "nghttp2_session_callbacks_set_on_begin_frame_callback",
+      "nghttp2_session_callbacks_set_on_begin_headers_callback",
+      "nghttp2_session_callbacks_set_on_data_chunk_recv_callback",
+      "nghttp2_session_callbacks_set_on_extension_chunk_recv_callback",
+      "nghttp2_session_callbacks_set_on_frame_not_send_callback",
+      "nghttp2_session_callbacks_set_on_frame_recv_callback",
+      "nghttp2_session_callbacks_set_on_frame_send_callback",
+      "nghttp2_session_callbacks_set_on_header_callback",
+      "nghttp2_session_callbacks_set_on_header_callback2",
+      "nghttp2_session_callbacks_set_on_invalid_frame_recv_callback",
+      "nghttp2_session_callbacks_set_on_invalid_header_callback",
+      "nghttp2_session_callbacks_set_on_invalid_header_callback2",
+      "nghttp2_session_callbacks_set_on_stream_close_callback",
+      "nghttp2_session_callbacks_set_pack_extension_callback",
+      "nghttp2_session_callbacks_set_pack_extension_callback2",
+      "nghttp2_session_callbacks_set_rand_callback",
+      "nghttp2_session_callbacks_set_recv_callback",
+      "nghttp2_session_callbacks_set_recv_callback2",
+      "nghttp2_session_callbacks_set_select_padding_callback",
+      "nghttp2_session_callbacks_set_select_padding_callback2",
+      "nghttp2_session_callbacks_set_send_callback",
+      "nghttp2_session_callbacks_set_send_callback2",
+      "nghttp2_session_callbacks_set_send_data_callback",
+      "nghttp2_session_callbacks_set_unpack_extension_callback",
+      "nghttp2_session_change_extpri_stream_priority",
+      "nghttp2_session_change_stream_priority",
+      "nghttp2_session_check_request_allowed",
+      "nghttp2_session_check_server_session",
+      "nghttp2_session_client_new",
+      "nghttp2_session_client_new2",
+      "nghttp2_session_client_new3",
+      "nghttp2_session_close_stream",
+      "nghttp2_session_close_stream_if_shut_rdwr",
+      "nghttp2_session_consume",
+      "nghttp2_session_consume_connection",
+      "nghttp2_session_consume_stream",
+      "nghttp2_session_create_idle_stream",
+      "nghttp2_session_del",
+      "nghttp2_session_destroy_stream",
+      "nghttp2_session_find_stream",
+      "nghttp2_session_get_effective_local_window_size",
+      "nghttp2_session_get_effective_recv_data_length",
+      "nghttp2_session_get_extpri_stream_priority",
+      "nghttp2_session_get_hd_deflate_dynamic_table_size",
+      "nghttp2_session_get_hd_inflate_dynamic_table_size",
+      "nghttp2_session_get_last_proc_stream_id",
+      "nghttp2_session_get_local_settings",
+      "nghttp2_session_get_local_window_size",
+      "nghttp2_session_get_next_ob_item",
+      "nghttp2_session_get_next_stream_id",
+      "nghttp2_session_get_outbound_queue_size",
+      "nghttp2_session_get_remote_settings",
+      "nghttp2_session_get_remote_window_size",
+      "nghttp2_session_get_root_stream",
+      "nghttp2_session_get_stream",
+      "nghttp2_session_get_stream_effective_local_window_size",
+      "nghttp2_session_get_stream_effective_recv_data_length",
+      "nghttp2_session_get_stream_local_close",
+      "nghttp2_session_get_stream_local_window_size",
+      "nghttp2_session_get_stream_raw",
+      "nghttp2_session_get_stream_remote_close",
+      "nghttp2_session_get_stream_remote_window_size",
+      "nghttp2_session_get_stream_user_data",
+      "nghttp2_session_is_my_stream_id",
+      "nghttp2_session_mem_recv",
+      "nghttp2_session_mem_recv2",
+      "nghttp2_session_mem_send",
+      "nghttp2_session_mem_send2",
+      "nghttp2_session_on_altsvc_received",
+      "nghttp2_session_on_data_received",
+      "nghttp2_session_on_goaway_received",
+      "nghttp2_session_on_headers_received",
+      "nghttp2_session_on_origin_received",
+      "nghttp2_session_on_ping_received",
+      "nghttp2_session_on_priority_update_received",
+      "nghttp2_session_on_push_promise_received",
+      "nghttp2_session_on_push_response_headers_received",
+      "nghttp2_session_on_request_headers_received",
+      "nghttp2_session_on_response_headers_received",
+      "nghttp2_session_on_rst_stream_received",
+      "nghttp2_session_on_settings_received",
+      "nghttp2_session_on_window_update_received",
+      "nghttp2_session_open_stream",
+      "nghttp2_session_pack_data",
+      "nghttp2_session_pop_next_ob_item",
+      "nghttp2_session_recv",
+      "nghttp2_session_resume_data",
+      "nghttp2_session_send",
+      "nghttp2_session_server_new",
+      "nghttp2_session_server_new2",
+      "nghttp2_session_server_new3",
+      "nghttp2_session_set_local_window_size",
+      "nghttp2_session_set_next_stream_id",
+      "nghttp2_session_set_stream_user_data",
+      "nghttp2_session_set_user_data",
+      "nghttp2_session_terminate_session",
+      "nghttp2_session_terminate_session2",
+      "nghttp2_session_terminate_session_with_reason",
+      "nghttp2_session_update_local_settings",
+      "nghttp2_session_update_recv_connection_window_size",
+      "nghttp2_session_update_recv_stream_window_size",
+      "nghttp2_session_upgrade",
+      "nghttp2_session_upgrade2",
+      "nghttp2_session_want_read",
+      "nghttp2_session_want_write",
+      "nghttp2_should_send_window_update",
+      "nghttp2_stream_attach_item",
+      "nghttp2_stream_check_deferred_by_flow_control",
+      "nghttp2_stream_check_deferred_item",
+      "nghttp2_stream_defer_item",
+      "nghttp2_stream_detach_item",
+      "nghttp2_stream_free",
+      "nghttp2_stream_get_first_child",
+      "nghttp2_stream_get_next_sibling",
+      "nghttp2_stream_get_parent",
+      "nghttp2_stream_get_previous_sibling",
+      "nghttp2_stream_get_state",
+      "nghttp2_stream_get_stream_id",
+      "nghttp2_stream_get_sum_dependency_weight",
+      "nghttp2_stream_get_weight",
+      "nghttp2_stream_init",
+      "nghttp2_stream_promise_fulfilled",
+      "nghttp2_stream_resume_deferred_item",
+      "nghttp2_stream_root",
+      "nghttp2_stream_shutdown",
+      "nghttp2_stream_update_local_initial_window_size",
+      "nghttp2_stream_update_remote_initial_window_size",
+      "nghttp2_strerror",
+      "nghttp2_submit_altsvc",
+      "nghttp2_submit_data",
+      "nghttp2_submit_data2",
+      "nghttp2_submit_data_shared",
+      "nghttp2_submit_extension",
+      "nghttp2_submit_goaway",
+      "nghttp2_submit_headers",
+      "nghttp2_submit_origin",
+      "nghttp2_submit_ping",
+      "nghttp2_submit_priority",
+      "nghttp2_submit_priority_update",
+      "nghttp2_submit_push_promise",
+      "nghttp2_submit_request",
+      "nghttp2_submit_request2",
+      "nghttp2_submit_response",
+      "nghttp2_submit_response2",
+      "nghttp2_submit_rst_stream",
+      "nghttp2_submit_settings",
+      "nghttp2_submit_shutdown_notice",
+      "nghttp2_submit_trailer",
+      "nghttp2_submit_window_update",
+      "nghttp2_time_now_sec",
+      "nghttp2_version",
+      "nghttp3_balloc_clear",
+      "nghttp3_balloc_free",
+      "nghttp3_balloc_get",
+      "nghttp3_balloc_init",
+      "nghttp3_buf_cap",
+      "nghttp3_buf_free",
+      "nghttp3_buf_init",
+      "nghttp3_buf_left",
+      "nghttp3_buf_len",
+      "nghttp3_buf_offset",
+      "nghttp3_buf_reserve",
+      "nghttp3_buf_reset",
+      "nghttp3_buf_swap",
+      "nghttp3_buf_wrap_init",
+      "nghttp3_callbacks_convert_to_latest",
+      "nghttp3_callbacks_convert_to_old",
+      "nghttp3_callbackslen_version",
+      "nghttp3_check_header_name",
+      "nghttp3_check_header_value",
+      "nghttp3_client_stream_bidi",
+      "nghttp3_client_stream_uni",
+      "nghttp3_conn_add_ack_offset",
+      "nghttp3_conn_add_write_offset",
+      "nghttp3_conn_bind_control_stream",
+      "nghttp3_conn_bind_qpack_streams",
+      "nghttp3_conn_block_stream",
+      "nghttp3_conn_client_new_versioned",
+      "nghttp3_conn_close_stream",
+      "nghttp3_conn_create_stream",
+      "nghttp3_conn_del",
+      "nghttp3_conn_ensure_stream_scheduled",
+      "nghttp3_conn_find_stream",
+      "nghttp3_conn_get_frame_payload_left",
+      "nghttp3_conn_get_frame_payload_left2",
+      "nghttp3_conn_get_next_tx_stream",
+      "nghttp3_conn_get_stream_priority2_versioned",
+      "nghttp3_conn_get_stream_priority_versioned",
+      "nghttp3_conn_get_stream_user_data",
+      "nghttp3_conn_is_drained",
+      "nghttp3_conn_is_drained2",
+      "nghttp3_conn_is_stream_writable",
+      "nghttp3_conn_is_stream_writable2",
+      "nghttp3_conn_on_data",
+      "nghttp3_conn_on_headers",
+      "nghttp3_conn_on_priority_update",
+      "nghttp3_conn_on_settings_entry_received",
+      "nghttp3_conn_qpack_blocked_streams_pop",
+      "nghttp3_conn_qpack_blocked_streams_push",
+      "nghttp3_conn_qpack_blocked_streams_remove",
+      "nghttp3_conn_read_bidi",
+      "nghttp3_conn_read_control",
+      "nghttp3_conn_read_qpack_decoder",
+      "nghttp3_conn_read_qpack_encoder",
+      "nghttp3_conn_read_stream",
+      "nghttp3_conn_read_stream2",
+      "nghttp3_conn_read_uni",
+      "nghttp3_conn_reject_stream",
+      "nghttp3_conn_resume_stream",
+      "nghttp3_conn_schedule_stream",
+      "nghttp3_conn_server_new_versioned",
+      "nghttp3_conn_set_client_stream_priority",
+      "nghttp3_conn_set_max_client_streams_bidi",
+      "nghttp3_conn_set_max_concurrent_streams",
+      "nghttp3_conn_set_server_stream_priority_versioned",
+      "nghttp3_conn_set_stream_user_data",
+      "nghttp3_conn_shutdown",
+      "nghttp3_conn_shutdown_stream_read",
+      "nghttp3_conn_shutdown_stream_write",
+      "nghttp3_conn_submit_info",
+      "nghttp3_conn_submit_request",
+      "nghttp3_conn_submit_response",
+      "nghttp3_conn_submit_shutdown_notice",
+      "nghttp3_conn_submit_trailers",
+      "nghttp3_conn_unblock_stream",
+      "nghttp3_conn_unschedule_stream",
+      "nghttp3_conn_update_ack_offset",
+      "nghttp3_conn_writev_stream",
+      "nghttp3_cpymem",
+      "nghttp3_downcase",
+      "nghttp3_err_infer_quic_app_error_code",
+      "nghttp3_err_is_fatal",
+      "nghttp3_frame_headers_free",
+      "nghttp3_frame_priority_update_free",
+      "nghttp3_frame_write_goaway",
+      "nghttp3_frame_write_goaway_len",
+      "nghttp3_frame_write_hd",
+      "nghttp3_frame_write_hd_len",
+      "nghttp3_frame_write_origin",
+      "nghttp3_frame_write_origin_len",
+      "nghttp3_frame_write_priority_update",
+      "nghttp3_frame_write_priority_update_len",
+      "nghttp3_frame_write_settings",
+      "nghttp3_frame_write_settings_len",
+      "nghttp3_gaptr_drop_first_gap",
+      "nghttp3_gaptr_first_gap_offset",
+      "nghttp3_gaptr_free",
+      "nghttp3_gaptr_get_first_gap_after",
+      "nghttp3_gaptr_init",
+      "nghttp3_gaptr_is_pushed",
+      "nghttp3_gaptr_push",
+      "nghttp3_get_uvarint",
+      "nghttp3_get_uvarintlen",
+      "nghttp3_http_on_data_chunk",
+      "nghttp3_http_on_header",
+      "nghttp3_http_on_remote_end_stream",
+      "nghttp3_http_on_request_headers",
+      "nghttp3_http_on_response_headers",
+      "nghttp3_http_parse_priority",
+      "nghttp3_http_record_request_method",
+      "nghttp3_idtr_free",
+      "nghttp3_idtr_init",
+      "nghttp3_idtr_is_open",
+      "nghttp3_idtr_open",
+      "nghttp3_ksl_begin",
+      "nghttp3_ksl_clear",
+      "nghttp3_ksl_end",
+      "nghttp3_ksl_free",
+      "nghttp3_ksl_init",
+      "nghttp3_ksl_insert",
+      "nghttp3_ksl_int64_greater_search",
+      "nghttp3_ksl_it_begin",
+      "nghttp3_ksl_it_init",
+      "nghttp3_ksl_it_prev",
+      "nghttp3_ksl_len",
+      "nghttp3_ksl_lower_bound",
+      "nghttp3_ksl_lower_bound_search",
+      "nghttp3_ksl_print",
+      "nghttp3_ksl_range_exclusive_search",
+      "nghttp3_ksl_range_search",
+      "nghttp3_ksl_remove",
+      "nghttp3_ksl_remove_hint",
+      "nghttp3_ksl_uint64_less_search",
+      "nghttp3_ksl_update_key",
+      "nghttp3_map_clear",
+      "nghttp3_map_each",
+      "nghttp3_map_find",
+      "nghttp3_map_free",
+      "nghttp3_map_init",
+      "nghttp3_map_insert",
+      "nghttp3_map_print_distance",
+      "nghttp3_map_remove",
+      "nghttp3_map_size",
+      "nghttp3_mem_calloc",
+      "nghttp3_mem_default",
+      "nghttp3_mem_free",
+      "nghttp3_mem_malloc",
+      "nghttp3_mem_realloc",
+      "nghttp3_nva_copy",
+      "nghttp3_nva_del",
+      "nghttp3_objalloc_chunk_get",
+      "nghttp3_objalloc_chunk_len_get",
+      "nghttp3_objalloc_clear",
+      "nghttp3_objalloc_free",
+      "nghttp3_objalloc_init",
+      "nghttp3_objalloc_ksl_blk_get",
+      "nghttp3_objalloc_ksl_blk_len_get",
+      "nghttp3_objalloc_stream_get",
+      "nghttp3_objalloc_stream_len_get",
+      "nghttp3_opl_clear",
+      "nghttp3_opl_init",
+      "nghttp3_opl_pop",
+      "nghttp3_opl_push",
+      "nghttp3_ord_stream_id",
+      "nghttp3_pq_clear",
+      "nghttp3_pq_empty",
+      "nghttp3_pq_free",
+      "nghttp3_pq_init",
+      "nghttp3_pq_pop",
+      "nghttp3_pq_push",
+      "nghttp3_pq_remove",
+      "nghttp3_pq_size",
+      "nghttp3_pq_top",
+      "nghttp3_pri_eq",
+      "nghttp3_pri_parse_priority_versioned",
+      "nghttp3_put_uint16be",
+      "nghttp3_put_uint32be",
+      "nghttp3_put_uint64be",
+      "nghttp3_put_uvarint",
+      "nghttp3_put_uvarintlen",
+      "nghttp3_qpack_context_dtable_add",
+      "nghttp3_qpack_context_dtable_get",
+      "nghttp3_qpack_context_dtable_top",
+      "nghttp3_qpack_decoder_brel2abs",
+      "nghttp3_qpack_decoder_cancel_stream",
+      "nghttp3_qpack_decoder_del",
+      "nghttp3_qpack_decoder_dtable_duplicate_add",
+      "nghttp3_qpack_decoder_dtable_dynamic_add",
+      "nghttp3_qpack_decoder_dtable_indexed_add",
+      "nghttp3_qpack_decoder_dtable_literal_add",
+      "nghttp3_qpack_decoder_dtable_static_add",
+      "nghttp3_qpack_decoder_emit_indexed",
+      "nghttp3_qpack_decoder_emit_indexed_name",
+      "nghttp3_qpack_decoder_emit_literal",
+      "nghttp3_qpack_decoder_free",
+      "nghttp3_qpack_decoder_get_decoder_streamlen",
+      "nghttp3_qpack_decoder_get_decoder_streamlen2",
+      "nghttp3_qpack_decoder_get_icnt",
+      "nghttp3_qpack_decoder_init",
+      "nghttp3_qpack_decoder_new",
+      "nghttp3_qpack_decoder_pbrel2abs",
+      "nghttp3_qpack_decoder_read_encoder",
+      "nghttp3_qpack_decoder_read_request",
+      "nghttp3_qpack_decoder_reconstruct_ricnt",
+      "nghttp3_qpack_decoder_rel2abs",
+      "nghttp3_qpack_decoder_set_max_concurrent_streams",
+      "nghttp3_qpack_decoder_set_max_dtable_capacity",
+      "nghttp3_qpack_decoder_write_decoder",
+      "nghttp3_qpack_decoder_write_section_ack",
+      "nghttp3_qpack_encoder_ack_everything",
+      "nghttp3_qpack_encoder_ack_header",
+      "nghttp3_qpack_encoder_add_icnt",
+      "nghttp3_qpack_encoder_block_stream",
+      "nghttp3_qpack_encoder_cancel_stream",
+      "nghttp3_qpack_encoder_del",
+      "nghttp3_qpack_encoder_dtable_duplicate_add",
+      "nghttp3_qpack_encoder_dtable_dynamic_add",
+      "nghttp3_qpack_encoder_dtable_literal_add",
+      "nghttp3_qpack_encoder_dtable_static_add",
+      "nghttp3_qpack_encoder_encode",
+      "nghttp3_qpack_encoder_encode_nv",
+      "nghttp3_qpack_encoder_find_stream",
+      "nghttp3_qpack_encoder_free",
+      "nghttp3_qpack_encoder_get_min_cnt",
+      "nghttp3_qpack_encoder_get_num_blocked_streams",
+      "nghttp3_qpack_encoder_get_num_blocked_streams2",
+      "nghttp3_qpack_encoder_init",
+      "nghttp3_qpack_encoder_lookup_dtable",
+      "nghttp3_qpack_encoder_new",
+      "nghttp3_qpack_encoder_new2",
+      "nghttp3_qpack_encoder_process_dtable_update",
+      "nghttp3_qpack_encoder_read_decoder",
+      "nghttp3_qpack_encoder_set_indexing_strat",
+      "nghttp3_qpack_encoder_set_max_blocked_streams",
+      "nghttp3_qpack_encoder_set_max_dtable_capacity",
+      "nghttp3_qpack_encoder_shrink_dtable",
+      "nghttp3_qpack_encoder_stream_is_blocked",
+      "nghttp3_qpack_encoder_unblock",
+      "nghttp3_qpack_encoder_unblock_stream",
+      "nghttp3_qpack_encoder_write_duplicate_insert",
+      "nghttp3_qpack_encoder_write_dynamic_indexed",
+      "nghttp3_qpack_encoder_write_dynamic_indexed_name",
+      "nghttp3_qpack_encoder_write_dynamic_insert",
+      "nghttp3_qpack_encoder_write_field_section_prefix",
+      "nghttp3_qpack_encoder_write_literal",
+      "nghttp3_qpack_encoder_write_literal_insert",
+      "nghttp3_qpack_encoder_write_set_dtable_cap",
+      "nghttp3_qpack_encoder_write_static_indexed",
+      "nghttp3_qpack_encoder_write_static_indexed_name",
+      "nghttp3_qpack_encoder_write_static_insert",
+      "nghttp3_qpack_entry_free",
+      "nghttp3_qpack_entry_init",
+      "nghttp3_qpack_header_block_ref_del",
+      "nghttp3_qpack_header_block_ref_new",
+      "nghttp3_qpack_huffman_decode",
+      "nghttp3_qpack_huffman_decode_context_init",
+      "nghttp3_qpack_huffman_decode_failure_state",
+      "nghttp3_qpack_huffman_encode",
+      "nghttp3_qpack_huffman_encode_count",
+      "nghttp3_qpack_lookup_stable",
+      "nghttp3_qpack_put_varint",
+      "nghttp3_qpack_put_varint_len",
+      "nghttp3_qpack_read_state_free",
+      "nghttp3_qpack_read_state_reset",
+      "nghttp3_qpack_stream_add_ref",
+      "nghttp3_qpack_stream_context_del",
+      "nghttp3_qpack_stream_context_free",
+      "nghttp3_qpack_stream_context_get_ricnt",
+      "nghttp3_qpack_stream_context_get_ricnt2",
+      "nghttp3_qpack_stream_context_init",
+      "nghttp3_qpack_stream_context_new",
+      "nghttp3_qpack_stream_context_reset",
+      "nghttp3_qpack_stream_del",
+      "nghttp3_qpack_stream_get_max_cnt",
+      "nghttp3_qpack_stream_new",
+      "nghttp3_qpack_stream_pop_ref",
+      "nghttp3_range_cut",
+      "nghttp3_range_eq",
+      "nghttp3_range_init",
+      "nghttp3_range_intersect",
+      "nghttp3_range_len",
+      "nghttp3_range_not_after",
+      "nghttp3_ratelim_drain",
+      "nghttp3_ratelim_init",
+      "nghttp3_rcbuf_decref",
+      "nghttp3_rcbuf_del",
+      "nghttp3_rcbuf_get_buf",
+      "nghttp3_rcbuf_incref",
+      "nghttp3_rcbuf_is_static",
+      "nghttp3_rcbuf_new",
+      "nghttp3_rcbuf_new2",
+      "nghttp3_read_varint",
+      "nghttp3_ringbuf_free",
+      "nghttp3_ringbuf_full",
+      "nghttp3_ringbuf_get",
+      "nghttp3_ringbuf_init",
+      "nghttp3_ringbuf_pop_back",
+      "nghttp3_ringbuf_pop_front",
+      "nghttp3_ringbuf_push_back",
+      "nghttp3_ringbuf_push_front",
+      "nghttp3_ringbuf_reserve",
+      "nghttp3_ringbuf_resize",
+      "nghttp3_server_stream_uni",
+      "nghttp3_settings_convert_to_latest",
+      "nghttp3_settings_convert_to_old",
+      "nghttp3_settings_default_versioned",
+      "nghttp3_settingslen_version",
+      "nghttp3_stream_add_outq_offset",
+      "nghttp3_stream_buffer_data",
+      "nghttp3_stream_del",
+      "nghttp3_stream_empty_headers_allowed",
+      "nghttp3_stream_ensure_chunk",
+      "nghttp3_stream_fill_outq",
+      "nghttp3_stream_frq_emplace",
+      "nghttp3_stream_get_buffered_datalen",
+      "nghttp3_stream_get_chunk",
+      "nghttp3_stream_is_blocked",
+      "nghttp3_stream_new",
+      "nghttp3_stream_outq_add",
+      "nghttp3_stream_outq_write_done",
+      "nghttp3_stream_read_state_reset",
+      "nghttp3_stream_require_schedule",
+      "nghttp3_stream_transit_rx_http_state",
+      "nghttp3_stream_uni",
+      "nghttp3_stream_update_ack_offset",
+      "nghttp3_stream_write_data",
+      "nghttp3_stream_write_goaway",
+      "nghttp3_stream_write_header_block",
+      "nghttp3_stream_write_headers",
+      "nghttp3_stream_write_origin",
+      "nghttp3_stream_write_priority_update",
+      "nghttp3_stream_write_qpack_decoder_stream",
+      "nghttp3_stream_write_settings",
+      "nghttp3_stream_write_stream_type",
+      "nghttp3_stream_writev",
+      "nghttp3_strerror",
+      "nghttp3_tnode_free",
+      "nghttp3_tnode_init",
+      "nghttp3_tnode_is_scheduled",
+      "nghttp3_tnode_schedule",
+      "nghttp3_tnode_unschedule",
+      "nghttp3_typed_buf_init",
+      "nghttp3_typed_buf_shared_init",
+      "nghttp3_unreachable_fail",
+      "nghttp3_varint_read_state_reset",
+      "nghttp3_vec_len",
+      "nghttp3_vec_len_uvarint",
+      "nghttp3_version",
+      "qpack_huffman_decode_table",
+      "sfparse_base64decode",
+      "sfparse_parser_dict",
+      "sfparse_parser_init",
+      "sfparse_parser_inner_list",
+      "sfparse_parser_item",
+      "sfparse_parser_list",
+      "sfparse_parser_param",
+      "sfparse_pctdecode",
+      "sfparse_unescape"
+    ],
+    "added_count": 0,
+    "removed_prefixes": [
+      "",
+      "huff",
+      "huffman",
+      "nghttp2",
+      "nghttp3",
+      "qpack",
+      "sfparse"
+    ],
+    "ubuntu24_elf_files_scanned": 287,
+    "undefined_symbol_consumers_in_ubuntu24_image": {},
+    "limitation": "No current ELF import found does not prove dlopen/dlsym or external plugin compatibility; cause of host-dependent export visibility remains to inspect",
+    "public_curl_prefix_contract": {
+      "counts": [
+        100,
+        100
+      ],
+      "identical_names": true,
+      "names": [
+        "curl_easy_cleanup",
+        "curl_easy_duphandle",
+        "curl_easy_escape",
+        "curl_easy_getinfo",
+        "curl_easy_header",
+        "curl_easy_init",
+        "curl_easy_nextheader",
+        "curl_easy_option_by_id",
+        "curl_easy_option_by_name",
+        "curl_easy_option_next",
+        "curl_easy_pause",
+        "curl_easy_perform",
+        "curl_easy_recv",
+        "curl_easy_reset",
+        "curl_easy_send",
+        "curl_easy_setopt",
+        "curl_easy_ssls_export",
+        "curl_easy_ssls_import",
+        "curl_easy_strerror",
+        "curl_easy_unescape",
+        "curl_easy_upkeep",
+        "curl_escape",
+        "curl_formadd",
+        "curl_formfree",
+        "curl_formget",
+        "curl_free",
+        "curl_getdate",
+        "curl_getenv",
+        "curl_global_cleanup",
+        "curl_global_init",
+        "curl_global_init_mem",
+        "curl_global_sslset",
+        "curl_global_trace",
+        "curl_maprintf",
+        "curl_mfprintf",
+        "curl_mime_addpart",
+        "curl_mime_data",
+        "curl_mime_data_cb",
+        "curl_mime_encoder",
+        "curl_mime_filedata",
+        "curl_mime_filename",
+        "curl_mime_free",
+        "curl_mime_headers",
+        "curl_mime_init",
+        "curl_mime_name",
+        "curl_mime_subparts",
+        "curl_mime_type",
+        "curl_mprintf",
+        "curl_msnprintf",
+        "curl_msprintf",
+        "curl_multi_add_handle",
+        "curl_multi_assign",
+        "curl_multi_cleanup",
+        "curl_multi_fdset",
+        "curl_multi_get_handles",
+        "curl_multi_get_offt",
+        "curl_multi_info_read",
+        "curl_multi_init",
+        "curl_multi_notify_disable",
+        "curl_multi_notify_enable",
+        "curl_multi_perform",
+        "curl_multi_poll",
+        "curl_multi_remove_handle",
+        "curl_multi_setopt",
+        "curl_multi_socket",
+        "curl_multi_socket_action",
+        "curl_multi_socket_all",
+        "curl_multi_strerror",
+        "curl_multi_timeout",
+        "curl_multi_wait",
+        "curl_multi_waitfds",
+        "curl_multi_wakeup",
+        "curl_mvaprintf",
+        "curl_mvfprintf",
+        "curl_mvprintf",
+        "curl_mvsnprintf",
+        "curl_mvsprintf",
+        "curl_pushheader_byname",
+        "curl_pushheader_bynum",
+        "curl_share_cleanup",
+        "curl_share_init",
+        "curl_share_setopt",
+        "curl_share_strerror",
+        "curl_slist_append",
+        "curl_slist_free_all",
+        "curl_strequal",
+        "curl_strnequal",
+        "curl_unescape",
+        "curl_url",
+        "curl_url_cleanup",
+        "curl_url_dup",
+        "curl_url_get",
+        "curl_url_set",
+        "curl_url_strerror",
+        "curl_version",
+        "curl_version_info",
+        "curl_ws_meta",
+        "curl_ws_recv",
+        "curl_ws_send",
+        "curl_ws_start_frame"
+      ],
+      "scope": "curl_-prefixed defined dynamic names; full changed ELF type/bind/visibility/object size comparison recorded separately"
+    },
+    "build_log_findings": {
+      "standard_jobs": [
+        130637148366,
+        130637222479
+      ],
+      "visibility_check": "both hosts accept -fvisibility=hidden",
+      "nghttp_recipes": "same pinned donor d2c584, static nghttp2/nghttp3 CMake libraries; libcurl explicitly links those dependencies",
+      "pkg_config_trace": "22 uses pkg-config trace wording,24 uses pkgconf wording; both select staged -lnghttp2/-lnghttp3",
+      "cause": "not yet established: quiet build output does not expose full library compile/link command lines",
+      "next_evidence": "capture generated CMake flags.make and curl libtool/configure linker flags on next coherent verification; do not infer missing functionality merely from fewer internal exports"
+    }
+  }
+}

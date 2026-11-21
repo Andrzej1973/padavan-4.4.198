@@ -1,0 +1,18 @@
+{
+  "implementation": "Strong radio-stop callback in retained RC backend; only initial never-opened admission currently implemented",
+  "result": "PASS backend/mailbox/owner composition ASan/UBSan",
+  "checks": [
+    "no shutdown fence refuses",
+    "entropy failure refuses",
+    "fresh initial IDLE observation succeeds",
+    "retained INITIAL_OFF succeeds only with fresh matching epoch",
+    "busy/pending/START/ACTIVE/STOP/OFF/REJECTED refuse without initial query"
+  ],
+  "source_hashes": {
+    "rc-backend.c": "dd962c0e1ad06ddebfc37a69b88967035b7010edb033ecafeffccef09cc685f8",
+    "check-rc-backend-composition.py": "c570985589d3e396612ea20df7f78ad3222f9efcabd47978e9ec0302dd5cd634"
+  },
+  "remaining": "Previously opened physical radio stop/restart remains refused, including completed software OFF; needs owner-driven completion and appropriate teardown evidence",
+  "target": "not compiled for MIPS yet",
+  "device": "not tested"
+}

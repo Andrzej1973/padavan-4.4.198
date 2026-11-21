@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-20",
+  "status": "prepared-auth-context-signature-composition-host-passed",
+  "scope": "The uninstalled FT AUTH request-context composer now threads the stack-owned context through the private FT_AuthReqRsnValidation prototype, definition and call. No vendor source is installed.",
+  "candidate_manifest": ".scratch/ft-owner-chain-20261120-peer/peer-chain.json",
+  "candidate_manifest_sha256": "4a34fb92f9b8fb0abfe7c3bcbd3e8c938b01cd738afa33493c9f37815c8e7535",
+  "candidate_source_sha256": {
+    "common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+    "include/ft.h": "95465f2a5f52e84a9663de511a5df9d47edcbbfd386dabb60863bd2d5ab67d9b",
+    "ap/ap_auth.c": "eba4dd8dfb4b3ae1e737e6162f7acc66412a9f6d403586e28a0377b6271870c5",
+    "include/rtmp.h": "bde083b8a2eaa481564e3b480b91d1c438e2901356065f37e3963c5fec9e32d3"
+  },
+  "composer_sha256": "3695e19a691c9d4d71ffe0de68fa4bd7487daf53a91b7fe9f5ab3363729ba8fc",
+  "checker_sha256": "eafb7a69a3a6756807068d23baf0c326b59c5351b174f9072e7d7abbe9317920",
+  "verification": {
+    "command": "python3 -m py_compile tools/iot/ft-auth-request-context-composition.py tools/iot/check-ft-auth-request-context.py && python3 tools/iot/check-ft-auth-request-context.py .scratch/ft-owner-chain-20261120-peer/radio-on-retirement-admission",
+    "exit_status": 0,
+    "assertions": [
+      "two private source declarations have identical request-context parameters",
+      "FT_AuthReqHandler forwards the same context argument to validation",
+      "existing/pending AUTH host fixtures and long request lifecycle regressions pass"
+    ]
+  },
+  "supplementary_state_check": {
+    "command": "nim c -r tools/iot/ft_pending_identity_check.nim",
+    "exit_status": 0,
+    "results": [
+      "FT pending BSS+MAC ledger PASS",
+      "FT pending queue ownership/lifecycle PASS",
+      "AP-stop resume contract PASS"
+    ]
+  },
+  "not_proven": [
+    "target compilation",
+    "response-token request/response integration",
+    "native response peer lease/cache lifetime",
+    "production installation",
+    "firmware image or device runtime"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

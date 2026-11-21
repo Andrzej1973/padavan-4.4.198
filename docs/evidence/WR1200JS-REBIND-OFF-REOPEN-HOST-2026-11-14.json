@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-14",
+  "source_base": "ac426d80e8bd0c7f1e00b154a501d75354af1185",
+  "implementation": "tools/iot/rc-backend.c rebind_reopen",
+  "behavior": [
+    "completed rebind OFF fresh observation creates pointer-free same-epoch CLOSED witness",
+    "only completed/unowned dormant legacy context may be retired",
+    "new ordinary runner begins at final stable address, no live context copying",
+    "source rebind routing retained until ordinary runner claims",
+    "failed pre-claim validation keeps source OFF owner and private quiesce available",
+    "new ordinary ON uses CLOSED-reopen without initial idle or physical rebind replay",
+    "public normal OFF after ordinary ON yields new token/serial in same epoch"
+  ],
+  "host_checks": {
+    "check-rc-rebind-reopen.py": "PASS actual RC/owner/reopen admission/stage/commit/open controller/OFF/observers; network and driver adapters injected",
+    "physical_stop_suite": {
+      "session": 9240,
+      "status": "PASS",
+      "parts": 54,
+      "exit_code": 0,
+      "log_sha256": "6a9913e2a82806dd73660e54dc2f9864c8cdf8c75b7e2ba83807739bd7be0537"
+    },
+    "prepared_runtime": "PASS within full54:16 actual copied TUs strict native C11"
+  },
+  "runtime_linked": true,
+  "physical_restart_scheduler_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "direct repeated physical resume before ordinary OFF-to-ON handoff",
+    "checked Main startup and physical restart scheduler",
+    "target compilation and physical acceptance"
+  ],
+  "cleanup": {
+    "test_trees": "TemporaryDirectory automatic removal",
+    "completed_log_bytes": 15250,
+    "completed_log_retained": false
+  },
+  "ci": {
+    "standard1180": "success",
+    "optional1180_source_dispatched": 43599924864,
+    "optional1177": "success"
+  }
+}

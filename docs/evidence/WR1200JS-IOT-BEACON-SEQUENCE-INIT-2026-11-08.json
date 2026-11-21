@@ -1,0 +1,19 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "path": "common/mlme.c",
+  "sha256": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
+  "function": "VOID MgtMacHeaderInit(\n\tIN RTMP_ADAPTER *pAd, \n\tINOUT HEADER_802_11 *pHdr80211, \n\tIN UCHAR SubType, \n\tIN UCHAR ToDs, \n\tIN UCHAR *pDA, \n\tIN UCHAR *pSA,\n\tIN UCHAR *pBssid) \n{\n\tNdisZeroMemory(pHdr80211, sizeof(HEADER_802_11));\n\t\n\tpHdr80211->FC.Type = FC_TYPE_MGMT;\n\tpHdr80211->FC.SubType = SubType;\n\tpHdr80211->FC.ToDs = ToDs;\n\tCOPY_MAC_ADDR(pHdr80211->Addr1, pDA);\n#ifdef CONFIG_AP_SUPPORT\n\tIF_DEV_CONFIG_OPMODE_ON_AP(pAd)\n\t\tCOPY_MAC_ADDR(pHdr80211->Addr2, pBssid);\n#endif /* CONFIG_AP_SUPPORT */\n\tCOPY_MAC_ADDR(pHdr80211->Addr3, pBssid);\n}",
+  "scope": "Actual header initializer with injected HEADER layout; no hardware sequence claim",
+  "result": "4096 Sequence seeds zeroed; -O2 ASan/UBSan PASS; IN annotation marks vendor unused parameter",
+  "active_builder_sites": [
+    512,
+    1699
+  ],
+  "commented_builder_site": 835,
+  "beacon_header_init_sites": [
+    295,
+    636
+  ],
+  "runtime_verified": false,
+  "cleanup": "Temporary C/executable removed"
+}

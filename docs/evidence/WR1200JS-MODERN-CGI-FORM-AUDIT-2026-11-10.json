@@ -1,0 +1,24 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "path": "trunk/user/httpd/cgi.c",
+  "sha256": "0711f0c103d67860edcb48133a23b449c4035c903a381f6f89bdf58fec7fa503",
+  "findings": [
+    "set_cgi overwrites previous value for same decoded name",
+    "init_cgi splits raw ampersand/semicolon, decodes names before storing",
+    "unescape uses overlapping strncpy and unchecked sscanf: malformed and sanitizer validation require attention before actual body-parser execution"
+  ],
+  "component": "modern-form.h validates before legacy decode; not yet bound to body input",
+  "checks": [
+    "canonical duplicate detection incl encoded names",
+    "strict percent escapes and decoded NUL rejection",
+    "raw controls/semicolon and incomplete assignments rejected",
+    "exactly one Modern marker, <=8192 bytes and64 fields"
+  ],
+  "pending": [
+    "exact Content-Length/body admission",
+    "actual CGI parser/candidate decoder integration",
+    "combined HTTP->body->template->NVRAM host fixture",
+    "runtime"
+  ],
+  "runtime_verified": false
+}

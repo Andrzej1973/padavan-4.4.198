@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-20",
+  "scope": "prepared FT first-peer insertion failure boundaries; not installed",
+  "changes": [
+    "Reject an already active destination scope without clearing its lease metadata.",
+    "On publication refusal retire the claimed BSS+MAC ticket, unlock and return NULL before native post-unlock tail; retain poisoned slot ownership."
+  ],
+  "checks": [
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    },
+    {
+      "command": "python3 tools/iot/check-ft-pending-insert.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": "Pinned composition anchors and extracted gate/publication/failure/wrapper fragments with explicit allocation actor; ASan/UBSan. Active-scope rejection and publication-failure injection."
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-pending-insert-composition.py": "29ed7d3fdbe4fc81119f05716c4ac5c2f7d72064c25d7a97d6206ee193b5d542",
+    "tools/iot/check-ft-pending-insert.py": "7f5ebbdf2e215231d6c171bc8daa85d979caabe33439e898709ba09f6520cf65",
+    "tools/iot/ft_pending_identity_check.nim": "f8f328e0beb2878be06d1e067bf840147c7f1de44b0fab57c8b218933eb040e5"
+  },
+  "limits": [
+    "Full native insertion initialization and hardware side effects are modeled, not executed.",
+    "Native AUTH/IAPP request publication and response transaction integration remain incomplete.",
+    "No target compilation, image verification or device acceptance is claimed."
+  ]
+}

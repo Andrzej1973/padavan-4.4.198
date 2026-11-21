@@ -1,0 +1,15 @@
+{
+  "revision": "07ea86de014e104ea2a3092d24b252288558025f",
+  "scope": "source audit of final installed isolated candidate",
+  "source_sha256": {
+    "mcu/andes_core.c": "93594ad22f7607e9ee86700999748b541cdb3cbe89b28291bf035afef19e0304",
+    "mcu/andes_mt.c": "2b4bc20e6374a074f6eba51d5c2413e29652494cef0a3de35005576c7eee7887"
+  },
+  "findings": [
+    "No-wait scatter sender discards dequeue/kickout return and returns initialized success.",
+    "PCI kickout can return failure before ring publication; source also has post-publication MCU_INIT refusal.",
+    "Caller must not inspect consumed msg to recover disposition; fix requires explicit transport ownership and completion contract."
+  ],
+  "target_verified": false,
+  "runtime_verified": false
+}

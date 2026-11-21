@@ -1,0 +1,36 @@
+{
+  "scope": "Experimental operation14 disjoint-lock software commit review",
+  "references": {
+    "release": "tools/iot/driver-api-close-release-binding.inc",
+    "reset": "tools/iot/reset-admission.inc:wr_iot_request_driver_reset and wr_iot_radio_reset_drain",
+    "producer": "tools/iot/prepare-beacon-producer-candidate.py:MBSS_Open gate admission",
+    "predicate": "tools/iot/mbss-close-receipt.h:wr_iot_mbss_closed_reference"
+  },
+  "findings": [
+    "Reset intent is recorded under transition lock before rtnl_trylock; release already owns RTNL, preventing raw reset entry while the locked reference predicate rejects published intent.",
+    "MBSS producer gate open is inserted into virtual MBSS_Open; release requires RTNL and uses separate BcnRingLock snapshots without nesting transition lock.",
+    "Snapshot by itself is not synchronization proof for an arbitrary future producer writer; all additional admission paths must preserve the same lifecycle contract."
+  ],
+  "verification": {
+    "test": "check-driver-api-close-release-binding.py executes actual release binding with injected retirement/probe; 13 fault scenarios plus strict wire checks pass with GCC ASan/UBSan",
+    "new_cases": "reset request, PM suspend intent, removal intent, epoch drift injected immediately before final transition lock, after producer snapshot",
+    "outcome": "All four refuse and retain active CLOSE owner; no packet freeing or network isolation release"
+  },
+  "limits": [
+    "Injected scheduling is not physical concurrency verification.",
+    "This review does not prove DMA/RF completion or safe production activation.",
+    "Full13-path target module pending optional1076/run43356002248."
+  ],
+  "cleanup": "TemporaryDirectory source and test binaries removed automatically",
+  "rc_recovery_step": {
+    "implementation": "wr_iot_close_controller_advance",
+    "invariants": [
+      "At most one progress or release ioctl per invocation",
+      "Reference retirement returns incomplete; explicit owner release is separate",
+      "No automatic CLOSE submission/retry or receipt reset",
+      "Completed release replay issues no ioctl"
+    ],
+    "verification": "Actual controller ASan/UBSan with injected transport counters passed; target pending"
+  },
+  "next_open_check": "Actual wr_iot_driver_owner_query/reserve succeeds after release, invalidates old receipt and rejects old release; SDK mutation and device operation not exercised"
+}

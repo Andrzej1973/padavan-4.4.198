@@ -1,0 +1,22 @@
+{
+  "implemented": "post-submission rejected reopen can capture its new CLOSED witness only after completed rollback and release",
+  "checks": [
+    "seven pre-OPEN failure/retry cases PASS",
+    "post-OPEN rollback/new witness/retry/OFF PASS",
+    "stale serial and incomplete rollback refuse witness PASS"
+  ],
+  "injected": [
+    "driver responses and fixed OPEN identity",
+    "commit",
+    "network resources"
+  ],
+  "sources": {
+    "tools/iot/activation-owner.c": "9b6a7ca62466112bb48a058c209cc814d535ab2a6240e4ee2f05fd3d158a76e0",
+    "tools/iot/reopen-admission.c": "a447be03651eab2bd5a27f2458ec017165aebe12cce7273fca41bb619d0d6c78",
+    "tools/iot/check-reopen-owner.py": "6d540727447fba5fc55d0187475d20826ac33ef405e6616f5c855da77029e3ad"
+  },
+  "final_strict_nonce_rerun_session": 69111,
+  "full_host_suite_session": 14475,
+  "full_log": "/tmp/wr-iot-owner-recovery-preflight.log",
+  "target_runtime": "pending"
+}

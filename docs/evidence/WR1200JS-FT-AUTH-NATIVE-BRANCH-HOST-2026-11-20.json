@@ -1,0 +1,42 @@
+{
+  "scope": "Prepared native over-air AUTH branch with predecessor ra2 wrapper",
+  "head": "783b33422ee321d039638c2c26db338c400a8259",
+  "hashes": {
+    "tools/iot/ft-auth-callback-composition.py": "a763a9fa7a15272859b0410d57d5d298a03fdec908c25e0e5fed5e1d6e38ee59",
+    "tools/iot/check-ft-auth-callback.py": "7d72b5f4e46c56200d8caceb5c246837aa955c27eeadec9bd04339eaacf697ef",
+    "tools/iot/ft-iapp-pending-admission.h": "4ebe38ea0bb0fe73a5eb83ded06b4efaff86c5d7d5ed80aa9e02f76449096f43"
+  },
+  "source_sha256": "eba4dd8dfb4b3ae1e737e6162f7acc66412a9f6d403586e28a0377b6271870c5",
+  "structural_checks": [
+    "composes after existing ra2 mutation wrapper",
+    "no MAC-only insertion fallback in transformed FT branch",
+    "generation advancement precedes reply",
+    "duplicate composition refused"
+  ],
+  "executed_host_scenarios": [
+    "existing-peer success",
+    "existing-peer MLME_FAIL_NO_RESOURCE",
+    "existing-peer allocation failure",
+    "generation exhaustion retains poisoned ownership and suppresses reply",
+    "ordinary rejection reply preserves generation",
+    "first-peer success with real reserve/publish/advance/leave helpers",
+    "first-peer AUTH resource refusal",
+    "first-peer FT-buffer allocation failure"
+  ],
+  "limitations": [
+    "FT_AuthReqHandler crypto/key validation mocked",
+    "first-peer native entry initialization modeled; full vendor insertion body not executed here",
+    "Only transformed FT branch executed, not full outer native authentication function",
+    "Native IAPP request/timeout/response transaction not wired",
+    "Target/feature compilation and device acceptance not performed",
+    "Pending token lifecycle is executed inside modeled insertion actor, not wired into native daemon producer/response handler"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "verified_pending_admission": [
+    "Published pending scope admits only SST_NOT_AUTH with exact BSS/WCID/MAC/generation and ownership",
+    "Foreign wdev and missing visible generation refused",
+    "Token request-begin and response claim use pending scope identity and exact request serial",
+    "Changed entry generation refuses claim; restored exact identity admits once and balances request cleanup"
+  ]
+}

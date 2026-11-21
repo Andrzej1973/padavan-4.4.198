@@ -8,6 +8,13 @@ Start with [docs/AGENT-BOOTSTRAP.md](docs/AGENT-BOOTSTRAP.md). It records the
 approved goal, the agent roles, the current verified and unverified state, the
 environment quirks of the development machine and the first checks to run.
 
+## Навігація проєктом
+
+- [Індекс документації](docs/README.md)
+- [Карта репозиторію](docs/REPOSITORY-STRUCTURE.md)
+- [Правила внесення змін](CONTRIBUTING.md)
+- [Поточний статус](PROJECT_STATUS.md) і [передача роботи](CODEX_HANDOFF.md)
+
 ## Selected packages and features
 
 The [WR1200JS configuration](configs.build/wr1200js.config) enables:
@@ -18,7 +25,7 @@ The [WR1200JS configuration](configs.build/wr1200js.config) enables:
 - **USB and storage:** USBIP, USB printer sharing, HID, NTFS-3G, filesystem tools and zram.
 - **Wi-Fi and interface:** Band Steering integration (off by default), local Wi-Fi QR previews, vendor logo, Ukrainian and Russian translations.
 
-Commented options are excluded. CAKE/SQM, TOR and ZAPRET are excluded from the current profile. Package selection and successful compilation do not prove device operation; Linux 4.4 router runtime verification is still pending.
+Commented options are excluded. CAKE/SQM is included with factory runtime OFF; TOR and legacy ZAPRET remain excluded from the current profile. Package selection and successful compilation do not prove device operation; Linux 4.4 router runtime verification is still pending.
 
 ## Build and download
 

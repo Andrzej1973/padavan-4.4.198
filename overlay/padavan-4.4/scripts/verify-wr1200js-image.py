@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Read-only uImage checks matching Padavan HTTP upload criteria.
+"""Read-only WR1200JS uImage structure and embedded HNAT policy checks.
 
-This checks image structure, not bootability or live-router flash capacity.
+This does not establish bootability, runtime isolation or live-router capacity.
 """
 import argparse
 import hashlib
 import json
+import lzma
+import runpy
 from pathlib import Path
 import struct
 import zlib
@@ -30,8 +32,18 @@ checks = {
     "payload_crc": (zlib.crc32(data[64:64 + payload_size]) & 0xffffffff) == dcrc,
     "size_range": 64 + 2 * 1024 * 1024 <= len(data) <= args.max_size,
 }
+dtb_policy = {'scope': 'Not inspected because uImage structure failed'}
+checks['iot_hwnat_dtb'] = False
+if all(passed for key, passed in checks.items() if key != 'iot_hwnat_dtb'):
+    inspect = runpy.run_path(str(Path(__file__).resolve().parents[3] /
+                                'tools/iot/hwnat-image-policy.py'))['inspect_image']
+    try:
+        dtb_policy = inspect(data)
+        checks['iot_hwnat_dtb'] = True
+    except (ValueError, lzma.LZMAError) as error:
+        dtb_policy = {'error': str(error), 'runtime_verified': False}
 report = {
-    "scope": "Padavan uImage upload structure; device boot unverified",
+    "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
     "image": args.image.name,
     "bytes": len(data),
     "sha256": hashlib.sha256(data).hexdigest(),
@@ -39,9 +51,11 @@ report = {
     "architecture_id": arch,
     "compression_id": compression,
     "checks": checks,
+    "iot_hwnat_dtb_policy": dtb_policy,
 }
 args.report.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 failed = [key for key, passed in checks.items() if not passed]
 if failed:
-    raise SystemExit("Firmware structure rejected: " + ", ".join(failed))
+    raise SystemExit("Firmware structure rejected: " + ", ".join(failed) +
+                     (": " + dtb_policy["error"] if "error" in dtb_policy else ""))
 print("WR1200JS image structure checks passed; boot remains unverified")

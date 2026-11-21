@@ -1,0 +1,28 @@
+{
+  "scope": "actual disabled restore/release/WAN/terminal-IAPP composition",
+  "checks_passed": [
+    "check-radio-on-disabled-followup.py",
+    "check-radio-on-followup.py"
+  ],
+  "cases": [
+    "default IAPP gate0 stays pending/inert",
+    "paired gate1 one child",
+    "unknown child drains without replay",
+    "failed child retained",
+    "idle/Guest/multicast proof loss holds LED/IAPP",
+    "fresh DONE idle/profile check",
+    "profile drift after DONE refused"
+  ],
+  "invariants": [
+    "WAN/LED/child at most once",
+    "trusted callback selects disabled idle not fabricated ACTIVE",
+    "service guard around parent+idle+profile reads",
+    "no ra2 OPEN"
+  ],
+  "limits": [
+    "driver/SDK/child actors injected",
+    "private stable root admission/retirement and shutdown integration remain",
+    "no public entry binding or target acceptance"
+  ],
+  "runtime_verified": false
+}

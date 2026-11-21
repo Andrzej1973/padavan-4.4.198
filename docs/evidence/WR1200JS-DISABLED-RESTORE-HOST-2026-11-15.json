@@ -1,0 +1,26 @@
+{
+  "scope": "generation and actual Main/Guest/multicast/services restore with desired IoT disabled",
+  "implemented": [
+    "generation accepts enabled0 only with empty SSID/PSK request fields",
+    "explicit saved OFF profile scanner selected",
+    "Main current profile uses selected generation policy"
+  ],
+  "checks_passed": [
+    "check-radio-on-disabled-generation.py",
+    "check-radio-on-disabled-main.py",
+    "check-radio-on-disabled-restore.py",
+    "check-radio-on-generation.py",
+    "check-radio-on-main.py",
+    "check-radio-on-owner.py",
+    "check-physical-stop-client-preparation.py"
+  ],
+  "limits": [
+    "SDK and driver boundaries injected",
+    "restore PREPARED is not terminal OFF completion",
+    "public ON root still only enabled1",
+    "normal handoff still enabled1",
+    "no resource release permission for disabled branch yet"
+  ],
+  "target_verified": false,
+  "runtime_verified": false
+}

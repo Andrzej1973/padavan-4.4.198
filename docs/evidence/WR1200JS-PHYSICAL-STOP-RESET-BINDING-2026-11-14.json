@@ -1,0 +1,15 @@
+{
+  "scope": "local actual reset fragment source transform and dormant installer extension",
+  "implementation": "existing transition-lock request and pending-drain gates refuse when physical lifetime active; does not alter raw reset functions",
+  "checks": [
+    "active lifetime refuses PSE/PDMA request bytewise unchanged radio",
+    "pending reset drain under active lifetime does not execute or mutate radio",
+    "baseline reset regression preserved",
+    "duplicate transform refused",
+    "full17part suite23713 exit0 O2 ASan UBSan",
+    "actual pinned prepare-peer-reset-executor layer composed first; ARM refusal returns executor to idle and all locks/RTNL released PASS"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "limits": "full composed vendor reset fragment and target verification pending; other reset/PM admission remains separately audited"
+}

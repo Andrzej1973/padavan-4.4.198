@@ -1,0 +1,13 @@
+{
+  "run": 44363536738,
+  "artifact": 14457392222,
+  "revision": "a59d9f1f3a03f4ab555205464f64254618dc06a1",
+  "module_sha256": "6c195301eb3fabd9b86d00696762aa3d0861635b0b31ffe56b0a59dbc8acc66e",
+  "module_bytes": 6054832,
+  "elf32_little_endian_mips_verified": true,
+  "prepared_source_files_independently_hashed": 21,
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Previous a59d9f1f generation/request candidate; excludes later 5301fd6b complete arbitration activation"
+}

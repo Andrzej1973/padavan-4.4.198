@@ -1,0 +1,36 @@
+{
+  "run_id": 42381483487,
+  "artifact_id": 13579235252,
+  "source": {
+    "dispatch_revision": "7bedb0018ac881ff6cfb38f537413638ff716523",
+    "requested_revision": "28d13172bc7d19bc10a81318dbc543c8c6793345",
+    "verified_revision": "28d13172bc7d19bc10a81318dbc543c8c6793345",
+    "runtime_verified": false
+  },
+  "modules": {
+    "baseline": {
+      "module_bytes": 5789168,
+      "module_sha256": "90762600e6db8e617eb901be47810274eda2ea356007f476a54dc56b01c28646",
+      "report_sha256": "66e474906c1bd58feba670bcfef46464cddfa79a3dde7697e0a2d28d718f2b76",
+      "elf": "ELF32 LE MIPS relocatable"
+    },
+    "wsc": {
+      "module_bytes": 6398660,
+      "module_sha256": "894e39b6ac3950966318eedd1ddafa95332dae3b742b526cb65870e9655eca7f",
+      "report_sha256": "ab12ba2f1fef1e1fb17352b959a91288869bc47dbfa8bf01ee88dcb89462bb18",
+      "elf": "ELF32 LE MIPS relocatable"
+    },
+    "reload": {
+      "module_bytes": 5791240,
+      "module_sha256": "99296519d93314f9afae6787c0785c9db36634ba1879c2f28c3cdd7c7036bb11",
+      "report_sha256": "5f7b92640aecf63445320ba4028f462072cc65cd4ecc34be332cb6549138a2ef",
+      "elf": "ELF32 LE MIPS relocatable"
+    }
+  },
+  "pinned_firmware_identity_matches_local": true,
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Isolated firmware-identity audit package; later channel guard diagnostic and coexistence changes not covered.",
+  "inspection": "ZIP/module hashes independently checked in memory; no binaries retained."
+}

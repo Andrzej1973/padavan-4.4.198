@@ -1,0 +1,28 @@
+{
+  "scope": "Local startup network rollback strictly before any possibly submitted OPEN or DNS commit",
+  "source": [
+    "start-network-rollback.c",
+    "start-network-rollback.h"
+  ],
+  "sequence": "Current initial-idle identity, owned guard/shutdown, bridge DOWN/detach/remove, retained DNS abort if owned and attempted, original settings restore, absence/state observation, snapshot finish. One phase per call.",
+  "refusal": "OPEN confirmed/recovery/submitting or unexpected nonzero driver attempt identity refuses. Unknown DNS state retains phase. Pending shutdown stays deferred; foreign process cannot replay completion.",
+  "verification": "PASS actual rollback ASan/UBSan with injected resources: bridge/DNS/settings/finish failure retry, OPEN refusal, preserved pending shutdown, once-only completed replay and owner mismatch. Initial strict compiler indentation warning fixed before pass.",
+  "limits": "Not staged/published/target-compiled or production-bound. Real-resource composition and post-OPEN CLOSE recovery integration pending. No full rollback/runtime claim.",
+  "runtime_verified": false,
+  "cleanup": "Temporary fixtures/binaries removed automatically",
+  "actual_composition": "PASS linked actual admission/stage/snapshot/rollback ASan/UBSan: partial restore retries, exact9 baseline values, all9 foreign value changes refuse observe/release with guard retained; DNS/bridge/external observations injected.",
+  "readback_fix": "Added request_snapshot_restored_current; rollback observes it and rechecks immediately before finish. A historical restored marker alone is insufficient.",
+  "fixture_correction": "Nested reusable main macro initially conflicted; guarded fixture main and reran successfully.",
+  "prepared_rc": {
+    "source": "pinned c25283e RC:40 files,703580 bytes",
+    "checks": [
+      "prepare-rc.py",
+      "prepare-activation-header-check.py exact source/header/object identity",
+      "native GCC gnu11 Wall Wextra Werror O2 compilation of staged rollback TU"
+    ],
+    "result": "PASS",
+    "target": "MIPS ABI workflow now includes rollback TU; result pending",
+    "runtime_bound": false,
+    "cleanup": "TemporaryDirectory removed automatically"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "scope": "source assertions for initialization ordering and destructive error unwind",
+  "source_sha256": {
+    "common/rtmp_init_inf.c": "e4c1357fede7dc933d52c8cd41f50365c7fffed28b2c0d45e656ddd51b4868ef",
+    "common/rtmp_init.c": "668f930a94303f009dc0152d6c7b71cd26b9980b4a5c78c54b0774d166a5bef8"
+  },
+  "passed": true,
+  "cfg_failure_unwind": [
+    "err5:",
+    "rtmp_cfg_exit(pAd);",
+    "err4:",
+    "MlmeHalt(pAd);",
+    "RTMP_AllTimerListRelease(pAd);",
+    "err3:",
+    "RtmpMgmtTaskExit(pAd);",
+    "err2:",
+    "RtmpNetTaskExit(pAd);",
+    "err1:",
+    "hif_sys_exit(pAd);"
+  ],
+  "mutations_before_cfg": [
+    "hif_sys_init",
+    "RtmpNetTaskInit",
+    "RtmpMgmtTaskInit",
+    "MlmeInit"
+  ],
+  "finding": "denying only UserCfgInit/rtmp_cfg_init is too late: caller tears down retained adapter resources through err5",
+  "outer_open_mutations_before_init": [
+    "DiagProcInit",
+    "MCU sleep clear",
+    "profile load",
+    "IRQ request",
+    "IRQ init"
+  ],
+  "outer_failure_cleanup": "rt28xx_open releases IRQ on rt28xx_init FALSE",
+  "startup_insertion_chain": [
+    "rt28xx_init",
+    "APStartUp",
+    "AsicUpdateWdsRxWCIDTable",
+    "wr_iot_wds_insert_transaction",
+    "MacTableInsertEntry"
+  ],
+  "startup_reservation_hazard": "blanket insertion denial held through complete init would reject configured WDS startup peers",
+  "required_binding": [
+    "reserve before rt28xx_open first side effect, not merely inner rt28xx_init",
+    "admission refusal returns directly without entering initialization or IRQ unwind",
+    "carry exact serial through config clear, then explicitly hand off to startup admission before APStartUp",
+    "startup owner must distinguish authorized insertions from unrelated mutation; no global owner bypass",
+    "retain on partial failure; do not release into automatic reuse",
+    "audit timer task startup, full clears, shutdown and adapter free against same owner"
+  ],
+  "parser_note": "UserCfgInit contains nested column-zero closing brace; first newline brace is not a reliable full-function boundary",
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false
+}

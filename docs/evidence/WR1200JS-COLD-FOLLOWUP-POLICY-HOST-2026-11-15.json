@@ -1,0 +1,26 @@
+{
+  "scope": "nonsecret Guest/service/multicast policy retained across cold parent cleanup",
+  "checks": {
+    "actual_cleanup_followup_all_WAN_plans_asan_ubsan": "PASS",
+    "Guest_auth_multicast_RSSI_policy_drift_refused": "PASS",
+    "real_SIGTERM_release_composition": "PASS",
+    "release_preparation_and_postrelease_observers": "PASS",
+    "prepared_RC_C11_objects": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-policy.c": "5dcbde793c81cbcc88fc86ded76a000a54baf608fcbc0507b2aa6869c6124073",
+    "tools/iot/cold-on-policy.h": "4a246b84dfd57514c9ec03d3b6fe3a19e4adf46f9b3fc980a2c28ed66855e6eb",
+    "tools/iot/cold-on-release.c": "44f6a531f499aaa2ea9341a809fbc2a93db05fef641ea6c1714402b61d8377cc",
+    "tools/iot/cold-on-release.h": "a3bd2649c68365c3430185452a35df67065cf5fffd6ca1a71154db39a35d1aa0",
+    "tools/iot/rc-cold-followup.inc": "af19a9e689a12d5160061403d1560734d745a3da0cedc58394d2eca26d877b43",
+    "tools/iot/check-rc-cold-wan.py": "87be537aa7788555d158a022c5e107e3f7172f7cf5a8bfb406391ab25b3ab249"
+  },
+  "runtime_cleanup_followup_composed": false,
+  "target_verified": false,
+  "physical_verified": false,
+  "remaining": [
+    "LED/IAPP owner and terminal retirement",
+    "runtime cleanup/followup composition",
+    "post-UP shutdown/public cold entry"
+  ]
+}

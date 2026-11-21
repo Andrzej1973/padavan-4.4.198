@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-02",
+  "scope": "child/root retirement source binding audit",
+  "findings": [
+    "pci-child-snapshot.inc calls wr_child_teardown_begin only",
+    "no production candidate include calls wr_child_teardown_close_done or wr_child_teardown_complete found in tools/iot include inventory",
+    "RtmpPhyNetDevExit guards child remove return statuses then unregisters root netdev and returns TRUE",
+    "pci-retirement children_done requires WR_CHILD_DONE; main_detached requires separate callback quiescence receipt"
+  ],
+  "implication": "cannot skip to final_work_joined or release claim; child ledger completion and root callback retirement must be source-bound first",
+  "next": "trace each child family synchronous removal/registry removal and bind ledger completion to verified outcomes",
+  "runtime_verified": false
+}

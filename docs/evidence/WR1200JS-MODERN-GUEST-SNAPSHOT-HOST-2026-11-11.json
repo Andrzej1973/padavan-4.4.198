@@ -1,0 +1,45 @@
+{
+  "scope": "unpublished isolated Guest public snapshot precondition",
+  "fields": [
+    "enable",
+    "ssid",
+    "closed",
+    "auth_mode",
+    "wpa_mode",
+    "crypto",
+    "lan_isolate",
+    "ap_isolate",
+    "macrule",
+    "mcs_mode",
+    "date_x",
+    "time_x",
+    "time2_x"
+  ],
+  "request_names": "wr_modern_guest_expected_<field>; compared to selected rt/wl_guest_<field>",
+  "checks": [
+    "13 mismatched snapshots rejected before secret read with unchanged plan",
+    "13 missing snapshots rejected before secret read",
+    "joined endpoint preserves newer Other Admin SSID with zero writes/commit/notify/secret reads",
+    "whole-request replay old snapshot rejected with no extra writes/commit/notify",
+    "existing24 endpoint and171-name union cases pass",
+    "internal reload reason and distinct actual HTML diagnostic for missing/changed public snapshot;24 joined stale replays and newer-SSID witness"
+  ],
+  "limits": [
+    "optimistic compare, not atomic CAS/lock",
+    "no coherent snapshot guarantee against external NVRAM writers during compare/apply",
+    "secret-only changes not detected by public snapshot; keep reads current key",
+    "no server request-ID ledger or structured conflict response yet",
+    "UI Apply disabled; not production/target/runtime verified",
+    "New isolated JSON route uses application states with HTTP200; no HTTP409 contract or client binding"
+  ],
+  "runtime_verified": false,
+  "scratch_removed": true,
+  "files_sha256": {
+    "guest-adapter.h": "bf9d9cbd4a4aa2bd7ff01c862bcfc17a5b73d08ce0ed932f53f33cbc2eed7712",
+    "check-guest-adapter.c": "b9573aa30651f85a5a417a4ee56ce8354b5bff12b0366ec3978a31ff801d1290",
+    "guest-persistence-main.c.inc": "0ddd7d332a821a115c8f0ce0d980cacdd3c594406cbab63744a9139c87da7fc5",
+    "guest-endpoint-main.c.inc": "06d2ff270fd4ca947998994e11cde2f19559ccc026fa84675990534ddd166739",
+    "guest_endpoint_fixture.py": "3abf3d8a2e2b6c3d18ce4844e062c2507e95ff5c7e5137282bc1efe6cfbdbc9b",
+    "prepare-guest-candidate.py": "6d06ca587c77939d98ec5d5d78136c30e421c170b83a9a835bdd090525d87649"
+  }
+}

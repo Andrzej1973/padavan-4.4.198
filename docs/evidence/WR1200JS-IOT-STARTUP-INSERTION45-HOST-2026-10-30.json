@@ -1,0 +1,48 @@
+{
+  "input_sha256": {
+    "mgmt/mgmt_entrytb.c": "ddb7a7b574feb06a652ff5ad19675aa8c23301f1e22b0895c0bc6e5a2c668ab1",
+    "include/rtmp.h": "42ebf6a4245ce395eb5ad4b14d8976f80c19ed8a24e47fddec906db77180023c"
+  },
+  "output_sha256": {
+    "mgmt/mgmt_entrytb.c": "7cd8125a0ac1abea99038b25fb2e6e529bd911816733c5966f51a29b56b0bd2d",
+    "include/rtmp.h": "3b438be8e42123238d6e04162680989613268c2b2b39b9afd5900e1d0213e21a"
+  },
+  "scope": "private insertion authorization and public wrappers; lease claim caller/WDS chain absent",
+  "wds_caller_bound": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "passed": true,
+  "host_checks": [
+    "exact ticket/lease and WDS-only insertion admission",
+    "phase owner regression",
+    "dispatch regression"
+  ],
+  "compiler_flags": [
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror"
+  ],
+  "single_use_lease_admission": true,
+  "source_assertions": [
+    "gate under MacTabLock before mac_entry_reset",
+    "public legacy wrapper supplies NULL/0",
+    "explicit startup wrapper fixes ENTRY_WDS/OPMODE_AP",
+    "candidate owner header matches new single-use helper"
+  ],
+  "full_insertion_body_executed": false,
+  "full_regression_run": false,
+  "full45_replay_run": false,
+  "updated_owner_header_sha256": "0b57676a3200b6a82213a7898a8b15aacd5721f78ec79054b891a4970abb1563",
+  "open_issues": [
+    "WDS caller has not claimed or passed lease yet",
+    "outer open/config/startup handoff not bound",
+    "full clears and adapter free still unbound",
+    "older insertion extractors need private body anchor adaptation",
+    "no target compilation or kernel concurrency proof"
+  ]
+}

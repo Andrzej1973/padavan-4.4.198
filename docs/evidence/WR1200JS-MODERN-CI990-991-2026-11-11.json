@@ -1,0 +1,93 @@
+{
+  "runtime_verified": false,
+  "runs": [
+    {
+      "run_id": 42960901811,
+      "artifacts": {
+        "board-build-status-wr1200js": {
+          "id": 13829851532,
+          "board-build-status.json": {
+            "board": "wr1200js",
+            "status": "success"
+          }
+        },
+        "verification-source": {
+          "id": 13829680506,
+          "verification-source.json": {
+            "dispatch_revision": "abb438f579215c86cb22e94a03ca7f9ff57334dc",
+            "requested_revision": "",
+            "verified_revision": "abb438f579215c86cb22e94a03ca7f9ff57334dc",
+            "runtime_verified": false
+          }
+        }
+      }
+    },
+    {
+      "run_id": 42960387364,
+      "artifacts": {
+        "modern-http-candidate": {
+          "id": 13830055575,
+          "independent_elf": {
+            "bytes": 352024,
+            "sha256": "23e22c56678a5afb13a364060e03c68cf625198f98594635c75bc2103d82788d",
+            "elf": "ELF32LE MIPS"
+          },
+          "result.json": {
+            "scope": "Isolated complete target HTTP candidate compile/link, not installation or runtime",
+            "repository_revision": "b6a8a0ca43abe0a5afcb9bd9ebc9e78e2907f9e3",
+            "production_before": {
+              "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+              "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+            },
+            "target_compiled": true,
+            "production_installed": false,
+            "runtime_verified": false,
+            "candidate_web_ex_sha256": "45f6922ef0707a676195b7a3af6f091634137535ac787829a22b59bd8f13f89e",
+            "command": [
+              "make",
+              "-C",
+              "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk",
+              "user/wr-modern-http-build-cx3t9sb6_only",
+              "TOOLCHAIN=mipsel-linux-uclibc",
+              "CONFIG_CCACHE=y"
+            ],
+            "compile_exit_code": 0,
+            "binary_bytes": 352024,
+            "binary_sha256": "23e22c56678a5afb13a364060e03c68cf625198f98594635c75bc2103d82788d",
+            "elf": "ELF32 little-endian MIPS",
+            "candidate_headers_sha256": {
+              "password-intent.h": "1fa1af3ad5352d9496957edec88ae9ed360cfc0137c20a6d4fb1428fa468908e",
+              "password-request.h": "57ca6730dddd1c5a3769a38fa2029e9cd7260784aa9425d1c8417bfc6aebd298",
+              "guest-schedule.h": "da216a1fc4815368638015598a5c2b843f65dc0a286eccf4d29b4688a5c7fe3a",
+              "guest-request.h": "f3be64128acdd44bc2a5d2259eb0af88c156a8539224baeffef5c291824be93b",
+              "guest-adapter.h": "95662b7808bd12ea03ef97f02186f131f944897253539edaf399ec1a5a4281a7",
+              "guest-transport.h": "0d26166113d47efd03fdbf019303a0fd5a9794f981e4f31c6b49c7181db27486"
+            },
+            "production_after": {
+              "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+              "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+            },
+            "production_unchanged": true,
+            "scratch_removed": true
+          }
+        },
+        "board-build-status-wr1200js": {
+          "id": 13829593576,
+          "board-build-status.json": {
+            "board": "wr1200js",
+            "status": "success"
+          }
+        },
+        "verification-source": {
+          "id": 13829315573,
+          "verification-source.json": {
+            "dispatch_revision": "b6a8a0ca43abe0a5afcb9bd9ebc9e78e2907f9e3",
+            "requested_revision": "b6a8a0ca43abe0a5afcb9bd9ebc9e78e2907f9e3",
+            "verified_revision": "b6a8a0ca43abe0a5afcb9bd9ebc9e78e2907f9e3",
+            "runtime_verified": false
+          }
+        }
+      }
+    }
+  ]
+}

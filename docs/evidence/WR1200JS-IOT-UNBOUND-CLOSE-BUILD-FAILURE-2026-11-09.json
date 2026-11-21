@@ -1,0 +1,32 @@
+{
+  "failed_run": 42554628428,
+  "verified_source_revision": "0e2755df034891a1f860aa932b1f5c19af63946f",
+  "monitor_run": 42559819805,
+  "monitor_artifact": 13648712141,
+  "monitor_artifact_name": "agent-build-error-42559819805",
+  "failed_job_id": 128969595414,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "original_log_confirmed_errors": [
+    "driver-api-close-progress-ioctl.inc:4 wr_iot_driver_close_progress_ioctl defined but not used",
+    "driver-api-close-entry.inc:6 wr_iot_driver_close_reply defined but not used"
+  ],
+  "root_cause": "Ordinary driver TU includes staged bundle with two intentionally uninstalled static entry roots under Werror=unused-function; previous standalone probe referenced them and hid this class.",
+  "fix": "Annotate only two unbound roots with GCC unused attribute; keep Werror and all dispatch/lifecycle gates intact.",
+  "regression_before_fix": "Actual entry fixture prefix with no caller reproduces unused-function compile error",
+  "sha256": {
+    "tools/iot/driver-api-close-entry.inc": "a6c6a1bebb50d1d2c59c0d17718022f3d2c6eddc49a5a0c7b3749a7e9700559a",
+    "tools/iot/driver-api-close-progress-ioctl.inc": "8ee111a038678892db6e44bde84330e6017637fdf1dda7fbe4a0eb542967cbbc",
+    "tools/iot/check-close-unbound-build.py": "4fabec0fabc7e0acd33ca8e97d3f4950aff2051616928cfe2d614f8f895345dd",
+    "tools/iot/check-close-bundle-assets.py": "cdfae0bf76465b4edf4e6d9dd72718c9e82a5d78d40c7e7763bd4f224e62c717"
+  },
+  "monitor_assessment": "Correct failed run/job/step and both causal errors present. Earlier nonfatal matches are explicitly heuristic; no parser change justified for this case.",
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": "Monitor/job logs read in memory, regression native executables temporary",
+  "local_verification": [
+    "Unbound actual-root compile warnings-as-errors PASS",
+    "Bundle closure/integration/manifest and nested unbound-root test PASS",
+    "All22 optimized ASan/UBSan CLOSE fixtures PASS",
+    "git diff whitespace check PASS"
+  ]
+}

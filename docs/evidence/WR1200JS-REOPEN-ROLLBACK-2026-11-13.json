@@ -1,0 +1,22 @@
+{
+  "scope": "local reopen pre-OPEN rollback; no new driver OPEN or device acceptance",
+  "implementation": [
+    "Explicit reopened context; previous CLOSED witness checked each phase",
+    "Reject any new OPEN attempt identity/nonzero nonce, even if phase says not submitted",
+    "Bridge/DNS cleanup in original order; attempted DNS provenance required",
+    "Restore/readback9-field snapshot and guard release only last"
+  ],
+  "checks": [
+    "ASan UBSan actual snapshot/restore rollback fixture PASS",
+    "Missing witness refuses before cleanup",
+    "Nonzero new attempt identity/nonce refuses",
+    "Partial restore retries and all9 foreign baseline drift refuse completion",
+    "Initial-idle query count unchanged during rollback"
+  ],
+  "limitations": [
+    "Fixture admission/staging setup uses existing initial helpers before setting reopened marker; not full ON/OFF/ON",
+    "Driver CLOSED and network/DNS resource calls injected",
+    "Actual witness/network/rollback composition and runner integration pending"
+  ],
+  "cleanup": "TemporaryDirectory tests removed; no retained scratch"
+}

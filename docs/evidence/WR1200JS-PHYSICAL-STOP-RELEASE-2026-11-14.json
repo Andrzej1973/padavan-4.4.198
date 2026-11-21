@@ -1,0 +1,15 @@
+{
+  "scope": "actual adapter RELEASE primitive, dormant source only",
+  "implementation": "exact saved ARM tuple and nonce plus checked Main completion; detach COMPLETE record/pins under MacTabLock, return extras outside locks, end lifetime then commit PID-owned terminal cache",
+  "checks": [
+    "wrong OPEN token refuses without pin/PID leak",
+    "matching checked software completion releases extras to baseline",
+    "three RELEASED reply retries do not repeat cleanup",
+    "strict C11 O2 ASan UBSan fixture PASS",
+    "premature RELEASE before Main completion returns EAGAIN and retains extras/PID baseline, latest fixture54025 PASS",
+    "full24part suite13814 exit0; latest premature-release fixture54025 separately PASS"
+  ],
+  "limits": "hardware stages injected; no ioctl endpoint, physical acceptance or target claim",
+  "target_compiled": false,
+  "runtime_verified": false
+}

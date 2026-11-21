@@ -1,0 +1,69 @@
+{
+  "run_id": 42554625088,
+  "verification_artifact": 13647841290,
+  "candidate_artifact": 13648735114,
+  "verification_source": {
+    "dispatch_revision": "ae1a32b46b77ba227ebd116508bcd00ef3530c6d",
+    "requested_revision": "6fa32ef0b16205b00c4e3596790a46074044a56a",
+    "verified_revision": "6fa32ef0b16205b00c4e3596790a46074044a56a",
+    "runtime_verified": false
+  },
+  "target_report": {
+    "status": "passed",
+    "scope": "staged CLOSE bindings in actual rt_main_dev TU; not linked or installed",
+    "runtime_verified": false,
+    "endpoint_installed": false,
+    "resource_retirement_verified": false,
+    "command_sha256": "788be031faf105956a71c60c98f7eac93efb8db952108da8eb8fe3e5423fe563",
+    "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+    "binding_source_sha256": {
+      "driver-api-close-finish.h": "00cd558ddd51ab44d6505598369bf6a7e49b391557a21a051017a049a7cd7c1a",
+      "driver-api-close-recovery.h": "63beb5120f8da45ae661ea0307336ba3c143a5f1887d7e6b43bd10e79f67ec25",
+      "driver-api-close-progress-match.h": "2c57eabab319696cdbe7eb379e538f4caa7e8dc1d86cebfce8217fffebdea5b2",
+      "driver-api-close-enter.inc": "34b23d8f3bcfffeecb4fab47f8932a2e1a373fdac3faef83bf6854fb8d65859f",
+      "driver-api-close-finish-binding.inc": "b123c6be45872baba99433354a12a919783e1a50de8e40152fa304472da81e8d",
+      "driver-api-close-recovery-binding.inc": "e4cd77a065049c8d91cff779c37c7274ba65ad42b344f0fb326a1c54a5b16290",
+      "driver-api-close-finish-recovery.inc": "fc79167c1ef971c8eaf6ed020fafa55c550133e5175db9b6e7e1ecba8173924a",
+      "driver-api-close-entry.inc": "b0d29c2ce5f611f778377d9a83fa572c4edb515c75a14bd208c32fe874bc5d0d",
+      "driver-api-close-synchronous-put.h": "d3a4c0a0d5c700cc6b119503573ac755d113001aac5a3f7cf17f675240e4db54",
+      "driver-api-close-synchronous-put.inc": "4fcb51ec0bf1885d3396958acb3ff8a96db52179114c639e0d89617f4654dcf2",
+      "driver-api-close-retirement.h": "bb8e8d53ca20d277a4d3208c5a3b34e9a79e6b422622e0b795074e6f19b7f279",
+      "driver-api-close-retirement-binding.inc": "1b33ad7b6263caf060065b5c94af25bb5b91e54a8df2e849247b7f7b47da0fce",
+      "driver-api-close-retirement-create.inc": "b5dfba5b3bc304a4aa60d083826ad963b0ba5b948cc84db58c3cd88725c0014b",
+      "driver-api-close-retirement-cancel.inc": "2d7844b4d4e0d85904fbef7da98f1d154753e0e2fe8e8e0c4bf865ee7d46f797",
+      "driver-api-close-retirement-start.inc": "16dbc7e9fe15689bc6dd9d50fd8313de930a782d6b011f3d2682f280c7167f54",
+      "driver-api-close-retirement-thread-entry.inc": "711f4a56fd95604541a57c887a895d2ee11b3fa7faafcf6ad0a1187990566e57",
+      "driver-api-close-retirement-thread-body.inc": "2974c98887e752cca2d0ecc9e49123d6b92390f5d36923c30ae3dbe2d1d5d7b7",
+      "driver-api-close-retirement-launch.inc": "257f268175096ec33be9f1692a238016d64e680970d130b3707a3c58c5e94370",
+      "driver-api-close-retirement-reconcile.inc": "245fcecc91383e617c6ed1c6a726eb371b3cbfb888b475ff3df6cf6649149f1b",
+      "driver-api-close-progress.inc": "2b66d273c181965be2520ff3d7a2353f29bd15f8aba83b59177ccf6d65c09bc1",
+      "driver-api-close-progress-wire.h": "e1c546e1651b66a3e3fde66f22cb4d2c1234974c2412e948584e102243b7294e",
+      "driver-api-close-progress-entry.inc": "d418aafd3096a8f29ff7a62e1e1088b8cebe90dddf62ed413e16d78c4c119cb4",
+      "driver-api-close-progress-ioctl.inc": "0b5748011e5c8e595ba471dc2e75b9aec8e4379f6dd5b99f89c53155299f621e"
+    },
+    "driver_source_sha256": "56383f21fabef62ffa515a8e117356302767f38f5338dc6c0881e94631330329",
+    "retirement_locked_binding_compiled": true,
+    "nonreturning_module_exit_compiled": true,
+    "stopped_kthread_create_compiled": true,
+    "thread_exit_context_checks": "designated current task, PF_KTHREAD, not PF_WQ_WORKER; compile only",
+    "object_sha256": "182a00355fb5985090e2f4883264a265f4adab2ee4c141499bbaaaf4ab17194a",
+    "object_bytes": 238328,
+    "probe_symbol_bytes": 5560,
+    "probe_source_sha256": "6ac051f27a6f80b680b052e7cd35a1cd78d3198694f6571b7f3ce3c3089bff33"
+  },
+  "independent_binaries": {
+    "close-bindings-target-tu.o": {
+      "bytes": 238328,
+      "sha256": "182a00355fb5985090e2f4883264a265f4adab2ee4c141499bbaaaf4ab17194a",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    "mt76x3_ap.ko": {
+      "bytes": 5874844,
+      "sha256": "287d7c80ffd9e5dd129f95282f85b91e5ab83694ec6d7bd801d201e09e640baa",
+      "elf": "ELF32 little-endian MIPS"
+    }
+  },
+  "runtime_verified": false,
+  "cleanup": "ZIPs read in memory, no extracted tree retained",
+  "limits": "Exact 6fa32ef target only; not later ordinary bundle, registry fix or RF/reopen acceptance."
+}

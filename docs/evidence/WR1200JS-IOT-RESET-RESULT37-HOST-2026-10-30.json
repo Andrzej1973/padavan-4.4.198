@@ -1,0 +1,197 @@
+{
+  "input_sha256": {
+    "mgmt/mgmt_entrytb.c": "2876e9cb51ab004b9508ee9645ad204e55b8aeb0086359daf5666e200f377788",
+    "include/rtmp.h": "af21f28708b443bf42a33f30f7fdc365d21865d56caf1ffc59b2cb5bd2999bf3",
+    "ap/ap.c": "870bc937b71a1647f49dbc069dbda64402f6ef0c1ebdb5afcbfbef34da738c7b",
+    "ap/ap_cfg.c": "197e5b6cf873d70164ce74a3fa090d05119fede919e9a460424b447050dda16e",
+    "common/cmm_info.c": "7c63c25e3bde70b6965c6cba06b7d8b09c2742fefaddf314ae60f12bfd75463d"
+  },
+  "output_sha256": {
+    "mgmt/mgmt_entrytb.c": "e6515864f6fc87950f269e1f79015bc67eda4a09f1b2dce2a51c7c5612e2617c",
+    "include/rtmp.h": "27850a9cfd3f334a4f0c9b0b03958df0df400849ca7957df3995bdd9b01b4626",
+    "ap/ap.c": "6d8392cac8b97023107c58d332fe41a232e9b5c00278608c8e1bf10e3d5d00de",
+    "ap/ap_cfg.c": "14b110a764b9eef9a8165b1648e03fbf7eb9090025779f5c532be9decfc49d2d",
+    "common/cmm_info.c": "9ed0cc16ff7794d26054e160b2b460e0e6d3de39e3f505e04838f2b53f478cd6"
+  },
+  "direct_reset_callers_checked": 5,
+  "disconnect_all_pmf_delete_checked": true,
+  "scope": "direct reset result propagation only; prior side effects remain, APStop still VOID",
+  "atomic_reset": false,
+  "parent_apstop_result_propagated": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "stage": 37,
+  "extracted_host_variants": 29,
+  "passed": true,
+  "full37_replay_performed": false,
+  "apstop_calls_requiring_next_review": [
+    {
+      "file": "ap/ap.c",
+      "line": 311,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "ap/ap_cfg.c",
+      "line": 2193,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "ap/ap_cfg.c",
+      "line": 2637,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "ap/ap_cfg.c",
+      "line": 2672,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "ap/ap_cfg.c",
+      "line": 5812,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "ap/ap_cfg.c",
+      "line": 5820,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "ap/ap_cfg.c",
+      "line": 5828,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "ap/ap_mix_mode.c",
+      "line": 75,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "ate/mt_mac/mt_ate.c",
+      "line": 164,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/cmm_info.c",
+      "line": 629,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/cmm_info.c",
+      "line": 657,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/cmm_info.c",
+      "line": 4393,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/cmm_info.c",
+      "line": 4428,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/cmm_radar.c",
+      "line": 257,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/cmm_usb_io.c",
+      "line": 862,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/mtusb_io.c",
+      "line": 489,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/rtmp_init.c",
+      "line": 2589,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/scan.c",
+      "line": 115,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/wsc.c",
+      "line": 2718,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "common/wsc.c",
+      "line": 9432,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "easy_setup/mt7603_chip_ops.c",
+      "line": 877,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "easy_setup/mt7603_chip_ops.c",
+      "line": 910,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "easy_setup/mt7603_chip_ops_api.c",
+      "line": 1073,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "easy_setup/mt7603_chip_ops_api.c",
+      "line": 1106,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "hw_ctrl/cmm_asic_mt.c",
+      "line": 6582,
+      "callee": "APStop",
+      "checked_result": false
+    },
+    {
+      "file": "os/linux/rt_rbus_pci_drv.c",
+      "line": 1326,
+      "callee": "APStop",
+      "checked_result": false
+    }
+  ],
+  "results_sha256": "367ecc16ed71a3de0c472e5454f3522bfd97f8244c52fbf009cb4a2e0e0b1c95",
+  "correction": "ap_cfg.c reset caller is Set_DisConnectAllSta_Proc with optional PMF branch, not a PMF setter",
+  "open_issues": [
+    "APStop and APStopBssOnly still VOID",
+    "parent paths may continue restart after APStop returns early",
+    "preflight observation not exclusive reset/insertion serialization",
+    "earlier caller side effects not rolled back",
+    "no failed-peer cleanup owner or target/runtime proof"
+  ]
+}

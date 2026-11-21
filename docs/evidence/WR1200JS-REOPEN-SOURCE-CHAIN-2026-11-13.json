@@ -1,0 +1,24 @@
+{
+  "scope": "source-backed reopen integration dependency audit; no runtime claim",
+  "references": {
+    "driver_openable": "tools/iot/interface-registry.h:wr_iot_registry_find_openable requires published nonremoving WR_REF_IDLE",
+    "driver_reserve": "tools/iot/driver-api-owner.h:wr_iot_driver_owner_reserve requires fresh query identity and clears prior receipt only after successful reservation",
+    "new_nonce": "tools/iot/driver-api-client.c:wr_iot_driver_open_requested_tracked issues identity query for new request nonce",
+    "close_proof": "tools/iot/mbss-close-receipt.h checks last_token and close_serial",
+    "rc_initial_only": [
+      "tools/iot/start-admission.c:begin and stage",
+      "tools/iot/start-network.c:each step",
+      "tools/iot/start-network-rollback.c:each rollback step"
+    ]
+  },
+  "required_change": [
+    "Keep stopped owner alive while new startup owns separate request and baseline",
+    "Use original successful OPEN nonce/token/close_serial for CLOSED revalidation until new OPEN submission",
+    "Use fresh new nonce for new identity query/OPEN and loaded SSID/PMK match",
+    "Separate complete-OFF admission predicate from CLOSED-only checks after network gates change",
+    "Route pre-OPEN failure back to retained completed OFF; post-OPEN failure uses new attempt CLOSE",
+    "Do not reuse initial-idle after prior OPEN history"
+  ],
+  "next": "Implement retained CLOSED witness across admission/network/rollback, then compose ON/OFF/ON with existing driver owner tests",
+  "cleanup": "Read-only audit; no scratch generated"
+}

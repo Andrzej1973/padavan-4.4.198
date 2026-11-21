@@ -1,0 +1,15 @@
+{
+  "failed_run": 43697208013,
+  "failed_sha": "eed10dd802c14f11027770d9a310f722e03e8135",
+  "failed_step": "Verify experimental physical-stop host contracts",
+  "cause": "check-radio-on-sdk-mode.py line20 expected literal loop fault<4; base restore fixture expanded to fault<5",
+  "fix": "Insert SDK mode assertions at actual main entry and inherit original full loop without replacing its count",
+  "monitor_run": 43697315261,
+  "monitor_artifact": 14154946668,
+  "monitor_assessment": "Useful: correct failed run/job/step and failing script; exact assertion line confirmed in original failed log. No parser change justified.",
+  "focused_checks": [
+    "check-radio-on-sdk-mode.py",
+    "check-radio-on-cancel.py"
+  ],
+  "runtime_verified": false
+}

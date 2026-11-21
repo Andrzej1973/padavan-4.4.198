@@ -1,0 +1,14 @@
+{
+  "failed_run": 44129591251,
+  "abi": 920,
+  "first_error": "Verify complete source preparation and registered target package: inline Python line 6, obsolete len(steps)==23 assertion",
+  "evidence": "Complete source preparation and MIPS package binaries succeeded before assertion",
+  "correction": "Compare exact ordered manifest against literal check/adapter/preparer recipes and fixed ABI/package suffix; reject missing/duplicate/reordered steps",
+  "current_expected_steps": 33,
+  "runtime_verified": false,
+  "sha256": {
+    ".github/workflows/band-steering-abi.yml": "b0cb960340dba6c25631a46fb2924b998dd8027a89ea7b48330a75365e39ce9b",
+    "tools/band-steering/prepare-source-integration.py": "50dfa9b66c13920b89a8982ad053cd4cb54b1c78aa20d248c1c86379e6c2afa2",
+    "tools/band-steering/source-integration-recipe.py": "2aef6c80311bf35682f83d0548c4c094a36ded2c1568b05731cd6c3445ff1022"
+  }
+}

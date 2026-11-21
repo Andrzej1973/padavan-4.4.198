@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-02",
+  "scope": "actual final merged adapter release helper with host lock mocks",
+  "fixture_sha256": "a424623c1ce60159f2b2d123b20e9166272594d6f132f470410722ef7d0c5ec2",
+  "asan_ubsan": "PASS including explicit retained table refusal",
+  "limitations": [
+    "real PCI/DMA/callback quiescence not executed",
+    "standalone PCI remove gate on pre-merge peer tree reports missing typed joins; final merged audit needed"
+  ],
+  "runtime_verified": false
+}

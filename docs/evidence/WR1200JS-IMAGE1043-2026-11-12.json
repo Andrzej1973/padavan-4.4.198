@@ -1,0 +1,79 @@
+{
+  "run": 43241209371,
+  "number": 1043,
+  "source": {
+    "dispatch_revision": "73ed42045dac6836c925886fe9575975ee161af0",
+    "requested_revision": "",
+    "verified_revision": "73ed42045dac6836c925886fe9575975ee161af0",
+    "runtime_verified": false
+  },
+  "artifact": 13955012859,
+  "actual_image": {
+    "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
+    "image": "WR1200JS_4.4.198.9-1043_73ed4204.trx",
+    "bytes": 13123531,
+    "sha256": "51abb921d5735de55877bf59dcbb0294fd761e5da5c590a7761c49c7a5e53fb4",
+    "declared_payload_bytes": 13123467,
+    "architecture_id": 5,
+    "compression_id": 3,
+    "checks": {
+      "uimage_magic": true,
+      "product_id": true,
+      "header_crc": true,
+      "declared_length": true,
+      "payload_crc": true,
+      "size_range": true,
+      "iot_hwnat_dtb": true
+    },
+    "iot_hwnat_dtb_policy": {
+      "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+      "external_devices": [
+        "usb0",
+        "wwan0",
+        "rax0",
+        "ra0",
+        "rai0",
+        "apclii0",
+        "apclix0",
+        "apcli0"
+      ],
+      "lan": [
+        "eth2"
+      ],
+      "wan": [
+        "eth3"
+      ],
+      "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+      "kernel_sha256": "a76df06254d3c094626f8d02ed6059dd0787d4f2db642408eff72b8247e3144f",
+      "runtime_verified": false
+    }
+  },
+  "ci_cake_report": {
+    "board": "WR1200JS",
+    "scope": "Effective config, ROMFS presence, reviewed script and factory defaults; separate ELF gates and physical runtime required",
+    "status": "runtime-unverified",
+    "checks": {
+      "profile_included": true,
+      "kernel_components": true,
+      "not_default_qdisc": true,
+      "factory_off": true,
+      "sch_cake.ko": true,
+      "ifb.ko": true,
+      "sch_ingress.ko": true,
+      "cls_u32.ko": true,
+      "act_mirred.ko": true,
+      "bin/tc": true,
+      "bin/ip": true,
+      "usr/lib/sqm/run.sh": true,
+      "www/Advanced_SQM.asp": true,
+      "manual_web_control": true,
+      "reviewed_lifecycle": true,
+      "start_requires_enable": true
+    },
+    "manifest_sha256": "502b7c80143b0f927c9b64e5212214cd717af6730b95a926b939940fa1968232",
+    "runtime_verified": false
+  },
+  "runtime_verified": false,
+  "scope": "Actual standard image structure/HNAT policy, runtime unverified",
+  "scratch": "Temporary image review tree removed"
+}

@@ -1,0 +1,59 @@
+{
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "member": "trunk/user/rc/net_wifi.c",
+  "member_sha256": "98bbe9cfca0af35be4ddb82742022b90cc51c2f7b34834e627ee6c5f2187dc69",
+  "functions": [
+    {
+      "function": "restart_wifi_rt",
+      "signature_line": 764,
+      "end_line": 806,
+      "body_sha256": "022f22a931af7bb509335d3ef29a49388ef2f4ea172b5aa6241946cdf8ca49b7"
+    },
+    {
+      "function": "start_wifi_ap_rt",
+      "signature_line": 461,
+      "end_line": 513,
+      "body_sha256": "fbfe7486ad8b110aad12aeeb1c7d5ad699873816a1599dd58de76702f651cfbc"
+    },
+    {
+      "function": "start_wifi_wds_rt",
+      "signature_line": 557,
+      "end_line": 603,
+      "body_sha256": "d297c147c27249cbc33d0ab656c4bcd9e092c12feb8e5ae6b476774cf87a77f9"
+    },
+    {
+      "function": "start_wifi_apcli_rt",
+      "signature_line": 637,
+      "end_line": 667,
+      "body_sha256": "a84075cf2c4181889c4720b4da841e92ac36a2ffd18d0c4c0fdf3bada9a59cec"
+    },
+    {
+      "function": "check_apcli_wan",
+      "signature_line": 198,
+      "end_line": 235,
+      "body_sha256": "cf2ca185b5438cf3d493f7fb8e70f72c724eb511e74138b11ed2859ec0b8c786"
+    },
+    {
+      "function": "start_8021x_rt",
+      "signature_line": 841,
+      "end_line": 859,
+      "body_sha256": "a42aa5b52c308e1c03bfe09f0d7881043c0b973a7e0a26451bd99dc1bde8ac46"
+    },
+    {
+      "function": "mlme_state_rt",
+      "signature_line": 56,
+      "end_line": 59,
+      "body_sha256": "9e7426ee9147cd2fdfdf24022dfcd34bace4e9ae9337715fa72619a8b81fbe0f"
+    }
+  ],
+  "confirmed_off_effects": [
+    "Main/Guest bridge detach and mlme_radio_rt=0",
+    "WDS and APCLI bridge detach",
+    "optional profile generation and temporary reload_svc_rt=1",
+    "auth startup conditional on stored radio enable; argument alone insufficient",
+    "WAN full restart on MAN/WISP mismatch even with radio_on=0; no reconnect on OFF",
+    "Guest isolation and IAPP restart remain in stock order"
+  ],
+  "scope": "Pinned source audit only; private OFF RC orchestration, image and device acceptance remain incomplete",
+  "archive_extracted": false
+}

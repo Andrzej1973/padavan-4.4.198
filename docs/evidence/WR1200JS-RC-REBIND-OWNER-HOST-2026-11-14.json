@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-14",
+  "source_base": "72c8a3f941b3cd2a4df1b008fcfa2745e11812c5",
+  "implementation": [
+    "tools/iot/rebind-owner.c",
+    "tools/iot/rc-backend.c"
+  ],
+  "behavior": [
+    "stable embedded owner and runner, no live context copying",
+    "private admission requires exact previous retained OFF tuple and fresh mode",
+    "new runner performs fresh physical RELEASE/new-Main observation before mutation",
+    "public execution/continuation/status and CLOSED routed to new owner once retained",
+    "private ACTIVE quiesce captures desired ON and completes same new-owner normal OFF",
+    "legacy-only fixtures assert rebind paths remain unreachable",
+    "repeat ON/physical-resume reuse not yet implemented; reject instead of substituting initial idle"
+  ],
+  "host_checks": {
+    "check-rc-rebind-owner.py": "PASS real RC routing/owner/runner/admission/stage/commit/OFF/observer; old provenance and driver/network actors injected",
+    "check-rc-quiesce.py": "PASS legacy actual backend/OFF regression",
+    "prepared_runtime": "PASS session21280 exit0:16 actual copied TUs native C11",
+    "physical_stop_suite": {
+      "session": 41767,
+      "status": "PASS",
+      "parts": 53,
+      "exit_code": 0,
+      "log_sha256": "8ee663b3caf39c42c98e58305c57450b3a059b1eb0bf12f59e9fd2d28157080b"
+    }
+  },
+  "runtime_linked": true,
+  "backend_routing_bound": true,
+  "physical_restart_scheduler_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "ordinary ON after rebind OFF and repeated physical resume cycles",
+    "checked Main startup and physical restart scheduler",
+    "target compilation and physical acceptance"
+  ],
+  "ci": {
+    "optional1174": "success",
+    "optional1175": "success",
+    "standard1179": "success",
+    "optional1179_source_dispatched": 43598896305
+  },
+  "cleanup": {
+    "test_trees": "TemporaryDirectory automatic removal",
+    "completed_log_bytes": 14858,
+    "completed_log_retained": false
+  }
+}

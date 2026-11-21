@@ -1,0 +1,10 @@
+{
+  "dispatch_revision": "c4e2973ef48bcd36803390a3e4c1ef2398846d08",
+  "requested_revision": "f7d51ba35b1ebf99618c2ed07f1c89cee6d28fc6",
+  "verified_revision": "f7d51ba35b1ebf99618c2ed07f1c89cee6d28fc6",
+  "runtime_verified": false,
+  "run_id": 42376468852,
+  "artifact_id": 13575792816,
+  "inspection": "Read artifact ZIP in memory; no extracted archive retained.",
+  "build_success_claimed": false
+}

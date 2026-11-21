@@ -1,0 +1,43 @@
+{
+  "sdk": "c25283e915a2a00a763774dd255b14aff997285e",
+  "file": "trunk/user/rc/firewall_ex.c",
+  "sha256": "cc02516c665e620e60859d6cbc5197c59426eeac19481d5c68c1d4acdc95cf22",
+  "restore_calls": [
+    {
+      "line": 1233,
+      "source": "doSystem(\"iptables-restore %s\", ipt_file);"
+    },
+    {
+      "line": 1280,
+      "source": "doSystem(\"iptables-restore %s\", ipt_file);"
+    },
+    {
+      "line": 1339,
+      "source": "doSystem(\"iptables-restore %s\", ipt_file);"
+    },
+    {
+      "line": 1359,
+      "source": "doSystem(\"iptables-restore %s\", ipt_file);"
+    },
+    {
+      "line": 2091,
+      "source": "doSystem(\"iptables-restore %s\", ipt_file);"
+    },
+    {
+      "line": 2134,
+      "source": "doSystem(\"iptables-restore %s\", ipt_file);"
+    },
+    {
+      "line": 2223,
+      "source": "doSystem(\"iptables-restore -n %s\", adbyby_iptables);"
+    }
+  ],
+  "scope": "source concurrency gap, not runtime incident",
+  "conclusion": "service-guard alone is not proof that all firewall writers serialize; IAPP launch remains unbound",
+  "required_integration": [
+    "emit fixed IAPP INPUT rules from owned normal/default firewall builders",
+    "remove independent script firewall mutation only after builder/image parity proof",
+    "preserve user post-firewall hooks and revalidate final IoT isolation",
+    "gate async IAPP start/cleanup on stable owner and receipt"
+  ]
+}

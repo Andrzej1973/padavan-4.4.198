@@ -1,0 +1,47 @@
+{
+  "scope": "read-only software reference for Main DOWN with never-opened ra2",
+  "implementation": "precreated-down-reference.h composes actual main_recovery_release_current with strict empty ra2 history and unambiguous idle registry",
+  "checks_passed": [
+    "check-precreated-down-reference.c GCC gnu11 Werror ASan/UBSan"
+  ],
+  "refusals": [
+    "ra2 last token/close serial/unmutated OPEN",
+    "ra2 removal",
+    "peer reserved/close running",
+    "active TX",
+    "wrong epoch",
+    "Main READY",
+    "missing Main release receipt",
+    "deferred Main owner",
+    "nonzero vendor count",
+    "residual live Main device",
+    "residual close ticket",
+    "residual schedule marker",
+    "residual open token"
+  ],
+  "read_only": true,
+  "limits": [
+    "requires caller transition lock and lifetime pins",
+    "peer/control/descriptor owner checks not supplied by this predicate",
+    "not RF/DMA/IRQ proof or permission",
+    "never-started fresh adapter is separate from completed Main close",
+    "no ioctl binding, RC integration or target build yet"
+  ],
+  "runtime_verified": false,
+  "owner_release_requirement": "live device/generation/token/close serial/ticket/schedule fields cleared, matching main_recovery_finish_netdev_release reset-before-receipt publication",
+  "peer_observer": {
+    "implemented": "wr_iot_precreated_down_peers_current",
+    "source_structures": [
+      "wr_iot_peer_table_owner",
+      "wr_iot_peer_close_executor"
+    ],
+    "requires": [
+      "closed table",
+      "no active/retained/poisoned/transactions",
+      "idle executor"
+    ],
+    "negative_checks": "unsealed table, transactions, retained, poison, active, running executor, retained executor, residual serial",
+    "lock": "MacTabLock, separate from reference transition lock; lifetime pinned and reference recheck required",
+    "host_result": "PASS Werror ASan/UBSan"
+  }
+}

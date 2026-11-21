@@ -1,0 +1,19 @@
+{
+  "scope": "standalone SDK radio/reload RAM state adapter; not root-bound",
+  "checks": {
+    "ASan_UBSan": "PASS",
+    "reload0_preserves_saved_flag": "PASS",
+    "guard_mode_radio_MainDOWN_and_readback_faults": "PASS"
+  },
+  "sources": {
+    "tools/iot/restart-radio-state.h": "8658d4900dae759e5f2257d75b7afe06365753045fc26c7c7248f500f91630ab",
+    "tools/iot/restart-radio-state-sdk.inc": "fcd3f9e181f03ae64f00d4e6f9e500717999eff53cd97f06f2591337a4467f45",
+    "tools/iot/check-restart-radio-state.py": "6d3558c86584bb3673fa50b04a9cfc1debe82ec0777d35066671e79d874073be"
+  },
+  "pending": [
+    "one-attempt root binding before Main UP",
+    "preparation/header integration",
+    "target/device verification"
+  ],
+  "cleanup": "TemporaryDirectory removed; no durable scratch"
+}

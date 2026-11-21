@@ -1,0 +1,26 @@
+{
+  "run_id": 42557592602,
+  "source_revision": "0dc0a6bea80f843bca53f4b857215289c6fc78cd",
+  "artifact_id": 13647649081,
+  "trx_path": "padavan-4.4/trunk/images/WR1200JS_4.4.198.9-945_0dc0a6be.trx",
+  "trx_sha256": "693860340dec1a8e179bf2fa710cb8736c8f814b5ed58c00e5263e1925755512",
+  "squashfs_offset": 1981536,
+  "module_path": "lib/modules/4.4.198/kernel/drivers/net/ethernet/raeth/mtk_hnat/hw_nat.ko",
+  "module_bytes": 103736,
+  "module_sha256": "b629a5bdae16b720b91a97dea09169007446013aac85f60a428ba08ec24af3f2",
+  "elf": "ELF32 little-endian MIPS",
+  "required_symbols_present": {
+    "mtk_ppe_dev_register_hook": true,
+    "mtk_ppe_dev_unregister_hook": true,
+    "mtk_sw_nat_hook_tx": true,
+    "foe_clear_all_bind_entries": true,
+    "nf_hnat_netdevice_event": true
+  },
+  "legacy_symbols_present": {
+    "ppe_rx_handler": false,
+    "ppe_tx_handler": false
+  },
+  "result": "Image module supports raeth/mtk_hnat source identification; not forwarding behavior acceptance",
+  "runtime_verified": false,
+  "cleanup": "Only TRX and one module materialized in TemporaryDirectory, removed after inspection; ZIP memory-only"
+}

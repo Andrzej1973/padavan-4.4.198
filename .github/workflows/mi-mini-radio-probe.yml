@@ -57,10 +57,26 @@ jobs:
               shutil.copyfile(source, target)
           PY
           python3 "$port/install-mi-mini-radio-candidate.py" kernel-source/trunk/linux-4.4.x candidate
+      - name: Restore pinned owned toolchain archive
+        uses: actions/cache@v6
+        with:
+          path: ${{ github.workspace }}/.cache/mips-toolchains
+          key: mips-toolchain-${{ runner.os }}-de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256
       - name: Fetch toolchain
         run: |
           mkdir toolchain
-          curl --fail --location --retry 3 -o toolchain.tar.xz https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
+          toolchain_cache="$GITHUB_WORKSPACE/.cache/mips-toolchains/de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256.tar.xz"
+          mkdir -p "$(dirname "$toolchain_cache")"
+          trap 'rm -f -- "$toolchain_cache.part"' EXIT
+          if ! echo 'de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256  '"$toolchain_cache" | sha256sum -c - >/dev/null 2>&1; then
+            curl --fail --location --retry 3 --connect-timeout 20 --max-time 180 \
+              --header 'Accept: application/octet-stream' \
+              --output "$toolchain_cache.part" \
+              https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723466303
+            echo 'de412846a5d057faf132b2463aa29c24f77c79c744f4181c1a287bbeaf1d7256  '"$toolchain_cache.part" | sha256sum -c -
+            mv -- "$toolchain_cache.part" "$toolchain_cache"
+          fi
+          cp -- "$toolchain_cache" toolchain.tar.xz
           sha256sum toolchain.tar.xz > toolchain.sha256
           python3 tools/verify-source-archive.py mipsel-linux-uclibc-toolchain toolchain.tar.xz
           tar -xJf toolchain.tar.xz -C toolchain

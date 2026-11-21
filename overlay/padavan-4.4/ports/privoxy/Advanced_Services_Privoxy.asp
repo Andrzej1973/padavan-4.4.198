@@ -53,6 +53,10 @@ function applyRule() {
     document.form.submit();
 }
 function done_validating(action) { refreshpage(); }
+function privoxySaveFailed() {
+    if (typeof hideLoading === 'function') hideLoading();
+    alert('<#Service_Privoxy_Alert_Save#>');
+}
 </script>
 </head>
 <body onload="initial();" onunLoad="return unload_body();">

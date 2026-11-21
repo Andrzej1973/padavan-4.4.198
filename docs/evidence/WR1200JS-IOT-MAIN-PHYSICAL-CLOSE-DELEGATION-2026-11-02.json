@@ -1,0 +1,27 @@
+{
+  "scope": "Isolated optional peer82 main physical close handoff",
+  "behavior": [
+    "Last-user ndo_stop queues exact close ticket; keeps module pin and adds netdev reference",
+    "Failed VERIFY defers physical CLOSE; BSS-only close remains synchronous",
+    "Busy close admission snapshots existing owned generation and queues recovery instead of losing owner",
+    "Uncertain preclose hands off exact uncertain ticket without destructive replay",
+    "PCI retirement queue origin requires retiring radio and active DRAINING phase"
+  ],
+  "verification": {
+    "host": "PASS ASan/UBSan actual ndo_stop, actual submit, actual VERIFY branch and actual worker: normal/VERIFY/PCI close, BSS close, physical failure/retry, busy admission, uncertain preclose, worker/reaper scheduling failures, netdev/module refs",
+    "target": "PASS exact merged os/linux/rt_main_dev.c MIPS TU",
+    "existing_gates": "PASS actual reopen fence, module macro, joined-rearm and RTNL header audits",
+    "workflow": "PASS YAML and full affected bash syntax"
+  },
+  "files": {
+    "tools/iot/prepare-main-physical-close-delegation.py": "57b98be2aaf589285172ca56a7591d2e8565e32079cca5f83b6168d810c3c9e6",
+    "tools/iot/check-main-physical-close-delegation.py": "b5b759943e391f98b2b5a35ba16b5b8b5e34e672553a3707370d2d5319f0ae1e"
+  },
+  "limits": [
+    "Not a real Linux scheduler/RTNL concurrency test or runtime result",
+    "Other family/last-user paths and dynamic timers still require audit",
+    "WDS final callback retirement/reaper, PCI release ledger and firmware stale ACK boundary remain open",
+    "Full candidate module on this commit not built yet"
+  ],
+  "cleanup": "All generated merged trees, fixture C/binaries, MIPS objects and syntax temp removed; unfinished input trees retained"
+}

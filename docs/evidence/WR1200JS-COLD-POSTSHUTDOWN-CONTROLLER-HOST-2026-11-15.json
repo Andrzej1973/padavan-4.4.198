@@ -1,0 +1,27 @@
+{
+  "scope": "private cold post-handoff shutdown controller, no cleanup yet",
+  "checks": {
+    "actual_controller_Werror_asan_ubsan": "PASS",
+    "owned_Guest_DOWN_distinct_rejected_or_CLOSED": "PASS",
+    "one_OFF_begin_no_replay_after_refusal": "PASS",
+    "fresh_terminal_CLOSED_recheck_pending_required": "PASS",
+    "RC_bound_existing_start_progress_OFF_wrappers": "PASS",
+    "prepared_backend_GNU11_component_C11_nm": "PASS"
+  },
+  "actors": [
+    "bound backend rejection/CLOSED predicates in controller test",
+    "quiesce transport",
+    "Guest administrative state"
+  ],
+  "sha256": {
+    "tools/iot/cold-on-postshutdown.c": "7cae4d7047172f26acb3b69325a7a3aab64bdc10371dc831dadc9be9a12604c0",
+    "tools/iot/cold-on-postshutdown.h": "8996d4d821a257268dc76da8ddf25a6f9028317bac38e7075d90931a0ac485fd",
+    "tools/iot/check-cold-on-postshutdown.py": "c8de8f14b4ccfd09b758d96d3be06f1675e910c639a9b5c98f1623236453cc09",
+    "tools/iot/rc-cold-shutdown.inc": "47352c78e044b55ab238e084f28c9a4a1fdd255af7cfc74b59172588693a89e0",
+    "tools/iot/check-rc-cold-shutdown.py": "3eb32d0d5fac7cfd9448d81fcafdea45bbda51c6fad49629f7f0d198639d16d5"
+  },
+  "cleanup_connected": false,
+  "root_public_shutdown_bound": false,
+  "target_verified": false,
+  "physical_verified": false
+}

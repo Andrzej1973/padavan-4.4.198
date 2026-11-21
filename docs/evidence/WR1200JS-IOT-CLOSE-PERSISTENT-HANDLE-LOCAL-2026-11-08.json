@@ -1,0 +1,28 @@
+{
+  "scope": "LOCAL persistent accounting of prepare caller task ref; not extra task reference and not production installed",
+  "sha256": {
+    "tools/iot/driver-api-close-owner.h": "42df58da1a527e6d5e4008eabcd7b944838ec2164977e4aa85eb2f7de6e308c4",
+    "tools/iot/driver-api-close-retirement-binding.inc": "1b33ad7b6263caf060065b5c94af25bb5b91e54a8df2e849247b7f7b47da0fce",
+    "tools/iot/driver-api-close-retirement-create.inc": "b5dfba5b3bc304a4aa60d083826ad963b0ba5b948cc84db58c3cd88725c0014b",
+    "tools/iot/driver-api-close-retirement-start.inc": "16dbc7e9fe15689bc6dd9d50fd8313de930a782d6b011f3d2682f280c7167f54",
+    "tools/iot/driver-api-close-retirement-cancel.inc": "2d7844b4d4e0d85904fbef7da98f1d154753e0e2fe8e8e0c4bf865ee7d46f797",
+    "tools/iot/driver-api-close-retirement-thread-entry.inc": "711f4a56fd95604541a57c887a895d2ee11b3fa7faafcf6ad0a1187990566e57",
+    "tools/iot/check-driver-api-close-retirement.c": "e4ab1a1d7ee98da1a29deafb88865059d77e4601f19a8525dea1ad1f7389cc5a",
+    "tools/iot/check-driver-api-close-synchronous-chain.c": "0ab2ece5b7acd6d4b6ddab02e238fa03b1ef69077e4d61878f2aedb75a8c3de4",
+    "tools/iot/check-close-lifetime-composition.py": "98195dee03984e5db849d2bb071664c65c1bdb8805c0fe84f255b524ae9fb56f"
+  },
+  "contract": {
+    "prepare": "records retirement_handle with stopped designation under same lock after get_task_struct",
+    "start": "confirmed wake clears tracking under lock then returns caller ref; ambiguous wake retains pointer and reference",
+    "cancel": "RTNL required, exact tracked pointer required; confirmed never-woken cancellation clears tracking and returns ref",
+    "thread": "entry/claim rejects tracked handle; refusal clears only borrowed task pointer, leaves tracked caller reference and module/API pin",
+    "lifetime": "tracked handle blocks adapter retirement and repeat preparation"
+  },
+  "checks": "19 CLOSE fixtures PASS -O2 ASan/UBSan; actual lifetime/join composition PASS; Python AST/bash/diff PASS",
+  "test_adjustment": "Existing body fixture previously skipped real start; newly required handle fence correctly rejected it. Updated fixture to call actual start before simulating body context, no guard weakened",
+  "remaining": "Target validation and production orchestration remain absent; staged tracked task-ref return now implemented separately",
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": "Temporary binaries auto-cleaned; no core/crash scratch found in checkout",
+  "reconciliation_followup": "Staged nonwaiting reconcile implemented; see CLOSE-TASK-REF-RECONCILE-LOCAL and SOURCE evidence"
+}

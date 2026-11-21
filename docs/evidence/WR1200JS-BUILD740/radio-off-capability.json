@@ -1,0 +1,11 @@
+{
+  "scope": "known target refusal-stub detection only; non-stub does not prove safety or completion",
+  "module_sha256": "2a801ad25e9dfabe68e59d25f842d7d45546dad8f0ccc5c59f04f551601763df",
+  "symbol": "wr_iot_mt_radio_off_checked",
+  "symbol_bytes": 8,
+  "known_unconditional_false": true,
+  "shutdown_capability": "unavailable",
+  "production_accepted": false,
+  "runtime_verified": false,
+  "disassembly": "\n/home/runner/work/_temp/wr1200js-steering-driver-probe/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko:     file format elf32-tradlittlemips\n\n\nDisassembly of section .text:\n\n000b08a0 <wr_iot_mt_radio_off_checked>:\n   b08a0:\t03e00008 \tjr\tra\n   b08a4:\t00001025 \tmove\tv0,zero\n"
+}

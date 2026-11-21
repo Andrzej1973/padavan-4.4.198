@@ -51,6 +51,10 @@ def main():
         checks["explicit_config"] = '-C "$STUBBY_CONFIG" -g' in helper
         checks["helper_executable"] = bool(target_file("/usr/bin/stubby.sh").stat().st_mode & 0o111)
         checks["serialized_lifecycle"] = "flock -x -n 9" in helper and "9>&-" in helper
+        guard = target_file("/usr/bin/stubby-dns-listener-guard.sh").read_text()
+        checks["listener_conflict_guard"] = bool(target_file("/usr/bin/stubby-dns-listener-guard.sh").stat().st_mode & 0o111) and "wr_dns_listener_conflict" in guard and "doh_server$index" in guard
+        checks["listener_guard_matches_prepared_source"] = target_file("/usr/bin/stubby-dns-listener-guard.sh").read_bytes() == (args.trunk / "user/stubby/dns-listener-guard.sh").read_bytes()
+        checks["lifecycle_rejects_doh_conflict"] = "wr_dns_listener_conflict stubby" in helper
         page = target_file("/www/Advanced_Services_DoT.asp").read_text()
         checks["webui"] = "found_app_stubby()" in page and "if (!login_safe())" in page
         checks["observed_process_ui"] = all(marker in page for marker in ('id="wr_dns_process_status"', 'output:"wr_dns_process_state"', 'arg0:"stubby"', 'window.setInterval(wrDNSRefresh,30000)', 'document.hidden', 'onclick="wrDNSRefresh()"'))

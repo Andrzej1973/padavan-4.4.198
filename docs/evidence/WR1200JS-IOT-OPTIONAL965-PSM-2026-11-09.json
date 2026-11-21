@@ -1,0 +1,81 @@
+{
+  "run": 42680919633,
+  "source": "232c4a6b5acb7e26d4fcae44fa17d6e42d4395e0",
+  "artifact": 13703847174,
+  "report": {
+    "target_compiled": true,
+    "production_installed": false,
+    "runtime_verified": false,
+    "variants": {
+      "off": {
+        "bytes": 5904720,
+        "sha256": "104b47fb63970d5268a16c78e31ecc08ceab9c9de5cc3dd1e7f436d67eb2df1c",
+        "objects": {
+          "txs": {
+            "object_sha256": "e252976a33e1d0493df6b3d66483fcd0b3975c8afa65a33ee9120b1929c8993b",
+            "command_sha256": "e529668d00b81601bf7bd7ec0240e72d42c862415a1e478b14230d46980a59bc"
+          },
+          "ap_connect": {
+            "object_sha256": "0f4dc3a6fdc1035ce4b11a256e56317d993305a913b5eef2a82864d415c4d194",
+            "command_sha256": "c61cf9c82b2f4c3065918898ec252ad01265b26d437aa1c717cfd889cea34183"
+          },
+          "ap": {
+            "object_sha256": "678c343d23a136af2ac9b2bdc011484ce1e8276529cf0c3e9423342ae8432f80",
+            "command_sha256": "b4106be18f053be6df7f23c8746bb34a2b9807a4f4245bcc2bc45ffa31286d41"
+          },
+          "mt_ps": {
+            "object_sha256": "3cd106725d56b81b65e7c2f8df76dfe17b37aa77c0bd950c589f16dcc3eb9a96",
+            "command_sha256": "22a140fe581d8edaa89c31a8669107b513619448d49712efff77a556acb07c97"
+          }
+        }
+      },
+      "on": {
+        "bytes": 5911960,
+        "sha256": "4fc526f2d3f528b5f87dc6b7681ec758470e21f64d2dcbd4e2f695160a6ef143",
+        "objects": {
+          "txs": {
+            "object_sha256": "a4ea5a3e235c9be51314535a627b4166721427afd7fc6099e001ae82e3544873",
+            "command_sha256": "ee4aa675c29e5bee11152038f51b6907505eef33a5fb797de3cf6af30c6c5519"
+          },
+          "ap_connect": {
+            "object_sha256": "1ac8847c3be9d247035acffdf2c4a97c8ea2d4946c046d166dae2a315c437e7a",
+            "command_sha256": "0d18e769e5a7087c5ec3db72c1554c16eddf7a80f835395b709a77b63018e68a"
+          },
+          "ap": {
+            "object_sha256": "e05377cc03907c15a149e2f494c466219ce31ba75a4e5d6e4957d5fa91b9507d",
+            "command_sha256": "b68a1cf73f7b7e7f4e7074c7b63336cde2d9cbf15aa8bcf1725e06a577eb3923"
+          },
+          "mt_ps": {
+            "object_sha256": "b91e53ce3b4043ace681b758170afae716dafa8de6460ee189d648564ccd7115",
+            "command_sha256": "f80adfc108a012e20121762330e8e46e5a69a33c44e66e4f2753f850894eaac2"
+          }
+        }
+      }
+    },
+    "source_sha256": {
+      "common/mt_ps.c": "6c14d46ffd82b480094f2dddfdadfe9324c17ebe3d0b6dcb7a6980f38d022389",
+      "ap/ap.c": "6f7357346cb30184bfdc808f9f48d22fedb99029cba1919fc733c6fcb1b98482",
+      "ap/ap_connect.c": "b23799750f6f2ca03d72579903345c77982104a3a2fc10b8c52388b8446d7b8e",
+      "tx_rx/txs.c": "0ee869b07fae1c1a9e255b40b09a478cafb5ab1fafc73545f25edf195587e42e",
+      "include/wr-iot-psm-diag.h": "e6a6f5f9ceecf22e8f32ebbebb00fdec8148bb53ea4462e6721fd5d72636f3ab"
+    }
+  },
+  "independent_modules": {
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "bytes": 5911960,
+      "sha256": "4fc526f2d3f528b5f87dc6b7681ec758470e21f64d2dcbd4e2f695160a6ef143"
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "bytes": 5904720,
+      "sha256": "104b47fb63970d5268a16c78e31ecc08ceab9c9de5cc3dd1e7f436d67eb2df1c"
+    }
+  },
+  "runtime_verified": false,
+  "cleanup": "ZIP and modules memory only, no retained scratch.",
+  "independent_hash_match": true,
+  "diagnostic_size_delta_bytes": 7240,
+  "scope_limits": [
+    "Per-site diagnostic event counts are not hardware retry totals or retry rates.",
+    "No actual sleeping client, DTIM delivery, RF or runtime verification."
+  ]
+}

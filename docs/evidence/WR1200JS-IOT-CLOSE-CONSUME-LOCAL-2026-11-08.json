@@ -1,0 +1,15 @@
+{
+  "scope": "LOCAL exact ticket-consumption revalidation",
+  "hashes": {
+    "tools/iot/driver-api-close-owner.h": "3776b405113e1aeb827f210671334fc9917cc53ad9b3d4ab12240bd5170d3ac3",
+    "tools/iot/check-driver-api-close-owner.c": "4739d80015b473c8c15ab3586f77af3bf98e1140705969567e2f0fd355137526"
+  },
+  "new_refusals": [
+    "record removal_stage after reservation",
+    "ticket reset_kind"
+  ],
+  "host_asan_ubsan": "PASS12 owner cases, binding/enter/completion/recovery and actual begin-close composition",
+  "reservation_retained_on_refusal": true,
+  "target_compiled": false,
+  "runtime_verified": false
+}

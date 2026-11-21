@@ -1,0 +1,10 @@
+{
+  "revision": "e911f67d",
+  "exit_code": 0,
+  "suite": "check-physical-stop-suite.py",
+  "log_sha256": "d7150546ae97d9aaac743009063df90c1007f38a6ea4173509437e2284bb42f8",
+  "log_bytes": 47322,
+  "scope": "registered inputs unchanged; later codec/reply/client/dispatch independently tested, not included in this result",
+  "target_verified": false,
+  "runtime_verified": false
+}

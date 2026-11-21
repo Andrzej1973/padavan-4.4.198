@@ -1,0 +1,31 @@
+{
+  "scope": "uncomposed private LED/IAPP/final retirement owner",
+  "checks": {
+    "actual_parent_cleanup_WAN_real_terminal_and_signal_fence_asan_ubsan": "PASS",
+    "LED_and_child_begin_once": "PASS",
+    "unknown_child_retains_same_pipe_and_fence": "PASS",
+    "confirmed_child_failure_never_replayed": "PASS",
+    "default_IAPP_gate_inert_paired_gate_progresses": "PASS",
+    "retire_requires_fresh_ACTIVE_and_closed_child_no_guard_fence": "PASS",
+    "retirement_preserves_ACTIVE_backend_bytewise": "PASS"
+  },
+  "actors": [
+    "SDK parent/WAN/LED operations",
+    "backend initial/full ACTIVE transport",
+    "IAPP child pipe result"
+  ],
+  "sha256": {
+    "tools/iot/rc-cold-terminal.inc": "2d2bcb3448fb1382137baa790e77a1865ed12a091c80968269fa0cdc3efc2c48",
+    "tools/iot/check-rc-cold-terminal.py": "f5d0c81451999fcb42932775547369130046614529d783cf245a9388c449e1e5"
+  },
+  "runtime_composed": false,
+  "target_verified": false,
+  "physical_verified": false,
+  "remaining": [
+    "runtime composition of cleanup/followup/terminal",
+    "post-UP shutdown handling",
+    "disabled IoT cold completion",
+    "public cold entry",
+    "target/image/device gates"
+  ]
+}

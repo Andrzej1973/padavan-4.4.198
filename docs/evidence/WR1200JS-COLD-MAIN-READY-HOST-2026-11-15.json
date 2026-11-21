@@ -1,0 +1,24 @@
+{
+  "scope": "private cold Main startup/READY observation using existing initial-IDLE API",
+  "checks": {
+    "actual_admission_generation_profile_host_asan_ubsan": "PASS",
+    "main_up_actor_one_attempt_no_old_rollback": "PASS",
+    "two_idle_probes_new_epoch_exact_ra2_generation_serial_progress": "PASS",
+    "stale_drift_pending_transport_not_submitted_refusal": "PASS",
+    "pending_before_up_and_profile_change_after_ready_refuse": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-main.c": "6459190172141286373a3fd4b7206433e8a8271d1e176a1bd166290a78c40d7d",
+    "tools/iot/cold-on-main.h": "ad7205a3e5fcdf1423612704ac71cad236544b5bff6cdee047a57fe7375b21d1",
+    "tools/iot/check-cold-on-main.py": "1a4dfcbe3de83c47c6bb240761d6bef6d2e50c72f32ad2e83bb38775ece6bfc5"
+  },
+  "driver_evidence": [
+    "precreated-idle-reference.h requires Main READY and never-opened ra2",
+    "precreated-idle-probe-binding.inc invokes existing closed configuration observation"
+  ],
+  "sdk_main_up_and_idle_transport": "injected actors in host fixture",
+  "runtime_staged": false,
+  "public_entry_bound": false,
+  "target_verified": false,
+  "physical_verified": false
+}

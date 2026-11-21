@@ -1,0 +1,19 @@
+{
+  "run": 43277303083,
+  "source": "b0dddffff4408b8985758f533140b8bd0c421c4b",
+  "job": 131389172811,
+  "monitor_run": 43279478090,
+  "monitor_artifact": 13970634398,
+  "diagnostic_artifact": 13970729091,
+  "cause": "Experimental include/rtmp.h references beacon-producer-gate.h but prepared SDK exports wr-iot-beacon-producer-gate.h. Actual MIPS compiler failed in mac/mt_mac.c.",
+  "correction": "Normalize experiment-only producer gate includes to prepared SDK name and require header before output creation. Regression checks generated includes and copied prepared header.",
+  "monitor_gap": "Monitor found failed job/step but original target runner hid causal compiler stderr in artifact. Runner now echoes bounded6000-character stderr on preprocessing/compile failures. Real-GCC missing-header regression confirms fatal error and filename reach stderr.",
+  "local_verification": [
+    "Nine-path source composition passes with prepared header naming",
+    "Target runner regression including real missing-header diagnostic passes",
+    "Whitespace checks pass"
+  ],
+  "target_verified": false,
+  "runtime_verified": false,
+  "scratch": "Downloaded ZIPs in memory, temporary fixtures removed"
+}

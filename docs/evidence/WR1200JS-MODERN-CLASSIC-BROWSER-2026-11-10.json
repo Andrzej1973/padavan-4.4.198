@@ -1,0 +1,46 @@
+{
+  "scope": "Actual headless Edge production-shell rendering using host C JSON fixture; not target httpd/authentication or device runtime",
+  "checks": [
+    {
+      "route": "vpn",
+      "visible": true,
+      "expected_classic_links": [
+        "vpncli.asp",
+        "Advanced_zerotier.asp"
+      ],
+      "no_mutation_or_draft_controls": true
+    },
+    {
+      "route": "dns",
+      "visible": true,
+      "expected_classic_links": [
+        "Advanced_DHCP_Content.asp",
+        "Advanced_Services_Content.asp"
+      ],
+      "no_mutation_or_draft_controls": true
+    },
+    {
+      "route": "iot",
+      "visible": true,
+      "expected_classic_links": [],
+      "no_mutation_or_draft_controls": true
+    },
+    {
+      "route": "wifi/common",
+      "visible": true,
+      "expected_classic_links": [
+        "Advanced_Wireless2g_Content.asp",
+        "Advanced_Wireless_Content.asp"
+      ],
+      "no_mutation_or_draft_controls": true
+    },
+    {
+      "route": "wifi/iot",
+      "visible": true,
+      "expected_classic_links": [],
+      "no_mutation_or_draft_controls": true
+    }
+  ],
+  "scratch_removed": true,
+  "runtime_verified": false
+}

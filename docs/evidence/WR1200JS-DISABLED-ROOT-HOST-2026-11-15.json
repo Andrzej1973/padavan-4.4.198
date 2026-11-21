@@ -1,0 +1,24 @@
+{
+  "scope": "private root explicit disabled IoT request through restore, idle witness, RC release, WAN/IAPP, fresh DONE retirement",
+  "checks_passed": [
+    "check-radio-on-disabled-owner.py",
+    "check-radio-on-owner.py",
+    "check-radio-on-cancel.py"
+  ],
+  "covered": [
+    "credential/subnet-bearing disabled request refuses",
+    "stable disabled child at root address",
+    "one generation/Main/WAN/LED/IAPP",
+    "no rebind OPEN",
+    "radio_on_owned exclusion survives parent release",
+    "stale idle refuses root retirement",
+    "fresh DONE wipes root and exclusion"
+  ],
+  "limits": [
+    "post-Main-UP disabled shutdown not implemented; holds ownership",
+    "public radio ON/OFF entry unbound",
+    "driver/SDK/child actors injected",
+    "target/image/device acceptance pending"
+  ],
+  "runtime_verified": false
+}

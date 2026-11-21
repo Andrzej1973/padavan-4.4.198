@@ -1,0 +1,26 @@
+{
+  "scope": "Local software commit for physical-rebind network activation",
+  "implementation": [
+    "requires CURRENT not RETAINED rebind OPEN",
+    "exact retained OPEN ID/current epoch/generation and fresh current-token read",
+    "existing stage/network/firewall observations",
+    "one DNS commit attempt; uncertainty never replays commit",
+    "snapshot suspend only after committed DNS and current observations",
+    "pending shutdown and foreign nonce refuse"
+  ],
+  "checks": "check-rebind-commit.py strict O2 ASan/UBSan PASS seven readiness/DNS/suspend faults plus recovery-only rejection; actors injected",
+  "full_suite": {
+    "registered_parts": 46,
+    "existing45_session": 30178,
+    "status": "running",
+    "log": "/tmp/wr-rebind-network-suite.log"
+  },
+  "pending": [
+    "post-OPEN CLOSE rollback and runner composition",
+    "experimental runtime and RC scheduler integration",
+    "target/image/device verification"
+  ],
+  "runtime_installed": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native test directories auto-removed; live suite log retained"
+}

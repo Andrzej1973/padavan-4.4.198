@@ -1,0 +1,17 @@
+{
+  "scope": "LOCAL align accepted CLOSE handoff with existing MBSS bounded poll scheduling",
+  "hashes": {
+    "tools/iot/driver-api-close-finish-recovery.inc": "e18e5ae93d9a77ca3f24d3239c2a48e36004e6e613c074bcc9c91db8df331e87",
+    "tools/iot/check-driver-api-close-recovery-binding.c": "20cf5f2aab48386797198293778476af3c6c74679cef1c74623e002522aeda26"
+  },
+  "asan_ubsan": "PASS8 scheduling scenarios plus duplicate and enter/finish regressions",
+  "poll_only_after_accepted_transfer": true,
+  "poll_failure_retains_ownership": true,
+  "duplicate_finish_no_second_poll": true,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "endpoint_installed": false,
+  "additional_regressions": "PASS poll caller/lifetime and reserved real worker fixtures ASan/UBSan",
+  "source_review": "recovery_poll selects retained owners by identity/attempts, recovery_retry does not filter recovery source; bounded3 attempts",
+  "integration_limit": "Combined kernel poll+reserved+API retirement not executed; active API owner still blocks idle"
+}

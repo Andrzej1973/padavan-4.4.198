@@ -1,0 +1,17 @@
+{
+  "source_evidence": "pinned trunk/user/rc/net_wifi.c:36 wif_control uses doSystem(ifconfig...) and returns command status",
+  "fix": "WR1200JS prepared stop-all checks all7 down-command results; first failure sets failed stop result and exits through balanced fence; restart cannot generate profile or reopen",
+  "tests": "PASS actual prepared complete stop/restart bodies GNU11 -Werror ASan/UBSan for WR and OTHER; each7 failure position",
+  "limits": [
+    "zero command status is not vendor DMA/IRQ completion",
+    "post-OPEN callback still refuses",
+    "command runs in child; do not assume kernel close executes as PID1"
+  ],
+  "sources": {
+    "tools/iot/prepare-rc.py": "26dada0467251f97ea4840b1671e99898adc88a62797d35f2f71aa04b5d8732f",
+    "tools/iot/prepare-stop-check.py": "3b5e90dc966cb817430306e7c08140caafdb9918f7ba9b9e5f362b5e70fedf29"
+  },
+  "target": "not yet compiled on MIPS",
+  "device": "not tested",
+  "cleanup": "TemporaryDirectory removed"
+}

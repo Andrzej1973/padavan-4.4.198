@@ -1,0 +1,36 @@
+{
+  "scope": "private physical begin pre-fence scheduler preparation binding",
+  "checks": {
+    "physical_scheduler_retirement": "PASS;85420",
+    "physical_quiesce_and_resume_finish": "PASS;74969",
+    "cancel_premain_prehandoff": "PASS;48030",
+    "native_preparation": "PASS;72060"
+  },
+  "sources": {
+    "tools/iot/rc-physical-stop.c": "b01e666429ab89016f5bd08880e8d7e7fa87e2595e140dbe25f40b239858a393",
+    "tools/iot/check-physical-scheduler-prepare.py": "2bc7c672ba95846fbc951ffd1d0e3b9c7a50445382a0dac5553909e4de8ece44"
+  },
+  "remaining": [
+    "stock net_wifi restart binding",
+    "pre-owner shutdown cancellation",
+    "MIPS target and image verification",
+    "device acceptance"
+  ],
+  "completed_logs_removed": [
+    {
+      "path": "/tmp/wr-physical-prepare-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    },
+    {
+      "path": "/tmp/wr-physical-prepare-quiesce.log",
+      "bytes": 406,
+      "sha256": "799edcee5ea83360144b40d10ff9e960df1e639185d691f5baee09762e488a05"
+    },
+    {
+      "path": "/tmp/wr-prepare-cancel-checks.log",
+      "bytes": 720,
+      "sha256": "58947d9741ed5718eb5d25c2b92cd45157ddf83e9dacbc74ab0e11d8c901533f"
+    }
+  ]
+}

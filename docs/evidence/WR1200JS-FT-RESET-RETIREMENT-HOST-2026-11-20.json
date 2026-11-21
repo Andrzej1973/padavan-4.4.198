@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-20",
+  "scope": "Prepared atomic full-table FT registry retirement",
+  "native_audit": [
+    "common/rtmp_init.c clears full MacTab during init.",
+    "common/rtmp_init_inf.c clears full MacTab during close.",
+    "mgmt/mgmt_entrytb.c MacTableReset calls per-peer deletion then partially clears MacTab from Size onward; MacTableResetWdev is distinct.",
+    "Existing peer-table-reset-owner.inc reserves exclusive reset serial under MacTabLock; scope-specific reset must not indiscriminately retire other BSS."
+  ],
+  "implementation": [
+    "Split single-slot retirement validation from mutation.",
+    "Full-table helper requires exact active exclusive serial and zero transactions, validates every slot before retiring any; preserves ledger serial, seed and token sequence."
+  ],
+  "checks": [
+    {
+      "command": "gcc -std=gnu11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-iapp-detached-admission.c -o /tmp/wr-ft-iapp-detached-check; /tmp/wr-ft-iapp-detached-check",
+      "exit": 0,
+      "coverage": "Successful full retirement; high-WCID CLAIMED/busy/stale handle and wrong exclusive serial refuse with entire registry unchanged; low-WCID request survives failed preflight. Prior single-slot scenarios still pass."
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-iapp-slot-retirement.h": "cf8a69b1409f05d4e50d47f4fecd52677b3326fb3e714ddfbb31e403c0b758c5",
+    "tools/iot/check-ft-iapp-detached-admission.c": "89b470630a16f36f8d6b40932d02514abe83ea5e7ce4848f8476d3cc31eaf044"
+  },
+  "vendor_sha256": {
+    "common/rtmp_init.c": "f4bc432661900513e026c2abe05c4d861dc1982990968ad5c276ed6444fef011",
+    "common/rtmp_init_inf.c": "fcf2b2d6da578b3709a5575c92a1ad3f7bdf5cf85684fa4313ba2fcdf137fe94",
+    "mgmt/mgmt_entrytb.c": "d8c38bebce1b9b4612aceead5b9c2c9acf77a1e6c3bba07dcc06e977c06ae426"
+  },
+  "limits": [
+    "Full-table retirement is a prepared host-tested helper; native reset/init/close integration and scoped reset handling remain open.",
+    "No claim of hardware callback/DMA/IRQ retirement.",
+    "Native IAPP/cache/completion integration and target/image/device verification remain incomplete; composers stay uninstalled."
+  ]
+}

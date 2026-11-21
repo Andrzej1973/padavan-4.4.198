@@ -1,0 +1,25 @@
+{
+  "status": "HOST_NORMAL_CONTROLLER_BACKEND_PASS",
+  "checks": [
+    "Actual normal shutdown controller with retained ACTIVE backend normal OFF",
+    "Delayed isolation prevents physical work",
+    "Physical ARM/DOWN/RELEASE before exact private owner retirement and stock TERM",
+    "Terminal normal controller spent; duplicate dispatch refused"
+  ],
+  "verification": "session58342 exit0 strict Werror ASan UBSan",
+  "actors": [
+    "Driver responses",
+    "network/DNS/software observations",
+    "explicit route arming"
+  ],
+  "not_proven": [
+    "Arming lifetime after INITIAL parent cleanup",
+    "Production automatic route",
+    "Physical RF/DMA/IRQ completion"
+  ],
+  "runtime_verified": false,
+  "sha256": {
+    "tools/iot/check-normal-shutdown-backend-composition.py": "c200a784db9aa98331cfba8837c16811dee632bc661e80306bb100a6b0ae1f16",
+    "tools/iot/check-rc-physical-quiesce.py": "2cd88b38f0bef7ed4faffd749737cbc9a0ace4589cd0e163b694b112fcca5936"
+  }
+}

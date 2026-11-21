@@ -1,0 +1,15 @@
+{
+  "revision_base": "9594f728bd894f70652b36ef8ab1c92e46e1d23f",
+  "check": "python3 -B tools/iot/check-cold-on-root-recovery.py",
+  "result": "PASS",
+  "scope": "Actual parent/profile/journal/restore and real signal fence; SDK/DOWN injected. Both intents, capture/generation/generated state, foreign inode, failed unmask, credentials before pending SIGTERM, baseline restoration, no Main or generator replay.",
+  "sha256": {
+    "cold-on-root-recovery.c": "eed1c9807ab6606f69349da7600d8a45c76d27aeb3b7b09344fe61b0f2bd5be6",
+    "cold-on-root-recovery.h": "6267d281f3d56a7689b87bbac97b739987e3d9446a5aa8e4925a60dd3c504154",
+    "check-cold-on-root-recovery.py": "675e883d693392c195b00c2e265177a2cf1f42073edc18fe24a736f41f4f2ffa"
+  },
+  "prepared_runtime_registered": false,
+  "root_step_bound": false,
+  "target_build_verified": false,
+  "physical_runtime_verified": false
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "private cold post-handoff shutdown cleanup after CLOSED or completed pre-OPEN rejection",
+  "checks": {
+    "actual_cold_parent_profile_handoff_RC_predicate_real_fence_SIGTERM_asan_ubsan": "PASS",
+    "failed_unmask_retains_root_profile_guard_binding": "PASS",
+    "successful_detach_wipe_guard_release_before_signal": "PASS",
+    "current_normal_OFF_profile_identity_unchanged": "PASS",
+    "completed_backend_OFF_or_REJECTED_preserved": "PASS",
+    "no_Main_replay_profile_restore_or_WAN": "PASS",
+    "prepared_backend_GNU11_Werror_nm_symbol": "PASS"
+  },
+  "actors": [
+    "full CLOSE observer",
+    "SDK parent operations",
+    "initial-IDLE transport"
+  ],
+  "sha256": {
+    "tools/iot/rc-cold-shutdown-release.inc": "eb68037ee1acd0b3dea379d1549eb70bdbd162d1e38bbc74369c9af21eca5d2d",
+    "tools/iot/check-rc-cold-shutdown-release.py": "b7ea6d3f484471934055220991abd9bbeb5c502ce5cd48d013f5cc3b4c5c00ed",
+    "tools/iot/cold-on-postshutdown.h": "ee5ed057fd484591c747ce682f644675f7d63cd076f93fc6472c594e030b7fa2"
+  },
+  "root_public_shutdown_bound": false,
+  "target_verified": false,
+  "physical_verified": false,
+  "CI": {
+    "standard415_success": 43717607870,
+    "optional415_queued": 43718932696
+  }
+}

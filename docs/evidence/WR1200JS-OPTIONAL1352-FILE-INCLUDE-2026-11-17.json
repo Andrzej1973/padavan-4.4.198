@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-17",
+  "failed_run": 44113035951,
+  "number": 1352,
+  "verified_source": "a396c4ce9c7c26fc086de0e8e6fcaf1525174f8d",
+  "monitor_run": 44116458211,
+  "monitor_useful": true,
+  "root_cause": "saved-config-store.c included vendor rc.h before stdio.h; rc.h and shared/shutils.h declare FILE parameters",
+  "fix": "Explicit stdio.h before rc.h, no runtime semantics changed",
+  "verification": "Committed baseline reproduced FILE error under strict compiler with modeled vendor header declaration; include-only correction compiled; current actual store ASan/UBSan fixture passed",
+  "target_verification": "pending",
+  "device_changes": false,
+  "excluded": "Unfinished desired-generation integration remains local"
+}

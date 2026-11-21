@@ -1,0 +1,37 @@
+{
+  "run_id": 43015659462,
+  "artifact_id": 13854120442,
+  "source": {
+    "dispatch_revision": "d5bee48a89505ef954f96bcf443c8a0d241c4130",
+    "requested_revision": "d5bee48a89505ef954f96bcf443c8a0d241c4130",
+    "verified_revision": "d5bee48a89505ef954f96bcf443c8a0d241c4130",
+    "runtime_verified": false
+  },
+  "runtime_verified": false,
+  "scope": "Isolated target driver and host fixtures",
+  "files": {
+    "mt76x3_ap.ko": {
+      "bytes": 5908064,
+      "sha256": "18bb98fb202580d42534b93e9281cbcf65fae22d7ed6792e1972866a9787e40a"
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "bytes": 5914332,
+      "sha256": "8ae0a7818129d950b44a0d6bac6042f9cb35d206b765b4a7fac51fb3fd119cb2"
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "bytes": 5906000,
+      "sha256": "dcedb8df1e115227ece7f71c4c80b39839db742834560f8756b1d181a5328566"
+    },
+    "iot-builder-dma.txt": {
+      "bytes": 250,
+      "sha256": "f49ce97569cbfb562e7e43b0c3d912d40cbdd9f3a84a73126e58aa9894010b2a",
+      "text": "PASS kernel adapter binding: atomic refusal, revoke, producer drain, remove gate\nPASS actual candidate IoT builder: exclusive pin, DMA busy/unknown refusal, periodic TxS busy/unknown/non-IDLE refusal, close race, Guest original behavior; no RF proof"
+    },
+    "txs-builder-composition.txt": {
+      "bytes": 286,
+      "sha256": "8155fbaf9f9d296f5a40aeab62d0f09721340af5c045cfc90fc1f44e0c8ffc78",
+      "text": "PASS actual TxS+builder composition: stale IDLE cannot admit builder with busy/unknown DMA; zero DMA permits pinned builder, not RF acceptance\nPASS actual TxS+builder composition: stale IDLE cannot admit builder with busy/unknown DMA; zero DMA permits pinned builder, not RF acceptance"
+    }
+  },
+  "cleanup": "Archive and objects inspected in memory only"
+}

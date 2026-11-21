@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-20",
+  "scope": "Uninstalled FT AUTH synchronous invocation context",
+  "source": "pinned mt76x3 c25283e",
+  "changes": [
+    "Explicit stack-owned existing/pending scope context threaded from FT_FtAction and APPeerAuthReqAtIdleAction through FT_AuthReqHandler to FT_AuthReqRsnValidation.",
+    "Handler and validation check exact current invocation scope under MacTabLock before reading entry fields. Neither stage captures replacement identity.",
+    "Stack context is never published to asynchronous IAPP consumers.",
+    "Prepared invocation begin/admit/end dispatches through the exact existing or pending scope, with explicit ledger and request handles; no asynchronous stack pointer publication.",
+    "Prepared adapter-owned request state contains token ledger and per-WCID value handles, initialized only in RTMPAllocAdapterBlock; publish/unpublish bind exact invocation serial without storing stack pointers.",
+    "Prepared fresh adapter allocation seeds a 56-bit token counter using Linux get_random_bytes; serialized token generation is nonzero, strictly increasing and terminal on overflow. publish_next exposes wire output only after handle publication.",
+    "Added explicit soft-retry detach: transfer current value handle to adapter registry while clearing only the invocation handle; do not cancel WAITING token or retain stack/peer lease. Unpublish refuses detached records."
+  ],
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-auth-request-context.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit": 0,
+      "coverage": [
+        "Pinned declarations, definitions and calls agree; both source callers covered.",
+        "Missing predecessor, duplicate composition and changed validation call refused.",
+        "Real prepared over-air branch and scope helpers executed with modeled insertion and mocked crypto handler, ASan/UBSan.",
+        "Existing/first-peer context accepted; missing/dual scopes, wrong entry/adapter and stale generations refused.",
+        "Allocation/resource/rejection paths and generation-exhaustion ownership retained.",
+        "Entire composed native FT_AuthReqHandler executed together with actual prepared over-air callback; only FT_AuthReqRsnValidation is an explicit crypto actor.",
+        "Native handler refuses NULL adapter/entry/context, foreign entry and stale generation before entry use; MDIE refusal, OPEN success and RSN actor result propagation executed.",
+        "Native handler fixture compiled with GNU11 O2 Wall Wextra Werror and address/undefined sanitizers; default existing/first-peer success, resource/allocation failures and generation exhaustion pass.",
+        "RSN actor executes real invocation begin/admit/end: double begin preserves handle, wrong token/context and aliased response refuse, claim blocks end until finish, timeout cancellation rejects delayed response; both existing and pending paths retain peer lease.",
+        "Storage composer checked against pinned pending predecessor: single fresh-allocation initialization, declaration/provider copying, missing/duplicate predecessor refusal. Real registry helpers executed with existing/pending native AUTH fixture: active publication and all current-array aliases refused, claimed response retains published handle, stale invocation cannot clear serial-reused slot, serial remains monotonic after unpublish.",
+        "Full-handler RSN actor tests generated-token publication and failed-publication output clearing for existing/pending contexts. Storage source checks require fresh init before RNG and seed. Independent ASan/UBSan Werror C fixture tests 1024 tokens, byte carry, one-time seeding, unchanged counter through ledger cleanup, alias refusal and terminal overflow.",
+        "Existing/pending soft-detach refuses claimed response and stale cleanup; a real existing-peer leave releases owner/event_users while exact token stays WAITING in value-only state.",
+        "Integrated detached admission fixture executes independent exact-generation leases for captured NOT_AUTH/AUTH/ASSOC state; see WR1200JS-FT-DETACHED-ADMISSION-HOST-2026-11-20.json.",
+        "Detached retry retirement: exact current context and copied serial required; WAITING cancellation removes old-token admission, replacement gets higher wire token, stale serial and CLAIMED response remain unchanged."
+      ]
+    },
+    {
+      "command": "gcc -std=gnu11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-iapp-request-state.c -o /tmp/wr-ft-iapp-request-state-check; /tmp/wr-ft-iapp-request-state-check",
+      "exit": 0
+    }
+  ],
+  "sha256": {
+    "tools/iot/ft-auth-request-context.h": "cd431da22b9c2f6c4e920f74fb2070e091290869668f18347c91fb20cc417014",
+    "tools/iot/ft-auth-request-context-composition.py": "a0ef995b4dce8d7f8a8fbc46835f7314e69b077d6eda5ba83f52d9828339965b",
+    "tools/iot/check-ft-auth-request-context.py": "b4e71a375cbe4b2e13c97fe47d62d52e420c71b01079c4955f3db14428ae96af",
+    "tools/iot/check-ft-auth-callback.py": "a8cb7015fca98a9d8189fb7fb7626912346277027a3e0b391086ec3cd7601302",
+    "tools/iot/ft-iapp-request-state.h": "ab05e4f07568f7db1e72d0f99269d392cd51e5e2445f5a9f5fb953ec3a7f9a55",
+    "tools/iot/ft-iapp-request-state-composition.py": "c326db3d50eceb8803ba48b82c3e90fffc3dd09cd3dc8c14f747791e205f3359",
+    "tools/iot/check-ft-iapp-request-state.c": "752dc60442b8ee92ca3e463983dff69bd62ca4ef7584c6fc317c59c93b4a47b8"
+  },
+  "limits": [
+    "Native FT_AuthReqHandler body is executed; full FT_AuthReqRsnValidation crypto body is source checked and represented by an explicit actor. Entry initialization remains modeled.",
+    "IAPP request ledger publication, per-attempt completion, response transaction and paired request cleanup still require integration.",
+    "Prepared composers are not installed. No target compilation, final image or device acceptance claimed.",
+    "Registry runtime tests use actor-local storage; adapter storage/initialization composition is source checked only. Native event emission, token generation, completion reinitialization and response dispatch are still not connected.",
+    "Kernel RNG call is source prepared, not target compiled. Sequence and publication helpers execute on host; native KEY_REQ event emission and Linux/OS_ABL completion lifecycle remain disconnected.",
+    "Detached response admission must acquire an independent exact-generation peer lease and must never signal a later AUTH completion; prepared admission is independently host checked but not connected to native dispatch. Detached retry replacement/retirement also remains open.",
+    "First-peer soft retry still needs prepared RX/callback re-entry with retained FT provenance for SST_NOT_AUTH; generic active-peer admission correctly refuses such entries and must not be broadened to MAC-only matching."
+  ]
+}

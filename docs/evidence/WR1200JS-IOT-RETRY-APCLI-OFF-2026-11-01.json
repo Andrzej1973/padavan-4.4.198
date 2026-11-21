@@ -1,0 +1,18 @@
+{
+  "scope": "actual translation-unit preprocessing with APCLI_SUPPORT unset; not a full link",
+  "source_sha256": "2e6313fd0e08d78c915342fd4631d032f60b33652bf916377516cf21929f858c",
+  "command": [
+    "gcc",
+    "-E",
+    "-P",
+    "-UAPCLI_SUPPORT",
+    "/tmp/wr-iot656-merged-final/ap/ap_apcli_inf.c"
+  ],
+  "preprocess_exit": 0,
+  "retry_worker_defined": false,
+  "retry_submit_defined": false,
+  "unconditional_adapter_init_reference": true,
+  "finding": "APCLI-disabled variant removes shared Monitor/APCLI retry definitions while common initialization retains worker reference",
+  "target_link_verified": false,
+  "runtime_verified": false
+}

@@ -1,0 +1,14 @@
+{
+  "run": 42482744141,
+  "sha": "d2474f7c7dddb6f5cc4401cc2f3e1c971ecc2023",
+  "conclusion": "startup_failure",
+  "jobs": 0,
+  "original_annotation": "The workflow is requesting actions: read, but is only allowed actions: none",
+  "original_url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/42482744141",
+  "cause": "Reusable firmware workflow declares actions:read; parent explicitly granted only contents:read",
+  "fix": "Grant parent actions:read, retain read-only contents and all queue settings",
+  "monitor_gap": "Startup failure skipped by failure-only job condition and run filter; no failed-step logs or original monitor artifact exist",
+  "monitor_fix": "Include startup_failure in workflow and executable filters; add workflow-annotation hint; deduplicate per attempt and keep successful runs silent",
+  "verification": "Compiled Nim monitor and executable startup/dedup/success fixtures passed; exact staged version rechecked before commit",
+  "phase1_workflow_changes_published": false
+}

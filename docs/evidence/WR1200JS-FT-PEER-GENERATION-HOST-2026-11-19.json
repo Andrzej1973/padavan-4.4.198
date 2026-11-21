@@ -1,0 +1,35 @@
+{
+  "scope": "Prepared existing-peer FT identity/lease helper, success-boundary generation advance, and stamped callback host regression; first-peer insertion and ordinary RX remain separate/uninstalled.",
+  "exit_status": 0,
+  "stdout": "FT bounds composition: outer admission, terminating request/confirm validation before lookup, native forwarding preserved PASS\nPASS | composed RRB selection | active client, MAC/BSS/wdev/WCID, absent-context refusal before enqueue, truncated lengths\nPASS | complete composed RRB handler | context refusal suppresses allocation/enqueue, valid WCID, allocation failure, exact input/output capacities\nPASS | original MAC-only producer rejected by same cross-BSS regression assertions\nPASS | complete composed FT action | BSS/wdev/MAC/WCID refusal, request-to-confirm state, insertion refusal/success, forwarding, balanced frees\nPASS | original FT action rejected by same cross-BSS/state assertions\nPASS | FT peer generation primitive | immutable capture, stale/BSS/state refusal, linear lease, reset exclusion, uncertain ownership retained\n",
+  "stderr": "",
+  "module_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "source_sha256": {
+    "tools/iot/ft-peer-generation.h": "e221e159db50ecfae9e454c7ec5a981b43406fa59794811da742f765fc3004eb",
+    "tools/iot/check-ft-peer-generation.c": "dcaa6513243fe11cd6d22955e30b415e95ba0ebc8a4dae1f79332352f9b6c600",
+    "tools/iot/check-ft-parser-composition.py": "8dbb144e832dd2fa42737b85567fbe3f7bf63bdbcd7bc49bd269b29c61145ca9",
+    "tools/iot/check-ft-bounds-target-tu.py": "15108f2973a9453f338c93f4c762c90a110a95edc4aff73217553a853dc43615"
+  },
+  "verification": {
+    "command": "gcc -std=gnu11 -O2 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-peer-generation.c -o /tmp/check-ft-peer-generation && /tmp/check-ft-peer-generation",
+    "exit_status": 0,
+    "result": "PASS | FT active-peer lease | successful AUTH advances generation, stale stamp refused, lease released; exhaustion retains poisoned ownership",
+    "cases": [
+      "identity and BSS/WCID/state capture",
+      "exact peer lease excludes table reset and competing owner",
+      "successful transition advances/publishes generation and updates lease stamp",
+      "previous queued stamp is stale after transition",
+      "generation exhaustion poisons owner and cleanup retains event-user/transaction"
+    ]
+  },
+  "remaining": [
+    "transfer pending BSS+MAC ticket and inserted-peer lease through FT_FtAction",
+    "cover ordinary RX and first-peer insertion with the same exact identity/lifetime rules",
+    "verify IAPP key-response correlation and completion while the peer lease is held",
+    "compile complete paired target TUs and validate adapter/wdev/control lifetime integration"
+  ],
+  "candidate_success_boundary_generation_advance": true,
+  "producer_installed": false
+}

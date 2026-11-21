@@ -1,0 +1,16 @@
+{
+  "scope": "LOCAL atomic stopped-task designation; actual creation/wake/module transfer not installed",
+  "hashes": {
+    "tools/iot/driver-api-close-owner.h": "d84a35c0ebee6aad7514a9c49a8e11861fe89c591b43d107074464b63467628c",
+    "tools/iot/driver-api-close-retirement-binding.inc": "6e333bded9b7c6100e7cd5d75492c2a6163b72275e279dd672547f8c7abfea97",
+    "tools/iot/check-driver-api-close-retirement.c": "94f35afd73c7ca1d5733519240ca5bdba09bc480b776c9b870085bf502db1da7",
+    "tools/iot/check-close-bindings-target-tu.py": "93e3927469200d40d0a0ae846e5a1c266f0d6bc54818b680f4006fbb5af70663"
+  },
+  "host_asan_ubsan": "PASS17 header+20 locked binding cases with null/duplicate designation plus owner/join/enter regressions",
+  "designation_before_unlock": true,
+  "module_reference_transferred": false,
+  "task_actually_created": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "package_checks": "PASS9 C fixtures ASan/UBSan +2 actual compositions, Python generation/syntax and shell syntax"
+}

@@ -1,0 +1,35 @@
+{
+  "scope": "Internal Linux rebind ioctl wrapper, no dispatch route",
+  "authorization": [
+    "RTNL",
+    "namespace CAP_NET_ADMIN",
+    "MT7603",
+    "exact third BSS and BssidNum3, reject Main/foreign interface"
+  ],
+  "copy_contract": [
+    "8byte bounded header after authorization",
+    "operation selects72/216 constant length",
+    "full copied header must equal first header",
+    "strict full envelope decoder",
+    "no handler replay on copy/header/decode failure",
+    "volatile credential wipe on all paths"
+  ],
+  "checks": [
+    "actual wrapper strict O2 ASan/UBSan -Wdeclaration-after-statement -Werror PASS",
+    "capability/interface rejection before memory read",
+    "first/second copy faults and raced header no actor calls",
+    "internal observe/OPEN dispatched once with original status",
+    "deferred installer PASS stages wire/wrapper after execution functions"
+  ],
+  "new_suite_parts": 39,
+  "full39_rerun_claimed": false,
+  "pending": [
+    "existing ioctl discriminator route and tests",
+    "userspace client and uncertain result recovery",
+    "RC resume",
+    "target/device acceptance"
+  ],
+  "route_installed": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native test directory auto-removed"
+}

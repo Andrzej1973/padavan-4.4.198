@@ -1,0 +1,128 @@
+{
+  "scope": "Actual Edge/CDP with actual UI assets and local fixture JSON; no router",
+  "runtime_verified": false,
+  "rows": [
+    {
+      "metrics": {
+        "width": 1536,
+        "documentWidth": 1521,
+        "clientWidth": 1521,
+        "headings": [
+          "Основна мережа 5 ГГц",
+          "Назва мережі",
+          "Захист основної мережі",
+          "Радіопараметри",
+          "Розклад роботи",
+          "Професійні налаштування"
+        ],
+        "values": [
+          "on",
+          "YOUHUA-5G",
+          "on",
+          "WPA Personal",
+          "WPA2",
+          "AES",
+          "a/n/ac",
+          "20/40/80 МГц",
+          "Автоматично",
+          "UA",
+          "on",
+          "on",
+          "on",
+          "on",
+          "on",
+          "on",
+          "on",
+          "08:00 – 22:00",
+          "10:00 – 23:00"
+        ],
+        "disabled": true,
+        "forms": 0,
+        "buttons": 0,
+        "visible": true,
+        "shared": true
+      },
+      "requestedWidth": 1536,
+      "horizontal_overflow": false
+    },
+    {
+      "metrics": {
+        "width": 390,
+        "documentWidth": 390,
+        "clientWidth": 390,
+        "headings": [
+          "Основна мережа 5 ГГц",
+          "Назва мережі",
+          "Захист основної мережі",
+          "Радіопараметри",
+          "Розклад роботи",
+          "Професійні налаштування"
+        ],
+        "values": [
+          "on",
+          "YOUHUA-5G",
+          "on",
+          "WPA Personal",
+          "WPA2",
+          "AES",
+          "a/n/ac",
+          "20/40/80 МГц",
+          "Автоматично",
+          "UA",
+          "on",
+          "on",
+          "on",
+          "on",
+          "on",
+          "on",
+          "on",
+          "08:00 – 22:00",
+          "10:00 – 23:00"
+        ],
+        "disabled": true,
+        "forms": 0,
+        "buttons": 0,
+        "visible": true,
+        "shared": true
+      },
+      "requestedWidth": 390,
+      "horizontal_overflow": false
+    }
+  ],
+  "screenshots": [
+    {
+      "viewport_width": 1536,
+      "png_dimensions": [
+        1521,
+        1707
+      ],
+      "bytes": 599929,
+      "sha256": "d71b8100fec2b8fb4cac7b473968908eb7a6b83a6d5856e7c7d871fac61c4f12",
+      "visually_inspected": true
+    },
+    {
+      "viewport_width": 390,
+      "png_dimensions": [
+        390,
+        3777
+      ],
+      "bytes": 427050,
+      "sha256": "e12d46833411aeff389b820163b22682acaf23d509a691c31b905dee0dcef631",
+      "visually_inspected": true
+    }
+  ],
+  "fixture_label_visible": true,
+  "get_only_server": true,
+  "assets_sha256": {
+    "tools/webui-preview/public/wifi.js": "cd675d3ba66ab95a60a4305d00c5122a54e7293a2aebd5bba4f0660eff530926",
+    "tools/webui-preview/public/styles.css": "48e1693bf2bf43735d86d6212fba10ef9a1fdb1dc4bf5ac9263905160b445afb",
+    "tools/webui-preview/public/index.html": "61af441fae151f1f65ec44306d3f589e77cd52038591cf015165f94086924e1a"
+  },
+  "cleanup": {
+    "browser_profile_bytes_removed": 37467850,
+    "screenshot_report_bytes_removed": 3084847,
+    "active_phase_browser_processes": 0,
+    "retained_screenshots": false
+  },
+  "harness_development_note": "Initial PowerShell encoding/extra output prevented metric parsing; corrected UTF8, suppressed async output and required unique tagged JSON. Final full assertions passed."
+}

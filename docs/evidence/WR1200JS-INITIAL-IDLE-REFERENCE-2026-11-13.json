@@ -1,0 +1,41 @@
+{
+  "scope": "Local initial never-opened ra2 software admission predicate",
+  "implementation": "tools/iot/precreated-idle-reference.h",
+  "verification": "PASS actual header ASan/UBSan24 scenarios including Guest present, prior OPEN/CLOSE history refusal, reset/PM/removal and no state mutation",
+  "limits": "Not bound to driver endpoint. Requires actual beacon/producer/DMA/TxS observation and persistent transition-ticket lifetime before activation use. Identity query alone is insufficient.",
+  "next": "Compose initial-idle probe with current driver observations; retain separate refusal and completed CLOSE paths for previously attempted OPEN.",
+  "runtime_verified": false,
+  "cleanup": "All temporary test trees/binaries removed automatically; completed full host log removed (14637bytes).",
+  "persistent_probe": {
+    "source": "tools/iot/precreated-idle-probe.h",
+    "verification": "PASS actual helper10-case ASan/UBSan: reset/PM/registry drift, failed/unknown readback, duplicate finish and foreign-ticket retention",
+    "contract": "Begin/finish under transition lock; caller retains RTNL and adapter/netdev pins across unlocked observation. Exact own BSS_OBSERVE ticket retired without clearing concurrent intent. Foreign ticket retains active context.",
+    "binding": "Not yet connected to hardware observer or ioctl"
+  },
+  "binding": {
+    "source": "tools/iot/precreated-idle-probe-binding.inc",
+    "test": "check-precreated-idle-binding.py actual binding/observer13-case ASan/UBSan PASS, including active CLOSE before and during readback",
+    "checks": [
+      "RTNL and exact BSS/control ownership before observation",
+      "Existing observer reads beacon/TBTT and checks producer generation plus DMA/TxS",
+      "Final control and software-reference revalidation",
+      "Disjoint transition/ring locks",
+      "Foreign ticket retains context and poisons admission"
+    ],
+    "limits": "Register/ring values injected; no endpoint, target compile or runtime acceptance. Caller still supplies persistent context and lifetime pins."
+  },
+  "ci_staging": "PASS complete68-fixture host preflight plus actual idle binding/lifetime/reaper checks; full bundle composition PASS. All source remains experimental.",
+  "wire": "Local precreated-idle-wire.h query17/reply18 fixed64-byte nonce/epoch/generation/observation serial codec. ASan/UBSan reserved/truncated/type-separation cases pass; not endpoint or future lease.",
+  "reply_preflight": "Added explicit accepted marker, cleared on begin and set only after successful same-ticket finish. Current check rejects retired-but-failed observation, foreign/new serial, epoch/generation/registry drift. Actual probe/binding fixtures pass ASan/UBSan.",
+  "endpoint": "Actual precreated-idle-entry.inc9-case ASan/UBSan fixture passes: failed probe propagation, unaccepted/changed serial, CLOSE/control conflict, copy fault, malformed query, unpublished registration. Executor injected. Common privilege route, adapter storage and teardown fence still pending.",
+  "lifetime_composer": {
+    "source": "initial-idle-lifetime-composition.py",
+    "verification": "PASS persistent storage/init anchors, duplicate refusal, actual composed recovery-idle function ASan/UBSan in MT7603 and other compile branches",
+    "join_scope": "PASS check-initial-idle-join.py actual generated reaper6 scenarios ASan/UBSan. Active idle probe refuses final retirement, native completed recovery dev_put remains with its owner, repeated join does not double put. Kernel refs/work hooks injected.",
+    "remaining": "Install composer/storage/endpoint into full isolated bundle and verify target module.",
+    "correction": "Initial storage transformer accepted duplicate application; regression exposed it and explicit duplicate guard now passes."
+  },
+  "bundle": "PASS actual generator-fragment24-path composition, output hashes/input preservation; storage/init/both retirement fences and endpoint included only in no-host experiment.",
+  "dispatcher": "PASS common initial-idle route with9 cases, existing recovery/release/legacy regressions: privilege before copy, malformed query/BSS and copy failure. Endpoint executor injected; separate actual endpoint/binding tests cover implementation.",
+  "target": "Pending new package MIPS driver/full experimental module; no production installation or runtime claim."
+}

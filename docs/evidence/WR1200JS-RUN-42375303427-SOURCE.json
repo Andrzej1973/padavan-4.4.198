@@ -1,0 +1,12 @@
+{
+  "run_id": 42375303427,
+  "artifact_id": 13575422330,
+  "artifact_name": "verification-source",
+  "dispatch_revision": "2278e41529772025f87f81ebd537a16e78b5b010",
+  "requested_revision": "03f5dc6b1b58b738e5c76edf3e08a140f1cc2837",
+  "verified_revision": "03f5dc6b1b58b738e5c76edf3e08a140f1cc2837",
+  "inspection": "Read verification-source.json from artifact ZIP in memory via GitHub API; no archive extracted to disk.",
+  "build_status_observed": "in_progress",
+  "target_compiled_claimed": false,
+  "runtime_verified": false
+}

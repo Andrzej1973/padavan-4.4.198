@@ -54,7 +54,7 @@ function initial(){
 	show_footer();
 
 	if (!found_app_ovpn())
-		document.form.vpnc_type.remove(2);
+		$j("#vpnc_type option[value='2']").remove();
 	else
 	if (!support_ipv6() || ip6_service == ''){
 		var o = document.form.vpnc_ov_prot;

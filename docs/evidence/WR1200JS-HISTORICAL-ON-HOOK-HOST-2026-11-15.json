@@ -1,0 +1,21 @@
+{
+  "scope": "paired experimental restart_wifi_rt source transformation",
+  "implementation": "receipt-based ON entry precedes existing owned restart and native physical fence",
+  "results": [
+    "OWNED returns before legacy",
+    "REFUSED returns before legacy",
+    "NATIVE preserves previous restart/cold routing"
+  ],
+  "checks_passed": [
+    "check-restart-entry-source.py",
+    "check-radio-on-entry-root.py"
+  ],
+  "manifest": "historical_radio_on_hook_bound=true; production_ready=false",
+  "limitations": [
+    "SDK body and entry actors in source transformation fixture",
+    "actual root composition separately checked",
+    "owned radio OFF public admission still unbound",
+    "paired target compile/image/device acceptance pending"
+  ],
+  "runtime_verified": false
+}

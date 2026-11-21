@@ -1,0 +1,55 @@
+{
+  "run_id": 42048786377,
+  "artifact_id": 13427062608,
+  "verification_artifact_id": 13426296317,
+  "verified_revision": "8dbe9b4247150b8a48167bc167ee8641416ba28b",
+  "modules": {
+    "baseline.json": {
+      "artifact_path": "mt76x3_ap.ko",
+      "bytes": 5658096,
+      "sha256": "fe542d5bfe0cef935eb9536e212e9708846cbd3a6d03dcf247494833fbb1c7ad",
+      "defined_function_bytes": {
+        "wr_iot_mcu_boot_reserve": 632,
+        "wr_iot_mcu_boot_alloc": 420,
+        "wr_iot_mcu_boot_send": 768,
+        "wr_iot_mcu_boot_rom_quiesce": 1048,
+        "wr_iot_mcu_boot_rx_refresh": 672,
+        "wr_iot_mcu_boot_control_retire": 748,
+        "wr_iot_mcu_boot_ring_rearm": 1248,
+        "wr_iot_mcu_boot_ring_transaction": 676
+      }
+    },
+    "wsc-feature.json": {
+      "artifact_path": "wsc-feature/mt76x3_ap-wsc.ko",
+      "bytes": 6267524,
+      "sha256": "d3ea4b5ed9b5b764c65905708a8700705766d6acac58ca61dd93327b079e9eab",
+      "defined_function_bytes": {
+        "wr_iot_mcu_boot_reserve": 640,
+        "wr_iot_mcu_boot_alloc": 424,
+        "wr_iot_mcu_boot_send": 772,
+        "wr_iot_mcu_boot_rom_quiesce": 1060,
+        "wr_iot_mcu_boot_rx_refresh": 672,
+        "wr_iot_mcu_boot_control_retire": 748,
+        "wr_iot_mcu_boot_ring_rearm": 1248,
+        "wr_iot_mcu_boot_ring_transaction": 680
+      }
+    },
+    "reload-feature.json": {
+      "artifact_path": "reload-feature/mt76x3_ap-reload.ko",
+      "bytes": 5659380,
+      "sha256": "0ca0dc19c3f5b524d4e5eb0104c092e38e22792505e2fb8abfa7920475a4b339",
+      "defined_function_bytes": {
+        "wr_iot_mcu_boot_reserve": 632,
+        "wr_iot_mcu_boot_alloc": 420,
+        "wr_iot_mcu_boot_send": 768,
+        "wr_iot_mcu_boot_rom_quiesce": 1048,
+        "wr_iot_mcu_boot_rx_refresh": 672,
+        "wr_iot_mcu_boot_control_retire": 748,
+        "wr_iot_mcu_boot_ring_rearm": 1248,
+        "wr_iot_mcu_boot_ring_transaction": 676
+      }
+    }
+  },
+  "wsc_effective_flags_verified": true,
+  "reload_effective_translation_units_verified": 9
+}

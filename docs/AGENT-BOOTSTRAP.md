@@ -1,13 +1,53 @@
+## Four final WR1200JS variants before Mi Mini — owner requirement 2026-11-17
+
+Complete and verify four final Hybrid Modern images with all agreed fixes:
+
+| Variant | Hybrid Modern | Classic | CAKE/SQM |
+| --- | --- | --- | --- |
+| 1 | Included | Included | Included, factory OFF |
+| 2 | Included | Omitted | Included, factory OFF |
+| 3 | Included | Included | Omitted |
+| 4 | Included | Omitted | Omitted |
+
+Mandatory IoT, Band Steering, Zapret2, settings compatibility and router access
+remain requirements in all four. Included CAKE must support explicit enable/
+disable from the available WebUI, including the variant without Classic.
+CAKE-free images must omit the implementation and expose no working-looking
+CAKE control. Existing saved settings must be preserved across variants;
+CAKE factory OFF must not silently overwrite an owner's saved enabled choice.
+
+This supersedes the earlier two-image delivery matrix and mandatory CAKE in
+every final image. Keep CAKE included/default OFF in the current development
+baseline until explicit final variant selection is implemented. It does not
+resume paused Modern development or authorize router changes.
+
+Verify each image independently: exact revision/toolchain/configuration,
+TRX size and SHA256, ROMFS, feature inclusion/absence, complete WebUI controls,
+release gates and separately authorized physical acceptance. Compare Classic
+size at fixed CAKE selection and CAKE size at fixed Classic selection using
+matched builds. CI standard/optional lanes remain separate from release variants.
+**Only after WR1200JS acceptance, including this four-variant delivery, proceed
+to Mi Mini.** No completed images or device acceptance are claimed by this rule.
+
+# Current workspace note - 2026-10-31
+
+Active code checkout: `/home/andrzej/padavan-build/router-guide-work` in Ubuntu-22.04.
+Sol is sole writer; Windows original is frozen for preservation. Use native
+Linux Git and read the latest status/handoff before historical records below.
+Persistent Windows SSH access is documented in AGENTS.md. Full historical
+migration/deletion and retargeting every Desktop chat remain unaccepted.
+
 # Стартова точка для агента — читати першим
 
-Оновлено: 2026-10-18. Це єдина точка входу в проєкт: вона каже, де ми зараз,
-хто за що відповідає і що читати далі. Якщо ви новий агент (або повернулися
+Базовий опис: 2026-10-18. Поточний стан і результати CI за 2026-10-25
+читайте на початку `PROJECT_STATUS.md` та `CODEX_HANDOFF.md`; записи нижче
+описують історичний контекст. Якщо ви новий агент (або повернулися
 після зміни акаунта чи моделі) — почніть звідси.
 
 ## Мета (офіційне формулювання)
 
 Порт прошивки YOUHUA WR1200JS на Linux 4.4.198 зі збереженням чинних налаштувань
-і потрібних функцій, БЕЗ CAKE. Головні критерії — стабільність і збереження
+і потрібних функцій; CAKE/SQM включений, але вимкнений за замовчуванням. Головні критерії — стабільність і збереження
 доступу до роутера. Порядок роботи: WR1200JS → Mi Mini → локальні бази й
 офлайн-проєкт; IoT та решта погоджених функцій залишаються в загальному обсязі.
 Для кожної функції розрізняти стани: реалізовано / реалізовано-але-не-перевірено /
@@ -19,7 +59,9 @@ runtime-перевірки. Джерело істини — код і Git; до�
 
 ## Ролі
 
-- Виконавець, передача ролі, HEAD, CI та наступне завдання: `docs/EXECUTION-ROLE.md` (читати актуальний верхній блок; цей документ може застаріти).
+- Виконавець і передача ролі: верхній блок `docs/EXECUTION-ROLE.md`.
+  Поточні HEAD, CI і наступне завдання: `PROJECT_STATUS.md` та
+  `CODEX_HANDOFF.md`; звіряти з Git і GitHub.
 - Історично: EoIP із редактором підтверджено збіркою №309; попередній блок був
   перепризначенням WAN-порту. Фізичне приймання EoIP та всього порту відкрите.
 - Правила: `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md`, розділи 6, 12 і 13.
@@ -31,11 +73,11 @@ runtime-перевірки. Джерело істини — код і Git; до�
 - Історичний стан нижче датований 2026-10-14; актуальний код і CI звіряти за документом передачі та Git.
 ## Порядок читання
 
-1. `docs/AGENT-BOOTSTRAP.md` — цей файл.
-2. `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md` — правила двох агентів.
-3. `docs/EXECUTION-ROLE.md` — хто виконавець і що в роботі.
+1. `AGENTS.md` — спільні правила репозиторію; `git status -sb` — фактична гілка й локальні зміни.
+2. `PROJECT_STATUS.md` та `CODEX_HANDOFF.md` — актуальні верхні блоки стану й наступного кроку.
+3. `docs/EXECUTION-ROLE.md` і `docs/AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md` — поточний автор та правила передачі.
 4. `docs/PROJECT-DELIVERY-SCOPE.md` — погоджений обсяг і критерії приймання.
-5. `docs/evidence/` — останні записи за датою.
+5. `docs/evidence/` — докази; `docs/history/` — попередні знімки стану.
 
 ## Стан на 2026-10-14
 

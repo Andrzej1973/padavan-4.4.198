@@ -10,6 +10,8 @@ Record each supplied repository at an exact revision, distinguish source flags f
 
 - [tsl0922/padavan](TSL0922-PADAVAN.md): Linux 4.4.198, GCC 13 and structured package/ttyd/SmartDNS integration references.
 
+- [lekswrt Padavan / Prometheus](LEKSWRT-PROMETHEUS-2026-10-27.md): interactive build-workflow and historical skins; WSL and offline-build limitations, deferred adoption gate.
+
 ## Adoption priority
 
 Owner update, 2026-10-14: [consolidated adoption plan](../DONOR-ADOPTION-PLAN.md)

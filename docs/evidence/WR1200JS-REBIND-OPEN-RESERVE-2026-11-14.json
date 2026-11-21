@@ -1,0 +1,32 @@
+{
+  "scope": "Local helper composes one-use rebind claim with actual existing OPEN owner reservation under caller-held transition lock",
+  "implementation": [
+    "preflight current OPEN challenge/id/epoch/generation and control state",
+    "consume exact rebind observation",
+    "invoke existing wr_iot_driver_owner_reserve in same critical section",
+    "no spent refund on failed or cancelled reserve",
+    "no dev_open or loaded credential policy changes"
+  ],
+  "checks": {
+    "native_fixture_session": 89848,
+    "result": "PASS strict O2 ASan/UBSan with actual OPEN owner/radio/registry functions",
+    "cases": [
+      "control refusal leaves claim unspent",
+      "reserve claims once and produces BSS_OPEN ticket/RESERVED ra2",
+      "duplicate reserve refused",
+      "actual owner_leave cancels before mutation, spent handoff retained"
+    ]
+  },
+  "pending": [
+    "actual vendor entrypoint routing and current task/PID binding",
+    "API wire transaction transport",
+    "uncertain OPEN recovery after claimed handoff",
+    "RC desired configuration resume",
+    "full suite and MIPS verification",
+    "physical acceptance"
+  ],
+  "target_installed": false,
+  "production_orchestration": false,
+  "runtime_verified": false,
+  "scratch": "Temporary native test tree auto-removed"
+}

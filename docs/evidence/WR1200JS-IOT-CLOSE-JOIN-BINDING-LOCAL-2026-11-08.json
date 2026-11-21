@@ -1,0 +1,19 @@
+{
+  "scope": "LOCAL actual reaper source composition with real identity helpers and stub kernel dev_put",
+  "hashes": {
+    "tools/iot/driver-api-close-join.h": "45f77f2267bd763ea3e4b38571cded554fbc566b9486e82931eaeb8d780bae0f",
+    "tools/iot/driver-api-close-owner.h": "287c2506715ee58962933858389d695e5bed1d4492d3836e158204eb85d0369d",
+    "tools/iot/close-owner-composition.py": "79edf6be7d3e0c2d5cb8104954a2e38cfd9e58d251b3b2c0efe99e147cd6fcaf",
+    "tools/iot/check-close-join-composition.py": "accfb7157538524af695d5609b7a39747990efbd4d4c26fabbf8d15d8959fed7",
+    "tools/iot/prepare-driver-api.py": "c6b43f43e95f9da01613b63446489c047356185b5b03ffc4adbc7f4617aa1467"
+  },
+  "asan_ubsan": "PASS exact receipt and actual reaper success/drift/incomplete/legacy/duplicate ordering; owner/lifetime compositions",
+  "receipt_confirmed_after_dev_put": true,
+  "actual_kernel_dev_put_executed": false,
+  "extra_module_released": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "endpoint_installed": false,
+  "exclusive_reaper_test": "PASS actual rename, inner-tail and wrapper extracted from prepare-mbss-reaper-gate.py AST, composed API return path executes under real reaper gate; competing reaper refuses",
+  "package_host_checks": "PASS11 C fixtures ASan/UBSan and3 actual compositions; refusal preserves both owners"
+}

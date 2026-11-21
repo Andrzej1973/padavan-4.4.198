@@ -1,0 +1,24 @@
+{
+  "run_id": 44563426937,
+  "artifact_id": 14552535822,
+  "source_revision": "2ff341d8125083bb036e0b36e14c21a2b8cc981e",
+  "archive_sha256": "a467f62a494e48138a2d783798f0ab504aa4e165d80e53b581f355d4dbadf0dd",
+  "report": {
+    "status": "passed",
+    "scope": "Prepared common/ft.c bounds and outer association arbitration target TU only",
+    "module_installed": false,
+    "runtime_verified": false,
+    "effective_macros": {
+      "DOT11R_FT_SUPPORT": true,
+      "CONFIG_AP_SUPPORT": true,
+      "MT7603": true,
+      "MT_MAC": true,
+      "RTMP_PCI_SUPPORT": true
+    },
+    "command_sha256": "86e91052706e2a515e660943c390791e7ce110e28c98be8ab343e20fb327843c",
+    "source_sha256": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+    "prepared_source_sha256": "b10f3cab7b67382e8fb3e6db1bdb0413ade89928912398eb35c33ee918318c3e",
+    "object_sha256": "b6417a4c377983be6b7b2ad4d2ce92e2f95add368544b261cbb39c5c9891edab",
+    "object_bytes": 106088
+  }
+}

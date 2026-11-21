@@ -1,0 +1,41 @@
+{
+  "host_native_enqueue_verified": true,
+  "composition_anchors_verified": true,
+  "same_mac_wcid_reuse_rejected": true,
+  "counter_wrap_refused": true,
+  "kernel_current_macro_collision_regression_verified": true,
+  "renamed_native_insertion_stage_verified": true,
+  "timer_enqueue_under_unrelated_table_contention_verified": true,
+  "os_abl_lock_unwrap_host_verified": true,
+  "execution_lifetime_pin_verified": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "prepared_driver_checked": false,
+  "native_one_shot_retry_enqueue_under_contention_verified": true,
+  "publication_reader_barrier_interleavings_verified": true,
+  "publication_reader_barriers_tested": 3,
+  "output_sha256": {
+    "include/rtmp.h": "043e73d0a1f0a1f0688fc86f8555f03bc8f1281a57aacbc834c0d39888460dc6",
+    "include/mlme.h": "9f741fbcdefdba7704bdf2d1c962fabb846de57c133a8ada128e1683e5956680",
+    "mgmt/mgmt_entrytb.c": "a462105e562ccefb9528c9b36a6bc91fc353e195cdf0aaa4be5de55800dad1ff",
+    "ap/ap_repeater.c": "5bf4f0cb49373af5de8b92314331ba8021c75e4a79e2e920d8715284df82a161",
+    "ap/ap_assoc.c": "597cb393944168315bdadac692ed784431ea202d212324157c2055c361d33606",
+    "common/mlme.c": "c47ac1d2a0f3efe0fb07afbded7f01f4c7d31cbd3c47c499786569598fac001b",
+    "common/cmm_wpa.c": "8243ad89df57377b76d9ff2e74d452ac0327ef62f68aa40e1bb5e4b17f1d4e0c",
+    "include/assoc-generation.h": "83144035dffc9e7eecfa8b7c0fb793a894205dfba2cc7925c15ed1329ff1578a",
+    "include/assoc-generation-kernel.h": "2b50c1fa94130a7048c9226c600e22b70b977c3c124713b850dce607e0a77970",
+    "ap/ap_wpa.c": "3d8a8e0f82e747399d861cbbd4417a0d26fbdc3da1ae7951b26c83d5e6350205",
+    "include/ra2-gtk-request-kernel.h": "5e6f8c029f45d525d7c2c5c0f8e7a9a8936462b964820d71bd925d8400f9bd81",
+    "include/ra2-rekey-admission.h": "0e34779ae7e782daaeb05d0ee8cb0f2c5cc5b88c6dac59d48cdc94b7d3841979"
+  },
+  "input_sha256": {
+    "include/rtmp.h": "d3fcdacce2246a6f19f4319f851adf1f26142ce74762f411e158d6c5fe8fd45b",
+    "include/mlme.h": "f9428a0ffdc5e8b50c8a18e210a4e9ce2f5bbf0564e522c16b68672b52777bac",
+    "mgmt/mgmt_entrytb.c": "d8c38bebce1b9b4612aceead5b9c2c9acf77a1e6c3bba07dcc06e977c06ae426",
+    "ap/ap_repeater.c": "24e69448945f4967bff075097f42204fa0a67f29be49aaf0756a382dbdd1b2c9",
+    "ap/ap_assoc.c": "9ba15488d0f27266fec2cf7e337e25253bb2c032ef0254ca9beed925b3970ca5",
+    "common/mlme.c": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
+    "common/cmm_wpa.c": "f4a17a192bffdc567dba35b8eb022107655d99c90f6e82fcd6bbd8047858c638",
+    "ap/ap_wpa.c": "0b502f4e25100c73b33abb166b727ba2afafb1d057afdfae23ffa9bbd7556c97"
+  }
+}

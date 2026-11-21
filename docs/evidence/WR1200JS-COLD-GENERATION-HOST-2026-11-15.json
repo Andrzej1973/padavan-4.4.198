@@ -1,0 +1,25 @@
+{
+  "scope": "private cold profile generation before Main UP",
+  "checks": {
+    "actual_admission_profile_snapshot_journal_scanner_restore_asan_ubsan": "PASS",
+    "prepared_rc_c11_objects": "PASS",
+    "one_generator_attempt_partial_invalid_restore_foreign_inode_retained": "PASS",
+    "post_up_restore_refused": "PASS",
+    "malformed_and_disabled_nonempty_request_refused": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-generation.c": "5e9899348ea7a4b113834910df36609e395ef52d61f0dd6ecde60cbcd7e65992",
+    "tools/iot/cold-on-generation.h": "d610b5ef125c9e87b1e3a5d8e1af07e608748595a66372c29cff90dface2c799",
+    "tools/iot/check-cold-on-generation.py": "eaeb41c57f13a28758fa04bd5834e61c45a99436a6fe640e80ae7fd7b3beedce",
+    "tools/iot/cold-on-admission.c": "bd6d556098808758596196a1fa46b3842a5d45be59a8e997519bb35a64e69033"
+  },
+  "pending_shutdown": "retains ownership; recovery observer pending support remains incomplete",
+  "public_entry_bound": false,
+  "target_build_verified": false,
+  "runtime_verified": false,
+  "ci": {
+    "c954f5d0_abi": 43710280869,
+    "c954f5d0_standard": 43710283869,
+    "c954f5d0_optional_queued": 43711252099
+  }
+}

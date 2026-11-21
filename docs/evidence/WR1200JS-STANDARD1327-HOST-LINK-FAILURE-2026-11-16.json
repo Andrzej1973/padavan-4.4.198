@@ -1,0 +1,37 @@
+{
+  "run": 43913313406,
+  "number": 1327,
+  "head": "2114e90147e7116fd95d7e804d58c7a3815db9df",
+  "result": "failure",
+  "cause": "Early host compatibility standalone fixtures missing adapters referenced by new INITIAL cancellation APIs; linker failure before firmware build",
+  "monitor": {
+    "run": 43913607205,
+    "artifact": "agent-build-error-43913607205",
+    "assessment": "Correct failed run/step/fixture; missing-symbol lines absent in deployed report. Current branch Nim parser already includes undefined reference and existing offline regression; default-branch workflow may use older trusted parser. No speculative shared monitor edits."
+  },
+  "fix": "Assert-unreachable adapters in ordinary-start standalone fixtures; production driver unchanged",
+  "verification": {
+    "first_local_preflight": "Detected second standalone commit fixture missing idle reader; corrected",
+    "current_session": 91386,
+    "current_log": ".scratch/initial-desired-owner/host1327-recheck2.log",
+    "state": "PASS",
+    "process_observed": {
+      "pid": 4062,
+      "command": "python3 tools/iot/check-host-compatibility.py"
+    },
+    "coverage_inventory": {
+      "standalone": 71,
+      "composed_scripts": 47,
+      "path": ".scratch/initial-desired-owner/preflight1327-coverage.json"
+    },
+    "exit_code": 0,
+    "log_sha256": "8de9009917c9b8e04c7bb5a74485aad1dc0d8a8663f9db70f5469a352bf6755c",
+    "terminal_summary": "PASS early host compatibility: 71 existing standalone fixtures, CLOSE composition and WDS producer capture; actual driver binding checked later"
+  },
+  "sha256": {
+    "tools/iot/check-start-runner.c": "fae401d23e6e4db6dcfb057c6349166e8a30657f130bcd8c8f56e38e6e31ec35",
+    "tools/iot/check-start-runner-commit-composition.c": "a5fcc32eea3607ecee3b34abb49f4c0b3c3ed5b2eb4997018eedd64c96b92cad"
+  },
+  "target_verified": false,
+  "runtime_verified": false
+}

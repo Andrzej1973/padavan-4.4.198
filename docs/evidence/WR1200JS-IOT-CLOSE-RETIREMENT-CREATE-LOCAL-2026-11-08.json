@@ -1,0 +1,18 @@
+{
+  "scope": "LOCAL stopped-kthread prepare, actual create/stop APIs stubbed in host",
+  "hashes": {
+    "tools/iot/driver-api-close-retirement-create.inc": "93ae3ae902a76f13ac06158690f0be032f4d9fe4fda5d4a13ce2ac27286663b8",
+    "tools/iot/check-driver-api-close-retirement-create.c": "f7f0b594dc94908cc2fa3be0e639fe5b05f576b1df73e2c6fcfa718b42ed492c",
+    "tools/iot/check-driver-api-close-retirement.c": "94f35afd73c7ca1d5733519240ca5bdba09bc480b776c9b870085bf502db1da7",
+    "tools/iot/check-close-bindings-target-tu.py": "93e3927469200d40d0a0ae846e5a1c266f0d6bc54818b680f4006fbb5af70663"
+  },
+  "host_asan_ubsan": "PASS success with task ref, ERR_PTR, post-create state drift stop/join/ref return, unexpected NULL, preflight refusal no create",
+  "threadfn_executed": false,
+  "wake_implemented": false,
+  "module_hold_transferred": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "endpoint_installed": false,
+  "success_obligation": "Caller owns returned task_struct ref and must later complete wake/stop lifecycle; adapter pinned and competing preparers excluded",
+  "package_checks": "PASS9 C fixtures ASan/UBSan +2 actual compositions, Python generation/syntax and shell syntax"
+}

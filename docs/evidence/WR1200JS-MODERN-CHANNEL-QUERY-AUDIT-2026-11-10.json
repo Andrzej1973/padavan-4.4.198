@@ -1,0 +1,224 @@
+{
+  "source_sha": "c25283e915a2a00a763774dd255b14aff997285e",
+  "oid_references": [
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/include/oid.h",
+      "line": 1174,
+      "text": "#define OID_802_11_GET_CH_LIST\t\t\t\t\t0x0715"
+    }
+  ],
+  "potential_channel_list_writers": [
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap.c",
+      "line": 3518,
+      "text": "if(pAd->ChannelList[index].Channel == pAd->CommonCfg.Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap.c",
+      "line": 3562,
+      "text": "if(pAd->ChannelList[index].Channel == pAd->CommonCfg.Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap.c",
+      "line": 3640,
+      "text": "if(pAd->ChannelList[index].Channel == pAd->CommonCfg.Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap.c",
+      "line": 3673,
+      "text": "if(pAd->ChannelList[index].Channel == pAd->CommonCfg.Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 164,
+      "text": "pAd->pChannelInfo->ChannelScore[ch_index].Channel = pAd->ChannelList[ch_index].Channel;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 489,
+      "text": "if (pAd->ChannelList[channel_idx].Channel == 14)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 674,
+      "text": "if(pAd->ChannelList[channel_index+1].Channel - pAd->ChannelList[channel_index].Channel == 4)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 683,
+      "text": "if(pAd->ChannelList[channel_index].Channel - pAd->ChannelList[channel_index-1].Channel == 4)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 881,
+      "text": "pAd->pChannelInfo->suppChList[ChListNum].Channel = pAd->ChannelList[channel_idx].Channel;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 895,
+      "text": "pAd->pChannelInfo->suppChList[ChListNum].Channel = pAd->ChannelList[channel_idx].Channel;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 908,
+      "text": "pAd->pChannelInfo->suppChList[ChListNum].Channel = pAd->ChannelList[channel_idx].Channel;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 925,
+      "text": "if (pAd->ChannelList[channel_idx].Channel == 14)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 932,
+      "text": "pAd->pChannelInfo->suppChList[ChListNum].Channel = pAd->ChannelList[channel_idx].Channel;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 938,
+      "text": "pAd->pChannelInfo->ChannelListNum = ChListNum;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 1064,
+      "text": "if (pAd->ChannelList[i].Channel == 1) {"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 1066,
+      "text": "} else if (pAd->ChannelList[i].Channel == 6) {"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_autoChSel.c",
+      "line": 1068,
+      "text": "} else if (pAd->ChannelList[i].Channel == 11) {"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_sync.c",
+      "line": 1488,
+      "text": "if(pAd->ChannelList[index].Channel == ie_list->Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/action.c",
+      "line": 513,
+      "text": "if (pAd->ChannelList[i].Channel == NewChannel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_dfs.c",
+      "line": 2101,
+      "text": "if (pAd->CommonCfg.Channel == pAd->ChannelList[i].Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_info.c",
+      "line": 579,
+      "text": "if (pAd->ChannelList[i].Channel == Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_info.c",
+      "line": 2315,
+      "text": "if (pAd->CommonCfg.Channel == pAd->ChannelList[i].Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_radar.c",
+      "line": 51,
+      "text": "if (pAd->CommonCfg.Channel == pAd->ChannelList[i].Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 59,
+      "text": "NdisZeroMemory(pAd->ChannelList, MAX_NUM_OF_CHANNELS * sizeof(CHANNEL_TX_POWER));"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 113,
+      "text": "NdisMoveMemory(&pAd->ChannelList[index+i], &pAd->TxPower[j], sizeof(CHANNEL_TX_POWER));"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 120,
+      "text": "pAd->ChannelList[index+i].Channel = pChannelList[i];"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 238,
+      "text": "NdisMoveMemory(&pAd->ChannelList[index+i], &pAd->TxPower[j], sizeof(CHANNEL_TX_POWER));"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 245,
+      "text": "pAd->ChannelList[index+i].Channel = pChannelList[i];"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 270,
+      "text": "pAd->ChannelListNum = index;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 298,
+      "text": "NdisZeroMemory(pCfg80211_Ctrl->ChannelList, MAX_NUM_OF_CHANNELS * sizeof(CHANNEL_TX_POWER));"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 325,
+      "text": "pCfg80211_Ctrl->ChannelList[i].Channel = GetChannel_2GHZ(pChDesc, i);"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 358,
+      "text": "pCfg80211_Ctrl->ChannelList[index + i].Channel = GetChannel_5GHZ(pChDesc, i);"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_sync.c",
+      "line": 366,
+      "text": "pCfg80211_Ctrl->ChannelListNum = index;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/mlme.c",
+      "line": 6124,
+      "text": "if (pAd->ChannelList[IdChan].Channel == ChanNum)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/mlme.c",
+      "line": 6150,
+      "text": "if (pCfg80211_Ctrl->ChannelList[IdChan].Channel == ChanNum)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/rt_channel.c",
+      "line": 1668,
+      "text": "pAd->ChannelList[j].Channel = pChDesp->FirstChannel + i * increment;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/rt_channel.c",
+      "line": 1684,
+      "text": "pAd->ChannelListNum = j;"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/rt_channel.c",
+      "line": 1999,
+      "text": "if (pAd->ChannelList[i].Channel == channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/rt_channel.c",
+      "line": 2163,
+      "text": "if (pAd->ChannelList[i].Channel == channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/rtmp_init_inf.c",
+      "line": 386,
+      "text": "if (pAd->ChannelListNum == 0)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/easy_setup/mt7603_chip_ops.c",
+      "line": 818,
+      "text": "if (pAd->ChannelList[i].Channel == Channel)"
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/easy_setup/mt7603_chip_ops_api.c",
+      "line": 1014,
+      "text": "if (pAd->ChannelList[i].Channel == Channel)"
+    }
+  ],
+  "scope": "Text inventory for further writer/synchronization audit, not proof of exhaustive semantic writer coverage",
+  "runtime_verified": false
+}

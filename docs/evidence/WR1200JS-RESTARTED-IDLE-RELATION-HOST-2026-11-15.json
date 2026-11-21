@@ -1,0 +1,36 @@
+{
+  "scope": "read-only never-opened ra2 idle versus supplied old RELEASE and new Main identity",
+  "function": "wr_iot_initial_off_restarted_observed",
+  "checks": [
+    "valid RELEASE syntax",
+    "strictly newer Main epoch",
+    "same device generation",
+    "idle matches new Main epoch/generation",
+    "fresh same idle observation under active nonpending guard",
+    "zero state mutation"
+  ],
+  "tests_passed": [
+    "check-initial-off-composition.py",
+    "check-initial-off-owner-composition.py"
+  ],
+  "negative_cases": [
+    "old epoch",
+    "wrong device generation",
+    "missing OPEN token in RELEASE",
+    "different Main epoch",
+    "pending shutdown"
+  ],
+  "source_sha256": {
+    "initial-off.c": "1bd7e8a5f3886efc093868a57d6d5120bbc128c33dad4ab73549d74b3604e0b8",
+    "initial-off.h": "44d60cc6682ceddbc156e9deb9a33fc27a12dcc9491c9e0867a69cf681880b25",
+    "check-initial-off-composition.py": "bf6354f53f085a4c5818ef7a033826e5575428d31cff18e6af5c135bd899d5ac"
+  },
+  "limits": [
+    "caller must independently prove current Main and own original RELEASE",
+    "not wired into physical ON root",
+    "not cleanup or RF permission",
+    "desired IoT OFF lifecycle incomplete"
+  ],
+  "target_verified": false,
+  "runtime_verified": false
+}

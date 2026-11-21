@@ -1,0 +1,22 @@
+{
+  "run": 43065290017,
+  "number": 1023,
+  "revision": "60072c1658fa8744ae5cc8e2b50deb6434d2d113",
+  "job": 130678663218,
+  "monitor_run": 43067343489,
+  "monitor_artifact": 13876552018,
+  "monitor_assessment": "Useful causal generated C compiler diagnostic retained; no parser change needed",
+  "cause": "WDS unregister-generation generated host fixture uses uninitialized int device as opaque address tag; newer host compiler rejects maybe-uninitialized at check.c:33:60",
+  "fix": "Initialize WDS address tag and reviewed same-pattern tags in joined-rearm, reserved-beacon-refresh and CLOSE composition fixtures; preserve distinct addresses and assertions",
+  "driver_changed": false,
+  "ack_protection_changed": false,
+  "early_preflight": "58 existing standalone host C fixtures, actual CLOSE composition and WDS producer literal capture; full driver-source checks retained later",
+  "local_verification": "GCC11 ASan/UBSan; expanded preflight pass. Ubuntu24 acceptance pending",
+  "scope_limit": "WDS preflight compiles producer capture; actual prepared-driver capture still checked by original pipeline",
+  "cache_save_after_failed_job_verified": {
+    "key": "wr1200js-ccache-v4-ubuntu-24.04-source-43065290017-1",
+    "bytes": 120582939,
+    "created_at": "2026-11-11T17:20:45Z"
+  },
+  "runtime_verified": false
+}

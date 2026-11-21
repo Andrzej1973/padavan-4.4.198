@@ -13,10 +13,10 @@ See [configuration inventory](WEBUI-CONFIG-INVENTORY.csv) and [pages, form field
 | Area | Source controls | Remaining work |
 |---|---|---|
 | 2.4/5 GHz Wi-Fi | Separate main, guest, mode, ACL, security, advanced and status pages | Shared main-network settings, local connection QR, Band Steering controls; prove RSSI Kick behavior. Preserve separate advanced controls and disabled defaults for new features. |
-| LAN | LAN, DHCP, static routes, IPTV, switch, WOL | Add usable EoIP tunnel management; WAN reassignment requires actual board/switch mapping and recovery-aware apply. |
+| LAN | LAN, DHCP, static routes, IPTV, switch, WOL | EoIP has project settings/status source but is disabled in WR1200JS. Build #488's exact-image report confirms the disabled selector and absence from final ROMFS; runtime remains unverified. WAN reassignment still requires actual board/switch mapping and recovery-aware apply. |
 | WAN | WAN, IPv6, forwarding, DMZ, DDNS | SFE and Hardware NAT already have selectors on Advanced_WAN_Content.asp; do not claim their UI is absent. Verify offload policy with Wi-Fi and shaping. |
 | Firewall | Basic firewall, netfilter, URL, MAC, rules | Integrate service-specific rules with lifecycle. IPSet/TPROXY/XFRM/IMQ/IFB are capabilities, not independent daemons requiring empty pages. |
-| USB/storage | Disk functions, Samba, FTP, modem, printer; USB/IP now reports core/export/client modules and `usbipd` process separately on the printer/USB page. | USB/IP export/unexport and persistence remain missing. Disabled NFS/SMB/FTP must remain gated. Optional network-mount and partition tools need bounded shared storage controls. |
+| USB/storage | Disk functions, Samba, FTP, modem, printer; USB/IP has localized module/process status, bounded device inventory, confirmed guarded bind/unbind, and a saved export-selection table with opt-in identity-checked restore. | Runtime export/transfer and reboot persistence are unverified. Verify the documented storage-save path on-device; the export endpoint itself reports `flash_committed:false`. Disabled NFS/SMB/FTP must remain gated. Optional network-mount and partition tools need bounded shared storage controls. |
 | Administration | System, services, mode, upgrade, backup, console | Extend sparse service status; finish temporary upload-space feature through its existing project task. |
 | Customization | Tweaks, scripts, internet detection | Keep scripts/console as advanced tools, not the only normal configuration path for supported services. |
 | Monitoring | Wireless/Ethernet, logs, DHCP leases, firewall/routes/connections, traffic pages | Add process/listener/error state for managed services and bounded diagnostics. |
@@ -31,11 +31,11 @@ Owner scope update, 2026-10-14: StrongSwan is now commented out in the active WR
 
 | Service | Findings and evidence | Required deliverable |
 |---|---|---|
-| StrongSwan / IPsec | CONFIG_FIRMWARE_INCLUDE_SSWAN=y; base user/strongswan/Makefile installs ipsec/charon/starter/stroke and uses /etc/storage/strongswan. No StrongSwan/IPsec UI or matching service integration found in the inspected rc/httpd sources. | First establish managed start/stop, persistence and firewall integration, then profiles, credentials/certificates, remote networks, connection state and useful logs. Do not label the packaged binaries as an operational VPN. |
-| EoIP | Enabled; overlay scripts/integrate-eoip.py registers kernel/eoip-ctl build assets. No matching WebUI found. | Tunnel table, endpoints, tunnel ID, MTU, optional bridge assignment, enable/autostart, lifecycle and status. Validate conflicts and preserve unrelated interfaces. |
-| USBIP | Enabled; build integration and a read-only localized runtime panel are present. The panel distinguishes three module states from the `usbipd` process and does not claim connectivity. | Device inventory, explicit guarded export/unexport, listener/connectivity evidence and persistence; distinguish USB/IP from U2EC. Runtime panel still requires device validation. |
-| iPerf3 | Advanced_Services_Content.asp provides an enable switch. | Server status and selected supported parameters; bounded start/stop of diagnostics and readable results. Performance tests consume link capacity and must be user initiated. |
-| WPAD | integrate-wpad.py adds a capability-gated PAC editor to DHCP and persists wpad.dat. It explicitly adds no DHCP/DNS advertisement. | Explain PAC use and current advertisement behavior; a normal configuration wizard or optional advertisement needs separate integration and validation. |
+| StrongSwan / IPsec | Deferred by owner decision; `CONFIG_FIRMWARE_INCLUDE_SSWAN` is commented in the active profile. XFRM kernel support remains independently selected. | Keep StrongSwan absent from current image. If re-enabled in final optional-feature work, provide managed lifecycle, persistence, firewall integration, profiles, credentials/certificates, connection state and useful logs before exposing it as operational. |
+| EoIP | Project source contains a localized eight-slot settings/status page, HTTP integration and managed controller. `CONFIG_FIRMWARE_INCLUDE_EOIP` is commented in `configs.build/wr1200js.config`. Build #488's `eoip-image-checks` report confirms the disabled selector and final-ROMFS absence; image verifier rejection cases also passed. | Keep the optional feature hidden when not built. Enable it only if selected for a future image, then verify Apply/autostart and tunnel transfer on a supervised device. The current disabled-image result does not establish runtime behavior. |
+| USBIP | Enabled; localized status panel, device inventory, confirmed lifecycle-locked bind/unbind actions, export selection, default-off restore, and exact-image BusyBox/image gates are present. Current build #478 completed the restore BusyBox step and produced `usbip-settings-image`; see [build evidence](evidence/WR1200JS-BUILD478-USBIP.md). | No device runtime/transfer or reboot-persistence acceptance. Saved export rules are synchronized under `/etc/storage/usbip`, while the endpoint explicitly reports `flash_committed:false`; verify the router's storage-save lifecycle before claiming durable persistence. Keep USB/IP distinct from U2EC. |
+| iPerf3 | Enable switch plus localized requested/observed process status and refresh are in the build #478 ROMFS; the live sample found it disabled with no process. | Process presence does not prove a client connection or throughput. A user-initiated, bounded test flow/readable results and device acceptance remain open; performance tests consume link capacity. |
+| WPAD | Capability-gated PAC editor in DHCP persists `wpad.dat`; EN/UK/RU help states that DHCP/DNS do not announce the PAC URL and clients need manual configuration. | Source change and translations are present. The next selected image must pass the final-ROMFS translation/help gate; verify the rendered page in the router browser. Any automatic advertisement remains a separate feature requiring explicit integration and validation. |
 | qrencode | Included utility, but no integrated Wi-Fi QR view found in the base wireless pages. | Implement the already accepted authenticated local QR view, payload escaping and shared/per-band settings behavior. |
 | tcpdump / socat / IPv6 diagnostic tools | Included command-line utilities; no dedicated normal operation panels identified. | Shared diagnostics area. For tcpdump use interface/filter, bounded duration/file size and download. For socat expose justified supported presets rather than an unrestricted command form. IPv6 tools belong with IPv6 diagnostics. |
 
@@ -80,3 +80,157 @@ Next wireless UI work remains shared main-network settings and authenticated loc
 The dated source snapshots above are not the current implementation inventory. See [actual-state contract](SERVICE-RUNTIME-STATUS-CONTRACT.md) and [build 239 evidence](evidence/WR1200JS-BUILD239.md). Current code includes background VPN handshake observations, joint interface/handshake refresh, Stubby/DoH process-state refresh and ZRAM active-swap refresh. These have native tests and selected image gates; physical browser/device acceptance remains pending. DNS process presence is not DNS/TLS health, and handshake statistics are not routing proof.
 
 Existing shared Wi-Fi and local QR preparation/image checks are now wired into the normal build. Source/image inclusion does not establish correct behavior for the user's retained settings, both radio-page entry points or real client connections. Continue the full existing-page/backend/lifecycle/localization and hardware acceptance requirements above, including deferred optional ports and the WPS-last policy. Do not mark this audit complete based only on current green builds.
+
+## Current wireless implementation status — 2026-10-18
+
+This update supersedes the older Wi-Fi and `qrencode` backlog statements above;
+it does not turn historical build checks into current-device acceptance.
+
+- **Shared 2.4/5 GHz main-network controls:** implemented and checked in final
+  ROMFS by build #378. Live cross-band application, preservation of independent
+  settings, and persistence on the currently installed image still need device
+  acceptance. See [shared Wi-Fi evidence](evidence/WR-SHARED-WIFI-BUILD-37827202052.md).
+- **Local Wi-Fi QR:** page assets, payload, renderer and translations passed the
+  image verifier in build #377. Scanning the generated code with a phone and
+  joining the intended band/security profile have not been verified on the
+  router. See [QR image evidence](evidence/WR-QR-BUILD-37796800950.md).
+- **Band Steering:** the 2026-10-18 read-only sample observed its daemon and
+  control socket active. No client transition or successful steering action was
+  observed. See [runtime snapshot](runtime/WR1200JS-2026-10-18-ACCELERATION-STEERING-SNAPSHOT.md).
+- **RSSI Kick:** both radio pages, NVRAM names, disabled defaults and driver
+  commands passed the historical image gate. Runtime threshold enforcement,
+  action-to-client correlation and persistence remain unverified. See
+  [RSSI image evidence](evidence/RSSI-KICK-37152674078.md) and
+  [action-monitor gaps](WIFI-ACTION-MONITOR.md).
+- **Client monitoring:** bounded association/action recording and automatic UI
+  refresh have source, ABI and synthetic-browser evidence. Router-load cost,
+  real device event quality, RSSI Kick action instrumentation, and a proven
+  client band transition remain open. See [roaming monitor contract](WIFI-ROAMING-MONITOR.md)
+  and [browser evidence](WIFI-MONITOR-BROWSER-EVIDENCE.md).
+
+## WPAD / PAC help localization — 2026-10-18
+
+The capability-gated PAC editor now explains in the active UI language that
+`/wpad.dat` and `/proxy.pac` are served by the router but their URL is not
+announced through DHCP or DNS, so clients need a manually configured PAC URL.
+The source integration adds EN/UK/RU strings and the exact-ROMFS verifier
+requires the help token and each shipped translation. This keeps the existing
+no-automatic-advertisement behavior explicit; it does not add DHCP/DNS
+advertisement. Build #502 passed the final-ROMFS page/help check; router-
+browser acceptance and actual client discovery/configuration remain pending.
+
+Therefore this feature group is implemented in part, but is not accepted as
+complete until the listed device checks are performed. No setting was changed
+and no disruptive Wi-Fi test was run for this update.
+
+## Current EoIP source and image status — 2026-10-18
+
+This entry distinguishes optional source support from the active firmware
+profile and is updated with exact-image evidence from build #488.
+
+- Source preparation creates `Advanced_Services_EoIP.asp`, its localized
+  settings/status assets and a link from Administration / Services when the
+  EoIP selector is enabled. The exact-image verifier checks those files,
+  translations, HTTP markers, disabled defaults and RC boot/stop hooks.
+- The requested `configs.build/wr1200js.config` still comments out
+  `CONFIG_FIRMWARE_INCLUDE_EOIP=y`. Build #488 uploaded `eoip-image-checks`;
+  its report records `PASS disabled EoIP selector and final ROMFS absence; runtime unverified`.
+  The selected-image gate also passed integrity, disabled-image absence and
+  rejection cases. This verifies correct omission from the current image, not
+  EoIP operation.
+- Keep the EoIP shortcut hidden for this profile. Since the option is disabled,
+  settings-page HTTP behavior, boot lifecycle, tunnel connectivity and frame
+  transfer are not applicable to this image and remain unverified for any future
+  enabled image. See [build #488 service audit](evidence/WR1200JS-BUILD488-SERVICE-AUDIT.md)
+  and [EoIP managed-service evidence](EOIP-SERVICE.md).
+
+## Current iPerf3 service status — 2026-10-18
+
+Build #478 (`d1dc0eb`) ran the selected-image verifier against final ROMFS; its
+log reports the status page, HTTP handler and EN/UK/RU labels present, and the
+`iperf3-image-checks` artifact was uploaded. This proves image packaging for
+that build, not test traffic or throughput. The same-day read-only router sample
+reported `iperf3_enable=0` and no iPerf3 process. No start/stop test or bandwidth
+test was run on the router. See [iPerf3 image evidence](evidence/WR1200JS-BUILD478-IPERF3-IMAGE.md)
+and [service runtime sample](runtime/WR1200JS-2026-10-18-SERVICE-NAV.md).
+
+Build #502 passed the final-ROMFS status page, HTTP handler and EN/UK/RU label
+check. Build #503 then passed with the bounded LAN-client command/guidance from
+commit `5d1385f` included; build #504 also completed successfully. These image
+checks do not establish router-side client execution, traffic or throughput.
+
+## Service navigation return path — 2026-10-18
+
+Stubby, DoH and Privoxy shortcuts open their compact full-page views in a new
+browsing context, while each standalone service page includes a return link to
+Administration / Services. Build #488 passed the final-ROMFS route, page and
+EN/UK/RU localization verifier, including the same-tab return destination
+`/Advanced_Services_Content.asp`. Physical router-browser click-through is
+still unverified; the firmware has not been installed for this check. Other
+service shortcuts retain their agreed navigation behavior. See
+[navigation evidence](evidence/WR1200JS-SERVICE-NAV-LAYOUT-2026-10-18.md).
+
+## StrongSwan optional-service image gate — 2026-10-18
+
+StrongSwan is deferred and excluded from the active WR1200JS profile; this is
+not a missing current WebUI service. Build #478's main image policy gate
+required the selector to remain disabled and rejected its principal binaries
+and libraries in ROMFS. Build #502 now passes the explicit exclusion verifier
+and uploads `strongswan-image-checks`; the prior missing-report gap is closed
+for that image. See [build #502 service evidence](evidence/WR1200JS-BUILD502-SERVICE-AUDIT.md).
+This still does not establish runtime behavior for a feature intentionally
+excluded from the active profile.
+
+## Service/WebUI image refresh — 2026-10-20
+
+Build #502 passed the unified service navigation route/page/EN/UK/RU check,
+the Shadowsocks final-page CJK and dictionary check, settings backup/restore
+route and safe-session/browser-harness checks, USB/IP settings and target
+BusyBox fixtures, Stubby dependency checks plus a QEMU authenticated DoT query,
+WPAD/PAC localized final-ROMFS checks, KMS/Watchdog status UI checks, and the
+247-file `/www`-to-httpd-route audit. The run also produced the explicit
+StrongSwan exclusion report. These are CI and built-image results; they do not
+prove live Apply, service lifecycle, physical browser behavior or persistence.
+See [build #502 service evidence](evidence/WR1200JS-BUILD502-SERVICE-AUDIT.md).
+
+At the original #502 checkpoint, builds #503 and #504 were still in progress;
+that historical status is superseded by the follow-up below. The target BusyBox
+audit still explicitly reports the whole service/runtime audit as open.
+
+## Build #504 follow-up — 2026-10-20
+
+The earlier in-progress note above was refreshed: build #504 completed
+successfully for PR head `9c1e9b169acc28dd621e3374a81297755b16fa55`. Its CI
+passed unified service navigation and locale checks, Stubby packaging plus an
+authenticated DoT lookup through the image binaries under QEMU, DoH packaging,
+the target BusyBox service audit, and the final served-WebUI route check. See
+[build #504 service evidence](evidence/WR1200JS-BUILD504-SERVICE-AUDIT.md).
+Its job log also confirms the settings-backup final-ROMFS verifier and
+synthetic browser-behavior fixture passed: route, secure-session gate,
+localized labels, safe-session actions, uploads/downloads and save feedback.
+This does not prove operation in a physical browser or successful backup/
+restore on the router.
+
+The separate Service runtime state checks #247 passed source-level fixtures for
+SSH/iPerf3/Privoxy observation expiry, Cron and LLTD/ASUS/KMS/Watchdog state,
+VPN profile lifecycle logic, and USB/IP guards. Its VPN and USB/IP device
+operations are mocked; it is neither firmware/image nor physical-router
+evidence. See [run #247 evidence](evidence/WR1200JS-SERVICE-STATE-CHECKS-247.md).
+
+This is CI/image evidence only. Router-side service lifecycle, live DNS
+behavior, persistence and physical browser use remain open. The local
+unsupported PPTP/L2TP selector fix is commit `35d70be`, after the PR head, and
+is therefore absent from #504; its final-ROMFS/browser verification still
+requires a build containing that change. The target BusyBox report continues
+to mark the complete service/runtime audit open.
+
+## Unsupported VPN choices removed from WR1200JS pages — 2026-10-20
+
+Source review found that the inherited VPN client and server selectors still
+offered PPTP and standalone L2TP even though the WR1200JS profile excludes
+them. The source preparation now removes those choices on both pages, and the
+OpenVPN absence check targets its option value instead of a brittle index.
+The build-time WebUI checker covers both pages and an in-memory transformation
+fixture. Source checks passed locally; final-ROMFS and browser verification are
+pending. See
+[unsupported VPN UI evidence](evidence/WR1200JS-UNSUPPORTED-VPN-UI-2026-10-20.md).

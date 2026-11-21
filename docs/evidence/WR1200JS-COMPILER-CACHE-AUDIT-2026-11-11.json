@@ -1,0 +1,71 @@
+{
+  "scope": "compiler cache audit; optional1019 terminal with final stats,1018 still active",
+  "standard": {
+    "1016_ubuntu22": {
+      "hits": 1534,
+      "cacheable_calls": 10421,
+      "hit_percent": 14.72,
+      "misses": 8887,
+      "uncacheable": 4188
+    },
+    "1017_ubuntu24": {
+      "hits": 1598,
+      "cacheable_calls": 10417,
+      "hit_percent": 15.34,
+      "misses": 8819,
+      "uncacheable": 4188
+    }
+  },
+  "host_cache_entries": [
+    {
+      "host": "ubuntu-22.04",
+      "key": "wr1200js-ccache-v4-ubuntu-22.04-source-43053592915-1",
+      "compressed_bytes": 121518311,
+      "last_access_utc": "2026-11-11T16:29:08Z"
+    },
+    {
+      "host": "ubuntu-24.04",
+      "key": "wr1200js-ccache-v4-ubuntu-24.04-source-43053615585-1",
+      "compressed_bytes": 118648156,
+      "last_access_utc": "2026-11-11T16:29:00Z"
+    }
+  ],
+  "repository_cache_inventory": {
+    "count": 30,
+    "bytes": 10434233854
+  },
+  "findings": [
+    "v4 new per-host keys started cold; final optional1019 warm hits99.57% demonstrate successful reuse",
+    "standard and optional share same host/toolchain cache prefix",
+    "cache limit2G is not saturated: standard local cache about0.16GB",
+    "previous success-only save discards valid compiler cache growth after a late failed gate"
+  ],
+  "changes": [
+    "save after failed or successful firmware step only when restore/setup succeeded and job not cancelled",
+    "keep host separation, content compiler checks, freshness checks, existing rolling keys and final post-candidate save ordering",
+    "verbose and machine-readable stats uploaded for exact miss/error reasons"
+  ],
+  "verification": "real local ccache fixture passes; optional1019 final counters confirm99.57%; no additional build dispatched; optional1018 final metrics pending",
+  "optional_1019_ubuntu24": {
+    "run": 43058278935,
+    "job": 130653688364,
+    "revision": "4f80200ee6cd969a96f7319b0839b23606ac1038",
+    "cacheable_calls": 10435,
+    "hits": 10390,
+    "hit_percent": 99.57,
+    "direct_hits": 9765,
+    "preprocessed_hits": 625,
+    "misses": 45,
+    "uncacheable_calls": 4191,
+    "reported_error_calls": 4,
+    "total_calls": 14630,
+    "local_cache_GB": 0.2,
+    "max_cache_GB": 2.0,
+    "failed_step": "Compile isolated merged IoT MT7603 candidate",
+    "original_error": "tools/iot/check-driver-api-close-binding.c:27:9: iot_dev may be used uninitialized [-Werror=maybe-uninitialized]",
+    "monitor_run": 43060966514,
+    "monitor_artifact": 13873362794,
+    "cache_failure": false,
+    "scope": "Statistics cover work reached before host fixture failure; merged target module did not complete"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "scope": "local read-only ON/OFF configuration/service observer; not physical connectivity or RF acceptance",
+  "source": "tools/iot/activation-observe.c",
+  "checks": [
+    "Native GNU11 TU PASS",
+    "Actual owner/runner/snapshot/OFF composition ASan UBSan PASS",
+    "All9 foreign current ACTIVE and OFF settings rejected",
+    "Missing service/filter/address, wrong epoch/generation/token, DNS recovery and wrong close serial refused",
+    "Snapshot/owner and setter count unchanged",
+    "Actual control-client status -> strong observer fixture -> owner with actual mailbox/server ON/OFF ASan UBSan PASS",
+    "Full early preflight PASS exit0:71 standalone fixtures plus composition",
+    "Exact prepared RC source/header checker and native observer TU PASS",
+    "Final targeted observer and actual RC status ASan UBSan PASS after local owner/snapshot guards"
+  ],
+  "requirements": [
+    "ON expected snapshot and staged request/current services/filter/OPEN token/DNS state all match",
+    "OFF retained completed CLOSE reference, no bridge, administrative BSS down, no DNS recovery, zero temp gates/credentials"
+  ],
+  "limitations": [
+    "Driver/network/protocol hooks injected in host tests",
+    "Production strong mode/status installation and scheduler still unbound",
+    "Initial OFF and OFF->ON reopen remain required",
+    "MIPS target build pending publication"
+  ],
+  "cleanup": "TemporaryDirectory scratch removed; no retained output"
+}

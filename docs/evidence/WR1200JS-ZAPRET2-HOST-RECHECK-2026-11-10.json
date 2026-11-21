@@ -1,0 +1,12 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "checks": [
+    "test-service.sh PASS mocked lifecycle",
+    "verify-source-base.py PASS pinned 253 files",
+    "verify-deps-base.py PASS three pinned archives",
+    "prepare-web/check-web --node/check-web-backend PASS pinned source"
+  ],
+  "scope": "Host/source/strict C compilation only; not target/image or device runtime",
+  "scratch_removed_bytes": 802235,
+  "runtime_verified": false
+}

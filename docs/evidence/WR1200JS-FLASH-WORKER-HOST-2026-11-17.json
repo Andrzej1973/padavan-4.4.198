@@ -1,0 +1,21 @@
+{
+  "base_revision": "fe34baee4ec3d81224edc65715371448a76ebbe6",
+  "source_scope": "Experimental RC source-staged worker, no mailbox/WebUI route",
+  "host_checks": [
+    "PASS real fork/nonblocking pipe, real service guard and stock-style SIGCHLD reaper",
+    "PASS capability0/1, active/pending admission, PID/address/request/child binding",
+    "PASS automatic manual-save deferral, exact success receipt, unknown write/no respawn retention",
+    "PASS pipe/fork failure, killed child/EOF, truncated receipt, reused foreign descriptor preservation",
+    "PASS full nonsecret receipt corruption/truncation refuses without modifying decoded output",
+    "PASS known pre-submission failure is NOT_STORED and can retire; missing/uncertain receipt cannot"
+  ],
+  "runtime_binding": false,
+  "target_verified": false,
+  "device_changed": false,
+  "sha256": {
+    "tools/iot/flash-worker.c": "5bf6ed622d6cb6b0ca255eac2fb0aeace990744f42c0d94fd988eb4fe3364d8a",
+    "tools/iot/flash-worker.h": "26fdc3addc205320c41fdbab42fcda59210c9bae199307aea095f62041477e88",
+    "tools/iot/flash-worker-wire.h": "f48b51754647d37bd4c33e9ead92e064542b02d5479925b87938ecd7c5be8b63",
+    "tools/iot/check-flash-worker.py": "b1564592bc0c61d5bdbc1167d55dd1d6b8e01b1366310f3d1c4722830d073c56"
+  }
+}

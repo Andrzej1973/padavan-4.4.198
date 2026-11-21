@@ -1,0 +1,39 @@
+{
+  "revision": "12c9e01769cd83aa51d9fbc263fbce1cd4cd9a5f",
+  "scope": "Source call-chain audit only; no concurrent device execution reproduced",
+  "source_sha256": {
+    "common/mlme.c": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
+    "ap/ap_wpa.c": "0b502f4e25100c73b33abb166b727ba2afafb1d057afdfae23ffa9bbd7556c97",
+    "ap/ap_assoc.c": "9ba15488d0f27266fec2cf7e337e25253bb2c032ef0254ca9beed925b3970ca5"
+  },
+  "mlme_handler": {
+    "task_lock_serializes_bRunning": true,
+    "serializes_WPA_and_AP_ASSOC_dispatch": true,
+    "does_not_by_itself_serialize_independent_timer": true
+  },
+  "periodic_timer": {
+    "native_body_sha256": "31830943b74b95311408ca51f3f1a69584e15a488c258a467a462fde0ecea5cd",
+    "native_peer_iteration": true,
+    "writes_peer_GTKState": true,
+    "starts_peer_handshake": true,
+    "existing_wrapper_control_user_fence": true,
+    "existing_wrapper_key_writer_exclusion": true,
+    "existing_wrapper_peer_table_transaction": false,
+    "existing_wrapper_per_station_association_reservations": false
+  },
+  "association_order": {
+    "native_prior_key_clear_line": 1636,
+    "native_APBuildAssociation_call_line": 1809,
+    "key_state_mutates_before_association_generation_check_in_called_helper": true
+  },
+  "next_required_binding": [
+    "Admit timer peer table lifetime before native peer iteration",
+    "Reserve exactly the ra2 station contexts under MacTabLock before releasing it",
+    "Cover association-side mutations before native prior-key clear, not merely later SST_ASSOC publication",
+    "Balance reservations on timer early returns; avoid table lock across timer cancellation/send",
+    "Test admitted timer versus native association-side mutation, deletion and reset, preserving Main/Guest"
+  ],
+  "complete_peer_lifetime_verified": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

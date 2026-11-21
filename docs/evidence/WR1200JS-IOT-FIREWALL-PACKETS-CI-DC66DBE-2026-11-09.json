@@ -1,0 +1,37 @@
+{
+  "run_id": 42560818605,
+  "revision": "dc66dbeb529a3042f153ee714cd106c100ef23e7",
+  "artifact_id": 13649850395,
+  "packet_reports": {
+    "iot-firewall-packets.json": {
+      "checks": {
+        "tcp_dns_allowed": true,
+        "router_admin_blocked": true,
+        "lan_blocked": true,
+        "wan_and_return_allowed": true,
+        "lan_unsolicited_blocked": true,
+        "wan_unsolicited_blocked": true,
+        "main_lan_wan_preserved": true,
+        "preexisting_lan_connection_blocked": true,
+        "udp_dns_allowed": true,
+        "dhcp_ports_allowed": true,
+        "dhcp_wrong_source_port_blocked": true,
+        "udp_wan_return_allowed": true,
+        "udp_lan_blocked": true,
+        "ipv6_router_tcp_blocked": true,
+        "ipv6_router_udp_blocked": true,
+        "ipv6_lan_tcp_blocked": true,
+        "ipv6_wan_tcp_blocked": true,
+        "ipv6_lan_udp_blocked": true,
+        "ipv6_wan_udp_blocked": true,
+        "ipv6_unsolicited_lan_blocked": true,
+        "ipv6_unsolicited_wan_blocked": true
+      },
+      "scope": "Host-kernel IPv4 TCP/UDP and DHCP-port filtering, stale conntrack isolation, IPv6 TCP/UDP router and inter-network isolation in both directions; static IPv6 neighbor entries make packet baselines deterministic; IPv6 neighbor discovery, actual DNS/DHCP transactions and target runtime are unverified",
+      "runtime_verified": false
+    }
+  },
+  "runtime_verified": false,
+  "limits": "GitHub host-kernel namespace packet evidence, not Linux4.4 router, HWNAT, IPv6 NDP or actual DNS/DHCP acceptance.",
+  "cleanup": "ZIP read in memory, no archive/extracted tree retained"
+}

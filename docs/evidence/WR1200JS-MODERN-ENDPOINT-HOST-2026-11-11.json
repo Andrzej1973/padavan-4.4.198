@@ -1,0 +1,41 @@
+{
+  "scope": "joined actual HTTP/body/CGI/apply/commit/notify host candidate",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "host_scenarios": 24,
+  "checks": [
+    "both bands/shared Main flag/manual commit/keep-change-open",
+    "complete real handle_request, do_html_apply_post, init_cgi, update_variables_ex, validate_asp_apply, commit and notify functions",
+    "UTF8 SSID and encoded delimiter preserved",
+    "Main/radio/other Guest preserved despite injection",
+    "whole-request replay no extra writes/commit/notification",
+    "duplicate/short body400 before output or writes",
+    "missing authentication401 before input or writes",
+    "CGI/body wiped after successful output"
+  ],
+  "substitutes": [
+    "auth algorithm and login-state provider",
+    "socket FILE replaced by tmpfile",
+    "NVRAM/flash/RC operations",
+    "template engine replaced by exact source-verified callback order",
+    "generic events fixture constants; all171 WLAN names/types union"
+  ],
+  "not_verified": [
+    "real HTTP sockets/browser/template engine",
+    "target compile for new body package",
+    "request freshness/external writers",
+    "physical runtime/isolation",
+    "full Modern UI Apply response contract"
+  ],
+  "production_installed": false,
+  "runtime_verified": false,
+  "scratch_removed": true,
+  "files_sha256": {
+    "modern-form.h": "827d9242ca039b98c61c13bbbe7df1e52bfdaf3c96311bae190f04849f4817df",
+    "modern-body.h": "cbd6d947111caf331919ff983bb6abb0bb74f734fd590c6465c0f2a6d35d10ec",
+    "prepare-modern-body.py": "f5fc86fa244f42895da8f927811dfc0b9ac42cd7b44c2a29c3cbdbc3ccaba19f",
+    "guest-body-fixture.c.inc": "3eba3e032528c2f25b9a5be0e53f4fdf7bea6278d153a9a0d1eaf78807ec501e",
+    "guest_endpoint_fixture.py": "9826069d6ff1c80b703151c3aa26ce194bce6e42706e30ed22e0a1fba1aa605c",
+    "guest-endpoint-main.c.inc": "19cac953be3064191d95ea4bfca2ff5cbf8c2839dd11392c41843b315f2026a8",
+    "check_guest_candidate.py": "ae37073796bdbc21afb2da4fcaf9bf768b8893bf413421d8b0912db5aea9d05c"
+  }
+}

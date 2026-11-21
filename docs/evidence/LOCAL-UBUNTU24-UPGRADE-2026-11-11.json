@@ -1,0 +1,32 @@
+{
+  "local_os": "Ubuntu24.04.5 LTS",
+  "method": "official do-release-upgrade DistUpgradeViewNonInteractive22.04 to24.04",
+  "upgrader_exit": 0,
+  "systemd": "running",
+  "dpkg_audit": "empty",
+  "apt_get_check": "passed",
+  "versions": {
+    "python": "3.12.3",
+    "gcc": "13.3.0",
+    "git": "2.43.0",
+    "ccache": "4.9.1",
+    "make": "4.3"
+  },
+  "checks": [
+    "Python yaml ssl sqlite3 import",
+    "SSH git ls-remote existing remote",
+    "real ccache hit/change/failure-recovery fixture",
+    "CAKE synthetic image gate",
+    "SQM inclusion policy fixture",
+    "workflow expression gate"
+  ],
+  "registered_wsl_name": "Ubuntu-22.04",
+  "checkout": "/home/andrzej/padavan-build/router-guide-work",
+  "apt_archives_cleaned_approx_MiB": 239,
+  "windows_free_approx_GB": 16,
+  "retained_upgrade_logs": "/var/log/dist-upgrade approx764KiB",
+  "retained_settings_backups": [
+    "/etc/wsl.conf.before-noble-20261111",
+    "/etc/update-manager/release-upgrades.before-noble-20261111"
+  ]
+}

@@ -7,8 +7,19 @@ int wr_iot_quarantine_ready(void);
 int wr_iot_quarantine_can_apply(void);
 /* Installed in firewall_ex.c. Caller retains service guard throughout. */
 int wr_iot_quarantine_apply(void);
+/* Normal OFF: ra2 DOWN, owned bridge may remain UP for DNS/DHCP teardown.
+ * Requires held service guard and closed network/firewall gates. Retains the
+ * bridge; no RF/DMA completion or service commit is implied. */
+int wr_iot_quarantine_can_reapply(void);
+int wr_iot_quarantine_reapply(void);
 /* Trusted expected rules only; holds guard, owned bridge, BSS still DOWN. */
 int wr_iot_policy_rules_ready(const char *ipv4,const char *ipv6);
+/* Final read-only filter observation after BSS UP. Does not relax any mutation
+ * gate. Requires held guard, owned bridge and sole ra2 active before/after. */
+int wr_iot_policy_rules_observed(const char *ipv4,const char *ipv6);
+/* Rebuild expected rules/current WAN and probe service readiness after BSS UP.
+ * Filter observation alone does not prove NAT, offload bypass or connectivity. */
+int wr_iot_active_filter_observed_current(void);
 /* Rebuild expected policy from current configuration and live inventory. */
 int wr_iot_active_filter_ready(const char *lan,const char *wan);
 int wr_iot_policy_can_apply(void);
@@ -16,6 +27,8 @@ int wr_iot_policy_can_apply(void);
 int wr_iot_active_filter_apply(const char *lan,const char *wan);
 /* Uses the same WAN selection as start_firewall_ex, refuses changes mid-apply. */
 int wr_iot_active_filter_apply_current(void);
+/* Read-only pre-OPEN observation; current WAN must remain unchanged. */
+int wr_iot_active_filter_ready_current(void);
 /* POLICY operation: services ready, held guard and BSS DOWN; failure is not
  * recovery completion. Caller must retain snapshots and run full recovery. */
 int wr_iot_policy_enable_current(void);

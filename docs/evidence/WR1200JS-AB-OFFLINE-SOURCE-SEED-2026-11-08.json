@@ -1,0 +1,12 @@
+{
+  "run_id": 42474205248,
+  "failed_step": "Seed verified owned source archives",
+  "original_log_verified": true,
+  "cause": "Owned mbedTLS release API HTTP504 and connection56 after configured retries; no compilation or new-toolchain test started",
+  "monitor": "No matching deployed monitor observed; trusted-main watched-list integration still pending",
+  "fix": "Commit exact three small source archives; CLI seeder supplies checked-out bundle and forbids network fallback; SHA256 gates unchanged",
+  "tests": "PASS original download/cache failure fixtures, no-network bundle/missing/corrupt tests, actual three archive SHA256/offline seeding",
+  "bytes_retained": 6415071,
+  "retention_reason": "Durable reproducible source inputs replace repeated failing release downloads, not disposable scratch",
+  "production_toolchain_changed": false
+}

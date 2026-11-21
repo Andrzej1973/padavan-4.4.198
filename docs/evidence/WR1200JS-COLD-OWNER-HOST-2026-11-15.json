@@ -1,0 +1,23 @@
+{
+  "scope": "private stable cold owner through pre-IoT-OPEN PREPARED boundary",
+  "checks": {
+    "actual_cold_admission_generation_profile_Main_Guest_service_multicast_asan_ubsan": "PASS",
+    "partial_generation_preup_recovery": "PASS",
+    "bridge_Guest_service_multicast_submission_failures_retained": "PASS",
+    "Guest_OFF_and_ordered_one_attempts": "PASS",
+    "parent_pointer_identity_and_replay_refusal": "PASS",
+    "request_credentials_dropped_after_child_capture_or_refusal": "PASS",
+    "prepared_rc_c11_objects": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-owner.c": "ce69849225e500b906fdd7a4556c7a568fb82b4acf29b97290441265030e5cce",
+    "tools/iot/cold-on-owner.h": "87e32426f04cf23d14d7a32069d93358213513e78d49bb1889251f0265072f86",
+    "tools/iot/check-cold-on-owner.py": "a74d654c7123b3a5c87b44f96052e4aecbc9b7b596a148e321391f96d52a7a43"
+  },
+  "public_entry_bound": false,
+  "backend_handoff_bound": false,
+  "root_retirement_bound": false,
+  "post_up_shutdown_bound": false,
+  "target_verified": false,
+  "physical_verified": false
+}

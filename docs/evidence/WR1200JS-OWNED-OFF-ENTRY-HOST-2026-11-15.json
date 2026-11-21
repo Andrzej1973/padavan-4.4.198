@@ -1,0 +1,30 @@
+{
+  "scope": "unbound owned physical OFF entry",
+  "semantics": [
+    "non-OFF action or never-owned initial state returns NATIVE",
+    "existing historical OFF receipt returns REFUSED and remains untouched",
+    "busy/pending/invalid/uncertain owned route returns REFUSED",
+    "fresh immutable OFF ID/time passed after releasing snapshot guard",
+    "private OFF admission return1 means owned, not completed"
+  ],
+  "checks_passed": [
+    "check-radio-off-entry.py",
+    "check-restart-entry.py",
+    "check-radio-on-entry.py",
+    "check-radio-on-entry-root.py",
+    "check-physical-stop-client-preparation.py",
+    "check-radio-off-entry-runtime.py",
+    "check-restart-entry-source.py"
+  ],
+  "negative_cases": [
+    "existing receipt",
+    "ON process ownership",
+    "short entropy",
+    "mode drift",
+    "private owner refuses"
+  ],
+  "saved_radio_policy": "0 and1 accepted for OFF admission; physical owner performs its own checks",
+  "public_hook_bound": "paired experimental restart source only",
+  "actual_off_root_composition": "PASS actual entry/RC ppoll/OFF owner and receipt; physical and followup boundaries injected",
+  "runtime_verified": false
+}

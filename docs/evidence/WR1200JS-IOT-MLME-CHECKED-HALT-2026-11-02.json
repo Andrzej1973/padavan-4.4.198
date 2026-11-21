@@ -1,0 +1,23 @@
+{
+  "scope": "Isolated merged optional peer82 candidate",
+  "host": "PASS ASan/UBSan extracted MLME join, wrapper admission and actual shutdown refusal block",
+  "faults": [
+    "failed task kill refuses before cleanup",
+    "self/unknown identity refuses before kill",
+    "atomic/IRQ context refuses before kill",
+    "shutdown failure records stage3 and retains",
+    "legacy void entry remains callable"
+  ],
+  "target": "PASS common/mlme.c and common/rtmp_init_inf.c MIPS translation units using retained baseline; full module on this change pending",
+  "integration": "PASS downstream checks including init RX join; workflow YAML and full affected bash syntax",
+  "files": {
+    "tools/iot/prepare-mlme-checked-halt.py": "c2985f3cbd9248f5a691c5953d73be16b44ba22d1cfa3e373a5b157174b8b813",
+    "tools/iot/check-mlme-checked-halt.py": "e6658618d4b1fc4f51894fa95bbcc2b2fb24523cac663ef8e409e478b5c75558"
+  },
+  "limitations": [
+    "Timer storage/catalog ownership and checked timer release still open",
+    "No all-callback retirement receipt",
+    "No production installation or runtime validation"
+  ],
+  "cleanup": "Temporary merged source, host fixtures and MIPS objects removed"
+}

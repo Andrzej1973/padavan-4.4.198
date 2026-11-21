@@ -1,0 +1,13 @@
+{
+  "scope": "temporary expanded runtime preparation prototype; repository preparer unchanged during active suite",
+  "units": [
+    "precreated-down-recovery",
+    "cold-on-recovery",
+    "cold-on-main"
+  ],
+  "prepared_c11_objects": "PASS",
+  "duplicate_preparation_refused": true,
+  "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a",
+  "target_build_verified": false,
+  "runtime_verified": false
+}

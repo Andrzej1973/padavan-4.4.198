@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "9af5697",
+  "scope": "fresh source preparation replay and lexical peer writer audit",
+  "full_replay_stages": 40,
+  "candidate_file_count": 560,
+  "incremental_and_fresh_candidate_all_files_equal": true,
+  "extracted_host_variants": 42,
+  "composed_host_variants": 23,
+  "passed": true,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "atomic_reset_owner_bound": false,
+  "proof_sha256": {
+    ".iot-local-check/peer-retirement-chain40-20261030/peer-chain.json": "a0e8ca45e8cde22bb466df6a626b5ea51ca267e1bc963d46cbf4c1b5c323c704",
+    ".iot-local-check/legacy-close-result40b-host-20261030/result.json": "6b323eec6016ef7e5b488075c2fd3db72bc842ef62f1513ca3e22ec502c43ef2",
+    ".iot-local-check/chain40-composed-host-20261030/result.json": "c3ff1508595a78a6ed7a66f522be721b6c277e4f4be2e610c3787a6aa295e50c",
+    "docs/evidence/WR1200JS-IOT-PEER-TABLE-WRITERS-2026-10-30.json": "5ebd49a757496761c1a237898d3af9dc39113d6c7654758b2f63935824da497c"
+  },
+  "required_next": "bind adapter-owned table mutation owner across both insertion implementations, normal/reset/WDS delete paths, Easy Setup writes and full clears; reserve and preflight atomically under MacTabLock; never wait under spin/IRQ locks",
+  "limitations": [
+    "writer inventory is lexical, not complete alias/feature analysis",
+    "additional repeater hardware/timer path unchecked",
+    "owner must survive full MacTab zeroing",
+    "no shared reset/insertion or safe retry owner yet"
+  ]
+}

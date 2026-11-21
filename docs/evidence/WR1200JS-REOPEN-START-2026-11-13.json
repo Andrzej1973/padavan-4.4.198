@@ -1,0 +1,26 @@
+{
+  "scope": "local post-CLOSE startup read-only admission; no new OPEN",
+  "source": [
+    "tools/iot/reopen-start.c",
+    "tools/iot/reopen-start.h"
+  ],
+  "implementation": [
+    "Double current copied CLOSED witness with stable captured context",
+    "Separate new startup snapshot and guard, old STOPPED owner untouched",
+    "Pending shutdown refuses before capture",
+    "Failed post-capture observation attempts read-only finish; failed finish retains snapshot",
+    "Explicit reopened marker rejects initial-only stage/network/pre-OPEN rollback until distinct integration exists"
+  ],
+  "checks": [
+    "ASan UBSan actual completed OFF/witness/new admission/cancel PASS",
+    "Duplicate begin refused, zero writes, initial reader not called for reopened stage",
+    "Initial startup pre-OPEN rollback composition regression PASS"
+  ],
+  "remaining": [
+    "Distinct reopen stage/network/rollback methods",
+    "New runner and owner handoff retaining old stop context",
+    "New OPEN loaded credential validation/repeated ON-OFF-ON",
+    "Prepared target/fullpreflight"
+  ],
+  "cleanup": "All TemporaryDirectory outputs removed; no retained scratch"
+}

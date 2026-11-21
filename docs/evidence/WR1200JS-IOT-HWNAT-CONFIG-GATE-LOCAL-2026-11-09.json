@@ -1,0 +1,35 @@
+{
+  "scope": "Actual WR1200JS config verifier CLI with current board kernel profile and isolated mutations",
+  "verifier_sha256": "c2f6cbb9d303cc038fbc842e3df0c21746dbb2a91f61ce95bf8eadaff60e3e64",
+  "checks": {
+    "current_kernel_policy": "PASS",
+    "HW_NAT_disabled": "REFUSED",
+    "RA_NAT_NONE_disabled": "REFUSED"
+  },
+  "limits": "Minimal requested/effective firmware inputs exercise kernel-policy path only. Not target rebuild, macro, DTB or runtime isolation proof.",
+  "runtime_verified": false,
+  "cleanup": "Temporary configs/report removed",
+  "real_image_config_verification": {
+    "run_id": 42557592602,
+    "revision": "0dc0a6bea80f843bca53f4b857215289c6fc78cd",
+    "artifact_id": 13647649081,
+    "inputs_sha256": {
+      "firmware-requested.config": "67146fca6069e2275397dc81e4a9ff7fdbafda241a4e804515b469d2ed387e9a",
+      "firmware-effective.config": "00df5527ab43a0b9525b73073708a0fef09fe5e13b7a6f354d5ec851309fed8b",
+      "kernel-effective.config": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9"
+    },
+    "result": "PASS actual full requested/effective/kernel config",
+    "pending_options": [],
+    "iot_hwnat_kernel_policy": {
+      "required": {
+        "CONFIG_HW_NAT": "y",
+        "CONFIG_RA_NAT_NONE": "y"
+      },
+      "effective": {
+        "CONFIG_HW_NAT": "y",
+        "CONFIG_RA_NAT_NONE": "y"
+      },
+      "scope": "Preserves audited kernel assumptions only; not driver macro, DTB, route or runtime isolation proof"
+    }
+  }
+}

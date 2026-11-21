@@ -35,6 +35,7 @@ replacements = {
     '''    wr_wifi_applying = 1;
     status = wr_band_service_apply(&wr_wifi_owner, IFNAME_2G_MAIN, IFNAME_5G_MAIN,
                                   &ops, &context, enabled, result);
+    if (wr_wifi_owner.pid > 1) wr_wifi_last_owner_pid = wr_wifi_owner.pid;
     wr_wifi_applying = 0;
     return status;''':
         '''    wr_wifi_applying = 1;
@@ -54,6 +55,7 @@ replacements = {
     }
     status = wr_band_service_apply(&wr_wifi_owner, IFNAME_2G_MAIN, IFNAME_5G_MAIN,
                                   &ops, &context, enabled, result);
+    if (wr_wifi_owner.pid > 1) wr_wifi_last_owner_pid = wr_wifi_owner.pid;
     /* Unbind before wiping the capture; every service failure follows this
      * cleanup path. Neither validation nor both writes read live NVRAM. */
     wr_band_profile_unbind_snapshot();

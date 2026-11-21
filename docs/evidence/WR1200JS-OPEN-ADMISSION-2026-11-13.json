@@ -1,0 +1,31 @@
+{
+  "scope": "Staged one-shot OPEN controller with actual pre/post network admission adapters",
+  "source": [
+    "driver-open-controller.c",
+    "request-stage.c:wr_iot_request_stage_matches",
+    "quarantine-apply.inc:wr_iot_active_filter_ready_current"
+  ],
+  "invariants": [
+    "All three staged gates and six exact request fields checked under guard before OPEN",
+    "Bridge/subnet/service and current-WAN policy ready; no firewall rebuild in readiness helper",
+    "Phase latched before tracked OPEN, preventing retries and reentrant OPEN",
+    "Strict driver ON completion plus post-OPEN current policy and staged values required",
+    "Uncertainty retains nonsecret original attempt for recovery-only read/CLOSE; outer network owner remains responsible"
+  ],
+  "host_verification": {
+    "controller": "PASS11 pre/post fault classes across3 client outcomes, reentrant/duplicate submission refusal, pid/guard/recovery checks; external adapters injected",
+    "request_matcher": "PASS actual request-stage/snapshot/service/controller composition, nine staged-value mismatches, lost guard and unterminated SSID rejection with no NVRAM writes",
+    "policy": "PASS actual installed helper extracted from pinned prepared RC; read-only call count and separately injected WAN drift refusal",
+    "prepared_rc": "PASS actual40-file SDK preparation, exact header/source identity and native new OPEN TU compile",
+    "preflight": "PASS64 standalone fixtures and existing composition checks"
+  },
+  "target_verification": "New OPEN TU added to ABI workflow; pending for this source",
+  "production_bound": false,
+  "runtime_verified": false,
+  "remaining": [
+    "Bind full activation, startup rollback and shutdown fence",
+    "MIPS/experimental driver/image checks for exact package",
+    "Physical WR1200JS acceptance"
+  ],
+  "cleanup": "Temporary headers/trees/binaries removed; completed host log removed (13109bytes)"
+}

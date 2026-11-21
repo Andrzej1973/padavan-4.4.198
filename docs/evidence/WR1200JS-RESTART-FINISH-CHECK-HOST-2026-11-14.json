@@ -1,0 +1,27 @@
+{
+  "scope": "read-only software finish prerequisite check",
+  "checks": [
+    "exact ACTIVE observer before/after",
+    "owned generated profile and third-BSS contents",
+    "Main bridge",
+    "Guest current saved policy/admin state/isolation",
+    "services submitted receipt and current policy",
+    "auth process-name presence"
+  ],
+  "focused_test": "actual profile journal/generation/Main/root with Guest/services/backend/kernel actors injected; sanitizer pass",
+  "preparation": {
+    "session": 68872,
+    "exit_code": 0,
+    "translation_units": 29,
+    "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  },
+  "does_not_prove": [
+    "loaded firmware keys",
+    "RSSI runtime readback",
+    "8021X authentication readiness",
+    "RF/DMA/IRQ runtime acceptance"
+  ],
+  "finalizer_consumer_installed": false,
+  "target_verified": false,
+  "runtime_verified": false
+}

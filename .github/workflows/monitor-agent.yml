@@ -7,7 +7,7 @@ on:
         required: true
         type: string
   workflow_run:
-    workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks, Band Steering driver ABI]
+    workflows: [Build selected router firmware, Padavan Linux 4.4.198 WR1200JS, Service runtime state checks, Band Steering driver ABI, Build owned MIPS toolchain, WR1200JS toolchain comparison]
     types: [completed]
 permissions:
   contents: read
@@ -18,7 +18,7 @@ concurrency:
   queue: max
 jobs:
   monitor:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure'
+    if: github.event_name == 'workflow_dispatch' || contains(fromJSON('["failure","startup_failure"]'), github.event.workflow_run.conclusion)
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -40,6 +40,11 @@ jobs:
           mkdir -p .cache/nim-monitor bin
           nim c -d:release --nimcache:.cache/nim-monitor --out:bin/build-monitor tools/agent-nim/build_monitor.nim
           python3 tools/agent-nim/check_build_monitor.py bin/build-monitor
+          if grep -Fq 'atomicWrite(directory / "run_build_error.log"' tools/agent-nim/build_monitor.nim; then
+            python3 tools/agent-nim/check_monitor_run_report.py bin/build-monitor
+          else
+            echo 'Trusted monitor predates per-run report support; regression not applicable.'
+          fi
           nim c -d:release --nimcache:.cache/nim-monitor --out:bin/build-log tools/agent-nim/build_log.nim
           python3 tools/agent-nim/check_build_log.py bin/build-log
       - uses: actions/cache/restore@v4
@@ -74,7 +79,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: agent-build-error-${{ github.run_id }}
-          path: .codex/last_build_error.log
+          path: |
+            .codex/last_build_error.log
+            .codex/run_build_error.log
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7

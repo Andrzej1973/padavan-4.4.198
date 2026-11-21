@@ -1,0 +1,230 @@
+{
+  "scope": "lexical mutation seed inventory plus reviewed critical source assertions",
+  "semantic_alias_analysis": false,
+  "effective_feature_config_verified": false,
+  "source_sha256": {
+    "ap/ap_data.c": "7c13d3de6e87a85bee545c0fbc79d9b7348bbd70a172e0008a0629da87feaaf3",
+    "ap/ap_repeater.c": "24e69448945f4967bff075097f42204fa0a67f29be49aaf0756a382dbdd1b2c9",
+    "ap/apcli_sync.c": "2252b15357451acf6908af84bdae71f6bee2ca1bf0b2355dc1c8e2f90c91c067",
+    "common/a4_conn.c": "3ef69a4db5ae684b70e191c1118e58b73d544366afcf08e0342a9b6311388561",
+    "common/rtmp_init.c": "9fc1d002acdc80e087c43686ed4088d18d1043d3b8cdef65d498f1c9a4ae0275",
+    "common/rtmp_init_inf.c": "e4c1357fede7dc933d52c8cd41f50365c7fffed28b2c0d45e656ddd51b4868ef",
+    "easy_setup/mt7603_chip_ops.c": "d8cfdc153de3044a1c50aa7e2997f943d62cfa195e3f40c672178041f0ba6bce",
+    "mgmt/mgmt_entrytb.c": "e6515864f6fc87950f269e1f79015bc67eda4a09f1b2dce2a51c7c5612e2617c"
+  },
+  "sites": [
+    {
+      "file": "ap/ap_data.c",
+      "line": 3634,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "ap/ap_repeater.c",
+      "line": 564,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "ap/ap_repeater.c",
+      "line": 684,
+      "kind": "table_count_write",
+      "declaration_not_call": false
+    },
+    {
+      "file": "ap/apcli_sync.c",
+      "line": 456,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "common/a4_conn.c",
+      "line": 564,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "common/a4_conn.c",
+      "line": 588,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "common/a4_conn.c",
+      "line": 624,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "common/a4_conn.c",
+      "line": 646,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "common/rtmp_init.c",
+      "line": 1537,
+      "kind": "table_clear",
+      "declaration_not_call": false
+    },
+    {
+      "file": "common/rtmp_init_inf.c",
+      "line": 994,
+      "kind": "table_clear",
+      "declaration_not_call": false
+    },
+    {
+      "file": "common/rtmp_init_inf.c",
+      "line": 1310,
+      "kind": "table_clear",
+      "declaration_not_call": false
+    },
+    {
+      "file": "easy_setup/mt7603_chip_ops.c",
+      "line": 720,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 77,
+      "kind": "peer_reset_or_setup",
+      "declaration_not_call": true
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 105,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 115,
+      "kind": "peer_reset_or_setup",
+      "declaration_not_call": true
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 137,
+      "kind": "entry_type_assignment",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 198,
+      "kind": "entry_type_assignment",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 246,
+      "kind": "entry_type_assignment",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 400,
+      "kind": "peer_reset_or_setup",
+      "declaration_not_call": true
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 460,
+      "kind": "peer_reset_or_setup",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 516,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 577,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 608,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 641,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 650,
+      "kind": "peer_reset_or_setup",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 665,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 666,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 728,
+      "kind": "table_count_write",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 1130,
+      "kind": "peer_reset_or_setup",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 1207,
+      "kind": "entry_type_macro",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 1210,
+      "kind": "table_count_write",
+      "declaration_not_call": false
+    },
+    {
+      "file": "mgmt/mgmt_entrytb.c",
+      "line": 1401,
+      "kind": "table_clear",
+      "declaration_not_call": false
+    }
+  ],
+  "critical_findings": [
+    "main insertion holds MacTabLock while selecting/resetting/publishing peer; pre-lock size read is advisory",
+    "RTMPInsertRepeaterMacEntry independently allocates same Content/TR slots and increments table size under MacTabLock",
+    "repeater path cancels timers and clears entry memory before unchecked hardware entry add",
+    "ez_set_entry_apcli_mt7603 mutates looked-up peer type without local MacTabLock; feature activation unverified",
+    "fresh initialization and legacy/checked close clear whole MacTab; owner state must live outside that cleared memory",
+    "reset preflight must reserve exclusive owner in same MacTabLock critical section; current observation is insufficient"
+  ],
+  "required_next_binding": [
+    "adapter-owned fresh-only owner initialization outside MacTab",
+    "main and repeater insertion plus easy-setup type mutation admission",
+    "ordinary delete, WDS resume and explicit reset-owner deletion authorization",
+    "reset reservation plus failed-setup preflight atomically under MacTabLock",
+    "no timer/callback wait while MacTabLock/IRQ/transition locks held",
+    "failed operation remains retained; no implicit clearing/reinitialization on retry",
+    "full table clears and adapter release must obey owner lifetime"
+  ],
+  "production_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false
+}

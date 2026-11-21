@@ -35,6 +35,7 @@ sed -e "s|^STUBBY_BIN=/usr/sbin/stubby\$|STUBBY_BIN=$work/bin/stubby|" \
     -e "s|^STUBBY_CONFIG=/etc/storage/stubby/stubby.yml\$|STUBBY_CONFIG=$work/storage/stubby/stubby.yml|" \
     -e "s|^PID_FILE=/var/run/stubby.pid\$|PID_FILE=$work/run/stubby.pid|" \
     -e "s|^CA_FILE=/usr/share/stubby/ca-certificates.crt\$|CA_FILE=\${TEST_CA_FILE}|" \
+    -e "s|^DNS_LISTENER_GUARD=/usr/bin/stubby-dns-listener-guard.sh\$|DNS_LISTENER_GUARD=$here/../dns-common/dns-listener-guard.sh|" \
     -e "s|/etc/storage/stubby|$work/storage/stubby|g" \
     -e '/^# One lock covers the entire restart/,$d' \
     "$here/stubby.sh" > "$lib"

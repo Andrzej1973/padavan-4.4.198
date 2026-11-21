@@ -1,0 +1,18 @@
+{
+  "suite95": {
+    "session": 36195,
+    "exit_code": 0,
+    "sha256": "edbe03b49f4e048aa012e14446d2471f4f0da9bf0e26805e22ff674d3b3e3c86",
+    "scope": "precedes later scheduler/retirement and final preparation updates"
+  },
+  "final_preparation": {
+    "session": 44989,
+    "exit_code": 0,
+    "translation_units": 34
+  },
+  "focused_checks": "scheduler/resume/retirement two cycles and physical prehandoff cancellation checks PASS separately",
+  "registered_suite_parts": 99,
+  "full99_pass_claimed": false,
+  "rc_hooks_bound": false,
+  "runtime_verified": false
+}

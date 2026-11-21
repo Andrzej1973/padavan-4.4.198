@@ -1,0 +1,63 @@
+{
+  "run": 43156619976,
+  "number": 1038,
+  "host": "ubuntu-24.04",
+  "source": {
+    "dispatch_revision": "b4d73312002e708a85311c1b33903d215a012ec4",
+    "requested_revision": "b4d73312002e708a85311c1b33903d215a012ec4",
+    "verified_revision": "b4d73312002e708a85311c1b33903d215a012ec4",
+    "runtime_verified": false
+  },
+  "artifact": 13917121734,
+  "modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5916704,
+      "sha256": "f5c8ac6576367858866f9e7ad605c5cc844ee08d0b90a10a5a3033bc8b4ce012",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "bytes": 5914644,
+      "sha256": "40ae258d264b380a5ecdffa9c93f66e2db0938e38e04f9a5b33bfe62e8076d02",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "bytes": 5925016,
+      "sha256": "2595a58e31a5e396a2ff6273f5034cb942119d274438debc61067d8de5d07ad3",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5918816,
+      "sha256": "98c34af4d4a365b8fe687d8cc6cd37b920b020b66887c3b646a721069499d508",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6526616,
+      "sha256": "19e55fa59bd3733ff27085a6792c6cd3e688dc8043ac81aa0d941e7a9ed029d3",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    }
+  },
+  "diagnostic_markers_on_present_off_absent": true,
+  "psm_object_and_compile_command_provenance_verified": true,
+  "feature_report_linkage_verified": true,
+  "prepared_driver_checks": {
+    "ra2-ps-retain.txt": {
+      "sha256": "f2da6d859f6f1e43025f9f1ec09735f9a88278541e757108e21eb2043369567d",
+      "off_on_pass": true
+    },
+    "ra2-software-off.txt": {
+      "sha256": "720cf2ddd3eeee5d6408ab580bdef4ab7858ff60c0833fb02fee787a9caa9763",
+      "off_on_pass": true
+    }
+  },
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Isolated peer82 software recovery candidate target compilation. Production RC/controller binding and physical runtime acceptance remain unfinished.",
+  "tradeoff": "PS-Poll wait retires after two existing AP maintenance passes; sleeping-client latency requires runtime measurement.",
+  "scratch": "Artifact inspected in memory; no extracted tree retained"
+}

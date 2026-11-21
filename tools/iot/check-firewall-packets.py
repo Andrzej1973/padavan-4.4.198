@@ -7,7 +7,9 @@ if os.geteuid()!=0 or not os.environ.get('WR_IOT_PARENT_NETNS') or os.readlink('
 root=Path(sys.argv[1]).resolve();servers=[];checks={};libc=ctypes.CDLL(None,use_errno=True)
 def run(*args):return subprocess.run(args,check=True,capture_output=True,text=True)
 run('mount','--make-rprivate','/')
-run('mount','-t','tmpfs','tmpfs','/run/netns')
+# Keep namespace mountpoints private even when systemd has no /run/netns.
+run('mount','-t','tmpfs','tmpfs','/run')
+Path('/run/netns').mkdir()
 run('ip','link','set','lo','up')
 for name in ('iot','lan','wan'):
  run('ip','netns','add',name);run('ip','-n',name,'link','set','lo','up')

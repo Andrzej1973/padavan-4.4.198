@@ -1,0 +1,55 @@
+{
+  "scope": "Prepared native RRB and ordinary RX ingress producers plus FT action consumer; active-peer and pending first-peer ticket paths; independent explicit queue, crypto, parser and insertion actors",
+  "exit_status": 0,
+  "variants": [
+    "default",
+    "CUSTOMER_DCC_FEATURE"
+  ],
+  "checks": [
+    "RRB active peer capture under MacTabLock with exact BSS/MAC/wdev/WCID context",
+    "ordinary RX maps receiver Addr1 to BSS and captures only exact active BSS/MAC/wdev peer",
+    "ordinary RX reserves BSS+MAC ticket only for local-target terminating BT_REQ without same-context entry",
+    "foreign-BSS same-MAC entries are not adopted; inactive or inconsistent same-context entries refuse",
+    "allocation/enqueue refusal releases producer ticket; successful enqueue moves ticket ownership",
+    "consumer snapshots queued ticket and validates immutable BSS/MAC/StaMac identity before first-peer insertion",
+    "first-peer insertion uses pending ticket and exact interface scope; no native MAC-only fallback",
+    "failed insertion is retryable; duplicate sibling ticket and active-peer race refuse",
+    "successful FT-auth transition advances generation while lease is held; callback lease balances",
+    "ordinary RX wrapper and FT action callback remain separate host compositions; no paired target TU claim"
+  ],
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "source_sha256": {
+    "tools/iot/ft-enqueue-generation-composition.py": "d3c02e776407e8dfcb469bfe5ad40c3766d148c3ed313ce1c4897ce3d7535863",
+    "tools/iot/check-ft-generation-binding.py": "d42c11abb894fc27bdff4a89ea4009a4ee223379b6b140f53737290451fbf081",
+    "tools/iot/ft-rx-generation-composition.py": "634732ebcda52e0c43d198d941523a5b27f746b74e6b672bf1d4a9541e3deaac",
+    "tools/iot/check-ft-rx-generation.py": "4325cca5263bd9ce456de25a03f3e9fe227a11f69e1a9dc8daf16b582ef1970b",
+    "tools/iot/ft-pending-enqueue-composition.py": "14cccd2b6228467635259d365267f9b0fbdb8c112064378996cda264ff0ff107",
+    "tools/iot/check-ft-pending-enqueue.py": "c16e3b3ad2392bcdc1695a623b08421823a3764cdd41caacc7d2fea67f69c287",
+    "tools/iot/ft-pending-insert-composition.py": "2cd0e9077ad336492f38bfa0b6037273dc8cc0011b15c5f7308cc1d72cfe777d",
+    "tools/iot/check-ft-pending-insert.py": "4a47cd63496abeb628a06cd07b0fa8264e5224957760ccc08cabfee2e742e568",
+    "tools/iot/ft-pending-identity.h": "0cd0f4c555ca93ab326a13de039edbaf7c0958955564846bb147eaf9d0930692",
+    "tools/iot/ft_pending_identity_check.nim": "f8f328e0beb2878be06d1e067bf840147c7f1de44b0fab57c8b218933eb040e5",
+    "tools/iot/ft-pending-peer-scope.h": "de7c5cf7db32ffc02063b44c04b87e7a60d2c54193c3333391fa9124771f002f",
+    "tools/iot/check-ft-bounds-target-tu.py": "15108f2973a9453f338c93f4c762c90a110a95edc4aff73217553a853dc43615"
+  },
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": [
+    "paired ordinary-RX enqueue-to-FT_FtAction target compilation under effective features",
+    "daemon key-response writers and IAPP response identity/completion",
+    "association-vs-key/control admission and delete/reassociation lifetime arbitration"
+  ],
+  "candidate_success_boundary_generation_advance": true,
+  "pending_first_peer_scope_transferred": true,
+  "ordinary_rx_identity_integrated": false,
+  "ordinary_rx_ingress_prepared": true,
+  "ordinary_rx_producer_installed": false,
+  "ordinary_rx_paired_target_compiled": false,
+  "ordinary_rx_host_checked": true,
+  "target_probe_prepared": true,
+  "target_probe_executed": false
+}

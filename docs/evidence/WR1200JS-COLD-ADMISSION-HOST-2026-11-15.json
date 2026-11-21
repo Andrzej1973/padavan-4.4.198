@@ -1,0 +1,19 @@
+{
+  "scope": "private cold ON admission and read-only profile capture; no Main UP",
+  "checks": {
+    "actual_profile_fence_observer_asan_ubsan": "PASS",
+    "prepared_rc_c11_objects": "PASS",
+    "historical_release_exclusion": "PASS",
+    "identity_and_mode_drift": "PASS",
+    "foreign_profile_preserved_on_cancel": "PASS",
+    "pending_signal_after_cleanup_and_failed_unmask_retention": "PASS"
+  },
+  "sha256": {
+    "tools/iot/cold-on-admission.c": "f535dfdd7e6f3c08822ebc4a2f2d48d7a64867e99e275a0666f7480a9960424d",
+    "tools/iot/cold-on-admission.h": "adecccc57fc74a11cbdce3145df4937e0ebf0dd835cfe009366c1bd76e3587c1",
+    "tools/iot/check-cold-on-admission.py": "4277d8fed151e8c87952dcabb61868579dce0686a0b5697a5617b9b22a1005a0"
+  },
+  "public_entry_bound": false,
+  "target_build_verified": false,
+  "runtime_verified": false
+}

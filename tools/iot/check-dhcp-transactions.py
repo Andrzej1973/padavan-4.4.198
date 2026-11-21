@@ -6,7 +6,9 @@ if os.geteuid()!=0 or not os.environ.get('WR_IOT_PARENT_NETNS') or os.readlink('
  raise SystemExit('Requires root in a new isolated network namespace')
 r=Path(sys.argv[1]).resolve();daemon=Path(sys.argv[2]).resolve();checks={};frames=[];root_frames=[];libc=ctypes.CDLL(None,use_errno=True)
 def run(*args):return subprocess.run(args,check=True,capture_output=True,text=True)
-run('mount','--make-rprivate','/');run('mount','-t','sysfs','sysfs','/sys');run('mount','-t','tmpfs','tmpfs','/run/netns')
+run('mount','--make-rprivate','/');run('mount','-t','sysfs','sysfs','/sys')
+# Namespace mountpoints must not depend on a pre-existing host /run/netns.
+run('mount','-t','tmpfs','tmpfs','/run');Path('/run/netns').mkdir()
 run('ip','link','set','lo','up');run(str(r/'check-iot-bridge'),'prepare')
 run('ip','link','add','br0','type','bridge');run('ip','addr','add','192.168.1.1/24','dev','br0')
 for name,port,peer in [('iot','ra2','iot-peer'),('lan','lan-port','lan-peer')]:

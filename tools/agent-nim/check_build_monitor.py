@@ -21,6 +21,48 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     run([row(2,conclusion='success'),row(1,name='unrelated')]);assert not (state/'last_build_error.log').exists()
     status=json.loads((state/'build-monitor-status.json').read_text())
     assert status['state']=='ok' and status['runs_examined']==2 and status['pid']>0
+    # Build1010: causal apt DNS line must survive bounded filtering.
+    dns_log=root/'apt-dns-1010.log'
+    dns_log.write_text("Temporary failure resolving 'azure.archive.ubuntu.com'\nBuild dependency installation failed after two bounded attempts\n")
+    dns_run=row(1010);dns_run.update(name='Build selected router firmware',path='.github/workflows/build-multiple-boards.yml')
+    fixture.write_text(json.dumps({'workflow_runs':[dns_run]}),encoding='utf-8')
+    dns_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(dns_log))
+    dns_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'dns-state')]
+    assert "Temporary failure resolving 'azure.archive.ubuntu.com'" in subprocess.run(dns_cmd,capture_output=True,text=True,env=dns_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(dns_cmd,capture_output=True,text=True,env=dns_env,check=True).stdout
+    dns_run.update(id=1011,conclusion='success');fixture.write_text(json.dumps({'workflow_runs':[dns_run]}))
+    assert 'BUILD FAILED:' not in subprocess.run(dns_cmd,capture_output=True,text=True,env=dns_env,check=True).stdout
+    # Real1014: late default-source apt could not locate QEMU after mirror fallback.
+    apt_log=root/'apt-qemu-1014.log'
+    apt_log.write_text('E: Unable to locate package qemu-user-static\n##[error]Process completed with exit code 100.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(1014)]}),encoding='utf-8')
+    apt_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(apt_log))
+    apt_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'apt-state')]
+    assert 'E: Unable to locate package qemu-user-static' in subprocess.run(apt_cmd,capture_output=True,text=True,env=apt_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(apt_cmd,capture_output=True,text=True,env=apt_env,check=True).stdout
+    #1027 SQM admission failure must retain actionable FAIL text.
+    sqm_log=root/'sqm-map-1027.log'
+    sqm_log.write_text("2026-11-11T18:15:01Z FAIL active WR1200JS selectors lack an audit class: ['CONFIG_FIRMWARE_INCLUDE_SQM']\n##[error]Process completed with exit code 1.\n")
+    fixture.write_text(json.dumps({'workflow_runs':[row(1027)]}),encoding='utf-8')
+    sqm_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(sqm_log))
+    sqm_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'sqm-state')]
+    assert 'FAIL active WR1200JS selectors lack an audit class' in subprocess.run(sqm_cmd,capture_output=True,text=True,env=sqm_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(sqm_cmd,capture_output=True,text=True,env=sqm_env,check=True).stdout
+    # Real run42482744141 had no jobs: reusable actions:read exceeded caller.
+    startup_state=root/'workflow-startup'
+    startup=row(698,conclusion='startup_failure')
+    startup_report=run([startup],target_state=startup_state).stdout
+    assert 'BUILD FAILED:' in startup_report and 'Workflow startup/validation failure' in startup_report
+    assert 'reusable workflow permissions' in startup_report
+    assert 'BUILD FAILED:' not in run([startup],target_state=startup_state).stdout
+    startup.update(id=699,conclusion='success')
+    assert 'BUILD FAILED:' not in run([startup],target_state=startup_state).stdout
+    source_run=row(700);source_run.update(name='Build owned MIPS toolchain',path='.github/workflows/build-owned-toolchain.yml')
+    source_state=root/'source-toolchain'
+    assert 'BUILD FAILED:' in run([source_run],target_state=source_state).stdout
+    assert 'BUILD FAILED:' not in run([source_run],target_state=source_state).stdout
+    source_run.update(id=701,conclusion='success')
+    assert 'BUILD FAILED:' not in run([source_run],target_state=source_state).stdout
     both=[row(600,branch='main'),row(601),row(602,conclusion='success',branch='main'),row(603,conclusion='success')]
     branch_state=root/'both-branches'
     branch_report=run(both,target_state=branch_state).stdout
@@ -30,6 +72,52 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     assert 'BUILD FAILED:' not in run(both,target_state=branch_state).stdout
     r=run([row(432),row(431)]);assert 'BUILD FAILED' in r.stdout
     report=(state/'last_build_error.log').read_text();assert '#432 attempt 1' in report and 'Untrusted diagnostic data' in report
+    anchor_log=root/'anchor-change.log'
+    anchor_log.write_text('Ralink radio-mode anchor changed\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(435)]}),encoding='utf-8')
+    anchor_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(anchor_log))
+    anchor_result=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'anchor-state')],capture_output=True,text=True,env=anchor_env,check=True)
+    assert 'Ralink radio-mode anchor changed' in anchor_result.stdout
+    # ABI43366265834: collect2 alone omitted the missing symbol.
+    link_log=root/'undefined-reference.log'
+    link_log.write_text("request-stage.c:(.text+0x23d1): undefined reference to `wr_iot_service_guard_dup'\ncollect2: error: ld returned 1 exit status\n")
+    fixture.write_text(json.dumps({'workflow_runs':[row(765)]}),encoding='utf-8')
+    link_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(link_log))
+    link_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'link-state')]
+    assert 'undefined reference to `wr_iot_service_guard_dup' in subprocess.run(link_cmd,capture_output=True,text=True,env=link_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(link_cmd,capture_output=True,text=True,env=link_env,check=True).stdout
+    # Optional42640572020: retain the causal Python frame with its ValueError.
+    python_log=root/'reserved-up-traceback.log'
+    python_log.write_text('Traceback (most recent call last):\n  File "tools/iot/reserved-beacon-refresh.py", line 12, in compose\n    start=text.index(START);end=text.index(END,start)\nValueError: substring not found\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(439)]}),encoding='utf-8')
+    python_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(python_log))
+    python_result=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'python-state')],capture_output=True,text=True,env=python_env,check=True)
+    assert 'reserved-beacon-refresh.py", line 12, in compose' in python_result.stdout
+    assert 'ValueError: substring not found' in python_result.stdout
+    assert 'BUILD FAILED:' not in subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'python-state')],capture_output=True,text=True,env=python_env,check=True).stdout
+    # Real standard42463953909: source download 504 and make error were omitted.
+    download_log=root/'libyaml-504.log'
+    download_log.write_text("HTTP request sent, awaiting response... 504 Gateway Time-out\nmake[4]: *** [Makefile:10: download_test] Error 4\nmake[3]: *** [Makefile:255: libyaml_only] Error 2\n##[error]Process completed with exit code 2.\n")
+    fixture.write_text(json.dumps({'workflow_runs':[row(436)]}),encoding='utf-8')
+    download_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(download_log))
+    download=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'download-state')],capture_output=True,text=True,env=download_env,check=True)
+    assert '504 Gateway Time-out' in download.stdout
+    assert 'download_test] Error 4' in download.stdout and 'libyaml_only] Error 2' in download.stdout
+    # ABI899: SystemExit validation lacks a generic error prefix.
+    adapter_log=root/'adapter-drift-abi899.log'
+    adapter_log.write_text('Installed disable adapter differs: initial-off\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(899)]}),encoding='utf-8')
+    adapter_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(adapter_log))
+    adapter_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'adapter-state')]
+    assert 'Installed disable adapter differs: initial-off' in subprocess.run(adapter_cmd,capture_output=True,text=True,env=adapter_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(adapter_cmd,capture_output=True,text=True,env=adapter_env,check=True).stdout
+    # Preservation42483525613: keep the causal API denial, not only exit 1.
+    denied_log=root/'release-403.log'
+    denied_log.write_text('HTTP 403: Resource not accessible by integration (https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases)\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(438)]}),encoding='utf-8')
+    denied_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(denied_log))
+    denied=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'release-denied')],capture_output=True,text=True,env=denied_env,check=True)
+    assert 'HTTP 403: Resource not accessible by integration' in denied.stdout
     late_log=root/'late-error.log'
     late_log.write_text('Hunk FAILED at 753.\n'+('routine output\n'*25000)+'ap_cfg.c:15059: error: void value not ignored\n',encoding='utf-8')
     fixture.write_text(json.dumps({'workflow_runs':[row(434)]}),encoding='utf-8')
@@ -55,6 +143,20 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     assert '[-Werror=misleading-indentation]' in long_job.stdout
     # Optional757 /42038010637: deployed prefix-only report missed this cause.
     assert 'mcu/andes_mt.c:2308:2: error: ISO C90' in long_job.stdout
+    # Standard974/42840458493: generated ROMFS asset absent; monitor report
+    # contained earlier libyaml diagnostics but omitted the causal traceback.
+    missing_asset_log=root/'modern-romfs-missing.log'
+    missing_asset_log.write_text('checking optional feature... failed\n'
+        'Traceback (most recent call last):\n'
+        '  File "tools/webui-preview/check_image.py", line 18, in check\n'
+        "FileNotFoundError: [Errno 2] No such file or directory: 'trunk/romfs/www/modern/index.html'\n"
+        'Firmware build verification failed: python3 ../tools/webui-preview/check_image.py .\n',encoding='utf-8')
+    fixture.write_text(json.dumps({'workflow_runs':[row(974)]}),encoding='utf-8')
+    missing_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(missing_asset_log))
+    missing_report=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'modern-missing-state')],capture_output=True,text=True,timeout=15,env=missing_env)
+    assert missing_report.returncode==0,(missing_report.stdout,missing_report.stderr)
+    assert 'FileNotFoundError:' in missing_report.stdout
+    assert 'trunk/romfs/www/modern/index.html' in missing_report.stdout
     previous=(state/'last_build_error.log').read_bytes()
     assert 'BUILD FAILED' not in run([row(432),row(431)]).stdout
     assert (state/'last_build_error.log').read_bytes()==previous

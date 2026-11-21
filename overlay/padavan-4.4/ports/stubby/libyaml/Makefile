@@ -1,5 +1,6 @@
 SRC_NAME = yaml-0.2.5
-SRC_URL = https://github.com/yaml/libyaml/releases/download/0.2.5/$(SRC_NAME).tar.gz
+SRC_URL = https://pyyaml.org/download/libyaml/$(SRC_NAME).tar.gz
+SRC_FALLBACK_URL = https://github.com/yaml/libyaml/releases/download/0.2.5/$(SRC_NAME).tar.gz
 SRC_SHA256 = c642ae9b75fee120b2d96c712538bd2cf283228d2337df2cf2988e3c02678ef4
 
 .PHONY: all download_test extract_test configure install romfs clean
@@ -7,8 +8,16 @@ all: configure
 	$(MAKE) -j$(HOST_NCPU) -C $(SRC_NAME)
 
 download_test:
-	test -f $(SRC_NAME).tar.gz || wget -t5 --timeout=20 -O $(SRC_NAME).tar.gz $(SRC_URL)
-	echo "$(SRC_SHA256)  $(SRC_NAME).tar.gz" | sha256sum -c -
+	@set -e; archive="$(SRC_NAME).tar.gz"; \
+	if [ -f "$$archive" ] && echo "$(SRC_SHA256)  $$archive" | sha256sum -c -; then exit 0; fi; \
+	part="$$archive.part"; trap 'rm -f -- "$$part"' EXIT HUP INT TERM; \
+	for url in "$(SRC_URL)" "$(SRC_FALLBACK_URL)"; do \
+		if wget -t3 --timeout=20 -O "$$part" "$$url" && \
+		   echo "$(SRC_SHA256)  $$part" | sha256sum -c -; then \
+			mv -- "$$part" "$$archive"; exit 0; \
+		fi; \
+	done; \
+	exit 1
 
 extract_test: download_test
 	test -d $(SRC_NAME) || tar xzf $(SRC_NAME).tar.gz

@@ -1,0 +1,42 @@
+{
+  "scope": "local source composition and injected host tests only",
+  "chain31_stages": 31,
+  "variants": {
+    "wds31": 13,
+    "hardware31": 22,
+    "wds32": 15,
+    "hardware32": 22
+  },
+  "passed": true,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "lifecycle_accepted": false,
+  "receipts": {
+    "chain31": {
+      "path": ".iot-local-check\\peer-retirement-chain31-20261029\\peer-chain.json",
+      "sha256": "97a5388836645e537aeb86d0973e7e8a3fb797b326a66dd62e6a58ac7f2b5ef5"
+    },
+    "wds31": {
+      "path": ".iot-local-check\\peer-chain31-wds-checks-20261029\\result.json",
+      "sha256": "0c543c614b7582cfb5b725f6278c95642fa3588ddb122b371a2057dce3a0096b"
+    },
+    "hardware31": {
+      "path": ".iot-local-check\\peer-chain31-hardware-checks-20261029\\result.json",
+      "sha256": "60733e1f94cf5d895345efd88829bd42a236666ff31d4e021d0ca574c789c14f"
+    },
+    "wds32": {
+      "path": ".iot-local-check\\peer-hardware-insert32-checks-20261029\\result.json",
+      "sha256": "e891dd492d77b2a1e0bb60625a5125ea2c0528cf9f79fb5e404d3c50eebfa798"
+    },
+    "hardware32": {
+      "path": ".iot-local-check\\peer-hardware-insert32-chain-checks-20261029\\result.json",
+      "sha256": "60733e1f94cf5d895345efd88829bd42a236666ff31d4e021d0ca574c789c14f"
+    }
+  },
+  "open": [
+    "unpublished failed insertion cleanup",
+    "PARTIAL recovery",
+    "DMA/TxS identity",
+    "adapter/module lifetime and lock audit"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-02",
+  "scope": "APCLI/monitor logical close completion trace",
+  "facts": [
+    "aux-family-close-owned requires successful family_close result",
+    "family_down_result and family_close_finish set CLOSE_DONE for exact device/generation/token/serial/epoch",
+    "aux_close_finalize_after_down requires virtual_down_stage2 and decremented vendor count",
+    "successful radio finish and ref consume set record.close_stage2",
+    "registry_checked_close_terminal currently rejects acquired APCLI/monitor by default"
+  ],
+  "conclusion": "a software completion predicate can combine exact matching family CLOSE_DONE with idle record close_stage2; stage2 alone is insufficient. Physical/callback quiescence still separate",
+  "next": "extend family snapshot to consume matching per-record family state without weakening shared registry predicate",
+  "runtime_verified": false
+}

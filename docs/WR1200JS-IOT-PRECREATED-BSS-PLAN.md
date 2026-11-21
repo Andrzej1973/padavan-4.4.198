@@ -1,0 +1,537 @@
+# WR1200JS: IoT через заздалегідь створений MBSSID
+
+Target-report binding extension: summary now embeds AP/beacon macro maps and
+their source/command SHA256 values. Actual embedded guard executed locally:
+complete maps accepted; unavailable report and missing BCN_OFFLOAD_SUPPORT
+entry refused. False macro values are valid evidence, not silently treated as
+missing. Shell/Python syntax checks pass; actual target execution pending.
+
+Beacon ACK audit: pinned CmdBcnUpdateSet (andes_mt.c:2191) initializes
+need_wait=false, need_retransmit=false, need_rsp=false; argument semantics
+confirmed in andes_core.c:67. This call does not request a response-bearing
+ACK. Its send result is not firmware completion and UpdateBeaconToMcu discards
+it, so it cannot prove beacon disable/drain. PCI HAL_KickOutMgmtTx resolves
+to RtmpPCIMgmtKickOut (rtmp_inf_pcirbs.h:53); DMA ownership remains relevant.
+Effective offload config and remaining transitive calls still need verification.
+
+DMA completion source: RTMPHandleBcnDmaDoneInterrupt cmm_data_pci.c:2663
+reads hardware DIDX, unmaps completed descriptors and advances SW free index.
+Despite debug text "change state as idle", actual transition is
+BCN_TX_WRITE_TO_DMA -> BCN_TX_DMA_DONE, not IDLE or RF-silent. BSS is decoded
+from own_mac; pristine unknown values retain default index0, already addressed
+by isolated candidate's validated BSS-index guard. Completion proves descriptor
+reclamation only; hardware beacon queue stop and packet/TxS ownership still
+need their existing checked-off observations before freeing/reusing state.
+
+PCI kickout audit: pinned cmm_data_pci.c:750 RtmpPCIMgmtKickOut maps the packet,
+writes descriptor, advances BcnRing.TxCpuIdx/hardware CIDX and returns0;
+that return is submission, not DMA completion. Existing isolated
+prepare-radio-queue-candidate.py already checks HAL kickout result before
+publishing write-to-DMA state and adds kickout admission. Reuse/review this
+candidate path rather than duplicating a pristine-only fix; completion/drain
+must still be observed before freeing beacon ownership.
+
+2026-11-07. Нова стратегія дозволена власником. Статус: source/host
+feasibility частково підтверджено; implementation/build/runtime НЕ завершені.
+ROM ACK protection та чинні admission gates не змінено.
+
+## Встановлено з pinned c25283e vendor source
+
+- `trunk/user/rc/net_wifi.c:control_guest_rt` перевіряє UP Main, режим і radio;
+  виконує `wif_control(IFNAME_2G_GUEST,...)`, bridge attach/detach та
+  restart_guest_lan_isolation. Саме ця функція не викликає restart_wifi_rt.
+  Зміна SSID/security через загальне Apply може мати інший restart path;
+  не прирівнювати scheduler toggle до всіх WebUI змін.
+- `ap/ap_mbss.c:RT28xx_MBSS_Init` читає BssidNum, обмежує MAX_MBSSID_NUM,
+  створює/реєструє додаткові netdev; failure може зменшити BssidNum.
+  Це initialization-time creation, не доказ довільного runtime hot-add.
+- `ap/ap_mbss_inf.c:MBSS_VirtualIF_Open` викликає MBSS_OPEN, VIRTUAL_IF_UP,
+  MBSS_CR_ENABLE і start_queue. Close виконує CR_DISABLE, MBSS_CLOSE,
+  VIRTUAL_IF_DOWN. Vendor unchecked return values вже мають окремі reviewed
+  candidate wrappers; не повертатися до необмеженого raw open.
+- `common/cmm_cfg.c:CMD_RTPRIV_IOCTL_VIRTUAL_INF_UP` за count>0 збільшує
+  reference і оновлює beacons; за count0 викликає rt28xx_open(Main).
+  DOWN викликає physical close лише коли останній reference зник.
+- `ap/ap_mbss.c:MBSS_Close` видаляє клієнтів цільового BSS, bBcnSntReq=FALSE,
+  rebuild/update beacons і per-BSS Band Steering notification. Інші BSS також
+  проходять beacon rebuild; збереження associations потребує фізичного тесту.
+- `mbss_cr_enable` змінює LPON sub-BSSID timing/BCN queue registers. Наявність
+  такого коду не доводить безпеку concurrent watchdog/reset.
+
+## Виконана перевірка
+
+`tools/iot/check-mbss-no-radio-restart.py DRIVER` виконує actual extracted
+vendor UP/DOWN switch cases із ASan/UBSan, підставленими callbacks і count.
+1000 third-reference cycles з count2 зберігають count2 та не викликають
+physical open/close; count1 також зберігає Main. First/last reference окремо
+перевірені. JSON: docs/evidence/WR1200JS-MBSS-NO-RESTART-HOST.json.
+Це не execution повного MBSS open, beacon descendants, IRQ/DMA чи associations.
+TemporaryDirectory видалив outputs; нових build trees не залишено.
+
+## Зміни архітектури, які ще потрібні
+
+Поточний `profile-line.h` перетворює BssidNum2->3 на ON і3->2 на OFF;
+`radio-profile-state.h` вимагає radio quiescence для profile changes;
+`activation.h` включає PROFILE/RADIO_PREPARE з можливим reload. Саме це слід
+замінити для нового шляху, а не прибрати ACK/lifecycle gates.
+
+1. Завжди резервувати третій BSS під час звичайного2.4GHz boot profile,
+   незалежно від runtime IoT enable. Забезпечити валідні окремі credentials,
+   default OFF, ra2 DOWN і відсутність beacon/data доступу до readiness.
+   Не використовувати прихований SSID як заміну disabled BSS.
+2. Розділити loaded profile generation та saved requested config. Якщо
+   credentials відрізняються від loaded BSS, не перезапускати radio приховано:
+   дослідити підтримані per-BSS setters і їхні побічні ефекти. Якщо вони
+   рестартують AP, окремо спроєктувати cold-boot application/UX; не підміняти
+   вимогу повноцінного Apply збереженням без дії.
+3. Новий no-reload activation потребує generation-bound доказу: ra2 реально
+   існує на потрібному adapter, BssidNum>=3, його loaded security збігається,
+   Main READY і не закривається. Наявні `mbss-open-admission.inc` та
+   `mt7603-main-observe.h` використовувати як основу; не довіряти одному if_up.
+4. Зберегти quarantine-before-open: dedicated br-iot/subnet, DHCP/DNS ready,
+   scoped firewall/WAN policy до BSS_UP. OFF спочатку підтверджує закриття BSS,
+   потім scoped services/network teardown; preserve isolation при uncertainty.
+   IPv6 або повна окрема політика, або доведений fail-closed; не допустити
+   витоку link-local/LAN через bridge/offload.
+5. Обов'язкові перевірки whole existing candidate: no physical open/scan у
+   toggles; Main/Guest reference ownership; close/reset/PM/watchdog races;
+   beacon/TX callback drain і повторний ON; mixed family5GHz/Band Steering.
+6. Target/ROMFS/image gates та фізичні тести окремо. Ordinary startup/restart
+   залишається вимогою: ROM blocker можна відокремити від routine IoT toggle
+   лише після доказу, що новий шлях його справді не використовує, без регресії
+   погоджених звичайних Wi-Fi операцій.
+
+## Наступний крок
+
+Простежити per-BSS SSID/auth/key setter side effects та init profile integration
+перед production зміною BssidNum/defaults. Лише після цього реалізувати
+стабільну резервацію і новий activation backend. Не оголошувати альтернативу
+реалізованою на підставі одного dispatcher host fixture.
+
+## Виконання за докладним завданням власника
+
+Вкладений текст7fac9903... прочитано як пряме завдання. Preferred A обрано
+для подальшої реалізації; B (hidden SSID) не замінює disable. C через звичайні
+vendor setters не є безперервним рішенням: Set_AP_SSID_Proc викликає
+APStop/APStartUp, Set_AP_AuthMode_Proc скидає PortSecured для всіх client entries.
+Точні line/hash evidence: evidence/WR1200JS-MBSS-CREDENTIAL-SETTERS.json.
+SSID/security provisioning відокремлюється від routine toggle. Жодного
+прихованого restart або вигаданого ioctl не додано.
+
+Додано precreated-profile.h: cold-preparation функція завжди формує третій
+профіль із валідними IoT credentials, незалежно від requested enable0/1;
+не змінює існуючі ON/OFF helper semantics і не викликає radio/service API.
+check-precreated-profile.c перевірив однаковий зарезервований профіль для ON/OFF,
+Main/Guest/channel/auto-selection preservation і zero-output rejection для
+невалідних inputs. GCC ASan/UBSan PASS. Fixture включено до існуючого optional
+candidate script; bash-n PASS, GitHub run ще не виконувався.
+
+Це staged component, НЕ інтегрована production резервація. Cold hook,
+loaded-profile identity, no-beacon-on-boot і runtime activation backend ще
+відкриті. Не подавати цей результат як THIRD BSS RESERVED на firmware/device.
+
+| Критерій | Поточний доказ |
+| --- | --- |
+| THIRD BSS RESERVED | Cold profile component host-tested; startup integration pending |
+| IOT RUNTIME ENABLE/DISABLE VERIFIED | Vendor reference dispatcher host-tested; full candidate/backend pending |
+| NO PHYSICAL WIFI RESTART DURING IOT TOGGLE | Reference count branch host-tested; whole call graph pending |
+| NO CHANNEL SCAN DURING IOT TOGGLE | Not yet proved for composed backend/beacon descendants |
+| MAIN/GUEST REGRESSION TESTED | Host reference-count/profile preservation only; device pending |
+| NETWORK ISOLATION VERIFIED | Existing scoped components require composed lifecycle/image validation |
+| BUILD VERIFIED | New component host compiled; MIPS/firmware pending |
+| PHYSICAL RUNTIME VERIFIED | RUNTIME PENDING; device authorization separate |
+
+Наступна дія: перевірити initial bBcnSntReq/data admission третього BSS та
+точний cold profile hook, потім підключити резервацію і backend без reload.
+Раніше дозволений контрольований provisioning не є дозволом змінити живий
+роутер. ROM ACK issue лишається unresolved окремо.
+
+## Reserved BSS: beacon admission перевірено на candidate
+
+`check-precreated-beacon.py` витягує фактичну BeaconTransmitRequired з retained
+candidate і виконує її з ASan/UBSan у звичайній та WDS конфігурації. За stale
+bBcnSntReq=TRUE відсутній або DOWN secondary netdev не проходить predicate;
+Main/WDS винятки зберігаються. Відкритий secondary потребує також beacon intent.
+Тест підключено після свіжої генерації candidate у наявному optional script.
+Локальний retained candidate старіший за HEAD; свіжий CI ще не запускався.
+
+Source audit: APStartUp має окремий AIRPLAY_SUPPORT writer bBcnSntReq;
+OID_AIRPLAY_ENABLE теж може його підняти. Тому не покладатися лише на початковий
+нуль flag. Existing candidate netdev-running gate потрібний навіть за постійної
+резервації. Vendor ap_sync.c перевіряє if_dev/running перед probe response;
+ap_auth.c також перевіряє це перед authentication і переходить auth_failure
+для DOWN BSS. Association, залишені MAC entries, data paths, recovery queues
+та hardware drain ще потребують окремої композиційної перевірки.
+Це не доказ повної RF/data тиші або готовності cold startup hook.
+
+## Association/data snapshot guard staged
+
+Source review found association after MacTableLookup checks only VALID_MBSS,
+then mutates AuthAssocNotInProgressFlag; an existing client entry could refer
+to a now-closed third BSS. Added isolated prepare-precreated-bss-admission.py:
+MT7603/MT_MAC/PCI guarded check after BSS lookup, before association mutations;
+RX check after PACInquiry for client entries, before data side effects.
+Header rejects third BSS if invalid BssidNum, missing/DOWN interface or absent
+beacon intent. Main/Guest and other chips retain their paths. No MCU commands,
+ID/ACK changes, scans or radio calls introduced.
+
+ASan/UBSan host predicate tests pass; installer tested on a temporary exact
+copy of retained candidate with manifest/anchor checks. Copy auto-removed.
+CI preparation layer and host fixture added, target compilation pending.
+This is snapshot rejection, NOT a replacement for existing peer/transition
+ownership across the rest of packet processing. Races, multicast/forwarding,
+probe/auth failure responses and complete RF silence need composed review.
+Cold startup hook remains unbound until those checks and target build pass.
+
+## No-reload activation controller implemented (backend pending)
+
+`activation.h` now provides `wr_iot_activation_start_precreated` alongside the
+unchanged legacy entrypoint. Mode is chosen under the existing lock and retained
+through recovery. Reserved start sequence replaces PROFILE/RADIO_PREPARE with
+RESERVED_READY; generic dispatch refuses those two legacy operations in reserved
+mode. Rollback RESTORE and normal OFF DISABLE_APPLY dispatch distinct reserved
+operations. A legacy backend cannot accidentally handle those as a global
+profile restore. Reserved operations must retain third loaded profile, restore
+only owned network/service state and verify current Main/Guest configuration.
+
+READY requires the actual loaded identity/credentials and closed BSS on the
+current adapter generation; mismatch must refuse, never provision implicitly.
+QUIESCE/BSS_UP and all network operations retain their existing ownership,
+readiness and failure obligations. This controller does not supply a production
+backend and therefore does not itself prove no radio restart in backend code.
+
+Host ASan/UBSan: existing activation regression passes; new test executes100
+cycles, injected failure at each of11start stages, loaded-profile rejection,
+retained failed rollback and OFF retry. No legacy profile/reload/restore operation
+reaches the reserved backend. Test receipts are injected; no loaded-driver,
+association, DHCP or physical-RF evidence claimed. Both fixtures added to existing
+candidate CI. Target/ROMFS/runtime and actual backend remain pending.
+
+## Loaded-profile comparison primitive (unbound)
+
+Source audit confirms SIOCGIWESSID in os/linux/ap_ioctl.c reads actual per-BSS
+SSID; OID authentication query reads AuthMode. Neither proves requested PSK.
+Some OID SSID cases are APCLI-specific; do not use them as AP2 readback.
+
+Added precreated-loaded-config.h: internal driver-side matcher of expected
+netdev, exact SSID bytes/length, WPA2PSK/AES/group AES/802.1X-disabled and32PMK
+bytes against actual BSS_STRUCT. No secret output, log, MCU command or new ioctl.
+Expected PMK must come from independent derivation of requested credentials,
+not copied from loaded state. Existing configuration/lifetime owner required;
+this predicate itself supplies neither serialization nor generation receipt.
+
+Host ASan/UBSan rejects all64single-byte SSID/PMK mutations and wrong device,
+length/security fields. Header staged in isolated candidate for actual type
+compilation; no production callsite/backend authorization yet. No high-level
+claim of loaded identity, PBKDF correctness or runtime credentials verified.
+Remaining backend work: actual request-to-driver binding/independent PMK,
+read/compare under owner, revalidate ticket/generation before BSS open, fail
+mismatch without legacy reload fallback. No arbitrary unsupported vendor
+commands added. Current work local and not covered by854/855.
+
+## Independent requested-key derivation
+
+Added precreated-key-match.h: validate8..63printable passphrase or64hex PMK,
+derive with existing RtmpPasswordHash from requested SSID/password, compare via
+loaded matcher, clear local40byte derived and64byte passphrase buffers using
+volatile writes. No radio/MCU command, setter, new ioctl or secret export. This
+routine must run in task context outside spinlocks, while a configuration lease
+and adapter lifetime pin remain owned; revalidation still mandatory. Existing
+vendor crypto local stack cleanup is not changed or claimed here.
+
+check-precreated-key-match.py extracts actual vendor SHA1, HMAC-SHA1, F and
+RtmpPasswordHash (not injected hash callbacks). ASan/UBSan PASS; four outputs
+match independently computed hashlib PBKDF2-HMAC-SHA1/4096 vectors including
+63character password/32byte SSID. Raw64hex path and wrong-password rejection
+also pass. Legacy crypto source contains non-UTF8 comments; extraction uses
+latin1 then removes comments, preserving executable ASCII source.
+
+Both matcher headers staged for target typecheck; no backend/callsite grant yet.
+Host fixture added to CI; target result pending. Full request-to-driver transport,
+loaded generation receipt and cold hook remain required. This work does not
+claim no-restart physical operation or resolve ROM ACK safety.
+
+## One-use observation binding primitive
+
+precreated-open-proof.h binds a readback window to existing BSS_OPEN claim,
+exact netdev registry generation and immutable request generation. Begin and
+finish require transition lock; expensive key readback/derivation runs outside.
+Finish reuses virtual_open_claim_matches, requires MBSS family and exact IoT
+device, consumes the proof even on refusal; no second ticket/refcount mutation.
+Task-owned configuration lease and lifetime pin must still span the window;
+uncoordinated setters are not made safe by this token.
+
+ASan/UBSan test passes valid case and14failure variants including reset/close,
+Main down, PM, retirement, registry generation/family/removal, device/serial,
+request change, failed/nonboolean observation and completed virtual-UP. Reuse
+of consumed proof always refuses. Added host CI fixture. This token is not yet
+bound to a production ioctl/backend; it does not turn injected readback into
+hardware evidence. Integration must derive request identity from existing
+activation transaction and match requested credentials independently.
+
+## Cold input separate from runtime OFF
+
+precreated-profile-request.h reads/copies validated SSID/key even when runtime
+IoT is OFF. Runtime request.h keeps its original OFF behavior (no credentials
+or network required). New reader defaults empty enable to OFF, rejects invalid
+credentials without writing output, uses existing shared WPA2/AES validator and
+copies borrowed NVRAM buffers before next read. No persistence, radio action,
+implicit credentials or fallback added. Empty unprovisioned keys still refuse;
+production startup must not bind that refusal in a way that breaks Main/Guest.
+Initial default provisioning remains a separate unresolved integration item.
+
+ASan/UBSan host fixture passes OFF/ON/empty-enable, shared-buffer mutation,
+invalid input output preservation and old runtime OFF regression. Added to CI
+host fixtures; current edit local. This is a cold-input building block, not a
+startup hook or evidence of actual loaded ra2. Next bind provisioned cold input
+to precreated-profile, handling unprovisioned factory configuration safely.
+
+## Factory OFF cold credentials — policy and kernel entropy adapter
+
+For wholly empty SSID/key with runtime OFF, boot-request reader now allows
+an ephemeral 32-byte random key encoded as64hex and boot-only SSID. It marks
+this request unprovisioned, never writes desired NVRAM, and must not authorize
+runtime ON. Partial/invalid saved credentials and empty ON always refuse;
+valid saved credentials are retained even OFF. Entropy error/short/all-zero
+results refuse without output mutation. Temporary entropy bytes are cleared.
+
+precreated-entropy.h invokes existing Linux getrandom with GRND_NONBLOCK=1;
+no guessed syscall number, no PRNG/device fallback, no early-boot wait. Pinned
+c25283e drivers/char/random.c:1619-1641 refuses with EAGAIN until the
+nonblocking pool initializes, then invokes urandom_read. MIPS UAPI declares
+__NR_getrandom in arch/mips/include/uapi/asm/unistd.h. If toolchain headers
+lack the syscall, adapter refuses ENOSYS; target compilation remains required.
+Unavailable factory entropy must leave Main/Guest startup intact and IoT
+unavailable, never expose an unkeyed BSS. This handling is not yet wired into
+the generator, so no claim of startup reservation or production fallback.
+
+Host ASan/UBSan policy and adapter tests PASS (short/error/EAGAIN/ENOSYS/EINTR,
+unchanged rejected output/config, no substitution of partial or ON input).
+Fixtures added to optional CI. No device operation; temporary binaries removed
+automatically. Production cold hook, loaded request binding and runtime network
+backend remain unfinished; THIRD BSS RESERVED and runtime acceptance pending.
+
+## CI checkpoint
+
+ABI42400479459 reached diagnostics upload with no failed steps for
+dde26a2cd13e99245d92d3cbbcd16fb6276daf76. Artifact13584964043 contains
+iot-cold-profile-compile.json: ELF32 little-endian MIPS object compiled,
+prepared source SHA2569ef6444b7601fb556efb34ecf9ed65d87580d653ec2b2fe182d79509567bf5c0,
+object SHA256a4f8370a492766ff27a35f7f365da280e38ba1b462a37f0e0e76c02b9dec808c.
+Report source SHA matches requested project revision. firmware_link_verified
+and runtime_verified remain false. Full run final conclusion still pending at
+inspection. ZIP read in memory, no retained extracted build tree.
+
+Optional858 run42398477393 SUCCESS. Artifacts13583869295 verification-source
+and13585227318 iot-merged-driver-probe independently identify source
+1f59bdc5a1d464dfa5d68cded9a7c059eebebc9d. target-compile-result.json reports
+peer82 mt76x3_ap.ko5790712bytes SHA256
+6afcab532bbc9a1c6d8d3b77fb18505e51988de4e7daf474119ad31a4005c2ca,
+target_compiled=true, production_installed=false, runtime_verified=false.
+This covers that revision's isolated driver, not newer cold RC binding or
+on-device Main/Guest/IoT operation. ZIP inspection was in-memory; no extracted
+artifact/build tree retained locally.
+
+Standard854 run42393422760 succeeded for source1485b61a; ABI42393422664 also
+succeeded. Standard855 run42393659532 is still in progress for6827b43e; its
+ABI42393659492 succeeded. Queued optional peer82/iot verification of exact
+1485b61a890ac0c798453de063783b1c6a7ef427 as run42394787815 after duplicate check.
+These runs do not cover the newer local credential/observation helpers.
+
+## Cold generator binding
+
+Beacon transitive audit: APUpdateBeaconFrame ap_connect.c:1720 conditionally
+calls RT28xx_UpdateBeaconToMcu under BCN_OFFLOAD_SUPPORT, then calls
+RT28xx_UpdateBeaconToAsic. Thus absence of a direct MCU call in ap_mbss.c does
+not prove ACK-free toggle. Exact AP TU BCN_OFFLOAD_SUPPORT and selected beacon
+callbacks must be inspected before declaring that property. MT AsicSetMbssMode
+also checks MAC alignment for address-mode groups; board base MAC and derived
+Main/Guest/IoT addresses need collision/alignment validation on device.
+
+Selected MT_MAC PCI branch is cmm_mac_pci.c:2678 (not the later legacy
+same-name implementation): RT28xx_UpdateBeaconToAsic takes BcnRingLock and
+calls HAL_KickOutMgmtTx(Q_IDX_BCN), setting BCN_TX_WRITE_TO_DMA. This is a DMA
+beacon queue submission, not by itself a firmware ACK receipt. Separately,
+RT28xx_UpdateBeaconToMcu andes_mt.c:3969 calls CmdBcnUpdateSet:2191 under
+BCN_OFFLOAD_SUPPORT. OFF safety therefore requires DMA/queue observation even
+if the offload macro is absent; the legacy shared-memory branch is not proof
+for MT7603. HAL dispatch and selected offload config remain to be verified.
+
+Collector now includes exact ap_connect Kbuild preprocessing and reports
+BCN_OFFLOAD_SUPPORT. Optional output merged-beacon-config.json accompanies
+merged-ap-startup-config.json. Synthetic actual-host-preprocessor fixture
+passes defined/absent macro extraction; shell syntax passes. Target output
+pending, no added firmware command, ACK change or runtime readiness grant.
+
+Runtime trace refinement at pinned source: MBSS_VirtualIF_Open dispatches
+MBSS_OPEN then VIRTUAL_INF_UP and MBSS_CR_ENABLE. cmm_cfg.c:1034 invokes
+rt28xx_open only when VIRTUAL_IF_NUM is zero; nonzero path increments count
+and rebuilds beacons. DOWN at1076 calls physical close only on final reference.
+ap_cfg.c:14928 dispatches MBSS_Open directly. MBSS source has no direct scan,
+channel or Andes command call. This establishes the conditional absence of
+physical open/scan entry in the direct MBSS path while Main remains owned;
+it is not a complete transitive MCU/beacon-side-effect or concurrent-close
+proof. Existing transition/reference gates must preserve that prerequisite.
+
+AP startup feature evidence extension: check-task-config now supports exact
+ap/ap.c Kbuild command/preprocessing and records AIRPLAY_SUPPORT, MBSS_SUPPORT
+and WH_EZ_SETUP. Optional merged build emits merged-ap-startup-config.json.
+This closes a reporting gap; no macro value or OFF/RF acceptance is assumed
+before the actual target output is inspected. CLI and shell syntax checks pass.
+
+Local collector integration check: synthetic .ap.o.cmd with actual host GCC
+preprocessing, exact driver/ap/ap.c source validation and generated report
+passes MBSS/AIRPLAY presence and WH_EZ_SETUP absence assertions. Artifacts and
+command hashes emitted successfully. This validates the collector, not target
+macro values. Temporary fixture auto-removed.
+
+Existing artifact13585227318 (optional858, source1f59bdc5) macro dump review:
+all26 available .macros.txt files show MBSS_SUPPORT defined, AIRPLAY_SUPPORT
+and WH_EZ_SETUP absent. This includes channel/startup-related rtamp_init_inf
+(file channel-rtmp_init_inf-config.macros.txt), normal and feature probes.
+No ap/ap.c macro dump is present, so this is supporting evidence only and does
+not replace the newly added exact AP startup TU check. ZIP read in memory;
+no extracted artifacts retained. No runtime or later-revision claim.
+
+Default-OFF consistency: generic request parser now treats an empty persistent
+enable value as OFF, matching cold reader. Control-record decoder explicitly
+requires wire enable0/1 so malformed empty commands remain rejected without
+output mutation. Request/control-record/cold/factory ASan/UBSan fixtures pass,
+including stripped wire enable regression. Source change not yet target-tested.
+
+ABI42400103914 failed at ralink.c1847 stringop-truncation: pinned helper
+wl_ioctl uses strncpy(ifr_name,ifname,IFNAMSIZ). Prepared helper now rejects
+NULL/overlong names, closes its acquired socket and copies a bounded terminated
+name. Extracted function ASan/UBSan with mocked transport passes ra2 acceptance,
+NULL/16-byte refusal and exactly-once socket close. This fixes the source
+instead of suppressing stringop-truncation. Monitor42400283058 had no artifact
+at inspection; original log is causal evidence, monitor comparison pending.
+
+Cold reader follow-up: when Band Steering snapshot wrappers are installed,
+wr_iot_cold_nvram_read now calls wr_profile_safe_get, so IoT fields follow the
+same bound full-NVRAM capture as Main/Guest. Without wrappers it retains the
+legacy nvram_safe_get accessor. Added generated-reader assertion to reject a
+snapshot bypass. Pristine and composed preparation plus extracted admission/
+output sanitizer checks PASS. This does not create the caller's snapshot lease
+or driver request transport; those bindings remain unfinished.
+
+ABI42399605735 next failure: standalone ralink.c lacked boards.mk compiler
+definitions and -Werror promoted vendor unused-parameter/sign-compare/pointer-sign
+warnings. Monitor42399810218 artifact13585286300 includes the causal board macro
+diagnostic, confirmed original log; parser unchanged. Probe now mirrors pinned
+boards.mk defaults 2G/5G_IN_SOC=0, both radios1 and WR board.mk USB ports1.
+Only those three warning categories remain warnings for this legacy unit;
+other errors and ELF identity gates stay enforced. Target rerun required.
+
+ABI727 run42399242764 passed source preparation then failed compiling ralink.c:
+iwlib.h:75 missing wireless.h. Monitor42399452920 artifact13585190863 correctly
+reports run/commit/job/step and causal fatal error; no parser change required.
+Standalone probe now runs pinned wireless-tools Makefile target wireless.h,
+which selects and copies wireless.22.h. Locally reproduced target PASS in
+temporary pinned extraction; removed automatically. MIPS compile still pending.
+
+ABI726 run42398834988 failed before compile: original step reports Ralink
+radio-mode anchor changed. Reproduced with prepare-profile-integration then
+prepare-profile-snapshot: NVRAM reads become wr_profile_* calls. prepare-rc
+now handles those existing snapshot readers without reverting them. Composed
+preparation, extracted cold admission/output and actual loader sanitizer tests
+all pass. Temporary trees auto-removed. Monitor42399023927 artifact
+13584234678 correctly identifies run/job/step but omits the causal anchor
+message, showing exit1 and earlier PASS lines. Parser gap needs a focused
+fixture/filter correction; monitor output was not root-cause evidence.
+
+Runtime gate review: request-stage sets wr_iot_profile_t as staged ownership;
+request-snapshot captures it and restart-controller disable-ready requires it
+cleared alongside network/firewall. Removing or renaming it alone would break
+recovery contracts. Keep this staged gate distinct from cold reservation; it
+does not prove loaded configuration. Runtime backend remains unbound and must
+consume loaded credential proof before BSS_UP, with no profile generator call.
+
+Binding audit: mbss-open-admission.inc currently acquires BSS_OPEN and a
+registry reservation, observes Main outside the transition lock, revalidates
+then invokes raw open. No immutable requested SSID/key or request generation
+arrives at that entry. precreated-open-proof.h consequently cannot be called
+there meaningfully by assigning a constant generation or copying loaded PMK.
+Required next integration is a real RC-to-driver request ownership transport
+using an existing reviewed interface or a separately designed kernel contract;
+the current SSID query alone does not provide key identity. Do not grant
+runtime readiness from host-only proof fixtures or mutable profile files.
+
+Serialization trace: os/linux/rt_main_dev.c:582 rt28xx_ioctl delegates directly
+to rt28xx_ap_ioctl; ap_ioctl.c:122 prepares a shared ioctl context and dispatches
+without a task/config mutex spanning two userspace calls. Pinned Linux
+net/core/dev_ioctl.c acquires RTNL per private ioctl and releases before return.
+Thus separate readback and ifconfig-UP calls cannot inherit a single RTNL
+lease. Any implementation relying on such an inherited lease is invalid;
+internal asynchronous setters/reset owners also need explicit participation.
+
+Existing query candidate found: ap/ap_cfg.c:5532 OID_802_11_PASSPHRASE
+(oid.h0x0649) is guarded by WH_EZ_SETUP. It copies MBSSID PSK to userspace and
+its trace logs plaintext passphrase. Do not enable WH_EZ_SETUP merely to obtain
+this query, or call it a secret-free loaded-PMK proof. Effective guard and BSS
+index selection must be verified; query alone also does not bind open lifetime
+or prevent a setter after the observation. Prefer internal compare-only proof
+with explicit request ownership instead of exporting/logging loaded secrets.
+
+WEXT fallback checked in actual os/linux/ap_ioctl.c:267: SIOCGIWENCODE is
+explicitly EOPNOTSUPP. No SIOCGIWENCODEEXT/SIOCGIWAUTH read handler exists in
+this AP dispatch; unsupported dispatch cannot be treated as a working key
+query. This closes the standard-WEXT readback alternative for this source,
+without changing firmware commands or weakening stale-ACK protection.
+
+User override audit at pinned c25283e: ralink.c appends AP.dat through
+common_ex.c:511 load_user_config after generated fields. Vendor
+cmm_profile.c:367 RTMPGetKeyParameter searches the first exact newline+key+=
+using rtstrstr from RTMPFindSection. Appended duplicate BssidNum/SSID3/security
+fields therefore do not override earlier generated values in this parser.
+This does not prove all parameter readers share this policy. The loader also
+uses fprintf(fp,line), a format-string hazard for user-supplied percent signs;
+resolve or contain this path before claiming safe cold startup integration.
+
+Follow-up: prepare-rc.py now anchors the actual load_user_config function in
+common_ex.c and replaces its sole fprintf(fp,line) with fputs(line,fp).
+Host-extracted corrected function passes ASan/UBSan and Wformat-security with
+literal `%s%n%%` input. Existing newline/chunk handling is unchanged and still
+requires review. This correction is local; target compilation and full firmware
+integration remain pending. Disposable extracted test and binaries auto-removed.
+
+Newline follow-up: removed last-byte replacement in the prepared loader;
+fputs preserves each accepted chunk and a final newline separates appended
+configuration. Actual prepared function passes ASan/UBSan for percent text,
+unterminated final values and a700-byte ordinary line. Existing comment/filter
+handling is retained; arbitrary long comment/filter boundary behavior is not
+covered by this result. Target and firmware gates remain open.
+
+Host verification now extracts and executes actual cold admission plus twelve
+per-BSS output statements and SSID3/WPAPSK3 writes. ASan/UBSan PASS covers
+reserved/unreserved output, distinct authentication/encryption inputs, visibility,
+802.1X and fixed-rate fields. This is partial generator execution; user override
+files, complete profile parsing, lifetime serialization and device behavior are
+not established. Temporary pinned RC extraction and binaries auto-removed.
+
+The pinned vendor parser accepts a literal `BssidNum=3`; it clamps only values
+above `MAX_MBSSID_NUM`. MT7603 address-mode selection groups counts up to four,
+so three selects the four-BSSID hardware mode but remains a three-entry software
+configuration. The comment that lists 1/2/4/8 describes hardware address-mode
+groups, not an input validator. This corrects the earlier concern that three
+would necessarily be rejected.
+
+`prepare-rc.py` now changes only the initial 2.4 GHz AP profile generator:
+when a valid stored OFF/ON request or the explicit boot-only entropy policy is
+available, it writes BssidNum=3, SSID3, WPA2PSK/AES and third-BSS isolation
+fields. If credentials or initialized entropy are unavailable it keeps two
+BSSes; it never emits an open third BSS. The prior temporary profile rewrite
+hook was removed, so normal IoT runtime toggles cannot enter that restart path.
+`net_wifi.c` opens only ra0 and permitted ra1 at startup. Vendor `MBSS_Open`
+sets `bBcnSntReq`, but is not its sole writer: AIRPLAY_SUPPORT APStartUp
+(ap.c:963) and its OID path (ap_cfg.c:3219) can set it on closed BSSes.
+Consequently omitted ra2 alone does not prove beacon silence. The isolated
+candidate's running-netdev beacon admission guard remains required, and exact
+effective feature options plus hardware queue state must be checked. This
+corrects the earlier unconditional false-beacon-request statement.
+
+The ABI workflow now compiles prepared `ralink.c` with the MIPS toolchain to
+cover the generator and getrandom headers. The new source is not yet covered by
+a completed target build. Runtime activation must still bind the existing
+one-use loaded proof and bridge/firewall transaction before it may `ifconfig
+ra2 up`; physical router testing remains pending.

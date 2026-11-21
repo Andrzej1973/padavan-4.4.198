@@ -1,0 +1,25 @@
+{
+  "scope": "fresh private scheduler begin; host/source only",
+  "checks": {
+    "fresh_begin": "PASS; session32199",
+    "existing_scheduler_shutdown": "PASS; session34717",
+    "actual_scheduler_resume_RC_compositions": "PASS; session32199",
+    "native_preparation": "PASS; session83584 exit0"
+  },
+  "source_sha256": {
+    "tools/iot/restart-scheduler.c": "33253ea3a1959610488d2a74ed189cc6fd5e8d9109ff3b11978e907492436de6",
+    "tools/iot/restart-scheduler.h": "0d12959688306d61af6634487090ece6086565691d04b3e37fdf0fe47c5d5059",
+    "tools/iot/check-scheduler-fresh-begin.py": "c974c530b2fd767b24cec14e38bb48245f5234a7f401306cb05350f701c7c95f"
+  },
+  "log": {
+    "path": "/tmp/wr-scheduler-fresh-preparation.log",
+    "bytes": 307,
+    "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  },
+  "remaining": [
+    "automatic begin and net_wifi binding",
+    "MIPS target verification",
+    "physical runtime acceptance"
+  ],
+  "full_suite": "23234 still active; started before latest scheduler additions"
+}

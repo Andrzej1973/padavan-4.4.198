@@ -1,0 +1,13 @@
+{
+  "scope": "Actual RELEASE correlation of saved Main origin with actual Main recovery release",
+  "implementation": "Compare generation/token, physical ticket serial/epoch, completion epoch, nonzero close serial and physical CLOSE operation without reset; require ticket after ARM and completion not before ticket",
+  "checks": [
+    "Strict O2 ASan/UBSan native exact match and14 invalid cases with immutable state PASS",
+    "Actual RELEASE composition80736 exit0 PASS",
+    "Deferred candidate installer PASS; new header included in hash manifests"
+  ],
+  "verification_limits": "No full35part suite run for this delta; target/device checks pending; old origin correlation is not new identity mapping or OPEN permission",
+  "production_orchestration": false,
+  "runtime_verified": false,
+  "scratch": "Temp test directories auto-removed; bounded release log removed after PASS"
+}

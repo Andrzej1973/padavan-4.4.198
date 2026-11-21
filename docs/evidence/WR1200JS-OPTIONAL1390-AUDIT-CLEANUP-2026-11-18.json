@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-18",
+  "run": 44324809566,
+  "artifact": 14437966997,
+  "audit_session": 72689,
+  "audit_exit_code": 0,
+  "removed_owned_paths": [
+    ".scratch/optional1390-audit",
+    ".scratch/optional1390-audit.zip"
+  ],
+  "allocated_bytes_reclaimed": 184639488,
+  "tracked_files_removed": false,
+  "durable_report": "docs/evidence/WR1200JS-OPTIONAL1390-INDEPENDENT-IMAGE-2026-11-18.json",
+  "source_or_cache_removed": false
+}

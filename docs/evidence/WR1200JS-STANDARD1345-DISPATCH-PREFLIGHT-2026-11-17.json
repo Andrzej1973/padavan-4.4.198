@@ -1,0 +1,45 @@
+{
+  "revision": "1b13d68faefae9f06939774246facf391add8497",
+  "run": 44016478622,
+  "number": 1345,
+  "failed_job": "build (wr1200js) / build-wr1200js",
+  "failed_step": "Check IoT host compiler compatibility early",
+  "monitor": {
+    "run": 44016659798,
+    "artifact": 14299650593,
+    "name": "agent-build-error-44016659798",
+    "assessment": "Useful: first causal implicit declaration identified; original failed-step log confirms it. Later missing image artifacts are follow-on failures. No parser change warranted."
+  },
+  "root_cause": "prepare-dispatch-check.py builds a standalone strict-C11 server translation unit with injected backend but omitted the newly required backend_applied_route declaration/implementation. Actual staged control-channel.h already declares it. Full287 physical-stop suite does not invoke this separate preflight generator.",
+  "fix": "Add explicit queue-only backend gate actor and refusal/retry/no-ON-replay cases, including pending TERM; actual backend/physical arming remains covered by the full composition test.",
+  "local": {
+    "focused_generated_dispatch_session": 97200,
+    "focused_exit_code": 0,
+    "preflight_session": 73907,
+    "preflight_status": "completed",
+    "first_fixed_preflight": {
+      "session": 19542,
+      "exit_code": 1,
+      "cause": "New repeated TERM case needed signal handler reinstallation under strict C11; corrected in test only"
+    },
+    "preflight_exit_code": 0,
+    "preflight_summary": "71 standalone fixtures plus all listed composition/CLOSE/WDS checks PASS"
+  },
+  "log_sha256": {
+    "last_build_error.log": "275eb9c09bd95f15978a02fbbcf6a4810beca7a86dc21748d9f701129811564f",
+    "original-failed.log": "4412fde6e9e8f4a435509160548bc3987f1e6002138315dcd6c005426eac8526",
+    "abi910-monitor.log": "49105c8ed7d9780485e5e11a6bdecfe2890263833f3e1b0bf8c83bdca10b8db8",
+    "host-compatibility-fixed-2.log": "f3b11feb7f8be99e9537cc792ce067c8418134d9a4cc06048a2030a5f91f3596"
+  },
+  "production_code_changed": false,
+  "target_or_device_claim": false,
+  "same_failure_abi": {
+    "run": 44016495536,
+    "number": 910,
+    "step": "Check private IoT request mailbox",
+    "monitor_run": 44017372947,
+    "monitor_artifact": 14299925584,
+    "original_log_confirmed": true
+  },
+  "source_sha256": "3ea69c99caa4fc0819cc3cb98b659af4a6b5a9cb9fcb9fb115ce3e8b52d47fa6"
+}

@@ -1,0 +1,87 @@
+{
+  "proxy_present": {
+    "http_proxy": false,
+    "https_proxy": false,
+    "HTTP_PROXY": false,
+    "HTTPS_PROXY": false,
+    "ALL_PROXY": false
+  },
+  "resolver": {
+    "/etc/nsswitch.conf": [
+      "hosts:          files dns"
+    ]
+  },
+  "hosts": {
+    "archive.ubuntu.com": {
+      "nss": {
+        "code": null,
+        "seconds": 9.02,
+        "error": "timeout"
+      },
+      "https": {
+        "code": 28,
+        "seconds": 3.01,
+        "stdout": "http=000 remote=\n",
+        "stderr": "curl: (28) Resolving timed out after 3001 milliseconds\n"
+      }
+    },
+    "security.ubuntu.com": {
+      "nss": {
+        "code": null,
+        "seconds": 9.01,
+        "error": "timeout"
+      },
+      "https": {
+        "code": 28,
+        "seconds": 3.01,
+        "stdout": "http=000 remote=\n",
+        "stderr": "curl: (28) Resolving timed out after 3000 milliseconds\n"
+      }
+    },
+    "azure.archive.ubuntu.com": {
+      "nss": {
+        "code": null,
+        "seconds": 9.01,
+        "error": "timeout"
+      },
+      "https": {
+        "code": 28,
+        "seconds": 3.01,
+        "stdout": "http=000 remote=\n",
+        "stderr": "curl: (28) Resolving timed out after 3001 milliseconds\n"
+      }
+    },
+    "github.com": {
+      "nss": {
+        "code": 0,
+        "seconds": 0.01,
+        "stdout": "140.82.114.4    STREAM github.com\n140.82.114.4    DGRAM  \n140.82.114.4    RAW    \n",
+        "stderr": ""
+      },
+      "https": {
+        "code": 0,
+        "seconds": 0.05,
+        "stdout": "http=200 remote=140.82.114.4\n",
+        "stderr": ""
+      }
+    },
+    "packages.microsoft.com": {
+      "nss": {
+        "code": 0,
+        "seconds": 0.01,
+        "stdout": "13.107.246.40   STREAM part-0012.t-0009.t-msedge.net\n13.107.246.40   DGRAM  \n13.107.246.40   RAW    \n13.107.213.40   STREAM \n13.107.213.40   DGRAM  \n13.107.213.40   RAW    \n",
+        "stderr": ""
+      },
+      "https": {
+        "code": 0,
+        "seconds": 0.05,
+        "stdout": "http=200 remote=13.107.246.40\n",
+        "stderr": ""
+      }
+    }
+  },
+  "run_id": 43048532236,
+  "artifact_id": 13868188054,
+  "scope": "actual Ubuntu24 runner pre-apt diagnostics; internal DNS search suffix omitted",
+  "interpretation": "Ubuntu archive/security/Azure host resolution times out; GitHub/Microsoft NSS+HTTPS succeed; not a general connectivity outage"
+}

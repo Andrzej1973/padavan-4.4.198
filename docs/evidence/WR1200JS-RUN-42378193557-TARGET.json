@@ -1,0 +1,37 @@
+{
+  "run_id": 42378193557,
+  "artifact_id": 13577268817,
+  "verification_source_artifact_id": 13576842156,
+  "verification_source": {
+    "dispatch_revision": "7bedb0018ac881ff6cfb38f537413638ff716523",
+    "requested_revision": "8b2f2e698a155217687cff18ae458df3a7f4d6f1",
+    "verified_revision": "8b2f2e698a155217687cff18ae458df3a7f4d6f1",
+    "runtime_verified": false
+  },
+  "repository_revision": "8b2f2e698a155217687cff18ae458df3a7f4d6f1",
+  "modules": {
+    "baseline": {
+      "module_bytes": 5789012,
+      "module_sha256": "3595f83e6b419b76826815e746533a59350d507601a326e221627bfae851cef0",
+      "report_sha256": "d14902b35a859971f005168f8738afc1de6dc63303fb2f5d7c80aefa50062c13",
+      "elf": "ELF32 little-endian MIPS relocatable"
+    },
+    "wsc": {
+      "module_bytes": 6398500,
+      "module_sha256": "495ffe596533438c68a9cc4ca7b5c5ab9f80a95f9aea812586df4a8d050f5c4f",
+      "report_sha256": "f4ac02190be224e21c8644208fb9af4882650b733b78b9889184418671fdb326",
+      "elf": "ELF32 little-endian MIPS relocatable"
+    },
+    "reload": {
+      "module_bytes": 5791084,
+      "module_sha256": "a93a8c087bba7985bc48b9f792af46dd8bb338791bd8bedfed659c614ecb54bf",
+      "report_sha256": "7ecdec585ce5578f6934f2e60c90ede7f37dc4357a0a19a94c6fc633e31549c5",
+      "elf": "ELF32 little-endian MIPS relocatable"
+    }
+  },
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Isolated baseline/WSC/reload compilation of outer channel refusal; later scan and target guard checks not covered.",
+  "inspection": "Verified ZIPs and binaries in memory; no binary artifacts retained."
+}

@@ -1,0 +1,30 @@
+{
+  "scope": "actual extracted checked MCU paths with injected kernel/transport operations",
+  "candidate_sources_sha256": {
+    "mcu/andes_mt.c": "11703f277550f9c5f1644aa3846cf342d41ed236a4365f12596ae93ca9901a37",
+    "mcu/andes_core.c": "1d9d162dbe8e9ca782979977dd0d89f993d5126348d7b36600f20c45b87d65ff",
+    "include/mcu/andes_core.h": "f351d68aa30bd8e782cf4f6e4a2a0b9a8fbd9c283e92a464acfe29b15a5e100b"
+  },
+  "test_generators_sha256": {
+    "tools/iot/prepare-mcu-sender-check.py": "a8c5e9f87099de98ff9a5f928bd90f1ce0008464d16e5fdb6ee46b58c57d5d02",
+    "tools/iot/prepare-mcu-kickout-check.py": "9510e0de59c0078a42be970bee2281c83d80b4ddf0cfbfb5cd6447b3c215803b",
+    "tools/iot/prepare-mcu-result-check.py": "38dd4aca3bff6a6bfc2e078c646e6fa51a111f8bc3f00af7cdb10c9b4b3cf28f",
+    "tools/iot/check-radio-off-send.py": "b7d2672bdeefd2ba359f5ba04e63e233a7404c2ebb5a32f102448eef65b581e9"
+  },
+  "passed": [
+    "sender with dispatcher: timeout/missing response/checked result/preconditions",
+    "PCI kickout: pre and post ring ownership failure",
+    "checked ACK: identity/length/status/completion order",
+    "checked wrapper: allocation and send error propagation"
+  ],
+  "compiler_flags": [
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined"
+  ],
+  "hardware_concurrency_verified": false,
+  "firmware_policy_verified": false,
+  "runtime_verified": false
+}

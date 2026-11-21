@@ -1,0 +1,18 @@
+{
+  "failed_run": 42685491574,
+  "sha": "843f6f549a450fb3f81ddf17437523d1059e1d56",
+  "failed_job": 129391074057,
+  "failed_step": 72,
+  "monitor_run": 42685885044,
+  "monitor_artifact": 13704422300,
+  "monitor_assessment": "Useful: correct run/job/step and both actual unused-function errors; confirmed in original failed-step log. No parser changes needed.",
+  "cause": "prepare-stop-check retained obsolete bridge/NVRAM mocks and bypass expectations after controller became mandatory. Independent helper test passed but full generated RC fixture was not run locally before publication.",
+  "fix": "Remove obsolete mocks, forbid shortcut references, require exact controller success and call counts in full stop/restart fixture. Preserve other-board behavior and second-call refusal case.",
+  "verification": [
+    "Exact pinned vendor net_wifi.c and board profile passed through actual prepare-rc stop/restart prefix.",
+    "Generated full fixture compiled with Werror and ASan/UBSan and executed in WR and non-WR modes.",
+    "git diff --check passed."
+  ],
+  "runtime_verified": false,
+  "cleanup": "Temporary pinned source, generated fixture and both executables removed automatically."
+}

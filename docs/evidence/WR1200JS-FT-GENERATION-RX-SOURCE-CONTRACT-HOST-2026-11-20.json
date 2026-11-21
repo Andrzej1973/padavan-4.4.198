@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-20",
+  "scope": "Prepared FT association-generation provenance source contract for ordinary management RX and synthetic producers; no firmware sources modified",
+  "pinned_vendor_revision": "c25283e",
+  "status": "host-source-contract-pass-producer-uninstalled",
+  "checks": [
+    "FT MLME requeue copies assoc_gen, assoc_wcid and assoc_addr exactly once",
+    "stale association-event guard is checked before native state-machine dispatch",
+    "ordinary management RX supplies the hardware receive WCID",
+    "FT_OverDs_SimReq supplies the synthetic peer AID and derives BSS from its peer entry",
+    "ordinary FT RX BSS/MAC/wdev identity and pending first-peer BT_REQ fixtures pass under ASan/UBSan",
+    "request-context and parser/action fixtures pass against pinned source",
+    "pending queue lifecycle fixtures pass; Nim BSS+MAC ledger and AP-stop resume checks pass",
+    "FT_RrbHandler RRB producer and FT_FtAction consumer identity/generation binding fixture passes",
+    "over-air AUTH RX producer passes default, CUSTOMER_DCC_FEATURE and NEIGHBORING_AP_STAT variants",
+    "reassociation retirement fixture refuses stale/claimed/busy ownership before generation mutation",
+    "ordinary RX producer contract requires the exact REPORT_MGMT_FRAME_TO_MLME(pAd, pRxBlk->wcid,...) handoff"
+  ],
+  "commands": [
+    {
+      "command": "python3 tools/iot/check-ft-rx-generation.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit_status": 0,
+      "summary": "PASS ordinary FT RX identity/failure paths and FT association-generation provenance contract"
+    },
+    {
+      "command": "python3 tools/iot/check-ft-auth-request-context.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit_status": 0,
+      "summary": "PASS native FT AUTH invocation, request lifecycle, retry, detached response and context fixtures"
+    },
+    {
+      "command": "python3 tools/iot/check-ft-parser-composition.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit_status": 0,
+      "summary": "PASS bounded parser and composed RRB/FT action regression"
+    },
+    {
+      "command": "python3 tools/iot/check-ft-pending-enqueue.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit_status": 0,
+      "summary": "PASS pending native enqueue and queue lifecycle host compositions"
+    },
+    {
+      "command": "nim c -r tools/iot/ft_pending_identity_check.nim",
+      "exit_status": 0,
+      "summary": "PASS pending BSS+MAC ledger, queue ownership/lifecycle and AP-stop resume contract"
+    },
+    {
+      "command": "python3 tools/iot/check-ft-generation-binding.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3 --success-context",
+      "exit_status": 0,
+      "summary": "PASS prepared RRB producer, FT Action generation binding, first-peer ticket race/failure and callback bounds"
+    },
+    {
+      "command": "python3 tools/iot/check-ft-auth-rx.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit_status": 0,
+      "summary": "PASS exact over-air AUTH RX identity in default, CUSTOMER_DCC_FEATURE and NEIGHBORING_AP_STAT variants"
+    },
+    {
+      "command": "python3 tools/iot/check-ft-reassociate-retirement.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit_status": 0,
+      "summary": "PASS reassociation retirement ownership and stale-token refusal"
+    }
+  ],
+  "source_sha256": {
+    "tools/iot/check-ft-rx-generation.py": "160438c8737e5129e19ac25e4b3e01441e6e95b78a54aa5476aa54cd757c5b55",
+    "tools/iot/ft-rx-generation-composition.py": "634732ebcda52e0c43d198d941523a5b27f746b74e6b672bf1d4a9541e3deaac",
+    "pinned/common/mlme.c": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
+    "pinned/tx_rx/wdev_rx.c": "457196980973c7351f2d2c276a2359ea49d0ed8eefe0b913ae5fe727c8126ea7",
+    "pinned/common/ft_iocl.c": "9782a93fb983f1868069428ca8296d051e01f7497338affd871e775d7ba298db",
+    "tools/iot/check-ft-generation-binding.py": "482fca5a4a7a86e0f86f81f37c499901eefd6688b3942700cfd507286988c558",
+    "tools/iot/check-ft-auth-rx.py": "0f926df5c1e767e3e8e051e20e172d30bcd3f0dcbf0871c79f0eaa2481b0fb77",
+    "tools/iot/check-ft-reassociate-retirement.py": "a9d04110050c8edb1090569d44cd727a82b5d286fe13f4604ee931f65391fa32",
+    "pinned/common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85"
+  },
+  "producer_installed": false,
+  "target_compiled": false,
+  "final_image_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "ordinary RX/FT action enqueue-to-dispatch candidate still needs complete queue and adapter lifetime integration",
+    "atomic target-BSS first-peer insertion ticket claim remains unintegrated",
+    "native FT_AUTH generation handoff and asynchronous IAPP response correlation remain open",
+    "pinned-vendor target compilation and runtime acceptance remain unverified"
+  ]
+}

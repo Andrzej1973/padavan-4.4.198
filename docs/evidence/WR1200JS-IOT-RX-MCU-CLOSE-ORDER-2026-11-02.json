@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-02",
+  "scope": "full-driver predecessor normal close and init unwind source order",
+  "source_sha256": {
+    "common/rtmp_init_inf.c": "8b995d6bb9f44be4808bdbb66977f08c3b89500589fd465490cebdb9d20ce3f7",
+    "os/linux/rt_rbus_pci_drv.c": "a9a178f908874cf942246dc441ae2f75b5813299033b19d676d66fdc96703ee0"
+  },
+  "normal_close": [
+    "APShutdown",
+    "RtmpNetTaskExit kills rx_done_task and rx1_done_task",
+    "IRQ release",
+    "MCU_CTRL_EXIT",
+    "ring reset/free"
+  ],
+  "init_unwind": [
+    "err6 MCUSysExit",
+    "err2 RtmpNetTaskExit",
+    "err1 hif_sys_exit"
+  ],
+  "conclusion": "normal close contains physical RX task joins before MCU cleanup; init unwind has different ordering and needs precise MCUSysExit semantics plus stage/IRQ admission review",
+  "not_proven": [
+    "no IRQ rearm after task join",
+    "effective KTHREAD kill semantics",
+    "exact final merged unwind ordering",
+    "firmware ACK epoch"
+  ],
+  "runtime_verified": false
+}

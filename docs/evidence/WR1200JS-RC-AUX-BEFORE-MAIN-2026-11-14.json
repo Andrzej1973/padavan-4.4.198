@@ -1,0 +1,48 @@
+{
+  "scope": "Experimental AUX/Guest administrative shutdown before physical Main ARM",
+  "sdk_source_sha256": {
+    "trunk/user/rc/net_wifi.c": "98bbe9cfca0af35be4ddb82742022b90cc51c2f7b34834e627ee6c5f2187dc69",
+    "trunk/user/shared/netutils.h": "fbe2e49c993d2145ba1417069bd5af34abb7faaa38fdbeb8703279fe4e2c6f69"
+  },
+  "source_findings": [
+    "Pinned net_wifi.c wif_control is static; adapter must live in same prepared translation unit",
+    "Pinned net_wifi.c stop order APCLI,WDS3,WDS2,WDS1,WDS0,Guest,Main",
+    "Use SDK IFNAME_2G constants rather than accepting caller interface strings"
+  ],
+  "implementation": [
+    "one fixed AUX slot per RC wait continuation",
+    "no Main slot; out-of-range rejected",
+    "lookup errors retained; absent ENODEV/ENXIO completes administrative slot only",
+    "command error retains slot/guards",
+    "fresh private backend CLOSE after AUX; missing receipt blocks ARM",
+    "actual driver Main receipt still required for physical transaction completion"
+  ],
+  "checks": {
+    "host_suite_parts": 33,
+    "suite_session": 98408,
+    "suite_exit": 0,
+    "sanitizers": "O2 ASan/UBSan",
+    "actual_prepared_adapter": "PASS fixed order/no Main, invalid slot, lookup and DOWN failure, absent optional interfaces",
+    "retained_context": "PASS no ARM/DOWN during AUX or missing fresh CLOSE",
+    "prepared_runtime_TUs": "strict C11 PASS",
+    "RC_runtime": "PASS"
+  },
+  "ci": {
+    "published_revision": "55eaf120433a0cfbd6999a3e8fd43019ba1e55da",
+    "abi_run": 43565221067,
+    "abi_conclusion": "success",
+    "standard_run": 43565223676,
+    "standard_last_status": "pending",
+    "new_aux_package_target_verified": false
+  },
+  "pending": [
+    "actual stock stop/restart entrypoint admission",
+    "active IoT OFF initiation",
+    "terminal intent consumption with fresh safe-reopen validation",
+    "MIPS full link",
+    "physical runtime acceptance"
+  ],
+  "production_orchestration": false,
+  "runtime_verified": false,
+  "scratch": "Native temp fixtures/prepared trees automatically removed; bounded suite log removed after PASS; SDK archive read without extraction"
+}

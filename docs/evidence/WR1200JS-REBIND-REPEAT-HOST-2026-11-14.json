@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-14",
+  "source_base": "98a41f0b49aca9c6db2c5c02056ec183061af7aa",
+  "implementation": [
+    "tools/iot/rebind-owner.c wr_iot_rebind_owner_restart",
+    "tools/iot/rc-backend.c wr_iot_rc_rebind_begin"
+  ],
+  "behavior": [
+    "accept repeated physical RELEASE only against current completed rebind OFF tuple",
+    "require all host snapshots/guards released and unused recovery owners absent before retaining completion backup",
+    "only completed/unowned metadata copied; internal stop pointer repaired on read-only restoration",
+    "new runner verifies fresh physical RELEASE/new Main epoch",
+    "read-only refusal restores exact previous completion",
+    "partial new snapshot/guard remains owned by new context; never restored over"
+  ],
+  "host_checks": {
+    "check-rc-rebind-repeat.py": "PASS real RC/owner/runner/admission/snapshot/commit/OFF; completed physical receipt and network/driver actors injected",
+    "physical_stop_suite": {
+      "session": 44025,
+      "status": "PASS",
+      "parts": 55,
+      "exit_code": 0,
+      "log_sha256": "937c0ef54673b956c8a5e473f41be150993dcd315b71a06d5c9455e1416ea5b0"
+    },
+    "prepared_runtime": "PASS within full55:16 actual copied TUs strict native C11"
+  },
+  "runtime_linked": true,
+  "physical_restart_scheduler_bound": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "remaining": [
+    "checked Main startup including desired profile/key preparation before initialization",
+    "complete physical restart scheduler and outer guard release",
+    "target compilation and physical acceptance"
+  ],
+  "next_source_inspection": {
+    "source_archive": "padavan-4.4-c25283e-git-exact.tar",
+    "member": "trunk/user/rc/net_wifi.c",
+    "finding": "restart_wifi_rt combines stop/profile generation/start AP/WDS/APCLI; cannot replay whole helper after owned physical RELEASE",
+    "scratch": "selected source read in memory only; no extraction"
+  },
+  "cleanup": {
+    "test_trees": "TemporaryDirectory automatic removal",
+    "completed_log_bytes": 15633,
+    "completed_log_retained": false
+  },
+  "ci": {
+    "standard1182": "success",
+    "optional1182_source_dispatched": 43600875961
+  }
+}

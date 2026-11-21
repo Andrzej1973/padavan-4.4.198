@@ -1,0 +1,21 @@
+{
+  "scope": "local software recovery contract only",
+  "capture": "existing retained Main owner, scheduled QUEUED/RUNNING/RETAINED, physical close ticket newer than ARM radio serial; live registry and transition matching",
+  "completion": "release_for_ticket requires same captured Main tuple and fresh last_release after actual dev_put",
+  "checks": [
+    "positive real owner close lifecycle capture",
+    "old/equal ARM serial refused",
+    "foreign generation refused",
+    "three strict host fixtures PASS",
+    "eight owner/transition fault cases reject capture without changing output ticket",
+    "exact release_for_ticket positive and five wrong-request refusals",
+    "reviewed predecessor normalization regression PASS"
+  ],
+  "remaining": [
+    "ioctl ARM/submission binding",
+    "full composed target verification",
+    "hardware and physical runtime acceptance"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false
+}

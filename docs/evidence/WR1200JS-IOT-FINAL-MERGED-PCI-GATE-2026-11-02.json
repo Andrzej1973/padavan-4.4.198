@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-02",
+  "scope": "exact final merged source including init RX/DMA layer",
+  "checker": "tools/iot/check-pci-remove-release-gate.py",
+  "result": "FAIL",
+  "diagnostics": [
+    "first join, root detach, final join and release claim are not ordered before adapter free",
+    "main recovery work must be joined before and after root detach"
+  ],
+  "correction": "earlier hypothesis that prepared merge resolves standalone gate failure was false; exact merged source also fails",
+  "interpretation": "gate failure requires control-flow audit; does not itself prove UAF. Existing release gate may retain adapter indefinitely without required retirement phase",
+  "next": [
+    "inspect actual function extraction and exact join call count",
+    "bind retirement transitions only to verified callback/work/hardware receipts",
+    "preserve refusal until evidence supports release"
+  ],
+  "runtime_verified": false
+}

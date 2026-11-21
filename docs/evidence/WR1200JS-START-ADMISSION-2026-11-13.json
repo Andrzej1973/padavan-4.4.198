@@ -1,0 +1,20 @@
+{
+  "scope": "Local read-only initial-start owner admission before staging",
+  "source": [
+    "start-admission.c",
+    "start-admission.h"
+  ],
+  "sequence": "Existing active rc-shutdown fence, service guard, first idle query, read-only snapshot, second idle query with same epoch/generation and increasing observation serial. Snapshot retains nested guard on success.",
+  "verification": "PASS actual source ASan/UBSan mocked external boundaries: guard/query/snapshot refusal, epoch/generation/serial drift, pending shutdown, duplicate begin, inactive shutdown fence and failed snapshot release retention including failed admission cleanup.",
+  "limits": "Not production-bound or staged for target yet; caller must cancel only before any mutation, later activation rollback must own snapshot. Configuration observation does not prove RF or loaded keys.",
+  "runtime_verified": false,
+  "cleanup": "Temporary test/staging trees auto-removed; completed preflight log removed (15113bytes).",
+  "staging_transfer": {
+    "implementation": "wr_iot_start_admission_stage revalidates guard/pid/shutdown/current initial-idle identity, marks mutation before existing stage writer",
+    "verification": "PASS ASan/UBSan writer success and failure: original snapshot/guard retained, cancel/duplicate writer refused, pending shutdown before writer prevents mutation",
+    "limits": "Writer injected in this fixture. Full real staging/rollback composition, target and dispatch integration pending."
+  },
+  "real_composition": "PASS actual start-admission/request-stage/request-snapshot plus existing service/controller/profile units ASan/UBSan:16 NVRAM setter failures, retained guard/baseline, cancel/replay refusal and exact baseline restoration strictly before bridge/OPEN. NVRAM/netdev/idle observations injected.",
+  "staging": "PASS actual pinned RC preparation, exact admission source/header checks and native admission/client TU compile. New MIPS ABI TU configured; target verification pending.",
+  "preflight": "PASS early host compatibility: 68 existing standalone fixtures, CLOSE composition and WDS producer capture; actual driver binding checked later"
+}

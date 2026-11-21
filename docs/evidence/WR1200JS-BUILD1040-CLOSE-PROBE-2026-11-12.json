@@ -1,0 +1,25 @@
+{
+  "run": 43231120887,
+  "number": 1040,
+  "revision": "ec9f9c54e0b0a22025612a08767f9ba9d3275c65",
+  "monitor_run": 43233805099,
+  "monitor_artifact": 13951064009,
+  "monitor_useful": true,
+  "monitor_parser_changed": false,
+  "original_job": 131226488757,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "diagnostic_artifact": 13951242579,
+  "diagnostic": "close-bindings-target-tu.json",
+  "error": "Probe missing or optimized to trivial refusal",
+  "failure_stage": "Post-compilation probe symbol size gate; temporary TU compiler invocation completed",
+  "prepared_close_dispatch_fixture_passed": true,
+  "host_reproduction": {
+    "outlined_body_with_barrier_bytes": 14,
+    "constant_refusal_bytes": 6,
+    "old_sibling_wrapper_bytes": 2,
+    "compiler": "Host GCC13.3 x86_64, O2, CET entry prefix disabled for this codegen fixture"
+  },
+  "fix": "Keep a compiler input-register barrier after the actual probe call, preserving the size gate. Save object/nm evidence before gate evaluation. Driver runtime code unchanged.",
+  "target_confirmation_pending": true,
+  "runtime_verified": false
+}

@@ -1,0 +1,16 @@
+{
+  "base_revision": "d37d3bfb63be4887fa4269bc5cf63e304cacf2a4",
+  "checks": [
+    "python3 -B tools/iot/check-package-candidate-pair.py PASS synthetic positive/negative evidence",
+    "bash -n tools/iot/ci-compile-merged-candidate.sh PASS"
+  ],
+  "sha256": {
+    "package-candidate-pair.py": "fa7c803e28af3b54753242e79bcf37a700bd17ecc270e3b09320f8b750ca639d",
+    "check-package-candidate-pair.py": "5b13492560872c1e5d0b86c930391f88ea45eba86b05043e77c1c320179ced3a",
+    "ci-compile-merged-candidate.sh": "70e7becd5e854300800376da65ccf36861f21e7efc2fd127180a1f7411dd21ea"
+  },
+  "actual_ci_pair_manifest_generated": false,
+  "production_installed": false,
+  "trx_inclusion_verified": false,
+  "physical_runtime_verified": false
+}

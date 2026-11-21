@@ -1,0 +1,17 @@
+{
+  "run": 43714479477,
+  "sha": "f32eb4822ed3df11bdc67e6367fe53ee553429a8",
+  "first_failure": "check-runtime-source.py:27 assertion rc-backend",
+  "cause": "preparer composes rc-cold-start.inc, source-equality verifier expected only original rc-backend.c",
+  "fix": "expected backend includes the same explicitly named fragment before header rewriting",
+  "checks": {
+    "prepared_C11_objects": "PASS",
+    "actual_verifier_source_loop_on_composed_backend": "PASS",
+    "unexpected_backend_suffix_rejected": "PASS"
+  },
+  "sha256": {
+    "tools/iot/check-runtime-source.py": "c4fe5c038eb6bf901500bbbd031c0d63d3aa8e29b57adfe41444e4158b35ce7e",
+    "tools/iot/check-physical-stop-client-preparation.py": "cc4729cd91b369dbdc4d20dd93484af7c361c69200a1d5438f69ef33aac26e0d"
+  },
+  "target_verification": "failed before MIPS compilation; fixed CI pending"
+}

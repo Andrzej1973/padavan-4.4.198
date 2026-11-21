@@ -1,0 +1,17 @@
+<div class="alert alert-info">Бажані налаштування IoT 2,4 ГГц. Збереження не означає активацію Wi-Fi, DHCP або ізоляції. Після запису повторно прочитайте налаштування для наступного редагування.</div>
+<div id="iot-message" role="status" aria-live="polite">Натисніть «Прочитати налаштування».</div>
+<button type="button" id="iot-refresh" class="btn">Прочитати налаштування</button>
+<div class="control-group"><label for="iot-enabled"><input type="checkbox" id="iot-enabled"> Бажаний стан IoT: увімкнено</label></div>
+<div class="control-group"><label for="iot-ssid">Назва мережі (SSID)</label><input id="iot-ssid" maxlength="32" autocomplete="off"></div>
+<div class="control-group"><label for="iot-action">Пароль</label><select id="iot-action"><option value="keep">Залишити поточний</option><option value="replace">Встановити новий</option></select><input type="password" id="iot-password" maxlength="64" autocomplete="new-password" aria-label="Новий пароль"></div>
+<div class="control-group"><label for="iot-gateway">IPv4 шлюзу IoT</label><input id="iot-gateway" maxlength="15" inputmode="decimal"></div>
+<div class="control-group"><label for="iot-mask">Маска підмережі</label><input id="iot-mask" maxlength="15" inputmode="decimal"></div>
+<div class="control-group"><label for="iot-first">Початок DHCP</label><input id="iot-first" maxlength="15" inputmode="decimal"></div>
+<div class="control-group"><label for="iot-last">Кінець DHCP</label><input id="iot-last" maxlength="15" inputmode="decimal"></div>
+<button type="button" id="iot-ram" class="btn" disabled>Зберегти в RAM</button>
+<button type="button" id="iot-auto" class="btn" disabled>Зберегти за політикою роутера</button>
+<button type="button" id="iot-save" class="btn btn-primary" disabled>Явно зберегти у flash</button>
+<hr>
+<p>Перемкнути збережений профіль зараз, без збереження нового бажаного стану. Якщо профіль ще не завантажено, запит буде відхилено без перезапуску Wi-Fi.</p>
+<button type="button" id="iot-on" class="btn" disabled>Увімкнути збережений профіль зараз</button>
+<button type="button" id="iot-off" class="btn" disabled>Вимкнути IoT зараз</button>

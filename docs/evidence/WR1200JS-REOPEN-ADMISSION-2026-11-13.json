@@ -1,0 +1,29 @@
+{
+  "scope": "local post-CLOSE read-only admission predicate; no OPEN submission or driver reopen claim",
+  "sources": [
+    "tools/iot/reopen-admission.c",
+    "tools/iot/reopen-admission.h"
+  ],
+  "requirements": [
+    "Same PID stopped runner and completed retained active-stop",
+    "CLOSE owner released, no guard/snapshots left",
+    "Original OPEN attempt matches retained OFF attempt",
+    "Fresh driver CLOSED matches epoch/generation/token/full64 serial",
+    "No bridge/admin BSS down/no DNS recovery and all temporary fields disabled"
+  ],
+  "checks": [
+    "ASan UBSan actual runner/OFF/CLOSE composition PASS",
+    "No guard, wrong nonce/token/serial, retained snapshot and all9 foreign temp values refuse",
+    "ASan UBSan copied witness PASS with staged bridge/network/DNS while old BSS CLOSED",
+    "Wrong token/serial/PID, BSS UP and submitted witness refuse; retained witness unchanged"
+  ],
+  "remaining": [
+    "Integrate witness into admission/network/pre-OPEN rollback and retain previous stopped owner",
+    "Driver new request ownership after CLOSED and loaded-profile matching",
+    "Full ON/OFF/ON repeated composition",
+    "Target staging and compilation",
+    "Physical runtime"
+  ],
+  "cleanup": "TemporaryDirectory builds removed; no retained scratch",
+  "implementation": "Copied same-PID CLOSED witness captured only from fully observed completed OFF; no pointer to prior owner. CLOSED-only checks permit staged network state, refuse after submitted flag."
+}

@@ -1,0 +1,49 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "Pinned TxS RX parser call chain, no new RX drain command or interrupt mask",
+  "calls": [
+    {
+      "path": "common/cmm_data.c",
+      "line": 611,
+      "context": "                        TXS_D_3 *txs_d3 = &txs_entry->txs_d3;\n#endif\n                        TXS_D_4 *txs_d4 = &txs_entry->txs_d4;\n#ifdef RT_BIG_ENDIAN\n\t\t\t\t\t\t*(((UINT32 *)txs_d0)) = SWAP32(*(((UINT32 *)txs_d0)));\n\t\t\t\t\t\t*(((UINT32 *)txs_d1)) = SWAP32(*(((UINT32 *)txs_d1)));\n\t\t\t\t\t\t*(((UINT32 *)txs_d2)) = SWAP32(*(((UINT32 *)txs_d2)));\n\t\t\t\t\t\t*(((UINT32 *)txs_d3)) = SWAP32(*(((UINT32 *)txs_d3)));\n\t\t\t\t\t\t*(((UINT32 *)txs_d4)) = SWAP32(*(((UINT32 *)txs_d4)));\n#endif\n\t\t\tParseTxSPacket(ad, txs_d4->pid, txs_d0->txsfm, ptr);\n\n                        ptr += 20;\n                    }\n                }\n            }\n            break;\n\n        case RMAC_RX_PKT_TYPE_RX_EVENT:\n         {"
+    },
+    {
+      "path": "common/cmm_data_pci.c",
+      "line": 1836,
+      "context": "#endif /* DMA_CACHE_OPTIMIZE */\n\t\t/* flush dcache if no consistent memory is supported */\n\t\tRTMP_DCACHE_FLUSH(pRxCell->DmaBuf.AllocPa, pRxCell->DmaBuf.AllocSize);\n\n\t\tpRxPacket = pRxCell->pNdisPacket;\n\n\t\tpRxBlk->Flags = 0;\n\t\tpRxBlk->PDMALen = pRxD->SDL0;\n#ifdef MT_MAC\n\t\tif (pAd->chipCap.hif_type == HIF_MT) {\n\t\t\trx_hw_hdr_len = parse_rx_packet_type(pAd, pRxBlk, pRxPacket);\n\t\t\tif (rx_hw_hdr_len == 0)\n\t\t\t{pRxBlk->DataSize = 0;}\n\t\t}\n#endif /* MT_MAC */\n\n#ifdef RLT_MAC\n\t\tif (pAd->chipCap.hif_type == HIF_RLT) {\n\t\t\t\trlt_rx_info_2_blk(pAd, pRxBlk, pRxPacket);\n\t\t}"
+    },
+    {
+      "path": "common/cmm_data_sdio.c",
+      "line": 129,
+      "context": "\t\treturn NULL;\n\t}\n\t\n\tfor(i=0;i<len;i++){\n//\t\tprintk(\"%x,\",*(buf+i));\n\t\tDBGPRINT(RT_DEBUG_OFF, (\"%x\",*(buf+i)));\n\t}\n\tprintk(\"before parse_rx_packet_type \\n\");\n\n\t\n\trx_hw_hdr_len = parse_rx_packet_type(pAd, pRxBlk, pRxPacket);\n\t\n\tif (rx_hw_hdr_len == 0)\n\t{\n\t\tpRxBlk->DataSize = 0;\n\t}\n\tif (RX_BLK_TEST_FLAG(pRxBlk, fRX_CMD_RSP))\n\t{\n\t\tRELEASE_NDIS_PACKET(pAd, pRxPacket, NDIS_STATUS_SUCCESS);\n\t\treturn NULL;"
+    },
+    {
+      "path": "mcu/andes_core.c",
+      "line": 433,
+      "context": "\n\n\nVOID AndesRxProcessCmdMsg(RTMP_ADAPTER *ad, struct cmd_msg *rx_msg)\n{\n    RX_BLK RxBlk;\nNdisZeroMemory(&RxBlk, sizeof(RxBlk));\n#ifdef MT_MAC\n\tif (ad->chipCap.hif_type == HIF_MT)\n\t{\n\t\t/*rx_hw_hdr_len = */parse_rx_packet_type(ad, &RxBlk, rx_msg->net_pkt);\n\t}\n#endif /* MT_MAC */\n\n#ifdef RLT_MAC\n\tif (ad->chipCap.hif_type == HIF_RLT)\n\t{\n\t\tAndesRltRxProcessCmdMsg(ad, rx_msg);\n\t}\n#endif /* RLT_MAC */"
+    }
+  ],
+  "files": {
+    "common/cmm_data.c": {
+      "sha256": "8453ace194ac21304a4a4021c51c5caf2f4fb2c00db2fab87216ba5070123a03"
+    },
+    "common/cmm_data_pci.c": {
+      "sha256": "cce10c0bdc7ee3c8b0caaa24afb5a8207f9c497656de4830a27c022664796459"
+    },
+    "common/cmm_data_sdio.c": {
+      "sha256": "11aa00ff9dce2af25f2c1f3a5df87fb4a51992d0da8d3630e30d88441d6f2ed7"
+    },
+    "mcu/andes_core.c": {
+      "sha256": "63bad3b746c781cf98dd99f1f0446ff23816dd0f3dbc5e8e9df66dea74a16017"
+    }
+  },
+  "findings": [
+    "RMAC_RX_PKT_TYPE_RX_TXS is handled by parse_rx_packet_type alongside normal RX/duplicate RX, RX vector and MCU RX events",
+    "TXS packet payload is batched20-byte entries plus4-byte prefix; parser dispatches PID/format/raw entry to ParseTxSPacket",
+    "Per-BSS beacon queue flush does not itself demonstrate an empty host RX pipeline or completion of already parsed TxS callbacks",
+    "Global RX stop/interrupt masking must not be assumed harmless to Main/Guest or MCU replies"
+  ],
+  "remaining": "Trace listed ring retrieval caller and synchronization primitives; determine safe scoped barrier or on-wire correlation before reopen",
+  "runtime_verified": false,
+  "cleanup": "Source read in memory only"
+}

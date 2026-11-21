@@ -1,0 +1,65 @@
+#include <assert.h>
+#include "terminal-command-owner.h"
+int main(void)
+{
+ struct wr_iot_terminal_command_owner s;
+ unsigned long first,second;
+ wr_iot_terminal_command_init(&s,7);
+ assert(wr_iot_terminal_command_enqueue_allowed(&s));
+ assert(!wr_iot_terminal_command_join_begin(&s,7,1));
+ assert(!wr_iot_terminal_command_close(&s,8));
+ assert(wr_iot_terminal_command_close(&s,7));
+ assert(!wr_iot_terminal_command_enqueue_allowed(&s));
+ assert(!wr_iot_terminal_command_join_begin(&s,7,0));
+ assert(!wr_iot_terminal_command_joined(&s,7));
+ first=wr_iot_terminal_command_join_begin(&s,7,1);assert(first);
+ assert(!wr_iot_terminal_command_join_begin(&s,7,1));
+ assert(!wr_iot_terminal_command_join_finish(&s,8,first,1));
+ assert(wr_iot_terminal_command_join_finish(&s,7,first,0));
+ assert(!wr_iot_terminal_command_joined(&s,7));
+ assert(!wr_iot_terminal_command_enqueue_allowed(&s));
+ second=wr_iot_terminal_command_join_begin(&s,7,1);assert(second>first);
+ assert(!wr_iot_terminal_command_join_finish(&s,7,first,1));
+ assert(wr_iot_terminal_command_join_finish(&s,7,second,1));
+ assert(wr_iot_terminal_command_joined(&s,7));
+ assert(wr_iot_terminal_command_joined(&s,7));
+ assert(!wr_iot_terminal_command_joined(&s,8));
+ assert(!wr_iot_terminal_command_join_begin(&s,7,0));
+ assert(!wr_iot_terminal_command_join_finish(&s,7,second,1));
+ assert(!wr_iot_terminal_command_enqueue_allowed(&s));
+ wr_iot_terminal_command_init(&s,9);s.attempt=~0UL;
+ assert(wr_iot_terminal_command_close(&s,9));
+ assert(!wr_iot_terminal_command_join_begin(&s,9,1));
+ assert(!wr_iot_terminal_command_joined(&s,9));
+ wr_iot_terminal_command_init(&s,11);
+ first=wr_iot_command_normal_join_begin(&s,11,1);assert(first);
+ assert(!wr_iot_terminal_command_joined(&s,11));
+ assert(wr_iot_terminal_command_join_finish(&s,11,first,1));
+ second=wr_iot_command_attach_begin(&s,11);assert(second>first);
+ assert(!wr_iot_terminal_command_join_finish(&s,11,first,1));
+ assert(wr_iot_terminal_command_close(&s,11));
+ assert(!wr_iot_terminal_command_join_begin(&s,11,1));
+ assert(wr_iot_command_attach_finish(&s,11,second));
+ first=wr_iot_terminal_command_join_begin(&s,11,1);assert(first>second);
+ assert(wr_iot_terminal_command_join_finish(&s,11,first,1));
+ assert(!wr_iot_command_attach_begin(&s,11));
+ assert(wr_iot_terminal_command_joined(&s,11));
+ wr_iot_terminal_command_init(&s,12);
+ first=wr_iot_command_normal_join_begin(&s,12,1);assert(first);
+ assert(wr_iot_terminal_command_close(&s,12));
+ assert(!wr_iot_terminal_command_join_begin(&s,12,1));
+ assert(wr_iot_terminal_command_join_finish(&s,12,first,1));
+ assert(wr_iot_terminal_command_joined(&s,12));
+ wr_iot_terminal_command_init(&s,13);
+ first=wr_iot_command_first_attach_begin(&s,13);assert(first);
+ assert(!wr_iot_command_attach_failed_absent(&s,13,first,0));
+ assert(!wr_iot_command_attach_failed_absent(&s,13,first+1,1));
+ assert(wr_iot_command_attach_failed_absent(&s,13,first,1));
+ second=wr_iot_command_attach_begin(&s,13);assert(second>first&&!s.create_failed);
+ assert(wr_iot_terminal_command_close(&s,13));
+ assert(!wr_iot_terminal_command_quiescent(&s,13));
+ assert(wr_iot_command_attach_failed_absent(&s,13,second,1));
+ assert(wr_iot_terminal_command_quiescent(&s,13));
+ assert(!wr_iot_command_attach_begin(&s,13));
+ return 0;
+}

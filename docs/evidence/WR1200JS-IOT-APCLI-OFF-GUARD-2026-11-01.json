@@ -1,0 +1,17 @@
+{
+  "scope": "isolated actual common TU with scratch guard matching vendor implementation; not full profile Kbuild/link",
+  "base_revision": "69a70ba8f1a96a70b3fe0c13fdd7908365be07b9",
+  "change": "guard lookup_rept_entry declaration with MAC_REPEATER_SUPPORT",
+  "normal_common_TU_exit": 0,
+  "APCLI_and_repeater_off_TU_exit": 0,
+  "effective_macros_confirm_off": true,
+  "shared_worker_and_submit_symbols_present": true,
+  "modified_header_sha256": "fea8b16e287b1dc4f4eb048ad3b69f1328338149e6f802e049c51d4d2e54e23e",
+  "off_object_sha256": "d6a42aa3eb177a698724881cd05de6084900625f14fa3a7a77be4421e53415b5",
+  "module_link_verified": false,
+  "runtime_verified": false,
+  "full_chain_generated": true,
+  "strict_production_merge_passed": true,
+  "merged_regressions_passed": true,
+  "generated_header_matches_MIPS_tested_header": true
+}

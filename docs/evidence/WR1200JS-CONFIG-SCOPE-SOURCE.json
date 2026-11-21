@@ -1,0 +1,174 @@
+{
+  "repository_revision": "4c2fa97aeab68f4beb4ccbfa676998e9733e1c48",
+  "source_kind": "fresh complete isolated generation",
+  "files": {
+    "common/rtmp_init_inf.c": {
+      "sha256": "14b6a169819c96af55df2b871838a6c0479a20b46331a4ca04d37bd87eefc997",
+      "matches": [
+        {
+          "line": 287,
+          "text": "if (MCUSysInit(pAd) != NDIS_STATUS_SUCCESS)"
+        },
+        {
+          "line": 332,
+          "text": "NICReadEEPROMParameters(pAd, (RTMP_STRING *)pDefaultMac);"
+        },
+        {
+          "line": 364,
+          "text": "Status = NICInitializeAdapter(pAd, TRUE);"
+        },
+        {
+          "line": 367,
+          "text": "DBGPRINT_ERR((\"NICInitializeAdapter failed, Status[=0x%08x]\\n\", Status));"
+        },
+        {
+          "line": 378,
+          "text": "NICInitAsicFromEEPROM(pAd);"
+        },
+        {
+          "line": 384,
+          "text": "RTMPInitLEDMode(pAd);"
+        },
+        {
+          "line": 393,
+          "text": "tx_pwr_comp_init(pAd);"
+        },
+        {
+          "line": 397,
+          "text": "RTMPSetPhyMode(pAd, pAd->CommonCfg.PhyMode);"
+        },
+        {
+          "line": 434,
+          "text": "if (ATEInit(pAd) != NDIS_STATUS_SUCCESS)"
+        },
+        {
+          "line": 447,
+          "text": "Some modules init must be called before APStartUp()."
+        },
+        {
+          "line": 448,
+          "text": "Or APStartUp() will make up beacon content and call"
+        },
+        {
+          "line": 465,
+          "text": "RTMP_IRQ_ENABLE(pAd);"
+        },
+        {
+          "line": 469,
+          "text": "RTMPEnableRxTx(pAd);"
+        },
+        {
+          "line": 473,
+          "text": "bbp_set_bw(pAd, BW_20);"
+        },
+        {
+          "line": 477,
+          "text": "pAd->CommonCfg.Channel = AP_AUTO_CH_SEL(pAd, pAd->ApCfg.AutoChannelAlg);"
+        },
+        {
+          "line": 483,
+          "text": "N_ChannelCheck(pAd);"
+        },
+        {
+          "line": 501,
+          "text": "APOverlappingBSSScan(pAd);"
+        },
+        {
+          "line": 511,
+          "text": "APStartUp(pAd);"
+        },
+        {
+          "line": 513,
+          "text": "MlmeRadioOn(pAd);"
+        },
+        {
+          "line": 521,
+          "text": "dynamic_vga_enable(pAd);"
+        },
+        {
+          "line": 532,
+          "text": "RTMP_IRQ_ENABLE(pAd);"
+        },
+        {
+          "line": 548,
+          "text": "RTMPEnableRxTx(pAd);"
+        },
+        {
+          "line": 615,
+          "text": "err8:"
+        },
+        {
+          "line": 631,
+          "text": "err6:"
+        },
+        {
+          "line": 681,
+          "text": "RTMP_IRQ_ENABLE(pAd);"
+        },
+        {
+          "line": 685,
+          "text": "RTMPEnableRxTx(pAd);"
+        }
+      ]
+    },
+    "chips/mt7603.c": {
+      "sha256": "97febaaa4efad09884e6e5daf832da9b57a3a6118d9235458f1aa53648379996",
+      "matches": [
+        {
+          "line": 61,
+          "text": "CmdChannelSwitch(pAd, channel, channel, BW_20,"
+        },
+        {
+          "line": 64,
+          "text": "CmdSetTxPowerCtrl(pAd, channel);"
+        },
+        {
+          "line": 68,
+          "text": "CmdChannelSwitch(pAd, pAd->CommonCfg.Channel, channel, pAd->CommonCfg.BBPCurrentBW,"
+        },
+        {
+          "line": 71,
+          "text": "CmdSetTxPowerCtrl(pAd, channel);"
+        },
+        {
+          "line": 1049,
+          "text": ".ChipSwitchChannel = mt7603_switch_channel,"
+        }
+      ]
+    }
+  },
+  "builders": {
+    "CmdChannelSwitch": {
+      "line": 2052,
+      "initializer": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_CHANNEL_SWITCH, TRUE, 0,\n\t\t\t\t\t\t\tTRUE, TRUE, 8, NULL, EventExtCmdResult);",
+      "bootstrap_private_route": false,
+      "return_type": "INT32"
+    },
+    "CmdSetTxPowerCtrl": {
+      "line": 3630,
+      "initializer": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_SET_TX_POWER_CTRL, TRUE, 0,\n\t\tTRUE, TRUE, 8, NULL, EventExtCmdResult);",
+      "bootstrap_private_route": false,
+      "return_type": "VOID"
+    },
+    "CmdEfusBufferModeSet": {
+      "line": 3587,
+      "initializer": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_EFUSE_BUFFER_MODE, TRUE, 0,TRUE, TRUE, 8, NULL, CmdEfuseBufferModeRsp);",
+      "bootstrap_private_route": false,
+      "return_type": "VOID"
+    },
+    "CmdEdcaParameterSet": {
+      "line": 4107,
+      "initializer": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_EDCA_SET, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);",
+      "bootstrap_private_route": false,
+      "return_type": "INT32"
+    },
+    "CmdSlotTimeSet": {
+      "line": 4137,
+      "initializer": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_SLOT_TIME_SET, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);",
+      "bootstrap_private_route": false,
+      "return_type": "INT32"
+    }
+  },
+  "production_installed": false,
+  "runtime_verified": false
+}

@@ -1,0 +1,58 @@
+{
+  "scope": "actual RC backend/rebind runner/pre-OPEN rollback observer",
+  "checks": [
+    "pending shutdown rolls back once without OPEN",
+    "owned snapshot/resources released",
+    "exact ON ID/created, physical RELEASE, new Main",
+    "driver attempt empty, rollback DONE if mutated",
+    "temporary settings disabled, bridge absent, DNS recovered",
+    "fresh rebind configuration probe",
+    "foreign temporary credentials/created/attempt/driver attempt/live snapshot refuse"
+  ],
+  "session": 71819,
+  "exit_code": 0,
+  "log_sha256": "db67b978b065de9452184c87ccf606129b1311ac5040e1024843190a6603adfa",
+  "actors_injected": "driver/network and old OFF provenance",
+  "does_not_supply": "OFF/CLOSED token, reopen lease or physical runtime acceptance",
+  "pump_consumer_bound": "private candidate consumer implemented; RC scheduler unbound",
+  "consumer_checks": [
+    "root cancel gate accepts separate verified pre-OPEN rejection with no OFF context",
+    "Guest DOWN still required",
+    "pump skips normal OFF admission for rejected transaction",
+    "actual physical/fence cleanup accepts NULL OFF context with injected rejected-state proof",
+    "failed mask/proof retains baseline; real queued SIGTERM delivered after cleanup"
+  ],
+  "preparation": {
+    "session": 40759,
+    "exit_code": 0,
+    "translation_units": 31,
+    "log_sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+  },
+  "scope_note": "Initial pump fixture declaration order failed compilation, corrected and rerun PASS. Complementary tests, not a single full actual chain.",
+  "actual_pump_backend_cancel_composition": {
+    "session": 95721,
+    "exit_code": 0,
+    "log_sha256": "4c87309f7ab0f43217caf05674c20f13d67b8f5926b6bad033c385ec04be87bd",
+    "scope": "actual RC rollback/backend observer/root cancel gate/resume pump; radio/network/origin/Guest/physical cleanup actors injected"
+  },
+  "suite89": {
+    "session": 42599,
+    "exit_code": 1,
+    "first_error": "legacy check-rc-quiesce missing wr_iot_rebind_configuration_current fixture symbol",
+    "log_sha256": "c8a531937101642fb7e2dc3871eae5f60e9829768015755d2c66ed1402e340f6",
+    "fix": "explicit assert(0)/refuse stub in check-rebind-owner-unused.h; focused recheck running"
+  },
+  "suite90": {
+    "session": 73600,
+    "handle": "missing on final poll",
+    "process": "absent",
+    "final_log_marker": "PASS physical-stop candidate host suite",
+    "log_sha256": "0022a8b6c13de40bed8e16983d503674fc97d1b46cc93418f570a1e3a50a662d",
+    "exit_code": "not recovered; completion established by final marker, do not claim observed exit0"
+  },
+  "final_preparation": {
+    "session": 36627,
+    "exit_code": 0,
+    "translation_units": 31
+  }
+}

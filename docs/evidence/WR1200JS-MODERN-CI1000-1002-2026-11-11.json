@@ -1,0 +1,177 @@
+{
+  "runtime_verified": false,
+  "runs": [
+    {
+      "run_id": 42969682896,
+      "artifacts": {
+        "board-build-status-wr1200js": {
+          "id": 13833689242,
+          "board-build-status.json": {
+            "board": "wr1200js",
+            "status": "success"
+          }
+        },
+        "verification-source": {
+          "id": 13833282613,
+          "verification-source.json": {
+            "dispatch_revision": "2d91fe4b5bc6560b3ed17327f83a488c76236eda",
+            "requested_revision": "",
+            "verified_revision": "2d91fe4b5bc6560b3ed17327f83a488c76236eda",
+            "runtime_verified": false
+          }
+        }
+      }
+    },
+    {
+      "run_id": 42972058497,
+      "artifacts": {
+        "board-build-status-wr1200js": {
+          "id": 13834288145,
+          "board-build-status.json": {
+            "board": "wr1200js",
+            "status": "success"
+          }
+        },
+        "modern-http-candidate": {
+          "id": 13834267085,
+          "independent_elf": {
+            "bytes": 356644,
+            "sha256": "98ac5e2afc98aaeaec46d6ff2622433b8febd1727e787bf6e160444043fe3ca0",
+            "elf_type": 2,
+            "machine": "MIPS"
+          },
+          "result.json": {
+            "scope": "Isolated complete target HTTP candidate compile/link, not installation or runtime",
+            "repository_revision": "770f0b4816977d0aad2c2197691537dd6668145d",
+            "production_before": {
+              "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+              "server_source": "a6b984d63e6945321db6072ead28bba2aa7c88ec096ed6ed8e2bdc7b436c1e7a",
+              "cgi_source": "0711f0c103d67860edcb48133a23b449c4035c903a381f6f89bdf58fec7fa503",
+              "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+            },
+            "target_compiled": true,
+            "production_installed": false,
+            "runtime_verified": false,
+            "candidate_web_ex_sha256": "6e4f2367a3d83ca405d7248f2772cd95c47be53289872f3cfcbd601e96ac53c0",
+            "command": [
+              "make",
+              "-C",
+              "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk",
+              "user/wr-modern-http-build-75r_pndi_only",
+              "TOOLCHAIN=mipsel-linux-uclibc",
+              "CONFIG_CCACHE=y"
+            ],
+            "compile_exit_code": 0,
+            "binary_bytes": 356644,
+            "binary_sha256": "98ac5e2afc98aaeaec46d6ff2622433b8febd1727e787bf6e160444043fe3ca0",
+            "elf": "ELF32 little-endian MIPS",
+            "candidate_headers_sha256": {
+              "password-intent.h": "1fa1af3ad5352d9496957edec88ae9ed360cfc0137c20a6d4fb1428fa468908e",
+              "password-request.h": "57ca6730dddd1c5a3769a38fa2029e9cd7260784aa9425d1c8417bfc6aebd298",
+              "guest-schedule.h": "da216a1fc4815368638015598a5c2b843f65dc0a286eccf4d29b4688a5c7fe3a",
+              "guest-request.h": "f3be64128acdd44bc2a5d2259eb0af88c156a8539224baeffef5c291824be93b",
+              "guest-adapter.h": "bf9d9cbd4a4aa2bd7ff01c862bcfc17a5b73d08ce0ed932f53f33cbc2eed7712",
+              "guest-transport.h": "324eb0aae2a295b01159128b08a93156625fa55cbc70a4b3b9a4fe1de2c411ac",
+              "modern-form.h": "827d9242ca039b98c61c13bbbe7df1e52bfdaf3c96311bae190f04849f4817df",
+              "modern-body.h": "cbd6d947111caf331919ff983bb6abb0bb74f734fd590c6465c0f2a6d35d10ec"
+            },
+            "production_after": {
+              "source": "c3de14c8638810a483365d71e0e456e515dc00be7cfae06c235df5c1ba8508e3",
+              "server_source": "a6b984d63e6945321db6072ead28bba2aa7c88ec096ed6ed8e2bdc7b436c1e7a",
+              "cgi_source": "0711f0c103d67860edcb48133a23b449c4035c903a381f6f89bdf58fec7fa503",
+              "image_binary": "ec41c59cf7834f852c65d7c0411a10949bc2e5362fb7eb948518804d305cb0c9"
+            },
+            "production_unchanged": true,
+            "scratch_removed": true
+          },
+          "independent_source_reconstruction": true
+        },
+        "modern-nvram-candidate": {
+          "id": 13833674873,
+          "independent_elf": {
+            "bytes": 69688,
+            "sha256": "ec038b19e01d0406b5e4a4bd70fc834cbff50ec3e7b7ba4e4bb88f622b6a3c51",
+            "elf_type": 1,
+            "machine": "MIPS"
+          },
+          "result.json": {
+            "scope": "Isolated NVRAM batch/commit-order translation unit; no ioctl, not linked or installed",
+            "repository_revision": "770f0b4816977d0aad2c2197691537dd6668145d",
+            "production_before": {
+              "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c": "5bdfa51add776cfe46eabd5c328859d74822220e7772335d08e21b91750190c1",
+              "trunk/linux-4.4.x/drivers/nvram/nvram.c": "8a978e2e7a31fce4f8ec7ab1b541d16b52599e16746c008d6e02603298d0a2c7",
+              "trunk/linux-4.4.x/drivers/nvram/nvram_linux.o": "ef36b11cd9de9cf267e70ef58016e364e5d21a3bcf73e3e4f397f2b7f2d7713e",
+              "trunk/linux-4.4.x/.config": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+              "trunk/linux-4.4.x/vmlinux": "b27356ab039956453423aebfd063d866da0ac896c07aa95f70f8782d03d8a91b",
+              "trunk/images/WR1200JS_4.4.198.9-1001.trx": "405c9624e6776e024ac500ec9bf35c784b86f4da0b9d905bf2bddb00ffc83247"
+            },
+            "target_compiled": true,
+            "production_installed": false,
+            "runtime_verified": false,
+            "scratch_removed": true,
+            "candidate_source_sha256": "0f11b2eb6a04753b2347a6c377a0eb84189aff7a54e2dbbac215cb5c0ac7b2e6",
+            "command": [
+              "make",
+              "-C",
+              "/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/trunk/linux-4.4.x",
+              "ARCH=mips",
+              "CROSS_COMPILE=/home/runner/work/padavan-4.4.198/padavan-4.4.198/padavan-4.4/toolchain/toolchain-mipsel/bin/mipsel-linux-uclibc-",
+              "drivers/wr-nvram-order-xd9hu2mj/nvram_linux.o"
+            ],
+            "compile_exit_code": 0,
+            "batch_core_sha256": "d3598b151c58380ce07de0aa390d62ee2bb80d0b9b72ba05ed3117396b778a31",
+            "wire_sha256": {
+              "nvram-batch-wire.h": "b1421893da213279edbaf0d3f40c8f81db48c27f244adf476f138b38fbbcc2ea",
+              "nvram-batch-wire.c.inc": "c11e538a323f09eb708a1c6893f7233e7f16eedc25569d135cae241eef521ba5",
+              "nvram-batch-user.c.inc": "be82969ce3bb0946b57db878623c31edbd844b9fa2b2b2abe95a9bb97f6efb3c"
+            },
+            "object_bytes": 69688,
+            "object_sha256": "ec038b19e01d0406b5e4a4bd70fc834cbff50ec3e7b7ba4e4bb88f622b6a3c51",
+            "scratch_bytes": 140325,
+            "production_after": {
+              "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c": "5bdfa51add776cfe46eabd5c328859d74822220e7772335d08e21b91750190c1",
+              "trunk/linux-4.4.x/drivers/nvram/nvram.c": "8a978e2e7a31fce4f8ec7ab1b541d16b52599e16746c008d6e02603298d0a2c7",
+              "trunk/linux-4.4.x/drivers/nvram/nvram_linux.o": "ef36b11cd9de9cf267e70ef58016e364e5d21a3bcf73e3e4f397f2b7f2d7713e",
+              "trunk/linux-4.4.x/.config": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+              "trunk/linux-4.4.x/vmlinux": "b27356ab039956453423aebfd063d866da0ac896c07aa95f70f8782d03d8a91b",
+              "trunk/images/WR1200JS_4.4.198.9-1001.trx": "405c9624e6776e024ac500ec9bf35c784b86f4da0b9d905bf2bddb00ffc83247"
+            },
+            "production_unchanged": true
+          },
+          "independent_source_reconstruction": true
+        },
+        "verification-source": {
+          "id": 13832804808,
+          "verification-source.json": {
+            "dispatch_revision": "1b4c4740ba0e7143757aae0f8d04619604ca5fc7",
+            "requested_revision": "770f0b4816977d0aad2c2197691537dd6668145d",
+            "verified_revision": "770f0b4816977d0aad2c2197691537dd6668145d",
+            "runtime_verified": false
+          }
+        }
+      },
+      "reconstruction_scratch_removed_bytes": 10142
+    },
+    {
+      "run_id": 42972071608,
+      "artifacts": {
+        "board-build-status-wr1200js": {
+          "id": 13834662212,
+          "board-build-status.json": {
+            "board": "wr1200js",
+            "status": "success"
+          }
+        },
+        "verification-source": {
+          "id": 13834805085,
+          "verification-source.json": {
+            "dispatch_revision": "1b4c4740ba0e7143757aae0f8d04619604ca5fc7",
+            "requested_revision": "",
+            "verified_revision": "1b4c4740ba0e7143757aae0f8d04619604ca5fc7",
+            "runtime_verified": false
+          }
+        }
+      }
+    }
+  ]
+}

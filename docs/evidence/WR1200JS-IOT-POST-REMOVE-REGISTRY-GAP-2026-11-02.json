@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-02",
+  "scope": "post-remove registry source inventory",
+  "findings": [
+    "WDS source records after_unregister stage after RTNL unlock",
+    "APCLI/MBSS remove source frees netdev and clears wdev pointer without registry after_unregister/finish call",
+    "registry_finish_after_unregister exists as helper but no bound production source call site found in peer candidate",
+    "kernel-accounted netdev references can be drained at RTNL unlock seam per existing pinned-kernel checker; vendor raw refs and DMA remain separate"
+  ],
+  "implication": "successful family remove cannot currently be treated as registry retirement or child ledger DONE; stale identity can remain after netdev free",
+  "next": "bind generation-specific unregister receipts before free and validate close/vendor/report gates, using WDS detached-owner seam as starting point",
+  "runtime_verified": false
+}

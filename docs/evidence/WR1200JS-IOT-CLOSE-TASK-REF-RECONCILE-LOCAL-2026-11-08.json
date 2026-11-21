@@ -1,0 +1,20 @@
+{
+  "scope": "LOCAL nonwaiting return of tracked task_struct caller ref after fixed-body refusal, under RTNL",
+  "sha256": {
+    "tools/iot/driver-api-close-retirement-reconcile.inc": "245fcecc91383e617c6ed1c6a726eb371b3cbfb888b475ff3df6cf6649149f1b",
+    "tools/iot/driver-api-close-retirement-launch.inc": "257f268175096ec33be9f1692a238016d64e680970d130b3707a3c58c5e94370",
+    "tools/iot/driver-api-close-owner.h": "42df58da1a527e6d5e4008eabcd7b944838ec2164977e4aa85eb2f7de6e308c4",
+    "tools/iot/check-driver-api-close-synchronous-chain.c": "0ab2ece5b7acd6d4b6ddab02e238fa03b1ef69077e4d61878f2aedb75a8c3de4",
+    "tools/iot/check-close-bindings-target-tu.py": "305bb40fe125eab83a42b6c68092d1e6ba681056e82fa0f19c7ec2afbfc4fd9e"
+  },
+  "proof": "CLOSE-TASK-REF-RECONCILE-SOURCE evidence: kthread bootstrap vfork_done publication and core mm_release completion under task_lock",
+  "host_checks": "19 CLOSE fixtures PASS -O2 ASan/UBSan; running returns EAGAIN without put, no RTNL refuses, owner drift between observations keeps ref, core completion permits exactly one caller put, duplicate refuses",
+  "lock_order": "Adapter transition lock and task_lock never nested; RTNL, API pin and tracked task ref span observation/ack/put",
+  "retained": "API module hold, active OPEN fence; kernel bootstrap task ref remains independently owned by core",
+  "not_claimed": "Complete task deallocation, IRQ/DMA/RF retirement, OPEN/isolation authority, runtime acceptance",
+  "target_probe": "Includes actual reconcile helper and explicit linux/sched.h; exported compile-only caller",
+  "production_installed": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "cleanup": "Native TemporaryDirectory binaries removed; no archive or extracted tree"
+}

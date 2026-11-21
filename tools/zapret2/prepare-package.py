@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""Stage the Zapret2 nfqws2 package inside a Padavan tree."""
+
+import argparse
+import importlib.util
+import shutil
+from pathlib import Path
+
+
+MAKEFILE = """\
+# Zapret2 nfqws2: single static binary built from the pinned snapshot.
+ZAPRET_DIR := $(ROOTDIR)/user/zapret2
+
+.PHONY: all romfs clean
+
+all: nfqws2
+
+nfqws2:
+\tCC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \\
+\t\t./build-nfqws2.sh "$(ROOTDIR)/.." "$@" deps
+
+romfs:
+\t@[ -x nfqws2 ] || { echo "nfqws2 was not built" >&2; exit 1; }
+\tmkdir -p $(ROMFSDIR)/usr/sbin $(ROMFSDIR)/usr/share/zapret2
+\tmkdir -p $(ROMFSDIR)/usr/share/licenses/zapret2
+\t$(ROMFSINST) -p +x nfqws2 /usr/sbin/nfqws2
+\t$(ROMFSINST) -p +x service.sh /usr/sbin/zapret2
+\t$(ROMFSINST) share/lua/zapret-lib.lua /usr/share/zapret2/zapret-lib.lua
+\t$(ROMFSINST) share/lua/zapret-antidpi.lua /usr/share/zapret2/zapret-antidpi.lua
+\t$(ROMFSINST) share/lua/zapret-auto.lua /usr/share/zapret2/zapret-auto.lua
+\t$(ROMFSINST) share/LICENSE.txt /usr/share/licenses/zapret2/LICENSE.txt
+
+clean:
+\trm -f nfqws2
+"""
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("tree", type=Path, help="Padavan tree root")
+    parser.add_argument("--config", type=Path, help="requested build config; skip staging when the selector is off")
+    args = parser.parse_args()
+
+    here = Path(__file__).resolve().parent
+    repo = here.parents[1]
+    tree = args.tree
+    user = tree / "trunk/user"
+    target = user / "zapret2"
+    deps = target / "deps"
+    nfq2 = target / "nfq2"
+    share = target / "share"
+    lua = share / "lua"
+
+    if args.config is not None:
+        lines = args.config.read_text(encoding="utf-8").splitlines()
+        if "CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y" not in lines:
+            print("Zapret2 selector is off; package not staged")
+            return 0
+        prepare_web_path = here / "prepare-web.py"
+        spec = importlib.util.spec_from_file_location(
+            "zapret2_prepare_web", prepare_web_path
+        )
+        if spec is None or spec.loader is None:
+            raise SystemExit(f"cannot load {prepare_web_path}")
+        prepare_web = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(prepare_web)
+        prepare_web.prepare_webui(tree)
+
+    template = tree / "trunk/configs/templates/WR1200JS.config"
+    if template.is_file():
+        text = template.read_text(encoding="utf-8")
+        if "CONFIG_FIRMWARE_INCLUDE_ZAPRET2=" not in text:
+            template.write_text(
+                text.rstrip("\n")
+                + "\n\n### Zapret2 packet processor (built from the pinned snapshot).\n"
+                + "CONFIG_FIRMWARE_INCLUDE_ZAPRET2=n\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+
+    if target.exists():
+        raise SystemExit(f"package directory already exists: {target}")
+
+    makefile = user / "Makefile"
+    text = makefile.read_text(encoding="utf-8")
+    anchor = "all: $(patsubst %,%_only,$(dir_y))"
+    addition = (
+        "# Zapret2 packet processor; only with the explicit selector.\n"
+        "ifeq ($(CONFIG_FIRMWARE_INCLUDE_ZAPRET2),y)\n"
+        "dir_y += zapret2\n"
+        "endif\n\n"
+    )
+    if text.count(anchor) != 1 or "dir_y += zapret2" in text:
+        raise SystemExit("user/Makefile anchor changed; no files written")
+
+    target.mkdir(parents=True)
+    deps.mkdir()
+    lua.mkdir(parents=True)
+    shutil.copytree(repo / "third_party/bol-van/zapret2/nfq2", nfq2)
+    for archive in (repo / "third_party/netfilter").glob("*.tar.bz2"):
+        shutil.copyfile(archive, deps / archive.name)
+    for name in ("zapret-lib.lua", "zapret-antidpi.lua", "zapret-auto.lua"):
+        shutil.copyfile(repo / "third_party/bol-van/zapret2/lua" / name,
+                        lua / name)
+    shutil.copyfile(repo / "third_party/bol-van/zapret2/docs/LICENSE.txt",
+                    share / "LICENSE.txt")
+    shutil.copyfile(here / "build-nfqws2.sh", target / "build-nfqws2.sh")
+    (target / "build-nfqws2.sh").chmod(0o755)
+    shutil.copyfile(here / "service.sh", target / "service.sh")
+    (target / "service.sh").chmod(0o755)
+    (target / "Makefile").write_text(MAKEFILE, encoding="utf-8", newline="\n")
+
+    makefile.write_text(text.replace(anchor, addition + anchor, 1), encoding="utf-8", newline="\n")
+    print("PASS staged the Zapret2 nfqws2 package (selector still controls the image)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

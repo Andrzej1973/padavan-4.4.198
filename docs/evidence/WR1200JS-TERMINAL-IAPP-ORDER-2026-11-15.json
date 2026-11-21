@@ -1,0 +1,27 @@
+{
+  "scope": "terminal WAN/LED/IAPP software ordering and separate IAPP ownership",
+  "checks": {
+    "terminal_actual_fence_SIGTERM": "PASS",
+    "resume_WAN_order_and_no_prehandOff_launch": "PASS;21443",
+    "native_preparation": "PASS;21443 exit0",
+    "legacy_resume_retirement_scheduler_and_real_child": "PASS;47706"
+  },
+  "sources": {
+    "tools/iot/restart-terminal-iapp.c": "702d257d468ac1474ac2b3c34032a748775284aa9bf347ebdcef04351e0650ea",
+    "tools/iot/restart-resume.c": "274468aaf794b4666ae2ddbc581518c54426a1f74059fb8f1675a225d71430d0",
+    "tools/iot/restart-restore.c": "bff5f4ea0c9167b0ea3634d9cfdd6dfcc338b90829952f6e4494a622de1563f4",
+    "tools/iot/check-terminal-iapp.py": "4dd5f7170eb14f69978599f07b793d53e2190a90047b9bfabcbce66db333d226"
+  },
+  "limits": [
+    "child/SDK actors in ordering fixtures",
+    "physical router untested",
+    "target compile pending"
+  ],
+  "scratch_removed": [
+    {
+      "path": "/tmp/wr-terminal-order-native.log",
+      "bytes": 307,
+      "sha256": "204f96805811bde00d116bca650c5abb8f6270da292f68ec7f1ebbe7dd70674a"
+    }
+  ]
+}

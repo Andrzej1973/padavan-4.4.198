@@ -1,0 +1,30 @@
+{
+  "cause": "Checked TxS allocation failure leaves generation0 and clears HostTxS; current tracked beacon pacing still depends on TxS completion. Lower submit did not require a positive tracked token before HAL/publication.",
+  "scope": "Isolated MT7603/HIF_MT, BssidNum3, BSS2 only. Not production driver or non-owning PID mode.",
+  "fix": "After null-adapter refusal, reject generation0 before lower packet lookup, ring lock, HAL and first-publication hook. No fabricated reservation or PID0 cancellation. Revalidate the same scope under BcnRingLock and unlock/goto unsubmitted on refusal.",
+  "checks": [
+    "Actual pinned kickout preparer and relevant actual radio-queue generator fragments replayed.",
+    "Actual MT submit function executed with ASan/UBSan and injected packet/ring/HAL operations.",
+    "Predecessor negative witness reproduced zero-token publication.",
+    "48 chip/HIF/BSSID-count/BSS/token combinations passed.",
+    "BSSID-count4-to3 change at ring lock refuses without HAL/state/publication or zero-token cancellation.",
+    "Full ring, HAL failure and failed cancellation retain existing return/cancel behavior.",
+    "CI final assembled driver check added before target Kbuild.",
+    "Python syntax, bash syntax and scoped diff checks passed."
+  ],
+  "local_preparation_scope": "Relevant generator fragments only; full final peer82 replay and target checks still pending CI.",
+  "scratch_removed_bytes": 682996,
+  "source_tool_sha256": {
+    "tracked-beacon-reservation.py": "6af9f68e53a4e8bc24db0349ebba46db43eef11ec49c7f329940aaa5c1fca22d",
+    "check-tracked-beacon-reservation.py": "545cb961d004efc74c4db9b0f750f8d4b5a89d9f9eeb0c8f1ee750222789b383",
+    "prepare-driver-api.py": "3574a71bd05b857bd682f5e382a7a65f2853124772930cfb1edf93667af32caa"
+  },
+  "production_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "rf_retirement_proven": false,
+  "limits": [
+    "Early exact-scope refusal precedes lower packet mutation; layout-drift refusal may follow packet-length preparation.",
+    "Locked revalidation does not prove every configuration writer takes this lock; existing ownership/configuration leases remain required."
+  ]
+}

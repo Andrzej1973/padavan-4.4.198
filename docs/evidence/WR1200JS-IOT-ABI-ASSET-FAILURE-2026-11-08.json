@@ -1,0 +1,13 @@
+{
+  "failed_run": 42440703274,
+  "failed_revision": "a38a08b7bc4ca1308ed59a5b0d7ebdca635d3417",
+  "failed_step": "Verify current IoT recovery successor on host and MIPS",
+  "causal_diagnostic": "check-candidate-assets.py:33 AssertionError: radio-transition.h",
+  "monitor_run": 42440963466,
+  "monitor_artifact": 13600669739,
+  "monitor_useful": true,
+  "original_log_confirmed": true,
+  "fix": "Preserve frozen base asset; stage separately verified API extension after historical chain.",
+  "original_pins_changed": false,
+  "runtime_verified": false
+}

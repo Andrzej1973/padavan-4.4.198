@@ -4,16 +4,25 @@
 #include "route-prefix.h"
 #include <poll.h>
 #include <errno.h>
+#include <time.h>
+static inline int64_t wr_iot_route_monotonic_ms(void) {
+ struct timespec now;
+ if(clock_gettime(CLOCK_MONOTONIC,&now)||now.tv_sec<0)return -1;
+ return (int64_t)now.tv_sec*1000+now.tv_nsec/1000000;
+}
 static inline int wr_iot_route_snapshot_owned(struct wr_iot_inventory *out,unsigned int owned_index,uint32_t owned_network,uint32_t owned_mask) {
  struct {struct nlmsghdr header;struct rtmsg route;} request;
  struct sockaddr_nl local,kernel;struct wr_iot_inventory candidate;
  union {struct nlmsghdr alignment;unsigned char bytes[32768];} buffer;
  int fd,ok=0;unsigned int batch;
+ int64_t deadline,now;
  if(!out||out->count>WR_IOT_INVENTORY_MAX)return 0;
  candidate=*out;
+ now=wr_iot_route_monotonic_ms();if(now<0)return 0;
+ deadline=now+3000;
  memset(&local,0,sizeof(local));local.nl_family=AF_NETLINK;
  memset(&kernel,0,sizeof(kernel));kernel.nl_family=AF_NETLINK;
- fd=socket(AF_NETLINK,SOCK_RAW,NETLINK_ROUTE);if(fd<0)return 0;
+ fd=socket(AF_NETLINK,SOCK_RAW|SOCK_NONBLOCK|SOCK_CLOEXEC,NETLINK_ROUTE);if(fd<0)return 0;
  if(bind(fd,(struct sockaddr *)&local,sizeof(local)))goto done;
  memset(&request,0,sizeof(request));request.header.nlmsg_len=NLMSG_LENGTH(sizeof(struct rtmsg));
  request.header.nlmsg_type=RTM_GETROUTE;request.header.nlmsg_flags=NLM_F_REQUEST|NLM_F_DUMP;
@@ -23,11 +32,13 @@ static inline int wr_iot_route_snapshot_owned(struct wr_iot_inventory *out,unsig
   struct pollfd ready;struct sockaddr_nl sender;struct iovec io;struct msghdr message;
   struct nlmsghdr *header;ssize_t received;int length;
   memset(&ready,0,sizeof(ready));ready.fd=fd;ready.events=POLLIN;
-  if(poll(&ready,1,3000)!=1||!(ready.revents&POLLIN)||(ready.revents&(POLLERR|POLLHUP|POLLNVAL)))goto done;
+  now=wr_iot_route_monotonic_ms();if(now<0||now>=deadline)goto done;
+  if(poll(&ready,1,(int)(deadline-now))!=1||!(ready.revents&POLLIN)||(ready.revents&(POLLERR|POLLHUP|POLLNVAL)))goto done;
   memset(&message,0,sizeof(message));memset(&sender,0,sizeof(sender));
   io.iov_base=buffer.bytes;io.iov_len=sizeof(buffer.bytes);message.msg_iov=&io;message.msg_iovlen=1;
   message.msg_name=&sender;message.msg_namelen=sizeof(sender);
   received=recvmsg(fd,&message,0);
+  now=wr_iot_route_monotonic_ms();if(now<0||now>=deadline)goto done;
   if(received<=0||received>(ssize_t)sizeof(buffer.bytes)||(message.msg_flags&(MSG_TRUNC|MSG_CTRUNC))||
      message.msg_namelen!=sizeof(sender)||sender.nl_family!=AF_NETLINK||sender.nl_pid!=0)goto done;
   length=(int)received;

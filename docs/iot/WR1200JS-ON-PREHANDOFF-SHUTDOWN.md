@@ -1,0 +1,128 @@
+# ON shutdown after Main UP, before ra2 handoff
+
+The standalone `radio-on-prehandoff.c` observer checks the new ON parent directly,
+without constructing a restart-origin object. It requires pending normal
+shutdown, stable owner/children, generation VERIFIED, possible submitted Main UP,
+no handoff timestamp, owned profile baseline/current desired profile, Guest DOWN
+(or policy OFF), fresh rebind configuration observation and exact new epoch/same
+device generation. The retained original OFF receipt is independently checked by
+the ON generation origin adapter. Guest recovery uses its existing one-shot
+DOWN path. Neither that administrative DOWN nor this witness proves physical
+RF/DMA/IRQ retirement. No profile restoration after UP is granted.
+
+The source audit confirms existing RC quiesce_shutdown_begin/advance and
+rc_rebind_shutdown_closed cover the later ACTIVE-to-CLOSED handoff case. They
+must retain exact ON ID/time, original RELEASE, new Main identity and the newly
+completed OFF owner; a rejected-before-OPEN path has a separate witness. Existing
+restart physical cancellation functions own a different static physical context
+and must not be called with synthetic restart objects for the new ON root.
+
+Host C11-Werror ASan/UBSan actual restore composition passes Guest UP refusal,
+one Guest DOWN on pending shutdown, fresh positive proof, old epoch, wrong device
+generation, stale receipt, NOT_SUBMITTED Main and post-handoff refusal. Baseline
+and guards remain held. SDK/identity boundaries are injected. The observer is now registered and staged for experimental target compilation
+after the earlier full host suite completed with observed exit0. Root cleanup
+binding is still pending. Next bind this proof to bounded root cleanup
+for stock shutdown, then implement exact post-handoff CLOSE/rejection handling.
+No target, image or physical runtime acceptance is claimed. Fixture scratch was
+removed by TemporaryDirectory.
+
+## Child-drain and profile-phase preflight
+
+The witness explicitly refuses busy Guest/service/multicast children, any WAN
+or terminal-IAPP ownership/attempt, and every Main phase except submitted WAIT
+or observed READY. It also rejects profile recovery/removal/restored state and
+checks generated/sealed versus no-reload journal invariants. These are required
+before cleanup is considered: a matching Main alone cannot release a parent
+with an in-flight child. The expanded host fixture independently corrupts each
+predicate and confirms retained ownership with no extra UP/DOWN submission.
+The root cleanup binding remains deferred until the live full suite terminates;
+its registered sources are unchanged during execution.
+
+The service and multicast children must also belong to this process and point
+to this exact parent's Guest/Main objects whenever they have an owner. Zero
+busy flags alone do not establish that relationship. The host fixture rejects
+foreign PIDs and each detached parent pointer independently; a valid chain
+continues to pass without any additional mutation.
+
+## Post-handoff witnesses
+
+`radio-on-shutdown-check.c` validates ON-specific HANDOFF, exact creation time,
+new Main identity and old physical RELEASE through existing strong backend
+witnesses. A newly owned OFF must be terminal CLOSED; pre-OPEN rejection uses
+its separate no-OPEN/no-resource witness and is never mislabeled CLOSED.
+Guest must be DOWN and parent origin still current. Neither case restores the
+obsolete startup profile. The host fixture uses actual ON restore/handoff/Guest
+recovery with a backend boundary actor and rejects pending/state/epoch/receipt
+mismatches. Prepared separate C11-Werror units pass; MIPS and real backend
+composition remain separate. Both observers are included in ABI/target symbol
+gates, with no public shutdown cleanup binding yet.
+
+The full registered recovery suite958b5560 completed with observed exit0. Its
+log hash/result and coverage boundary were saved; completed exact scratch
+(42,172 bytes) was removed. New witnesses have separate focused evidence and
+are not retroactively included in that full-suite result.
+
+## Private root prehandoff cleanup binding
+
+RC now exposes a private shutdown-only release entry which validates the
+prehandoff witness, exact original receipt and held outer guard/fence. The ON
+root calls it after draining Guest on pending normal shutdown. It releases the
+baseline without restoring obsolete pre-UP profile bytes, invalidates RC's old
+OFF receipt and invokes the bounded root-wipe callback before deferred signal
+replay. The callback clears root/ON exclusion and never changes admission or
+signals. Failed unmask retains exact restore/callback/context; each retry again
+checks fresh Main/profile/Guest proof. Post-proof identity drift blocks release.
+No Main DOWN, reset or second UP is issued. Physical shutdown remains the stock
+handler's responsibility, not a completion claim from this API.
+
+Host actual-root C11-Werror ASan/UBSan tests cover Main-WAIT and PREPARED, Guest
+recovery, failed mask retention, epoch drift during retry, root/receipt clearing
+before real SIGTERM, unchanged generated file and zero profile/RAM rollback.
+Pre-UP cancellation, follow-up, actual RC/ON/OFF/scheduler and staged separate
+unit regressions pass. Target-link now requires the private release symbol.
+The public OFF/ON entry remains unbound; post-handoff quiesce/closed/rejected
+cleanup still requires integration, along with cold/IoT-OFF and device gates.
+
+## Post-handoff shutdown controller
+
+`radio-on-shutdown.c` retains a borrowed stable ON restore and a private quiesce
+child. Admission requires pending normal shutdown, HANDOFF, a current origin and
+an OFF ID different from ON with creation time no earlier than the handoff. Only
+OFF identity/time are stored, never arbitrary caller credentials. Each tick
+drains owned Guest and advances the existing rebind owner, checks separately for
+pre-OPEN rejection, or admits the existing shutdown OFF/quiesce. Once admitted,
+only that quiesce advances. Terminal CLOSED/REJECTED calls are fresh read-only
+observations with no repeated OFF or OPEN submission. Unknown state retains all
+ownership; no whole-transaction timeout/completion guarantee is claimed.
+
+Host actual-parent/check composition with backend actors passes admission/time/
+ID checks, credential omission, unavailable admission retention, one admitted
+OFF, pending drain, exact CLOSED and REJECTED-without-OFF, stale receipt refusal
+and terminal calls without backend mutation. Prepared separate C11-Werror units
+and existing post-UP cancellation regression pass. Modules are staged/registered
+with ABI/target-symbol gates but not yet bound into root post-handoff cleanup.
+Root entropy/stop-ID generation, final RC receipt invalidation and same-fence
+cleanup remain next. No public entry, target result or physical acceptance.
+
+## Post-handoff root and RC cleanup binding
+
+The ON root now generates a distinct OFF identity/time only after pending
+shutdown, using nonblocking initialized entropy and monotonic time no earlier
+than handoff. Entropy failure cannot begin an OFF. After a shutdown owner is
+admitted, only its stable controller advances. CLOSED and REJECTED select their
+respective RC witnesses. RC's shutdown release records the same restore, OFF
+pointer, callback/context and branch across failed-mask retries and revalidates
+the exact terminal witness and original receipt each time. Successful cleanup
+invalidates the old OFF receipt, frees obsolete baseline memory without
+restoring it, and wipes the whole ON root before pending stock shutdown replay.
+No new OPEN, guessed sequence, global ACK change or Main-reset shortcut is used.
+
+The actual-root host fixture passes entropy refusal, one accepted OFF, Guest
+drain, CLOSED and pre-OPEN REJECTED paths, failed unmask retention/retry and real
+SIGTERM after root/receipt cleanup. Existing pre-UP, post-UP prehandoff,
+follow-up/RC/scheduler and prepared separate translation-unit checks pass.
+Backend/quiesce/SDK boundaries are actors; this does not prove actual target
+backend CLOSE or hardware RF/DMA retirement. The private root is integrated;
+public stock OFF/ON binding, cold/IoT-OFF admission, non-shutdown failure policy
+and final firmware/device acceptance remain open.

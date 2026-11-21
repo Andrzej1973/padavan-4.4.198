@@ -1,0 +1,26 @@
+{
+  "scope": "Actual RC service guard resource boundary before activation binding",
+  "source": "tools/iot/service-guard.c and service-lock.h",
+  "test": "tools/iot/check-service-guard.c includes actual implementation; real fork/flock, no syscall mocks",
+  "checks": [
+    "Fork child drops inherited descriptor without unlocking parent lock",
+    "Contending process cannot enter while parent owns nested guard",
+    "Bypass token leave does not release held guard",
+    "Nested leave retains outer recovery guard",
+    "Duplicated descriptor has FD_CLOEXEC; closing it retains original lock",
+    "Final owner leave permits contender acquisition"
+  ],
+  "result": "PASS GCC C11 -Wall -Wextra -Werror ASan/UBSan",
+  "ci": "Added to optional standalone fixture loop, also read by early host compatibility runner",
+  "limits": "Does not establish full writer coverage, signal-handler exclusion, network policy, driver quiescence or physical runtime",
+  "cleanup": "Test lock file/directory and compiled binary removed; no retained scratch",
+  "normal_off_quarantine": {
+    "problem": "Existing cold quarantine_apply requires bridge DOWN, while activation OFF isolates before service teardown and bridge DOWN. Reusing it directly would refuse normal OFF.",
+    "implementation": "quarantine_reapply requires service guard, owned bridge, ra2 administratively DOWN and both gates0; permits bridge UP, executes same firewall builder, rechecks gates and installed IPv4/IPv6 quarantine.",
+    "ordering": "Backend must close gates through current disable snapshot before reapply; retain bridge for DNS/DHCP teardown.",
+    "tests": "Actual adapter extracted and GCC ASan/UBSan tested: gate refusal, eligibility, readiness failure, post-script gate drift, success and no-IPv6 refusal. Eligibility/kernel observations injected.",
+    "remaining": "Activation callback binding and target compile still pending; no RF or runtime claim.",
+    "kernel_test": "Added real isolated-namespace cases: UP bridge/DOWN ra2 permits reapply; UP ra2 refuses. Not executed locally; GitHub verification pending."
+  },
+  "host_preflight": "PASS all60 standalone fixtures plus composition and preflight checks"
+}

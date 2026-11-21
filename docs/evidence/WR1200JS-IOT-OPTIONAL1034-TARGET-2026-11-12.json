@@ -1,0 +1,53 @@
+{
+  "run": 43147103108,
+  "number": 1034,
+  "host": "ubuntu-24.04",
+  "source": {
+    "dispatch_revision": "89def5426f8d62bbeadca339e10f157ba660c445",
+    "requested_revision": "89def5426f8d62bbeadca339e10f157ba660c445",
+    "verified_revision": "89def5426f8d62bbeadca339e10f157ba660c445",
+    "runtime_verified": false
+  },
+  "artifact": 13912579138,
+  "modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5910076,
+      "sha256": "4088318a4fad8e21a6a20413da825ee3f92516541a7219f643914f9859a50a03",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "bytes": 5908044,
+      "sha256": "80c40b63d085100fd6967a5cbeb43c4cb8f8d4fce6dc32f9c75f09ce7dee8c48",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "bytes": 5917652,
+      "sha256": "2e97e25210c168a559db2968b4293edf1b6a792dfc17be04682cc7fa6f48ea24",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5912188,
+      "sha256": "dac4cdb3d90e222064a9c198ddea568c5f4fd266e551ca2430ee10b8038ac2b9",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6520016,
+      "sha256": "600c7ede33833fae20f01c0e480e49616e77501c5183d55d552dbf80b5c5ddde",
+      "elf32_le_mips": true,
+      "vermagic_4_4_198": true
+    }
+  },
+  "diagnostic_marker": "mt76x3: ra2 txs-le TIM-retained current-association",
+  "marker_module_and_txs_object_on_present_off_absent": true,
+  "psm_object_and_compile_command_provenance_verified": true,
+  "feature_report_linkage_verified": true,
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Actual five MIPS module hashes and diagnostic ON/OFF target compilation; safe OFF, DMA descriptor correlation and physical runtime remain open",
+  "scratch": "Artifact inspected in memory; no extracted tree retained"
+}

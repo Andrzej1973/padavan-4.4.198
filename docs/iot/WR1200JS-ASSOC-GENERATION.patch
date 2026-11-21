@@ -1,0 +1,768 @@
+--- a/ap/ap_assoc.c
++++ b/ap/ap_assoc.c
+@@ -26,6 +26,7 @@
+  */
+ 
+ #include "rt_config.h"
++#include "assoc-generation-kernel.h"
+ 
+ extern UCHAR	CISCO_OUI[];
+ extern UCHAR	WPA_OUI[];
+@@ -133,6 +134,8 @@
+ 	tr_entry = &pAd->MacTab.tr_entry[pEntry->wcid];
+ 
+ 	/* Update auth, wep, legacy transmit rate setting . */
++	if (!wr_assoc_reassociate(pAd, pEntry))
++ return MLME_ASSOC_REJ_UNABLE_HANDLE_STA;
+ 	pEntry->Sst = SST_ASSOC;
+ 
+ 	pEntry->MaxSupportedRate = min(pAd->CommonCfg.MaxTxRate, MaxSupportedRate);
+@@ -694,7 +697,9 @@
+ #endif /*HOSTAPD_SUPPORT*/
+ 			)
+ 			{
+-				pEntry->Sst = SST_ASSOC;
++				if (!wr_assoc_reassociate(pAd, pEntry))
++ return MLME_ASSOC_REJ_UNABLE_HANDLE_STA;
++	pEntry->Sst = SST_ASSOC;
+ 				StatusCode = MLME_SUCCESS;
+ 				/* In WPA or 802.1x mode, the port is not secured. */
+ 				if ((pEntry->AuthMode >= Ndis802_11AuthModeWPA) 
+--- a/ap/ap_repeater.c
++++ b/ap/ap_repeater.c
+@@ -30,6 +30,7 @@
+ #ifdef MAC_REPEATER_SUPPORT
+ 
+ #include "rt_config.h"
++#include "assoc-generation-kernel.h"
+ 
+ 
+ REPEATER_CLIENT_ENTRY *RTMPLookupRepeaterCliEntry(
+@@ -556,6 +557,10 @@
+ 			pEntry->PairwiseKey.KeyLen = 0;
+ 			pEntry->PairwiseKey.CipherAlg = CIPHER_NONE;
+ 		}
++
++ if (!wr_assoc_advance_locked(pAd, pEntry, i)) {
++  NdisReleaseSpinLock(&pAd->MacTabLock); return NULL;
++ }
+ 
+ #ifdef CONFIG_AP_SUPPORT
+ #ifdef APCLI_SUPPORT
+@@ -720,6 +725,7 @@
+ 
+ 	}
+ 
++	if(pEntry) wr_assoc_publish_slot_locked(pAd,pEntry);
+ 	NdisReleaseSpinLock(&pAd->MacTabLock);
+ 	/*update tx burst, must after unlock pAd->MacTabLock*/
+ 	rtmp_tx_burst_set(pAd);
+--- a/ap/ap_wpa.c
++++ b/ap/ap_wpa.c
+@@ -1041,11 +1041,46 @@
+     Return:
+     ==========================================================================
+ */  
+-VOID GREKEYPeriodicExec(
+-    IN PVOID SystemSpecific1, 
+-    IN PVOID FunctionContext, 
+-    IN PVOID SystemSpecific2, 
+-    IN PVOID SystemSpecific3) 
++#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
++#include "ra2-rekey-admission.h"
++#endif
++
++static VOID wr_iot_grekey_periodic_raw(PVOID,PVOID,PVOID,PVOID);
++VOID GREKEYPeriodicExec(PVOID s1,PVOID context,PVOID s2,PVOID timer)
++{
++#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
++ RTMP_ADAPTER *ad=(RTMP_ADAPTER *)context;
++ /* Match the exact third timer; never alter Main/Guest callback semantics. */
++ if(ad&&IS_MT7603(ad)&&timer==&ad->ApCfg.MBSSID[2].REKEYTimer){
++  ULONG flags=0;int admitted=0;
++  RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
++  if(!ad->wr_iot_ra2_key_active&&ad->ApCfg.BssidNum==3&&
++     ad->ApCfg.BssidNum<=sizeof(ad->ApCfg.MBSSID)/sizeof(ad->ApCfg.MBSSID[0]))
++   admitted=wr_iot_ra2_rekey_admit(&ad->wr_iot_driver_owner,
++    &ad->wr_iot_transition,ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
++    ad->net_dev,ad->ApCfg.MBSSID[2].wdev.if_dev,VIRTUAL_IF_NUM(ad),
++    &ad->wr_iot_control_users,&ad->wr_iot_control_poisoned,
++    ad->wr_iot_boot_active||ad->wr_iot_boot_failed||
++    ad->wr_iot_close_owner.active||ad->wr_iot_closed_probe.active);
++  if(admitted)ad->wr_iot_ra2_key_active=1;
++  RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
++  if(admitted){
++   wr_iot_grekey_periodic_raw(s1,context,s2,timer);
++   RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
++   if(ad->wr_iot_ra2_key_active==1)ad->wr_iot_ra2_key_active=0;
++   else ad->wr_iot_control_poisoned=1;
++   RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
++   wr_iot_control_leave(ad);
++  }
++  /* Leave countdown/key state untouched on refusal. The existing repeating
++   * timer owns the next tick; no new timer, loop or global key reset. */
++  return;
++ }
++#endif
++ wr_iot_grekey_periodic_raw(s1,context,s2,timer);
++}
++static VOID wr_iot_grekey_periodic_raw(PVOID SystemSpecific1,
++ PVOID FunctionContext,PVOID SystemSpecific2,PVOID SystemSpecific3)
+ {
+ 	UINT i, apidx;
+ 	ULONG temp_counter = 0;
+--- a/common/cmm_wpa.c
++++ b/common/cmm_wpa.c
+@@ -27,6 +27,7 @@
+ 	Paul Lin	03-11-28		Modify for supplicant
+ */
+ #include "rt_config.h"
++#include "assoc-generation-kernel.h"
+ 
+ /* WPA OUI*/
+ UCHAR		OUI_WPA[3]				= {0x00, 0x50, 0xF2};
+@@ -202,6 +203,7 @@
+ #endif /* WSC_AP_SUPPORT */
+     }
+ 
++    if (!wr_assoc_event_entry_current(pAd, Elem, pEntry)) return;
+     if (pEntry)
+     {
+ 	tr_entry = &pAd->MacTab.tr_entry[pEntry->wcid];
+@@ -251,6 +253,7 @@
+ 	MAC_TABLE_ENTRY	*pEntry = NULL;
+ 
+ 	pEntry = MacTableLookup(pAd, Elem->Msg);
++ if (!wr_assoc_event_entry_current(pAd, Elem, pEntry)) return;
+ 	if ((pEntry) && IS_ENTRY_CLIENT(pEntry)) {
+ 		PRTMP_ADAPTER pAd = NULL;
+ 
+@@ -353,6 +356,77 @@
+ #endif /* APCLI_SUPPORT */
+ }
+ 
++
++#ifdef CONFIG_AP_SUPPORT
++#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
++#include "ra2-gtk-request-kernel.h"
++#endif
++static VOID wr_iot_ra2_group_request_raw(RTMP_ADAPTER *pAd,
++ MLME_QUEUE_ELEM *Elem,MAC_TABLE_ENTRY *pEntry)
++{
++ INT i;UCHAR apidx=pEntry->func_tb_idx;
++
++						UINT8 Wcid;
++						BSS_STRUCT *mbss;
++						struct wifi_dev *wdev;
++						DBGPRINT(RT_DEBUG_TRACE, ("REQUEST=1, ERROR=0, update group key\n"));
++
++						mbss = &pAd->ApCfg.MBSSID[apidx];
++						wdev = &mbss->wdev;
++
++						GenRandom(pAd, wdev->bssid, mbss->GNonce);
++						wdev->DefaultKeyId = (wdev->DefaultKeyId == 1) ? 2 : 1;
++						WpaDeriveGTK(mbss->GMK, mbss->GNonce,
++									wdev->bssid, mbss->GTK, LEN_TKIP_GTK);
++
++						for (i = 0; i < MAX_LEN_OF_MAC_TABLE; i++)
++						{
++							if (IS_ENTRY_CLIENT(&pAd->MacTab.Content[i])
++								&& (pAd->MacTab.Content[i].WpaState == AS_PTKINITDONE)
++								&& (pAd->MacTab.Content[i].func_tb_idx== apidx))
++							{
++								pAd->MacTab.Content[i].GTKState = REKEY_NEGOTIATING;
++								WPAStart2WayGroupHS(pAd, &pAd->MacTab.Content[i]);
++								pAd->MacTab.Content[i].ReTryCounter = GROUP_MSG1_RETRY_TIMER_CTR;
++								/* retry timer is set inside WPAStart2WayGroupHS */
++								//RTMPModTimer(&pAd->MacTab.Content[i].RetryTimer, PEER_MSG3_RETRY_EXEC_INTV);
++
++							}
++						}
++
++						/* Get a specific WCID to record this MBSS key attribute */
++						GET_GroupKey_WCID(pAd, Wcid, apidx);
++
++						if (!wr_assoc_event_entry_current(pAd, Elem, pEntry)) return;
++						WPAInstallSharedKey(pAd, wdev->GroupKeyWepStatus,
++										apidx, wdev->DefaultKeyId, Wcid,
++										TRUE, mbss->GTK, LEN_TKIP_GTK);
++
++}
++static VOID wr_iot_ra2_group_request(RTMP_ADAPTER *ad,
++ MLME_QUEUE_ELEM *event,MAC_TABLE_ENTRY *entry)
++{
++#if defined(MT7603) && defined(MT_MAC) && defined(RTMP_PCI_SUPPORT)
++ /* Receiver BSSID belongs to the immutable queued frame: classifying only
++  * the current entry could route a reused ra2 slot through native fallback. */
++ if(IS_MT7603(ad)&&((entry&&entry->func_tb_idx==2)||
++    (event->MsgLen>=LENGTH_802_11&&
++     MAC_ADDR_EQUAL(((PHEADER_802_11)event->Msg)->Addr1,
++      ad->ApCfg.MBSSID[2].wdev.bssid)))){
++  struct wr_iot_ra2_gtk_request_scope scope;
++  if(event->MsgLen<LENGTH_802_11||
++     !MAC_ADDR_EQUAL(((PHEADER_802_11)event->Msg)->Addr1,
++      ad->ApCfg.MBSSID[2].wdev.bssid))return;
++  if(wr_iot_ra2_gtk_request_enter(ad,event,entry,&scope)){
++   wr_iot_ra2_group_request_raw(ad,event,entry);
++   wr_iot_ra2_gtk_request_leave(ad,&scope);
++  }
++  return;
++ }
++#endif
++ wr_iot_ra2_group_request_raw(ad,event,entry);
++}
++#endif
+ VOID WpaEAPOLKeyAction(
+     IN PRTMP_ADAPTER    pAd,
+     IN MLME_QUEUE_ELEM  *Elem)
+@@ -409,6 +483,7 @@
+ #endif /* MAC_REPEATER_SUPPORT */
+ 			pEntry = MacTableLookup(pAd, pHeader->Addr2);
+ 
++ if (!wr_assoc_event_entry_current(pAd, Elem, pEntry)) break;
+ 		if (!pEntry || (!IS_ENTRY_CLIENT(pEntry) && !IS_ENTRY_APCLI(pEntry)))
+ 			break;
+ 
+@@ -579,47 +654,12 @@
+ #ifdef CONFIG_AP_SUPPORT
+ 				else if ((peerKeyInfo.Request == 1) && (peerKeyInfo.Error == 0))
+ 				{
+-					INT		i;
+-					UCHAR 	apidx = pEntry->func_tb_idx;
+ 
+ 					/* Need to check KeyType for groupkey or pairwise key update, refer to 8021i P.114, */
+ 					if (peerKeyInfo.KeyType == GROUPKEY)
+ 					{
+-						UINT8 Wcid;
+-						BSS_STRUCT *mbss;
+-						struct wifi_dev *wdev;
+-						DBGPRINT(RT_DEBUG_TRACE, ("REQUEST=1, ERROR=0, update group key\n"));
+-
+-						mbss = &pAd->ApCfg.MBSSID[apidx];
+-						wdev = &mbss->wdev;
+-
+-						GenRandom(pAd, wdev->bssid, mbss->GNonce);
+-						wdev->DefaultKeyId = (wdev->DefaultKeyId == 1) ? 2 : 1;
+-						WpaDeriveGTK(mbss->GMK, mbss->GNonce,
+-									wdev->bssid, mbss->GTK, LEN_TKIP_GTK);
+-
+-						for (i = 0; i < MAX_LEN_OF_MAC_TABLE; i++)
+-						{
+-							if (IS_ENTRY_CLIENT(&pAd->MacTab.Content[i])
+-								&& (pAd->MacTab.Content[i].WpaState == AS_PTKINITDONE)
+-								&& (pAd->MacTab.Content[i].func_tb_idx== apidx))
+-							{
+-								pAd->MacTab.Content[i].GTKState = REKEY_NEGOTIATING;
+-								WPAStart2WayGroupHS(pAd, &pAd->MacTab.Content[i]);
+-								pAd->MacTab.Content[i].ReTryCounter = GROUP_MSG1_RETRY_TIMER_CTR;
+-								/* retry timer is set inside WPAStart2WayGroupHS */
+-								//RTMPModTimer(&pAd->MacTab.Content[i].RetryTimer, PEER_MSG3_RETRY_EXEC_INTV); 
+-								
+-							}
+-						}
+-
+-						/* Get a specific WCID to record this MBSS key attribute */
+-						GET_GroupKey_WCID(pAd, Wcid, apidx);
+-
+-						WPAInstallSharedKey(pAd, wdev->GroupKeyWepStatus,
+-										apidx, wdev->DefaultKeyId, Wcid,
+-										TRUE, mbss->GTK, LEN_TKIP_GTK);
+-					}
++ wr_iot_ra2_group_request(pAd,Elem,pEntry);
++}
+ 					else
+ 					{
+ 						DBGPRINT(RT_DEBUG_TRACE, ("REQUEST=1, ERROR= 0, update pairwise key\n"));
+--- a/common/mlme.c
++++ b/common/mlme.c
+@@ -26,6 +26,7 @@
+ */
+ 
+ #include "rt_config.h"
++#include "assoc-generation-kernel.h"
+ #include <stdarg.h>
+ #ifdef DOT11R_FT_SUPPORT
+ #include "ft.h"
+@@ -772,6 +773,9 @@
+ 
+ 		if (Elem) 
+ 		{
++ if (!wr_assoc_event_current(pAd, Elem)) {
++  Elem->Occupied = FALSE; Elem->MsgLen = 0; continue;
++ }
+ 
+ 			if (Elem->Machine == WPA_STATE_MACHINE && Elem->MsgType == MT2_EAPOLKey)
+ 			{
+@@ -796,6 +800,9 @@
+ 					Queue->Entry[Tail].Wcid = RESERVED_WCID;
+ 					Queue->Entry[Tail].Occupied = TRUE;
+ 					Queue->Entry[Tail].Machine = Elem->Machine;
++ Queue->Entry[Tail].assoc_gen = Elem->assoc_gen;
++ Queue->Entry[Tail].assoc_wcid = Elem->assoc_wcid;
++ COPY_MAC_ADDR(Queue->Entry[Tail].assoc_addr, Elem->assoc_addr);
+ 					Queue->Entry[Tail].MsgType = Elem->MsgType;
+ 					Queue->Entry[Tail].MsgLen = Elem->MsgLen;	
+ 					Queue->Entry[Tail].Priv = Elem->Priv;
+@@ -960,6 +967,7 @@
+ 
+ #endif /* CONFIG_AP_SUPPORT */
+ 				case WPA_STATE_MACHINE:
++ if (!wr_assoc_event_current(pAd, Elem)) break;
+ 					StateMachinePerformAction(pAd, &pAd->Mlme.WpaMachine, Elem, pAd->Mlme.WpaMachine.CurrState);
+ 					break;
+ #ifdef WSC_INCLUDED
+@@ -4743,6 +4751,7 @@
+ 	IN VOID *Msg,
+ 	IN ULONG Priv)
+ {
++	struct wr_assoc_stamp wr_stamp;
+ 	INT Tail;
+ 	MLME_QUEUE	*Queue = (MLME_QUEUE *)&pAd->Mlme.Queue;
+ 
+@@ -4763,6 +4772,8 @@
+ 		return FALSE;
+ 	}
+ 
++	wr_stamp = wr_assoc_capture(pAd, Machine, MsgLen, Msg, RESERVED_WCID);
++ if (Machine == WPA_STATE_MACHINE && !wr_stamp.gen) return FALSE;
+ 	NdisAcquireSpinLock(&(Queue->Lock));
+ 	Tail = Queue->Tail;
+ 	/*
+@@ -4781,6 +4792,7 @@
+ 	Queue->Entry[Tail].Wcid = RESERVED_WCID;
+ 	Queue->Entry[Tail].Occupied = TRUE;
+ 	Queue->Entry[Tail].Machine = Machine;
++ wr_assoc_publish(&Queue->Entry[Tail], &wr_stamp);
+ 	Queue->Entry[Tail].MsgType = MsgType;
+ 	Queue->Entry[Tail].MsgLen = MsgLen;	
+ 	Queue->Entry[Tail].Priv = Priv;
+@@ -4806,6 +4818,7 @@
+ 	IN VOID *Msg,
+ 	IN ULONG Priv)
+ {
++	struct wr_assoc_stamp wr_stamp;
+ 	INT Tail;
+ 	EAP_MLME_QUEUE	*Queue = (EAP_MLME_QUEUE *)&pAd->Mlme.EAP_Queue;
+ 
+@@ -4826,6 +4839,8 @@
+ 		return FALSE;
+ 	}
+ 
++	wr_stamp = wr_assoc_capture(pAd, Machine, MsgLen, Msg, RESERVED_WCID);
++ if (Machine == WPA_STATE_MACHINE && !wr_stamp.gen) return FALSE;
+ 	NdisAcquireSpinLock(&(Queue->Lock));
+ 	Tail = Queue->Tail;
+ 	/*
+@@ -4844,6 +4859,7 @@
+ 	Queue->Entry[Tail].Wcid = RESERVED_WCID;
+ 	Queue->Entry[Tail].Occupied = TRUE;
+ 	Queue->Entry[Tail].Machine = Machine;
++ wr_assoc_publish(&Queue->Entry[Tail], &wr_stamp);
+ 	Queue->Entry[Tail].MsgType = MsgType;
+ 	Queue->Entry[Tail].MsgLen = MsgLen;	
+ 	Queue->Entry[Tail].Priv = Priv;
+@@ -4883,6 +4899,7 @@
+ 	IN VOID *Msg,
+ 	IN UCHAR OpMode)
+ {
++	struct wr_assoc_stamp wr_stamp;
+ 	INT Tail, Machine = 0xff;
+ 	UINT32 TimeStampHigh, TimeStampLow;
+ 	PFRAME_802_11 pFrame = (PFRAME_802_11)Msg;
+@@ -5031,7 +5048,9 @@
+ 		}
+ 		
+ 		/* OK, we got all the informations, it is time to put things into queue*/
+-		NdisAcquireSpinLock(&(EAP_Queue->Lock));
++		wr_stamp = wr_assoc_capture(pAd, Machine, MsgLen, Msg, Wcid);
++ if (Machine == WPA_STATE_MACHINE && !wr_stamp.gen) return FALSE;
++	NdisAcquireSpinLock(&(EAP_Queue->Lock));
+ 		Tail = EAP_Queue->Tail;
+ 		/*
+ 			Double check for safety in multi-thread system.
+@@ -5048,6 +5067,7 @@
+ 
+ 		EAP_Queue->Entry[Tail].Occupied = TRUE;
+ 		EAP_Queue->Entry[Tail].Machine = Machine;
++ wr_assoc_publish(&EAP_Queue->Entry[Tail], &wr_stamp);
+ 		EAP_Queue->Entry[Tail].MsgType = MsgType;
+ 		EAP_Queue->Entry[Tail].MsgLen  = MsgLen;
+ 		EAP_Queue->Entry[Tail].TimeStamp.u.LowPart = TimeStampLow;
+@@ -5098,7 +5118,9 @@
+ 		}
+ 		
+ 		/* OK, we got all the informations, it is time to put things into queue*/
+-		NdisAcquireSpinLock(&(Queue->Lock));
++		wr_stamp = wr_assoc_capture(pAd, Machine, MsgLen, Msg, Wcid);
++ if (Machine == WPA_STATE_MACHINE && !wr_stamp.gen) return FALSE;
++	NdisAcquireSpinLock(&(Queue->Lock));
+ 		Tail = Queue->Tail;
+ 		/*
+ 			Double check for safety in multi-thread system.
+@@ -5115,6 +5137,7 @@
+ 
+ 		Queue->Entry[Tail].Occupied = TRUE;
+ 		Queue->Entry[Tail].Machine = Machine;
++ wr_assoc_publish(&Queue->Entry[Tail], &wr_stamp);
+ 		Queue->Entry[Tail].MsgType = MsgType;
+ 		Queue->Entry[Tail].MsgLen  = MsgLen;
+ 		Queue->Entry[Tail].TimeStamp.u.LowPart = TimeStampLow;
+--- /dev/null
++++ b/include/assoc-generation-kernel.h
+@@ -0,0 +1,129 @@
++#ifndef WR_IOT_ASSOC_GENERATION_KERNEL_H
++#define WR_IOT_ASSOC_GENERATION_KERNEL_H
++#include "assoc-generation.h"
++/* Native deletion cancels station timers while owning MacTabLock. A callback
++ * must not wait for that lock and form cancel-timer <-> table-lock deadlock.
++ * Match the SDK's direct/OS_ABL lock representation and BH lock semantics. */
++static inline int wr_assoc_try_table_lock(RTMP_ADAPTER *ad)
++{
++#ifdef OS_ABL_FUNC_SUPPORT
++ if (!ad->MacTabLock.pContent) return 0;
++ return spin_trylock_bh((spinlock_t *)ad->MacTabLock.pContent);
++#else
++ return spin_trylock_bh(&ad->MacTabLock);
++#endif
++}
++static inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *,MAC_TABLE_ENTRY *);
++/* Association success must invalidate an older queued handshake, even if the
++ * WCID and MAC remain unchanged. Never hold this lock across WPA actions. */
++static inline int wr_assoc_reassociate(RTMP_ADAPTER *ad, MAC_TABLE_ENTRY *entry)
++{
++ unsigned int generation = 0;
++ if (!wr_assoc_try_table_lock(ad)) return 0;
++ if (entry && entry->wcid < MAX_LEN_OF_MAC_TABLE && !IS_ENTRY_NONE(entry) &&
++     !ad->wr_assoc_event_users[entry->wcid]) {
++  generation = wr_assoc_generation_next(&ad->wr_assoc_generations[entry->wcid]);
++  entry->assoc_gen = generation;
++  wr_assoc_publish_slot_locked(ad,entry);
++ }
++ NdisReleaseSpinLock(&ad->MacTabLock);
++ return generation != 0;
++}
++/* Caller already owns MacTabLock, including native insertion/deletion. */
++static inline unsigned int wr_assoc_advance_locked(RTMP_ADAPTER *ad,
++ MAC_TABLE_ENTRY *entry, unsigned int wcid)
++{
++ if (wcid >= MAX_LEN_OF_MAC_TABLE) return 0;
++ entry->assoc_gen = wr_assoc_generation_next(&ad->wr_assoc_generations[wcid]);
++ return entry->assoc_gen;
++}
++struct wr_assoc_stamp {
++ unsigned int gen;
++ unsigned short wcid;
++ unsigned char addr[MAC_ADDR_LEN];
++};
++/* Identity publication is separate from the mutable/cleared entry. Writers
++ * own MacTabLock. Zero withdraws publication; a nonzero generation never repeats.
++ * Readers are bounded and never wait for a table owner cancelling their timer. */
++static inline void wr_assoc_publish_slot_locked(RTMP_ADAPTER *ad,
++ MAC_TABLE_ENTRY *entry)
++{
++ unsigned int i, slot=entry->wcid;
++ if (slot >= MAX_LEN_OF_MAC_TABLE) return;
++ WRITE_ONCE(ad->wr_assoc_visible[slot],0);
++ smp_wmb();
++ for(i=0;i<MAC_ADDR_LEN;i++) WRITE_ONCE(ad->wr_assoc_addr[slot][i],entry->Addr[i]);
++ smp_wmb();
++ WRITE_ONCE(ad->wr_assoc_visible[slot],entry->assoc_gen);
++}
++static inline struct wr_assoc_stamp wr_assoc_read_slot(RTMP_ADAPTER *ad,
++ unsigned int slot, const unsigned char *addr)
++{
++ struct wr_assoc_stamp stamp;
++ unsigned int generation,i;
++ NdisZeroMemory(&stamp,sizeof(stamp));
++ if (slot >= MAX_LEN_OF_MAC_TABLE) return stamp;
++ generation=READ_ONCE(ad->wr_assoc_visible[slot]);
++ if (!generation) return stamp;
++ smp_rmb();
++ for(i=0;i<MAC_ADDR_LEN;i++) stamp.addr[i]=READ_ONCE(ad->wr_assoc_addr[slot][i]);
++ smp_rmb();
++ if (generation!=READ_ONCE(ad->wr_assoc_visible[slot]) ||
++     generation!=READ_ONCE(ad->MacTab.Content[slot].assoc_gen) ||
++     IS_ENTRY_NONE(&ad->MacTab.Content[slot]) ||
++     READ_ONCE(ad->MacTab.Content[slot].wcid)!=slot ||
++     !MAC_ADDR_EQUAL(stamp.addr,addr)) {
++  NdisZeroMemory(&stamp,sizeof(stamp));return stamp;
++ }
++ for(i=0;i<MAC_ADDR_LEN;i++) if(stamp.addr[i]!=READ_ONCE(ad->MacTab.Content[slot].Addr[i])) {
++  NdisZeroMemory(&stamp,sizeof(stamp));return stamp;
++ }
++ smp_rmb();
++ if(generation!=READ_ONCE(ad->wr_assoc_visible[slot])) {
++  NdisZeroMemory(&stamp,sizeof(stamp));return stamp;
++ }
++ stamp.gen=generation;stamp.wcid=slot;return stamp;
++}
++static inline struct wr_assoc_stamp wr_assoc_capture(RTMP_ADAPTER *ad,
++ unsigned long machine, unsigned long len, void *msg, unsigned int wcid)
++{
++ struct wr_assoc_stamp stamp;
++ unsigned char *addr=NULL;
++ unsigned int i;
++ NdisZeroMemory(&stamp,sizeof(stamp));
++ if (machine!=WPA_STATE_MACHINE || !msg) return stamp;
++ if (len==MAC_ADDR_LEN) addr=(unsigned char *)msg;
++ else if (len>=LENGTH_802_11) addr=((PHEADER_802_11)msg)->Addr2;
++ if (!addr) return stamp;
++ if (wcid!=RESERVED_WCID) return wr_assoc_read_slot(ad,wcid,addr);
++ for(i=1;i<MAX_LEN_OF_MAC_TABLE;i++) {
++  stamp=wr_assoc_read_slot(ad,i,addr);
++  if(stamp.gen) return stamp;
++ }
++ return stamp;
++}
++static inline void wr_assoc_publish(MLME_QUEUE_ELEM *elem,
++ const struct wr_assoc_stamp *stamp)
++{
++ elem->assoc_gen = stamp->gen;
++ elem->assoc_wcid = stamp->wcid;
++ COPY_MAC_ADDR(elem->assoc_addr, stamp->addr);
++}
++static inline int wr_assoc_event_current(RTMP_ADAPTER *ad, MLME_QUEUE_ELEM *elem)
++{
++ struct wr_assoc_stamp observed;
++ if (elem->Machine!=WPA_STATE_MACHINE) return 1;
++ observed=wr_assoc_read_slot(ad,elem->assoc_wcid,elem->assoc_addr);
++ return wr_assoc_generation_matches(elem->assoc_gen,observed.gen,
++  observed.gen!=0,observed.wcid==elem->assoc_wcid);
++}
++/* Native action lookups must resolve to the stamped slot, not a same-MAC
++ * peer in another BSS. Still a point-in-time validation, not a reference pin. */
++static inline int wr_assoc_event_entry_current(RTMP_ADAPTER *ad,
++ MLME_QUEUE_ELEM *elem, MAC_TABLE_ENTRY *entry)
++{
++ return elem->assoc_wcid < MAX_LEN_OF_MAC_TABLE &&
++  entry == &ad->MacTab.Content[elem->assoc_wcid] &&
++  wr_assoc_event_current(ad, elem);
++}
++#endif
+--- /dev/null
++++ b/include/assoc-generation.h
+@@ -0,0 +1,15 @@
++/* Caller serializes the persistent slot counter and entry with MacTabLock.
++ * Zero is invalid. Exhaustion is permanent for this adapter lifetime. */
++#ifndef WR_IOT_ASSOC_GENERATION_H
++#define WR_IOT_ASSOC_GENERATION_H
++static inline unsigned int wr_assoc_generation_next(unsigned int *counter)
++{
++ if (*counter == ~0U) return 0;
++ return ++*counter;
++}
++static inline int wr_assoc_generation_matches(unsigned int queued,
++ unsigned int current_gen, int valid, int same_mac)
++{
++ return valid && same_mac && queued != 0 && queued == current_gen;
++}
++#endif
+--- a/include/mlme.h
++++ b/include/mlme.h
+@@ -1131,6 +1131,9 @@
+ 
+ typedef struct _MLME_QUEUE_ELEM {
+ 	UCHAR Msg[MGMT_DMA_BUFFER_SIZE];	/* move here to fix alignment issue for ARM CPU */
++ unsigned int assoc_gen;
++ unsigned short assoc_wcid;
++ unsigned char assoc_addr[6];
+ 	ULONG Machine;
+ 	ULONG MsgType;
+ 	ULONG MsgLen;
+--- /dev/null
++++ b/include/ra2-gtk-request-kernel.h
+@@ -0,0 +1,77 @@
++/* Caller supplies a live adapter/MLME callback. No firmware or DMA token. */
++#ifndef WR_IOT_RA2_GTK_REQUEST_KERNEL_H
++#define WR_IOT_RA2_GTK_REQUEST_KERNEL_H
++#include "assoc-generation-kernel.h"
++#include "ra2-rekey-admission.h"
++struct wr_iot_ra2_gtk_request_scope {
++ unsigned int active,wcid,generation;
++};
++/* No lock spans crypto, timer cancellation, handshake sending or key install. */
++static inline void wr_iot_ra2_gtk_control_leave(RTMP_ADAPTER *ad,int failed)
++{
++ ULONG flags=0;
++ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
++ if(ad->wr_iot_ra2_key_active!=1)failed=1;
++ else ad->wr_iot_ra2_key_active=0;
++ if(failed)ad->wr_iot_control_poisoned=1;
++ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
++ wr_iot_control_leave(ad);
++}
++static inline int wr_iot_ra2_gtk_request_enter(RTMP_ADAPTER *ad,
++ MLME_QUEUE_ELEM *event,MAC_TABLE_ENTRY *entry,
++ struct wr_iot_ra2_gtk_request_scope *scope)
++{
++ ULONG flags=0;
++ int admitted=0;
++ NdisZeroMemory(scope,sizeof(*scope));
++ RTMP_IRQ_LOCK(&ad->wr_iot_transition_lock,flags);
++ if(!ad->wr_iot_ra2_key_active&&ad->ApCfg.BssidNum==3&&
++    ad->ApCfg.BssidNum<=sizeof(ad->ApCfg.MBSSID)/sizeof(ad->ApCfg.MBSSID[0])){
++  admitted=wr_iot_ra2_rekey_admit(&ad->wr_iot_driver_owner,
++   &ad->wr_iot_transition,ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
++   ad->net_dev,ad->ApCfg.MBSSID[2].wdev.if_dev,VIRTUAL_IF_NUM(ad),
++   &ad->wr_iot_control_users,&ad->wr_iot_control_poisoned,
++   ad->wr_iot_boot_active||ad->wr_iot_boot_failed||
++   ad->wr_iot_close_owner.active||ad->wr_iot_closed_probe.active);
++  if(admitted)ad->wr_iot_ra2_key_active=1;
++ }
++ RTMP_IRQ_UNLOCK(&ad->wr_iot_transition_lock,flags);
++ if(!admitted)return 0;
++ /* Refuse contention before any key/nonce/station mutation. This is an RX
++  * key request, not a one-shot timeout callback that requires queue progress. */
++ if(!wr_assoc_try_table_lock(ad)){
++  wr_iot_ra2_gtk_control_leave(ad,0);return 0;
++ }
++ admitted=entry&&event&&event->MsgLen>=LENGTH_802_11&&
++  MAC_ADDR_EQUAL(((PHEADER_802_11)event->Msg)->Addr1,ad->ApCfg.MBSSID[2].wdev.bssid)&&
++  event->assoc_wcid<MAX_LEN_OF_MAC_TABLE&&
++  entry==&ad->MacTab.Content[event->assoc_wcid]&&IS_ENTRY_CLIENT(entry)&&
++  entry->func_tb_idx==2&&entry->wdev==&ad->ApCfg.MBSSID[2].wdev&&
++  !ad->wr_iot_peer_delete_active&&
++  !ad->wr_assoc_event_users[event->assoc_wcid]&&
++  wr_assoc_event_entry_current(ad,event,entry);
++ if(admitted)admitted=wr_iot_peer_table_transaction_enter(&ad->wr_iot_peer_table_owner);
++ if(admitted){
++  scope->wcid=event->assoc_wcid;scope->generation=event->assoc_gen;
++  ad->wr_assoc_event_users[scope->wcid]=1;scope->active=1;
++ }
++ NdisReleaseSpinLock(&ad->MacTabLock);
++ if(!admitted)wr_iot_ra2_gtk_control_leave(ad,0);
++ return admitted;
++}
++static inline void wr_iot_ra2_gtk_request_leave(RTMP_ADAPTER *ad,
++ struct wr_iot_ra2_gtk_request_scope *scope)
++{
++ int failed=0;
++ if(!scope->active)return;
++ NdisAcquireSpinLock(&ad->MacTabLock);
++ if(scope->wcid>=MAX_LEN_OF_MAC_TABLE||
++    ad->wr_assoc_event_users[scope->wcid]!=1||
++    ad->MacTab.Content[scope->wcid].assoc_gen!=scope->generation)failed=1;
++ else ad->wr_assoc_event_users[scope->wcid]=0;
++ if(!wr_iot_peer_table_transaction_leave(&ad->wr_iot_peer_table_owner))failed=1;
++ scope->active=0;
++ NdisReleaseSpinLock(&ad->MacTabLock);
++ wr_iot_ra2_gtk_control_leave(ad,failed);
++}
++#endif
+--- /dev/null
++++ b/include/ra2-rekey-admission.h
+@@ -0,0 +1,43 @@
++/* Caller holds transition_lock and requires the existing live timer/adapter
++ * lifecycle. This counter does not independently pin or retire that object.
++ * Compare netdev pointers only. Registry/receipt validity supplies identity;
++ * no borrowed netdev is dereferenced. An admitted callback retains the existing
++ * control_users fence until it returns, excluding CLOSE/new transition owners.
++ * This is a host software-operation fence, not an RF/DMA completion receipt. */
++#ifndef WR_IOT_RA2_REKEY_ADMISSION_H
++#define WR_IOT_RA2_REKEY_ADMISSION_H
++#include "driver-api-owner.h"
++static inline int wr_iot_ra2_rekey_admit(
++ const struct wr_iot_driver_owner *owner,
++ const struct wr_iot_radio_transition *radio,
++ struct wr_iot_interface_ref *slots,unsigned int count,
++ const void *main_dev,const void *iot_dev,unsigned int vendor_count,
++ unsigned int *users,unsigned int *poisoned,int blocked)
++{
++ struct wr_iot_interface_ref *main_ref,*iot_ref;
++ unsigned int i,nonce=0;
++ if(!owner||!radio||!slots||!users||!poisoned||*poisoned||blocked||
++    !main_dev||!iot_dev||main_dev==iot_dev||vendor_count<2||
++    !radio->epoch||radio->phase!=WR_RADIO_READY||!radio->main_ready||radio->main_inhibited||
++    radio->busy||radio->reset_pending||radio->retiring||radio->exhausted||
++    radio->pm_suspending||radio->pm_suspended||
++    !owner->receipt.first_beacon_confirmed)return 0;
++ for(i=0;i<16;i++)nonce|=owner->receipt.request_id[i];
++ if(!nonce)return 0;
++ main_ref=wr_iot_registry_find_owned(slots,count,main_dev);
++ iot_ref=wr_iot_registry_find_owned(slots,count,iot_dev);
++ if(!main_ref||main_ref->family!=WR_REF_FAMILY_MAIN||main_ref->removing||
++    main_ref->removal_stage||!main_ref->last_token||main_ref->close_running||
++    main_ref->close_uncertain_reason||
++    !iot_ref||iot_ref->family!=WR_REF_FAMILY_MBSS||iot_ref->removing||
++    iot_ref->removal_stage||!iot_ref->last_token||iot_ref->close_running||
++    iot_ref->close_uncertain_reason||
++    !wr_iot_registry_count_matches(slots,count,vendor_count)||
++    !wr_iot_driver_open_receipt_matches(owner,owner->receipt.request_id,iot_dev,
++     radio->epoch,iot_ref->generation,iot_ref->last_token))return 0;
++ /* Other admitted control actors are allowed. This is a counted lifetime/
++  * transition fence, not an exclusive global periodic-worker lock. */
++ if(*users==~0U){*poisoned=1;return 0;}
++ ++*users;return 1;
++}
++#endif
+--- a/include/rtmp.h
++++ b/include/rtmp.h
+@@ -2856,6 +2856,7 @@
+ } PerWcidThr;
+ #endif
+ typedef struct _MAC_TABLE_ENTRY {
++ unsigned int assoc_gen;
+ 	UINT32 EntryType;
+ 	struct wifi_dev *wdev;
+ 	PVOID pAd;
+@@ -5162,6 +5163,11 @@
+ #endif
+ 
+ 	/*About MacTab, the sta driver will use #0 and #1 for multicast and AP. */
++ unsigned int wr_assoc_generations[MAX_LEN_OF_MAC_TABLE];
++ unsigned int wr_assoc_visible[MAX_LEN_OF_MAC_TABLE];
++ unsigned int wr_assoc_event_users[MAX_LEN_OF_MAC_TABLE];
++ unsigned int wr_iot_ra2_key_active;
++ unsigned char wr_assoc_addr[MAX_LEN_OF_MAC_TABLE][6];
+ 	MAC_TABLE MacTab;	/* ASIC on-chip WCID entry table.  At TX, ASIC always use key according to this on-chip table. */
+ 	NDIS_SPIN_LOCK MacTabLock;
+ 
+--- a/mgmt/mgmt_entrytb.c
++++ b/mgmt/mgmt_entrytb.c
+@@ -25,6 +25,7 @@
+ */
+ 
+ #include <rt_config.h>
++#include "assoc-generation-kernel.h"
+ #ifdef ANDLINK_FEATURE_SUPPORT
+ #include <linux/time.h>
+ #endif
+@@ -429,6 +430,9 @@
+ 			tr_entry = &pAd->MacTab.tr_entry[i];
+ 
+ 			mac_entry_reset(pAd, pEntry, CleanAll);
++ if (!wr_assoc_advance_locked(pAd, pEntry, i)) {
++  pEntry = NULL; continue;
++ }
+ 			
+ 			/* ENTRY PREEMPTION: initialize the entry */
+ 			pEntry->wdev = wdev;
+@@ -765,6 +769,7 @@
+ 
+ 	}
+ 
++	if(pEntry) wr_assoc_publish_slot_locked(pAd,pEntry);
+ 	NdisReleaseSpinLock(&pAd->MacTabLock);
+ 	
+ 	/*update tx burst, must after unlock pAd->MacTabLock*/
+@@ -832,6 +837,12 @@
+ 
+ 	if (pEntry && !IS_ENTRY_NONE(pEntry))
+ 	{
++ if(pAd->wr_assoc_event_users[wcid]) {
++  NdisReleaseSpinLock(&pAd->MacTabLock); return FALSE;
++ }
++ if (MAC_ADDR_EQUAL(pEntry->Addr,pAddr)) {
++  WRITE_ONCE(pAd->wr_assoc_visible[wcid],0); smp_wmb();
++ }
+ #ifdef BAND_STEERING
+ 		if((pAd->ApCfg.BandSteering) && IS_ENTRY_CLIENT(pEntry) && IS_VALID_MAC(pEntry->Addr))
+ 			BndStrg_UpdateEntry(pAd, pEntry, NULL, FALSE);
+@@ -920,6 +931,7 @@
+ 
+ 		if (MAC_ADDR_EQUAL(pEntry->Addr, pAddr))
+ 		{
++ (void)wr_assoc_advance_locked(pAd, pEntry, wcid);
+ 
+ #ifdef WH_EZ_SETUP
+ 			if (IS_EZ_SETUP_ENABLED(pEntry->wdev)) {

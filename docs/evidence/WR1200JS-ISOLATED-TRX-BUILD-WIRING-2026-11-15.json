@@ -1,0 +1,19 @@
+{
+  "base_revision": "4a79c103cd8655e583b1d5d55269de7a96102e30",
+  "checks": [
+    "python3 -B tools/iot/check-isolated-trx.py PASS actual SquashFS/synthetic header",
+    "bash -n tools/iot/ci-stage-candidate-romfs.sh PASS",
+    "bash -n tools/iot/ci-compile-merged-candidate.sh PASS"
+  ],
+  "sha256": {
+    "verify-isolated-trx.py": "3c6d56a6c5e39556edfc14808a4c29d0a88652c346dac295bb528f7104cadbc1",
+    "check-isolated-trx.py": "3f136d0089935223b31d6d26d92f52359e475818ae8a204f1bafca00bff12b2f",
+    "ci-stage-candidate-romfs.sh": "32e255358d45c5f4f95fa50d22665ed720b9d7dcf2bada81315e037527300622",
+    "ci-compile-merged-candidate.sh": "58289185ae0b45cf63cf48f6960a48d8220be4d3eac8cb3190d0bfe4102adde0"
+  },
+  "vendor_image_rules_inspected": "Pinned c25283e trunk/vendors/Ralink/Makefile + vendors-common.mak",
+  "isolated_vendor_build_wired": true,
+  "actual_vendor_candidate_trx_built": false,
+  "flash_size_release_gate_passed": false,
+  "physical_runtime_verified": false
+}

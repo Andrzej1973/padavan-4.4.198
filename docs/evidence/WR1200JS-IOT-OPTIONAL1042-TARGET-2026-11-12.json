@@ -1,0 +1,41 @@
+{
+  "run": 43237384697,
+  "number": 1042,
+  "source": {
+    "dispatch_revision": "4b4ac4e4af4d86e05bdd184fd8204a5e330b7429",
+    "requested_revision": "4b4ac4e4af4d86e05bdd184fd8204a5e330b7429",
+    "verified_revision": "4b4ac4e4af4d86e05bdd184fd8204a5e330b7429",
+    "runtime_verified": false
+  },
+  "artifact": 13952794704,
+  "modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5967928,
+      "sha256": "9cd20a85586c48faefedc254b3bd992a1dee8792235b542f87d4e0cb7ab5634e"
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "bytes": 5965896,
+      "sha256": "59fb7a2eddf437adfb8c56846e778c03479338f11427115393ae60ff96283ab8"
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "bytes": 5976236,
+      "sha256": "90897e7a7e89d6eaee1c7218360fa38a764638fc0b381df9492953bfb429215b"
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5970036,
+      "sha256": "c9705c068fc0df0d83306b70c035163cd32ab315d6a5d2a7f5841ac91279b0a6"
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6577896,
+      "sha256": "1882aec5a0d2bb6ce75fac62b39a8b6c1e60adb3228df93f4e19a39f4bea80a4"
+    }
+  },
+  "probe_symbol_bytes": 28,
+  "prepared_dispatch_and_recovery_checks_passed": true,
+  "diagnostic_flag_object_and_marker_verified": true,
+  "feature_report_linkage_verified": true,
+  "target_compiled": true,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scope": "Isolated peer82 target candidate, five MIPS modules. Controller activation, owner release/reopen and hardware acceptance remain open."
+}

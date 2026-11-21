@@ -16,7 +16,8 @@ static int test_close(FILE *f){int result=fclose(f);return fail_close?-1:result;
 #include <dirent.h>
 static const char profile[]="Default\nBssidNum=2\nSSID1=Main\nSSID2=Guest\nSSID3=\nWPAPSK1=main-password\nWPAPSK2=guest-password\nWPAPSK3=\nAuthMode=WPA2PSK;OPEN\nEncrypType=AES;NONE\nWmmCapable=1;1\nDLSCapable=0;0\nNoForwarding=0;1\nHideSSID=0;0\nStationKeepAlive=0;0\nPreAuth=0;0\nIEEE8021X=0;0\nFixedTxMode=0;0\nHT_MCS=33;33\n";
 static void write_profile(const char *path){FILE *f=fopen(path,"w");assert(f);assert(fputs(profile,f)>=0);assert(fclose(f)==0);}
-static void unchanged(const char *path){char value[4096];FILE *f=fopen(path,"r");size_t n;assert(f);n=fread(value,1,sizeof(value)-1,f);value[n]=0;assert(!strcmp(value,profile));fclose(f);}
+static void unchanged_text(const char *path,const char *expected){char value[4096];FILE *f=fopen(path,"r");size_t n;assert(f);n=fread(value,1,sizeof(value)-1,f);value[n]=0;assert(!strcmp(value,expected));fclose(f);}
+static void unchanged(const char *path){unchanged_text(path,profile);}
 int main(void){char dir[]="/tmp/wr-iot-profile-XXXXXX",path[256],linkpath[512],value[4096];FILE *f;size_t n;DIR *d;struct dirent *entry;struct stat st;int entries=0;
  assert(mkdtemp(dir));snprintf(path,sizeof(path),"%s/radio.dat",dir);write_profile(path);
  assert(wr_iot_profile_replace(path,NULL,NULL,0));unchanged(path);
@@ -27,6 +28,14 @@ int main(void){char dir[]="/tmp/wr-iot-profile-XXXXXX",path[256],linkpath[512],v
  fail_close=1;assert(!wr_iot_profile_replace(path,"IoT","password",1));unchanged(path);fail_close=0;
  fail_rename=1;assert(!wr_iot_profile_replace(path,"IoT","password",1));unchanged(path);fail_rename=0;
  snprintf(linkpath,sizeof(linkpath),"%s/link.dat",dir);assert(!symlink(path,linkpath));assert(!wr_iot_profile_replace(linkpath,"IoT","password",1));unchanged(path);unlink(linkpath);
+ snprintf(linkpath,sizeof(linkpath),"%s/fifo.dat",dir);assert(!mkfifo(linkpath,0600));assert(!wr_iot_profile_replace(linkpath,"IoT","password",1));assert(!unlink(linkpath));
  assert(wr_iot_profile_replace(path,"IoT","password",1));f=fopen(path,"r");assert(f);n=fread(value,1,sizeof(value)-1,f);value[n]=0;fclose(f);assert(strstr(value,"BssidNum=3\n"));assert(strstr(value,"SSID3=IoT\n"));assert(!stat(path,&st));assert((st.st_mode&0777)==0600);
+ assert(!wr_iot_profile_remove_file(path,"Other","password"));unchanged_text(path,value);
+ assert(!wr_iot_profile_remove_file(path,"IoT","wrong-password"));unchanged_text(path,value);
+ fail_create=1;assert(!wr_iot_profile_remove_file(path,"IoT","password"));unchanged_text(path,value);fail_create=0;
+ fail_sync=1;assert(!wr_iot_profile_remove_file(path,"IoT","password"));unchanged_text(path,value);fail_sync=0;
+ fail_close=1;assert(!wr_iot_profile_remove_file(path,"IoT","password"));unchanged_text(path,value);fail_close=0;
+ fail_rename=1;assert(!wr_iot_profile_remove_file(path,"IoT","password"));unchanged_text(path,value);fail_rename=0;
+ assert(wr_iot_profile_remove_file(path,"IoT","password"));unchanged(path);
  d=opendir(dir);assert(d);while((entry=readdir(d)))if(strcmp(entry->d_name,".")&&strcmp(entry->d_name,".."))entries++;closedir(d);assert(entries==1);
  unlink(path);rmdir(dir);puts("PASS IoT atomic file candidate: old profile preserved on creation/validation/fsync/close/rename failure, no symlink follow, private committed file, no temporary remnants");return 0;}

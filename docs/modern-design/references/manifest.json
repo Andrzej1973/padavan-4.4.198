@@ -1,0 +1,209 @@
+{
+  "source": "Owner-provided router page reference folder",
+  "archived_on": "2026-11-11",
+  "original_files": 25,
+  "unique_images": 24,
+  "stored_bytes": 26173588,
+  "records": [
+    {
+      "original_name": "2.4 детально   .png",
+      "path": "docs/modern-design/references/reference-76fc54a54abb4ddc.png",
+      "bytes": 71498,
+      "sha256": "76fc54a54abb4ddc524eb6c779613e0dcb1e716a3e50171a57557fbc84d46018",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "2.4 детально 2 вкл  kvr   .png",
+      "path": "docs/modern-design/references/reference-92a400fc006c5d50.png",
+      "bytes": 86424,
+      "sha256": "92a400fc006c5d503bbfb3aabeb3a86f6c617039d669f961d02a59301a8fee44",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "2.4 повна.png",
+      "path": "docs/modern-design/references/reference-4ef61a895a67e9ad.png",
+      "bytes": 30999,
+      "sha256": "4ef61a895a67e9ad521b21caed552b18293f4838069f509a31887c8982bb6dff",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "2.4 скорочена — kopia.png",
+      "path": "docs/modern-design/references/reference-8385b9d23a482193.png",
+      "bytes": 33082,
+      "sha256": "8385b9d23a48219316d914c38eb0910dd4377750bc10e8796786b8af998ccb17",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "2.4 скорочена.png",
+      "path": "docs/modern-design/references/reference-8385b9d23a482193.png",
+      "bytes": 33082,
+      "sha256": "8385b9d23a48219316d914c38eb0910dd4377750bc10e8796786b8af998ccb17",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "5 детально   .png",
+      "path": "docs/modern-design/references/reference-b8280ae5b82883b7.png",
+      "bytes": 39259,
+      "sha256": "b8280ae5b82883b7194d6ea17aba49e554e5d5e63daad020e2b85446c771cf4e",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "5 повна.png",
+      "path": "docs/modern-design/references/reference-4d604388e0b048a5.png",
+      "bytes": 38300,
+      "sha256": "4d604388e0b048a56a84ac056be62deee8d74760cc7f9a775cfe2b2c536f1f3e",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "5 скорочена.png",
+      "path": "docs/modern-design/references/reference-3ed846a9d47d2387.png",
+      "bytes": 61077,
+      "sha256": "3ed846a9d47d2387575aa9670bd654c524677ba0fd59ba61d8625124c8a999fe",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "guest_24ghz.png",
+      "path": "docs/modern-design/references/reference-8a39eef1072f2f95.png",
+      "bytes": 1706462,
+      "sha256": "8a39eef1072f2f954f9d99231efa9325c5e5d04a6495795ed4b66ec16362a9de",
+      "design_reference": "03-guest24",
+      "status": "previously-received-design"
+    },
+    {
+      "original_name": "Інтерфейс Padavan_ міст Wi‑Fi 2,4 ГГц.png",
+      "path": "docs/modern-design/references/reference-c6a6ef94307fd329.png",
+      "bytes": 1590818,
+      "sha256": "c6a6ef94307fd329f53fdaec23f6f9f4f531163a7a678ba0677b14257685f092",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Інтерфейс роутера YOUHUA українською.png",
+      "path": "docs/modern-design/references/reference-2fd9b1d5b46336f2.png",
+      "bytes": 1780805,
+      "sha256": "2fd9b1d5b46336f25ec58fab5d83e765419eaee61b18da74aa635d07b4272d21",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Налаштування Wi‑Fi 5 ГГц українською-1.png",
+      "path": "docs/modern-design/references/reference-8c12521fba3218a2.png",
+      "bytes": 1673258,
+      "sha256": "8c12521fba3218a28f951384eab2fdc469fdcca053cff6568d9b8a249c439c7b",
+      "design_reference": "04-radio5",
+      "status": "previously-received-design"
+    },
+    {
+      "original_name": "Настройка трёх Wi‑Fi сетей роутера.png",
+      "path": "docs/modern-design/references/reference-5a0f766091753dff.png",
+      "bytes": 1506407,
+      "sha256": "5a0f766091753dff93eb2eedd380dd160543d531ecb165fde49931d1d955f896",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Неоновий дашборд роутера Padavan українською.png",
+      "path": "docs/modern-design/references/reference-b53d077079c35179.png",
+      "bytes": 1814723,
+      "sha256": "b53d077079c35179fd7ca0478902f0f2150ad13a656b5eccfb4df08ac57fb520",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Неоновий інформаційний блок Wi‑Fi 2,4 і 5 ГГц-2.png",
+      "path": "docs/modern-design/references/reference-7ff5a2dec070936a.png",
+      "bytes": 1376073,
+      "sha256": "7ff5a2dec070936ae53254b332432df514eed72f6453455014bad6f44e5920cb",
+      "design_reference": "04-radio5-shared-state",
+      "status": "previously-received-design"
+    },
+    {
+      "original_name": "Неонові налаштування Wi‑Fi 2,4 ГГц.png",
+      "path": "docs/modern-design/references/reference-2133202b3361d6cf.png",
+      "bytes": 1579616,
+      "sha256": "2133202b3361d6cf5f6ad2185df95a0208841cf01c5e7c5bb313ae11a9c3b81b",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Панель керування маршрутизатором Padavan.png",
+      "path": "docs/modern-design/references/reference-a06fefb02d09d61d.png",
+      "bytes": 1752014,
+      "sha256": "a06fefb02d09d61d620db9c35e424c256a5cb46895f9e4b4b5793d8164379b84",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Панель налаштувань Wi‑Fi Padavan 2.4 ГГц.png",
+      "path": "docs/modern-design/references/reference-b73622f2f4367a53.png",
+      "bytes": 1544711,
+      "sha256": "b73622f2f4367a53c765fe26eeca4555e9df668d43bd38c21e7ee8771470f937",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Служби.png",
+      "path": "docs/modern-design/references/reference-2b6af470725f27fb.png",
+      "bytes": 13396,
+      "sha256": "2b6af470725f27fb36601272e90df80023f7711074086753a2ab82a5a5238235",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Темна неонова панель Wi‑Fi 2,4 ГГц.png",
+      "path": "docs/modern-design/references/reference-756ea9aedd13fe7d.png",
+      "bytes": 1758900,
+      "sha256": "756ea9aedd13fe7d80e815b2cc6184e6ab636c1b12bbb9bdd831d290c998c01a",
+      "design_reference": "02-radio24",
+      "status": "previously-received-design"
+    },
+    {
+      "original_name": "Темна панель налаштувань Wi‑Fi YOUHUA.png",
+      "path": "docs/modern-design/references/reference-1f6ddf5d6a7e17d9.png",
+      "bytes": 1545515,
+      "sha256": "1f6ddf5d6a7e17d96e7d86daedf5d410a0f52078f8297624adfcf0fc1b658d07",
+      "design_reference": "01-common",
+      "status": "previously-received-design"
+    },
+    {
+      "original_name": "Темно-синя панель гостьової мережі роутера.png",
+      "path": "docs/modern-design/references/reference-5a0d1eb53d43b946.png",
+      "bytes": 1553169,
+      "sha256": "5a0d1eb53d43b9466cc89798fce338bcf51f3d12e3b6ef4223fe4a9ba07cdd30",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Темно-синя панель налаштувань Wi‑Fi Padavan.png",
+      "path": "docs/modern-design/references/reference-c1394ebc7b34db17.png",
+      "bytes": 1558783,
+      "sha256": "c1394ebc7b34db172f7d090d7c4954e6555b5803e064de5f7194f75c48229b03",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Футуристична панель налаштувань Wi‑Fi Padavan.png",
+      "path": "docs/modern-design/references/reference-c06967e3b3cfcc26.png",
+      "bytes": 1542460,
+      "sha256": "c06967e3b3cfcc26f31ef153c23984d8369e89787945bce415d207770a2c677b",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    },
+    {
+      "original_name": "Футуристична_панель_керування_роутером_Padavan.png",
+      "path": "docs/modern-design/references/reference-4c1f59a77fc5c95b.png",
+      "bytes": 1515839,
+      "sha256": "4c1f59a77fc5c95bfa298ecfb0b1f6cac3c7722e6ba29f6418ab0ed67192c74d",
+      "design_reference": null,
+      "status": "preserved-reference-awaiting-page-review"
+    }
+  ]
+}

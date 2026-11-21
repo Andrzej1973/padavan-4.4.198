@@ -1,0 +1,83 @@
+{
+  "run": 43136969650,
+  "number": 1033,
+  "source": {
+    "dispatch_revision": "89def5426f8d62bbeadca339e10f157ba660c445",
+    "requested_revision": "",
+    "verified_revision": "89def5426f8d62bbeadca339e10f157ba660c445",
+    "runtime_verified": false
+  },
+  "artifact": 13907858742,
+  "actual_image": {
+    "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
+    "image": "WR1200JS_4.4.198.9-1033_89def542.trx",
+    "bytes": 13123115,
+    "sha256": "e7e56a59596ddf4e98f47011ead3b2675d144961f52db89cbe4d644651476bba",
+    "declared_payload_bytes": 13123051,
+    "architecture_id": 5,
+    "compression_id": 3,
+    "checks": {
+      "uimage_magic": true,
+      "product_id": true,
+      "header_crc": true,
+      "declared_length": true,
+      "payload_crc": true,
+      "size_range": true,
+      "iot_hwnat_dtb": true
+    },
+    "iot_hwnat_dtb_policy": {
+      "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+      "external_devices": [
+        "usb0",
+        "wwan0",
+        "rax0",
+        "ra0",
+        "rai0",
+        "apclii0",
+        "apclix0",
+        "apcli0"
+      ],
+      "lan": [
+        "eth2"
+      ],
+      "wan": [
+        "eth3"
+      ],
+      "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+      "kernel_sha256": "0da07ddcbdd03e5e2868f7ba85bbf8fc60c529bf8158ba2a542452c6ac7b91d9",
+      "runtime_verified": false
+    }
+  },
+  "ci_cake_report": {
+    "board": "WR1200JS",
+    "scope": "Effective config, ROMFS presence, reviewed script and factory defaults; separate ELF gates and physical runtime required",
+    "status": "runtime-unverified",
+    "checks": {
+      "profile_included": true,
+      "kernel_components": true,
+      "not_default_qdisc": true,
+      "factory_off": true,
+      "sch_cake.ko": true,
+      "ifb.ko": true,
+      "sch_ingress.ko": true,
+      "cls_u32.ko": true,
+      "act_mirred.ko": true,
+      "bin/tc": true,
+      "bin/ip": true,
+      "usr/lib/sqm/run.sh": true,
+      "www/Advanced_SQM.asp": true,
+      "manual_web_control": true,
+      "reviewed_lifecycle": true,
+      "start_requires_enable": true
+    },
+    "manifest_sha256": "502b7c80143b0f927c9b64e5212214cd717af6730b95a926b939940fa1968232",
+    "runtime_verified": false
+  },
+  "effective_config_sha256": {
+    "firmware-effective.config": "278ab437c9b91f009ce49d078be807a937a6eb0a534353cc19a1647214699114",
+    "kernel-effective.config": "165c8abb2502eb0b56f2d3c3ccb08580ac4cb9b5653cbd16eb640372d858a273"
+  },
+  "optional_run": 43147103108,
+  "scope": "Independent actual uImage CRC/size/product/MIPS/HNAT checks plus separate CI config and CAKE report; target candidate and physical runtime pending",
+  "runtime_verified": false
+}

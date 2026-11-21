@@ -1,0 +1,1078 @@
+{
+  "scope": "Coverage ledger; route existence and DEMO layouts are not functional completion",
+  "source_image_sha256": "163ed07d30f7cfc8a5c727858c20be2493108ab9e0c72196c2e47cf69467ee8b",
+  "pages": [
+    {
+      "classic": "Ad_action.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_ACL2g_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/24/mac"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_ACL_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/5/mac"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_APLAN_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_AiDisk_ftp.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_AiDisk_others.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_AiDisk_samba.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_BasicFirewall_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Console_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_DDNS_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_DHCP_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Exposed_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Firewall_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_FirmwareUpgrade_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_GWStaticRoute_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_IPTV_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_IPv6_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_InetDetect_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_LAN_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_MACFilter_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Modem_others.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Netfilter_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_OperationMode_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Printer_others.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Scripts_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Services_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Services_DoH.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Services_DoT.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Services_Privoxy.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_SettingBackup_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Switch_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_System_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_System_Info.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Tweaks_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_URLFilter_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_VirtualServer_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WAN_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WAdvanced2g_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/24/advanced"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WAdvanced_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/5/advanced"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WGuest2g_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/24/guest"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WGuest_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/5/guest"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WMode2g_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/24/bridge"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WMode_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/5/bridge"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WOL_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WSecurity2g_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/24/radius"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_WSecurity_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/5/radius"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Wireless2g_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/24/general"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_Wireless_Content.asp",
+      "modern_routes": [
+        "/modern/index.html#wifi/split/5/general"
+      ],
+      "design": "existing-demo-layout",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_frp.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_frp_log.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_wireguard.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Advanced_zerotier.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Logout.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_CTStatus_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_DHCPStatus_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_EStatus_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_IPTStatus_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_LogStatus_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_RouteStatus_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_TrafficMonitor_daily.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_TrafficMonitor_last24.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_TrafficMonitor_realtime.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_WStatus2g_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Main_WStatus_Content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Nologin.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Restarting.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Shadowsocks.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Shadowsocks_action.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Shadowsocks_log.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "UpdateError.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Updating.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "UploadDone.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "UploadError.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "Uploading.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/ASUS_DDNS_TOS.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/Aidisk-1.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/Aidisk-1_help.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/Aidisk-2.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/Aidisk-3.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/Aidisk-4.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/create_account.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/create_sharedfolder.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/delete_account.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/delete_sharedfolder.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/getfolderarray.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/getsharearray.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/initial_account.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/modify_account.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/modify_sharedfolder.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/popCreateAccount.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/popCreateFolder.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/popDeleteAccount.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/popDeleteFolder.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/popModifyAccount.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/popModifyFolder.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/set_account_permission.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/switch_AiDisk_app.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk/switch_share_mode.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aidisk.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "ajax_ddnscode.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "aplist.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "as.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "bit_action.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "console_response.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/clients.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/disk.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/hub.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/internet.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/intranet.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/modem.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/printer.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/router.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/router2g.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/safely_remove_disk.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "device-map/wan_action.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "httpd_check.htm",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "index.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "lan_clients.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "log_content.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "start_apply.htm",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "status_eth_mib.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "status_internet.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "status_lanlink.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "status_wanlink.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "system_status_data.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "vpn_clients.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "vpncli.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "vpnsrv.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "wds_aplist.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "wds_aplist_2g.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    },
+    {
+      "classic": "wol_action.asp",
+      "modern_routes": [],
+      "design": "pending-review",
+      "backend": "not-integrated",
+      "full_page_accepted": false,
+      "runtime_verified": false
+    }
+  ]
+}

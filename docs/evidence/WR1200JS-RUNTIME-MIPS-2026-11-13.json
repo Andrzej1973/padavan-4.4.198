@@ -1,0 +1,44 @@
+{
+  "run": 43514216225,
+  "artifact": 14080521446,
+  "project_sha": "058bfd8e0d3258bec30eef7899cbde4c82bc6ca5",
+  "objects": [
+    {
+      "object": "iot-runtime-init-mips.o",
+      "bytes": 11428,
+      "sha256": "76d55e990339c01a63d262b2d36eee71925b4fbaf4f5341f246646bbe4abbd77",
+      "defined_function": "init_main_loop",
+      "elf": "ELF32LE MIPS"
+    },
+    {
+      "object": "iot-runtime-wr-iot-rc-mode-mips.o",
+      "bytes": 1820,
+      "sha256": "020797ba75e6cc3d400a7d7520fc9776faa724f86f5b245ac53a5f1b24ad36ef",
+      "defined_function": "wr_iot_rc_mode_read",
+      "elf": "ELF32LE MIPS"
+    },
+    {
+      "object": "iot-runtime-rc-rc-runtime-mips.o",
+      "bytes": 3808,
+      "sha256": "29bb447cf9113985a7bca9920d4726878bb502b9562b123eecf92310bcc0fd1f",
+      "defined_function": "wr_iot_rc_wait",
+      "elf": "ELF32LE MIPS"
+    },
+    {
+      "object": "iot-runtime-rc-rc-backend-mips.o",
+      "bytes": 2336,
+      "sha256": "b621c7e71250220649978dfee0e046b59c9788fc01d676b6dbe07facf16d6b76",
+      "defined_function": "wr_iot_activation_execute",
+      "elf": "ELF32LE MIPS"
+    },
+    {
+      "object": "iot-runtime-httpd-status-client-mips.o",
+      "bytes": 1536,
+      "sha256": "d4397a49ca321e65dfcf9f19ebf8800a64bbcbd9f3d8b566c2b109eae4463d94",
+      "defined_function": "wr_iot_activation_result_observed",
+      "elf": "ELF32LE MIPS"
+    }
+  ],
+  "scope": "Actual inspected target objects, not full firmware link/image/device acceptance",
+  "cleanup": "Archive read in memory; selected object inspection TemporaryDirectory removed"
+}

@@ -1,0 +1,19 @@
+{
+  "scope": "Pinned SDK prepared RC source and native translation units; not MIPS or device acceptance",
+  "checks": {
+    "prepare_rc": "PASS",
+    "exact_staged_source_check": "PASS",
+    "native_gnu11_werror_O2_five_units": "PASS",
+    "diff_check": "PASS"
+  },
+  "sources": {
+    "tools/iot/reopen-admission.c": "6a5e154d07275cd8e9b9f7b3ca72f4a63d0ed6147286ca74f5469f5ffcb1fc85",
+    "tools/iot/reopen-start.c": "fdf4cec39577295a01e0271588ff5ef26e8470c000eeecf3c6f06d8455613ba9",
+    "tools/iot/reopen-network.c": "6320e1eadac6a017ac0279783772076620bd638207de617a21d45c5d254f3f26",
+    "tools/iot/reopen-rollback.c": "a5aab827b6908ebd6ba765db3f9b64862d4cbcd0ae411ead68b3849938bfe03c",
+    "tools/iot/start-runner.c": "8084c553216d16a934611a28487141e9d9a96de52f9696f0d9028119c33d86fa"
+  },
+  "mips": "workflow coverage added, not dispatched for unpublished local changes",
+  "owner_off_on_handoff": "not integrated",
+  "cleanup": "TemporaryDirectory pinned RC subset and objects removed automatically after success; no firmware/archive extracted in full"
+}

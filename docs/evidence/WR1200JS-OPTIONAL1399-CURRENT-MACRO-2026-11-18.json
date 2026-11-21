@@ -1,0 +1,29 @@
+{
+  "failed_run": 44342643116,
+  "failed_number": 1399,
+  "workflow_head": "c34801ecba88e6a529767bc6eb0eeedfa2974ff9",
+  "verification_revision": "dd5c44de817419fd868e3286a918441726be3189",
+  "monitor_run": 44347221618,
+  "monitor_artifact": 14447565125,
+  "original_job": 134942508271,
+  "failed_step": "Compile isolated merged IoT MT7603 candidate",
+  "original_log_sha256": "07a3284bcb93d0fcb37d6e69dc15d9bf44f45876843f5d6be9c2547e7f43e65b",
+  "monitor_log_sha256": "125dd6781879e2f185c941f93a5d8bb251353c9da4f35a90565f9b89df7c8dbe",
+  "first_actionable_error": "include/asm-generic/current.h:6:45: expected ) before -> token",
+  "expansion_site": "mt76x3/include/assoc-generation.h:11:15",
+  "kernel_macros": [
+    "#define get_current() (current_thread_info()->task)",
+    "#define current get_current()"
+  ],
+  "cause": "current identifier in scalar helper parameter is expanded by Linux current/get_current macros; newer kernel adapter also used a current local variable",
+  "local_fix": [
+    "scalar parameter current -> current_gen",
+    "adapter local current -> observed"
+  ],
+  "kernel_current_macro_left_defined": true,
+  "host_regression_old_identifier_rejected": true,
+  "host_generation_gtk_and_control_fixtures_pass": true,
+  "target_recheck_pending": true,
+  "runtime_verified": false,
+  "monitor_includes_nonfatal_parser_diagnostics": true
+}

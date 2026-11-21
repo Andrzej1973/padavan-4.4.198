@@ -1,0 +1,298 @@
+{
+  "source_sha": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source_files": {
+    "rc": {
+      "path": "trunk/user/rc/ralink.c",
+      "sha256": "b7d4ae2bf4c29742ccc9059a97db65aaa5fddf0308ba41e383964235837a956b"
+    },
+    "driver": {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/rt_channel.c",
+      "sha256": "5e1a7fc9a1a0a966b48ed8b8f223c457ceadd251053bc3f265eed0060d300b08"
+    },
+    "ioctl": {
+      "path": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/ap_ioctl.c",
+      "sha256": "a16da584940a502782f5d280752e8aea5581854bd8b011ba9d96ab0a597df15b"
+    },
+    "classic": {
+      "path": "trunk/user/www/n56u_ribbon_fixed/wireless_2g.js",
+      "sha256": "720f0354334afe5dbe2520beec8738f8045af3207f2a49bd38a2e8948ac68b11"
+    }
+  },
+  "country_to_region": {
+    "AE": 1,
+    "AL": 1,
+    "AR": 1,
+    "AT": 1,
+    "AM": 1,
+    "AU": 1,
+    "AZ": 1,
+    "BE": 1,
+    "BH": 1,
+    "BY": 1,
+    "BO": 1,
+    "BR": 1,
+    "BN": 1,
+    "BG": 1,
+    "BZ": 1,
+    "CA": 0,
+    "CH": 1,
+    "CL": 1,
+    "CN": 1,
+    "CO": 0,
+    "CR": 1,
+    "CY": 1,
+    "CZ": 1,
+    "DE": 1,
+    "DK": 1,
+    "DO": 0,
+    "DZ": 1,
+    "EC": 1,
+    "EG": 1,
+    "EE": 1,
+    "ES": 1,
+    "FI": 1,
+    "FR": 1,
+    "GE": 1,
+    "GB": 1,
+    "GR": 1,
+    "GT": 0,
+    "HN": 1,
+    "HK": 1,
+    "HU": 1,
+    "HR": 1,
+    "IS": 1,
+    "IN": 1,
+    "ID": 1,
+    "IR": 1,
+    "IE": 1,
+    "IL": 1,
+    "IT": 1,
+    "JP": 1,
+    "JO": 1,
+    "KP": 1,
+    "KR": 1,
+    "KW": 1,
+    "KZ": 1,
+    "LB": 1,
+    "LI": 1,
+    "LT": 1,
+    "LU": 1,
+    "LV": 1,
+    "MA": 1,
+    "MC": 1,
+    "MO": 1,
+    "MK": 1,
+    "MX": 0,
+    "MY": 1,
+    "NL": 1,
+    "NO": 0,
+    "NZ": 1,
+    "OM": 1,
+    "PA": 0,
+    "PE": 1,
+    "PH": 1,
+    "PL": 1,
+    "PK": 1,
+    "PT": 1,
+    "PR": 0,
+    "QA": 1,
+    "RO": 1,
+    "RU": 1,
+    "SA": 1,
+    "SG": 1,
+    "SK": 1,
+    "SI": 1,
+    "SV": 1,
+    "SE": 1,
+    "SY": 1,
+    "TH": 1,
+    "TN": 1,
+    "TR": 1,
+    "TT": 1,
+    "TW": 0,
+    "UA": 1,
+    "US": 0,
+    "UY": 1,
+    "UZ": 0,
+    "VE": 1,
+    "VN": 1,
+    "YE": 1,
+    "ZA": 1,
+    "ZW": 1,
+    "DB": 5
+  },
+  "driver_region_descriptors": {
+    "0": [
+      {
+        "first": 1,
+        "count": 11,
+        "property": "CHANNEL_DEFAULT_PROP"
+      }
+    ],
+    "1": [
+      {
+        "first": 1,
+        "count": 13,
+        "property": "CHANNEL_DEFAULT_PROP"
+      }
+    ],
+    "2": [
+      {
+        "first": 10,
+        "count": 2,
+        "property": "CHANNEL_DEFAULT_PROP"
+      }
+    ],
+    "3": [
+      {
+        "first": 10,
+        "count": 4,
+        "property": "CHANNEL_DEFAULT_PROP"
+      }
+    ],
+    "4": [
+      {
+        "first": 14,
+        "count": 1,
+        "property": "CHANNEL_DEFAULT_PROP"
+      }
+    ],
+    "5": [
+      {
+        "first": 1,
+        "count": 14,
+        "property": "CHANNEL_DEFAULT_PROP"
+      }
+    ],
+    "6": [
+      {
+        "first": 3,
+        "count": 7,
+        "property": "CHANNEL_DEFAULT_PROP"
+      }
+    ],
+    "7": [
+      {
+        "first": 5,
+        "count": 9,
+        "property": "CHANNEL_DEFAULT_PROP"
+      }
+    ],
+    "31": [
+      {
+        "first": 1,
+        "count": 11,
+        "property": "CHANNEL_DEFAULT_PROP"
+      },
+      {
+        "first": 12,
+        "count": 3,
+        "property": "CHANNEL_PASSIVE_SCAN"
+      }
+    ],
+    "32": [
+      {
+        "first": 1,
+        "count": 11,
+        "property": "CHANNEL_DEFAULT_PROP"
+      },
+      {
+        "first": 12,
+        "count": 2,
+        "property": "CHANNEL_PASSIVE_SCAN"
+      }
+    ],
+    "33": [
+      {
+        "first": 1,
+        "count": 14,
+        "property": "CHANNEL_DEFAULT_PROP"
+      }
+    ]
+  },
+  "examples": {
+    "US": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "GB": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "UA": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "JP": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "DB": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ]
+  },
+  "SIOCGIWRANGE_has_channel_list": false,
+  "limits": [
+    "Source RC and driver descriptors only; EEPROM/SKU/runtime effective channel list unverified",
+    "Unknown-country RC fallback is not admission evidence",
+    "Debug DB and channel14 must not be exposed by Modern",
+    "Do not infer active channel list from SIOCGIWRANGE; vendor handler leaves it zeroed"
+  ],
+  "runtime_verified": false,
+  "radio_apply_enabled": false
+}

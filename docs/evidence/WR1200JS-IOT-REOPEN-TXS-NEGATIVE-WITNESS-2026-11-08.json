@@ -1,0 +1,21 @@
+{
+  "scope": "Actual hash-pinned vendor TxS candidate callback negative witness for reopen",
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "input_sha256": {
+    "tx_rx/txs.c": "58f963297852e7a864be13a7b9b7ea5ffd2a394a36309e736eef6691acee0524",
+    "include/mac/mac_mt/mt_mac.h": "32835ba6b46e2bd3995986e1a48114242a755d128ab8bfc10238f5fdf4ce7002",
+    "mac/mt_mac.c": "0503f18843b3ddc5206b6f2565c7a57aedbe7e64f7591f0dc5d6aa5be1355576",
+    "include/mac/mac.h": "d7266ec76a2cfba49017bce78ccd875dd0fa8bf0ff9cd9ac049ef50c550adc77"
+  },
+  "candidate_txs_sha256": "11cc663103d4b364050c659a5930ec164541c0603817e2a57d0826497d9964df",
+  "checks": [
+    "PASS actual callback STOP/bounds immutability; negative reopened-state witness. No hardware delivery/RF proof.",
+    "PASS actual callback STOP/bounds immutability; negative reopened-state witness. No hardware delivery/RF proof."
+  ],
+  "finding": "Identical uncorrelated report is rejected while BSS BCN_TX_STOP, but can mutate the reopened beacon state; callback generation cancellation is not firmware response correlation",
+  "rf_fifo_quiescence_proved": false,
+  "reopen_safe": false,
+  "runtime_verified": false,
+  "cleanup": "Temporary pinned4-file input/candidate and test binaries removed; original archive preserved",
+  "input_bytes": 142008
+}

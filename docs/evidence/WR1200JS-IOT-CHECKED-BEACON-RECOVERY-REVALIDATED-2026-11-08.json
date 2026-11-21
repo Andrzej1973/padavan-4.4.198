@@ -1,0 +1,13 @@
+{
+  "scope": "Existing staged recovery hardening revalidated, not original vendor tail",
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "candidate_sha256": "6d8d7120c02e823ec9a3a7ea2a103694d291582fd1b0339191d23e5031bac97e",
+  "result": [
+    "PASS actual beacon recovery candidate: timeout/device loss/closed/reset-gated BSS; active DMA_RESET and TXRXCR branches; final lock balanced"
+  ],
+  "correction": "Staged predecessor already returns on timeout and checks locked final restart; original negative witness is not current candidate behavior",
+  "host_fixture_change": "BeaconPeriod stub unsigned avoids artificial sign mismatch under -Werror; production C transformation unchanged",
+  "runtime_verified": false,
+  "remaining": "Checked recovery still not RF/late-TxS drain receipt",
+  "cleanup": "Temporary input/candidate/fixture/executable removed"
+}

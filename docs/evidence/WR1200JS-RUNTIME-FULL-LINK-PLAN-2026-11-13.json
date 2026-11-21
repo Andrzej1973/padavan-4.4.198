@@ -1,0 +1,20 @@
+{
+  "implementation": "compile-runtime-link.sh called at end of optional peer82",
+  "static_checks": "bash -n PASS both scripts",
+  "execution": "not yet run; requires completed GitHub firmware libraries/config",
+  "scope": [
+    "isolated copies of RC and HTTP source",
+    "existing preparation chain",
+    "full target make all for both executables",
+    "strong backend provider symbols",
+    "MIPS ELF and no undefined wr_iot symbols",
+    "runtime dependency closure against normal ROMFS",
+    "normal config and binaries hash unchanged"
+  ],
+  "exclusions": [
+    "does not install candidate into ROMFS",
+    "does not produce accepted firmware image",
+    "does not perform router operations"
+  ],
+  "cleanup": "dedicated mktemp tree removed on EXIT; results/logs retained in existing optional artifact"
+}

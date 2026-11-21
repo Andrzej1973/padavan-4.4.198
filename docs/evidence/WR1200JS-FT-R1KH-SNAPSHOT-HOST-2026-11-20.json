@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-20",
+  "scope": "Prepared PMK-R1 snapshot API only; native callers unchanged",
+  "command": "python3 tools/iot/check-ft-r1kh-snapshot.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+  "exit_status": 0,
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "coverage": [
+    "execute generated C with pinned native cache entry typedef",
+    "assert record copy occurs while cache lock held",
+    "matched node freed at unlock; snapshot retains owned key/lifetime/R0KH values",
+    "clear next pointer; miss/not-ready/invalid-R0KH-length/null refusal clears output",
+    "preserve every native source/header byte outside additive API",
+    "duplicate preparation refusal"
+  ],
+  "sha256": {
+    "tools/iot/ft-r1kh-snapshot-composition.py": "dbaff1cfadb4e9d90ccd6c6d0772cdac5596b46b26da10c7cbed7bc8b80a30f9",
+    "tools/iot/check-ft-r1kh-snapshot.py": "60b37520788eb9415fcf295b1b588db026bb18a154ecf7fb38b234bfbfafde24"
+  },
+  "target_compiled": false,
+  "native_callers_converted": false,
+  "producer_installed": false,
+  "runtime_verified": false,
+  "remaining": [
+    "atomic key replacement/delete semantics without unlocked raw pointers",
+    "convert all applicable cache readers and writers together",
+    "cache teardown and adapter lifetime admission",
+    "IAPP request token/response/completion integration",
+    "paired target compilation and feature checks"
+  ]
+}

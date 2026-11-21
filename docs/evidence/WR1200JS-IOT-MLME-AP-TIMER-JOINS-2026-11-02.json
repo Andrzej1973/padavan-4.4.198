@@ -1,0 +1,27 @@
+{
+  "scope": "Extension of isolated MLME producer-join layer; not production installed",
+  "added_joins": [
+    "Mlme.APSDPeriodicTimer",
+    "ApCfg.ApQuickResponeForRateUpTimer",
+    "ApCfg.ApCliTab[*].MlmeAux.ProbeTimer",
+    "ApCfg.ApCliTab[*].MlmeAux.ApCliAssocTimer",
+    "ApCfg.ApCliTab[*].MlmeAux.ApCliAuthTimer",
+    "ScanCtrl.APScanTimer"
+  ],
+  "guards": "AP runtime mode, CONFIG_AP_SUPPORT, APCLI_SUPPORT, AP_SCAN_SUPPORT; count follows MAX_APCLI_NUM",
+  "verification": {
+    "host": "PASS ASan/UBSan actual generated wrapper: common, AP, AP+APCLI+scan; each join failure refuses before MLME task kill, exact timer address/order checked",
+    "target": "PASS exact merged common/mlme.c MIPS TU with baseline AP/APCLI/scan flags; no full-module result for this revision"
+  },
+  "remaining": [
+    "WSC optional timer path",
+    "Dynamic table/peer timer ownership and storage",
+    "Command-worker versus RTNL contract requires transitive call-path proof or restructuring; no concrete RTNL deadlock claimed from grep alone",
+    "WDS final callback retirement and PCI release"
+  ],
+  "files": {
+    "tools/iot/prepare-mlme-timer-producer-join.py": "2b1cc57993b8bff127137780f8f3a0ef59bd43c5ea49a36b417ace0d5f28bc59",
+    "tools/iot/check-mlme-checked-halt.py": "9c6cf129ab386356664044aabf5989eaef57e9bbdcabb62c12a32b33d72c31ab"
+  },
+  "cleanup": "Temporary merged chain, host binaries and target object removed"
+}

@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-18",
+  "status": "SOURCE_BOUNDARY_FOUND_PREPARED_HANDLER_REVIEW_PENDING",
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "files": {
+    "common/mlme.c": {
+      "sha256": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
+      "git_blob_sha1": "bb23e40cf3301df8d0e58d9fb9f25ef6fdba1c41"
+    },
+    "common/cmm_wpa.c": {
+      "sha256": "f4a17a192bffdc567dba35b8eb022107655d99c90f6e82fcd6bbd8047858c638",
+      "git_blob_sha1": "e08c6c601ef52dc49fc190ffb5a52f6f6f87f8a3"
+    },
+    "include/mlme.h": {
+      "sha256": "f9428a0ffdc5e8b50c8a18e210a4e9ce2f5bbf0564e522c16b68672b52777bac",
+      "git_blob_sha1": "be03bef993d6dbe448d635eeef2238441e966372"
+    }
+  },
+  "source_references": [
+    {
+      "file": "common/mlme.c",
+      "line": 700,
+      "function": "MlmeHandler",
+      "fact": "TaskLock bRunning excludes a second handler; not an adapter transition/control-user fence."
+    },
+    {
+      "file": "common/mlme.c",
+      "line": 962,
+      "function": "MlmeHandler WPA case",
+      "fact": "Dispatches queued WPA action through StateMachinePerformAction."
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 129,
+      "function": "WpaStateMachineInit",
+      "fact": "Registers WpaEAPOLKeyAction for MT2_EAPOLKey."
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 356,
+      "function": "WpaEAPOLKeyAction",
+      "fact": "Native handler looks up current peer by frame Addr2; group rekey request path reaches GTK update and key install."
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 619,
+      "function": "WpaEAPOLKeyAction",
+      "fact": "AP group request branch invokes WPAInstallSharedKey using current peer func_tb_idx."
+    },
+    {
+      "file": "common/mlme.c",
+      "line": 5061,
+      "function": "RX EAP enqueue",
+      "fact": "Copies WCID and frame into EAP queue; queue layout has no association-generation field."
+    },
+    {
+      "file": "include/mlme.h",
+      "line": 1132,
+      "function": "MLME_QUEUE_ELEM",
+      "fact": "WCID/frame/timestamp/Priv do not by themselves prove original association ownership after reuse."
+    }
+  ],
+  "existing_scope": {
+    "counted_mlme_periodic": "prepare-mcu-control-admission.py wraps MlmePeriodicExec, not MlmeHandler.",
+    "counted_gtk_timer": "2c998421 wraps GREKEYPeriodicExec; does not prove all peer-driven key writers fenced.",
+    "peer_table_owner": "peer-table-owner.h transactions exclude reset but do not by themselves pin a particular STA; deletion paths require separate review."
+  },
+  "next_required_evidence": [
+    "Inspect actual prepared common/mlme.c/cmm_wpa.c and feature macros from matching optional artifact before asserting an installed race.",
+    "Trace current lookup/peer deletion locking and station lifetime, including same-MAC/WCID reuse and already-dequeued EAPOL.",
+    "For ra2-only handler admission use proven current BSS/device and existing ownership; do not treat WCID/current MAC match as old association identity.",
+    "If queued-event generation correlation is needed, design a bounded Linux-only sidecar at producer/consumer boundaries with exact queue slot ownership; do not refactor global state machine or change firmware ACK.",
+    "Exercise close-before-handler and handler-before-close with original native call-chain bodies and peer deletion actors; preserve Main/Guest and normal handshake retry behavior."
+  ],
+  "driver_modified": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "limitations": [
+    "Baseline vendor source and local preparation sources inspected; full prepared candidate handler not yet independently inspected.",
+    "No runtime incident or exploit proven. No speculative EAPOL drop/requeue or new driver field installed.",
+    "Does not block independent target/image verification already running."
+  ],
+  "diagnostic_capture_update": {
+    "implemented_local": true,
+    "files": [
+      "common/mlme.c",
+      "common/cmm_wpa.c",
+      "ap/ap_wpa.c",
+      "mgmt/mgmt_entrytb.c",
+      "include/mlme.h"
+    ],
+    "hash_source": "merged_driver_sha256 for selected files, while preserving all candidate_driver_sha256 validation",
+    "unchanged_files_captured": true,
+    "host_fixture_passed": true,
+    "hash_drift_refused_before_output": true,
+    "target_artifact_pending": true,
+    "required_files_fail_closed": true,
+    "symlink_refusal_verified": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "revision": "e2c9162d25f797088e4dee99ff0a8ce685ba965e",
+  "session": 84131,
+  "exit_code": 0,
+  "scope": "registered host suite; inputs unchanged during run; excludes new standalone IAPP files",
+  "log_sha256": "d73e50c42c6e9cb877545c5fc9f442a116751a86143b5c8a53aef2ea6703949c",
+  "log_bytes": 30855,
+  "target_device_acceptance": false
+}

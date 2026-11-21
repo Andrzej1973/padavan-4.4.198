@@ -1,0 +1,80 @@
+{
+  "observed_utc": "2026-11-15T18:35:26.625645+00:00",
+  "scope": "Focused checks after CANCEL rearm applied; preceding full-suite baseline separately recorded",
+  "results": [
+    {
+      "test": "check-physical-initial-rearm.py",
+      "exit_code": 0,
+      "output": "PASS actual CANCEL rearm: exact fresh ARM advances attempt, failed admission restores old reply, same nonce/foreign PID/stale CANCEL/RELEASE refuse, refs returned once; target unverified\n"
+    },
+    {
+      "test": "check-physical-initial-handler.py",
+      "exit_code": 0,
+      "output": "PASS actual initial transaction provider: failed pin acquisition unwinds, ARM/retry/query/CANCEL/retry returns refs once; foreign terminal cannot occupy cache; exact Main COMPLETE/RELEASE/retry returns refs once; ioctl uninstalled\n"
+    },
+    {
+      "test": "check-physical-initial-ioctl.py",
+      "exit_code": 0,
+      "output": "PASS actual INITIAL_OFF ioctl/provider: capability/RTNL/malformed/copy-in refusal; lost ARM/CANCEL replies retain exact retry, no extra refs; checked RELEASE through ioctl; dispatch/target uninstalled\n"
+    },
+    {
+      "test": "check-physical-initial-deferred-staging.py",
+      "exit_code": 0,
+      "output": "PASS dormant deferred installer: exact manifest, immutable source/legacy executor, worker hook, refusal before output for drift/duplicate; full SDK/target pending\nPASS composed deferred-driver + initial storage preparation: storage-only worker unchanged; optional worker and WPIQ endpoint bound with exact manifest, guards/duplicate refused, source hashes and helper payloads preserved; reviewed SDK snippets, no target compile\n"
+    },
+    {
+      "test": "check-physical-initial-staging.py",
+      "exit_code": 0,
+      "output": "PASS initial storage candidate staging: source unchanged, helper closure copied, explicit dormant manifest, duplicate/drift refuse before output; synthetic SDK anchors\n"
+    }
+  ],
+  "all_passed": true,
+  "source_sha256": {
+    "tools/iot/physical-initial-origin.h": "d10260ab45ba220a96b806f27897ae5ff50650ca39406a2229e1bb4b4337d50c",
+    "tools/iot/physical-initial-arm-admission.inc": "69949ddbfcd163bd6f0204d19b56b481c08ac723a01fb267aabcf5ba86995294",
+    "tools/iot/physical-initial-dispatch.py": "8cde5c02ad7e0be7213adcd2aba344bdad597661bfed7df896395ab0d20a72ca",
+    "tools/iot/check-physical-initial-terminal.py": "1ff7c2f6a399633efb9833401c36fdb476d2f642e47ddb30f627fe1befa3887d",
+    "tools/iot/physical-initial-query.inc": "c9876dfb982bb6e4bd2d8a67bc35626bcbb2c87d58604169f8518f962075acfb",
+    "tools/iot/check-physical-initial-wire.py": "b6a5633e0c51ebd8adac0c4387177c734eba290428d05458d615c63a0d6a9b09",
+    "tools/iot/physical-initial-terminal-types.h": "b9e28d8b48026f9eb7a72f40774a6300a2c7428370deb27eb56ce60c237dc053",
+    "tools/iot/initial-idle-lifetime-composition.py": "90933b9987b0fa76b4cdbf820096af002aef2b98c6f20e880f87633383e4b7e8",
+    "tools/iot/check-physical-initial-rearm.py": "1adf7eb22f9f308f5e618619e5686abe9bb93c95d528d68e2abaf4bbb62fddf8",
+    "tools/iot/check-initial-off-owner-composition.py": "34526daeed20e526b973b3625a8dac398d68a0c989ca9f6393c60e75e5eeab01",
+    "tools/iot/physical-initial-types.h": "f439f23c3010d0fd99813110b1e239be8b0aec4d3ccefe4fa9fbea7bc85fefe3",
+    "tools/iot/check-initial-idle-join.py": "345bb1f56184eaf80121d96d94aebdb46ccdde192a4dedb760f88cb3bfada58a",
+    "tools/iot/check-physical-initial-staging.py": "58a1f72da9c2cb7e736b9e8502dcf505f5e1baa12f501e6d4a62d37124ff2c4b",
+    "tools/iot/physical-initial-storage.py": "095c2dae73d0baf4514ff1ef3f21030fac6a47f954ce75afe4cb61d424961685",
+    "tools/iot/check-initial-idle-lifetime.py": "0c530f7888a9528937fb20f378110b2b5a4331ce3fd183238ff972d18ce19dd2",
+    "tools/iot/check-initial-off-composition.py": "bf6354f53f085a4c5818ef7a033826e5575428d31cff18e6af5c135bd899d5ac",
+    "tools/iot/physical-initial-wire.h": "b1d776b44f8ddb01db7ada4e7ee400a6d2d6c27924d79c53fab3934ac82b0b1e",
+    "tools/iot/check-physical-initial-publication.py": "5819c7c73320ef59846ecb7c72e104adca14dd8d6aa619629fb7f655677db051",
+    "tools/iot/check-initial-off-header-staging.py": "50297a81b06c2a561d25cc05cbb91ffa3ad35c39c789bbc5ca2ee4cde753d9c8",
+    "tools/iot/check-physical-initial-ioctl.py": "3d6dd3667dfed7611deba6c466f1321b64f1b08fb019503b9bb13b8abf9a65ea",
+    "tools/iot/check-physical-initial-free.py": "1bc05fe08f06fed6c826f4a51ec6c109827aae9ff038fc82728d983720251ee3",
+    "tools/iot/check-physical-initial-main-binding.py": "1f00c2e7d41b0362443008461f18f8ad5826137fc3dd266dacce17d58678c4c4",
+    "tools/iot/physical-initial-record.h": "a90b74c83ea9a3a21d9e2e1af4b14e56e766eb73ee20affda03459f373937e1a",
+    "tools/iot/check-physical-initial-release.py": "8dd29210ceb02c6d948a3b85d2631ba2a1c9ffa372cfa4668804f93b5348f344",
+    "tools/iot/physical-initial-arm-publication.inc": "734a7bc5589ffe40d501f92b50dd053c8e30553f92194994a464975c8a10299a",
+    "tools/iot/physical-initial-ioctl.inc": "0c535e415035f56fd5369cb2033cd264b5b208d26cb5688ebcb2f232fc4ad054",
+    "tools/iot/physical-initial-arm-abort.inc": "8517cea0af7c99901ec88460905f6ff3b8bf6a553cd7a66a3301fac9bcc877f8",
+    "tools/iot/check-physical-initial-deferred-staging.py": "ac696491404c5422d9395d04c0919942a4a98ec530888d31e5153b7354d381a5",
+    "tools/iot/check-physical-initial-completion.py": "de8c64fb67b0043036b9dcccea203740363ad6c1123c753438f1b4f1269c1aaf",
+    "tools/iot/physical-initial-main-binding.py": "595a9bee181a45f1284bb4424e8888aa7461e18f397d76b56cefbe4af9d11f2a",
+    "tools/iot/physical-initial-handler.inc": "493e4b4b82100ec1cfea22e5a6b1dc965c1cbfe28b81192329cb2e032466a2be",
+    "tools/iot/physical-initial-main-completion.inc": "c2a629a66d7cbf2b3882bdd5ae60ca9f20e509c4946edbf0643723915c813626",
+    "tools/iot/check-physical-initial-cleanup.py": "30a26611895be5b26547c92bbbdb83806da14ec326e7d17f325636bb52892de2",
+    "tools/iot/prepare-physical-initial-storage.py": "064628c408a9b394616a324de387285c53e4d628a47600e10352eca0e98219fa",
+    "tools/iot/check-physical-initial-query.py": "0bafd7daaff5f0f6169e3ed3274f23ef15b4401faef5ed8c7bb31fcee08030be",
+    "tools/iot/physical-initial-terminal.inc": "5086fe2a7c109c99868f9af90c236448c3e5cd74de8244d700c0701fa3b329d0",
+    "tools/iot/check-physical-initial-origin.py": "8e2a47af2144efdd6e44b7f4fa956ea13797d47a1e9f6ca7efe1a19bb536122b",
+    "tools/iot/physical-initial-cleanup.inc": "429bc5284b393e6a965994e90ca3b4ac0fd2e7262d9c0683dac6e14e8e335994",
+    "tools/iot/check-physical-initial-storage.py": "c9283c9744b33161fe962f7532479d37a9c4d3c5ac142725c138196614d2e448",
+    "tools/iot/check-physical-initial-admission.py": "88a3f581ff5125895b16818ac88bbfe02f52c149d6894b6194bbfe634a52b253",
+    "tools/iot/initial-off.c": "1bd7e8a5f3886efc093868a57d6d5120bbc128c33dad4ab73549d74b3604e0b8",
+    "tools/iot/physical-initial-pins.inc": "0b3101d107c77ddf1a90242310531792492a93c6b59243f6159d5ba729d3f310",
+    "tools/iot/check-physical-initial-handler.py": "5d713ba99887ac3e061c9dc774aea7142dd8fefc054608ea418586a7ac4d4b00",
+    "tools/iot/check-physical-initial-cleanup-release.py": "a592872acc2fcb4161add9b130bc24a3fbcf27d11508b5cf012c64a3451e6d71",
+    "tools/iot/physical-initial-terminal-replace.inc": "75f30af387b7e203066955187b24d1ac28c525d287605b978119a8f87f920390",
+    "tools/iot/initial-off.h": "44d60cc6682ceddbc156e9deb9a33fc27a12dcc9491c9e0867a69cf681880b25"
+  }
+}

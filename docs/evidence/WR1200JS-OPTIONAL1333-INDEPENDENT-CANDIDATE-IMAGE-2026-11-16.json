@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-16",
+  "run": 43927395686,
+  "optional": 1333,
+  "artifact_id": 14259517421,
+  "source_revision": "af52f1401b72d6750438cac55d9c2a90f77699d3",
+  "status": "INDEPENDENT_ISOLATED_CANDIDATE_SELECTED_CONTENT_AND_CLOSURE_PASS",
+  "image": {
+    "source_revision": "af52f1401b72d6750438cac55d9c2a90f77699d3",
+    "image_sha256": "c53acfae8a8efa18ba7647b5ceeed422fc4a9df3399067fab952c42f4f0e112e",
+    "bytes": 14503716,
+    "pair_manifest_recomputed": true,
+    "header_crc": true,
+    "payload_crc": true,
+    "squashfs_offset": 1981744
+  },
+  "board_checks": {
+    "uimage_magic": true,
+    "product_id": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "size_range": true,
+    "iot_hwnat_dtb": true
+  },
+  "embedded_replacements": {
+    "sbin/rc": {
+      "bytes": 1015680,
+      "sha256": "db9573394ce6dc42a9f29e7d6a74a6b63b650668dc986d1bfd6c1f5e817a1e54",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 399332,
+      "sha256": "4d6b54cd3e2cefc223dc1edece9883952f44bb62cc88f9167c1c299eb0bf7240",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/bin/iappd.sh": {
+      "bytes": 1567,
+      "sha256": "020f6b714bc6c174681b2ce040a9d57ba7d9943679591f00a8b8b17ea29a62fa"
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "bytes": 6300076,
+      "sha256": "190a3f88bbbf433a953dfcaa5adb520eac349bdf924b4adf9e3cdda9f8e46245",
+      "elf": "ELF32 LE MIPS"
+    }
+  },
+  "dependency_closure": {
+    "runtime_verified": false,
+    "production_installed": false,
+    "dependency_closure_verified": true,
+    "elf_files": {
+      "candidate:sbin/rc": {
+        "sha256": "db9573394ce6dc42a9f29e7d6a74a6b63b650668dc986d1bfd6c1f5e817a1e54",
+        "needed": [
+          "libiw.so.30",
+          "libshared.so",
+          "libdisk.so",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libiw.so.30": {
+        "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+        "needed": [
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libuClibc-1.0.48.so": {
+        "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+        "needed": [
+          "ld-uClibc.so.1"
+        ]
+      },
+      "image:lib/ld-uClibc-1.0.48.so": {
+        "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+        "needed": []
+      },
+      "image:lib/libshared.so": {
+        "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+        "needed": []
+      },
+      "image:lib/libdisk.so": {
+        "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+        "needed": []
+      },
+      "candidate:usr/sbin/httpd": {
+        "sha256": "4d6b54cd3e2cefc223dc1edece9883952f44bb62cc88f9167c1c299eb0bf7240",
+        "needed": [
+          "libshared.so",
+          "libiw.so.30",
+          "libdisk.so",
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libssl.so.3": {
+        "sha256": "3cb01582ae199b37e864e0470a2418d9c0023805e6fa11ecf6e0a3dfdcaaa938",
+        "needed": [
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libcrypto.so.3": {
+        "sha256": "c63785642221cfbb2da559ed0fb95c4869a60aada888a025e7584a71c6bb2d18",
+        "needed": [
+          "libc.so.0"
+        ]
+      }
+    },
+    "errors": []
+  },
+  "module_vermagic": "4.4.198 SMP mod_unload modversions MIPS32_R2 32BIT",
+  "remaining_partition_bytes": 1683676,
+  "limits": [
+    "Only four replaced files and their userspace dependency closure independently extracted/checked; CI reports complete ROMFS comparison",
+    "Does not cover ed81 automatic shutdown or 1d22 fixture correction",
+    "Candidate not promoted to main image",
+    "No boot or physical runtime acceptance"
+  ],
+  "production_promoted": false,
+  "runtime_verified": false,
+  "report_sha256": {
+    "paired-image-inputs.json": "ba627ab65e7af768769d616313d0aaa60497ebfe60d03ec21f46dc66ae91c513",
+    "isolated-romfs-stage.json": "6745311a93f184fcd7353d63fc600ea701648dd180d04446c444854058d976f1",
+    "isolated-image-verification.json": "ad359d8cf6e169c5279d490ad29f94aa103f4a2bd68f3eb866fda893942a848f",
+    "independent-board.json": "23a4ff033edee0133cac40a39640ee312f10da54ca1eb908d25c143dcea60adf",
+    "independent-pair-crc.json": "146d20555c0a56fe05e12d891e1f75a2c475d96d8fca72feb0622a3056f895b0",
+    "independent-embedded.json": "aa43aa8132ce2c47edae1b0fec90ae5c80db6e3ccac46ff2ef7241cd3f2ce8b0",
+    "independent-closure.json": "a5523020f239578042dee2c44fb36a5143fdeb5931d1f01734726790111e1bd0"
+  }
+}

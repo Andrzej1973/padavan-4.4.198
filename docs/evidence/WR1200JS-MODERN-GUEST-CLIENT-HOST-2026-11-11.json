@@ -1,0 +1,28 @@
+{
+  "scope": "Modern client protocol/one-shot controller, not UI Apply binding",
+  "backend_candidate_revision": "1bbd2699eea7b367310c37866ad3163b04cb17fe",
+  "actual_C_JSON_replies_checked": 77,
+  "checks": [
+    "strict schema/version/state and observation flags; forged runtime/flash/service claims unknown",
+    "single pending/send per controller; duplicate click and terminal replay blocked",
+    "transport exception/timeouts unknown; AbortSignal set",
+    "late response never upgrades unknown",
+    "no secret/error/body copied into public state",
+    "all77 actual C JSON replies map to same client state",
+    "existing15-route production readonly renderer and installer gates pass"
+  ],
+  "limits": [
+    "no production button/controller instance or fetch binding",
+    "fresh controller requires caller to reread configuration; no proof of fresh external writers",
+    "real browser/network/device acceptance still open",
+    "JS strings are not securely erasable; only no persistence/logging/state echo claimed"
+  ],
+  "automatic_retry": false,
+  "runtime_verified": false,
+  "scratch_removed": true,
+  "files_sha256": {
+    "public/wifi.js": "a892ffe453f4c4bb3325902cbab3b3982a7a1a839696b54fbf37e66832e40360",
+    "check_guest_client.js": "e05fc1f4c592c98b0e97246358c2c220e1055436ce4ee4c68776b7bb9574d2f2",
+    "check_guest_candidate.py": "909f6bf0cbc7c612803895bcdcf30f350a89584562063319e1add963cbb6f7df"
+  }
+}

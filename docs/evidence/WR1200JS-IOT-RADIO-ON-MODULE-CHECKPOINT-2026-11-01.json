@@ -1,0 +1,40 @@
+{
+  "scope": "live isolated module build checkpoint",
+  "session_id": 39571,
+  "source_files_matched": 592,
+  "host_scripts_prepared": true,
+  "module_complete": false,
+  "preserved_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+  "synced_config_sha256": "48421b79f8a0feebe6f6819e87723d29af5eeff5b96bd69b553e4baf12816648",
+  "config_diff": "--- /home/andrzej/.cache/padavan/preserved-windows-codex-2026-11-01/iot662-target/kernel.config\t2026-11-01 05:57:02.191370600 +0100\n+++ /tmp/wr-radio-on-module/trunk/linux-4.4.x/.config\t2026-11-01 11:55:13.644636398 +0100\n@@ -571,7 +571,6 @@\n # CONFIG_DEFAULT_RENO is not set\n CONFIG_DEFAULT_TCP_CONG=\"cubic\"\n # CONFIG_TCP_MD5SIG is not set\n-# CONFIG_NET_EOIP is not set\n CONFIG_IPV6=y\n # CONFIG_IPV6_ROUTER_PREF is not set\n # CONFIG_IPV6_OPTIMISTIC_DAD is not set\n@@ -674,7 +673,6 @@\n CONFIG_NETFILTER_XT_TARGET_IDLETIMER=y\n CONFIG_NETFILTER_XT_TARGET_LED=y\n CONFIG_NETFILTER_XT_TARGET_LOG=y\n-CONFIG_NETFILTER_XT_TARGET_IMQ=m\n CONFIG_NETFILTER_XT_TARGET_MARK=y\n CONFIG_NETFILTER_XT_NAT=y\n CONFIG_NETFILTER_XT_TARGET_NETMAP=y\n@@ -999,8 +997,6 @@\n CONFIG_SHORTCUT_FE=y\n CONFIG_DST_CACHE=y\n CONFIG_HAVE_BPF_JIT=y\n-CONFIG_AMNEZIAWG=m\n-# CONFIG_AMNEZIAWG_DEBUG is not set\n \n #\n # Device Drivers\n@@ -1427,12 +1423,6 @@\n # CONFIG_NETCONSOLE is not set\n # CONFIG_NETPOLL is not set\n # CONFIG_NET_POLL_CONTROLLER is not set\n-CONFIG_IMQ=m\n-# CONFIG_IMQ_BEHAVIOR_AA is not set\n-CONFIG_IMQ_BEHAVIOR_AB=y\n-# CONFIG_IMQ_BEHAVIOR_BA is not set\n-# CONFIG_IMQ_BEHAVIOR_BB is not set\n-CONFIG_IMQ_NUM_DEVS=16\n CONFIG_TUN=y\n # CONFIG_TUN_VNET_CROSS_LE is not set\n # CONFIG_VETH is not set\n",
+  "limitation": "clean pinned kernel lacks production EOIP/IMQ/AmneziaWG Kconfig additions; not full production firmware verification",
+  "runtime_verified": false,
+  "process_terminal": true,
+  "exit_code": 2,
+  "failure": "common/action.c:106 CATEGORY_WNM undeclared in ActionStateMachineInit",
+  "next": "compare effective include/config path against production kernel prepared WNM headers; preserve original compiler error",
+  "wnm_followup": {
+    "cause": "retained prepared input predates current workflow WNM/PMF preparation",
+    "preparer": "tools/prepare-mt7603-wnm-category.py",
+    "preparer_sha256": "4fba06c5582026e5531ebc5d3fafa2dd1ebce88d7a47c41d421bf6708090ea7d",
+    "source_delta": {
+      "include/rtmp_def.h": {
+        "strict_merge_sha256": "24bb65ea9dbe7e78df545a592fb4bb3be3ad7a8e4a2d9c48821fb92dbe549653",
+        "target_sha256": "024c2a8916d8c136fe846f5187de1f771b8e4e4ab0c3fcd429eda46dd4c28677"
+      },
+      "common/ft_tlv.c": {
+        "strict_merge_sha256": "02a71aefca2e152e67a7e1ce5bdc2469ab44c5b4699fd906100d186e5120171e",
+        "target_sha256": "eee3544d6b94c92c7ade42d70b336ef9b0e139ceca0863f3841ca56d96aab8de"
+      }
+    },
+    "retry_session": 24600,
+    "complete": false,
+    "action_c_passed": true,
+    "still_running_session": 24600
+  },
+  "additional_checks": {
+    "target_radio_on_handler": "passed",
+    "checked_off_host_fixture_both_macro_modes": "passed",
+    "radio_on_negative_mutation": "forcing admission after retirement is rejected by extracted handler regression"
+  }
+}

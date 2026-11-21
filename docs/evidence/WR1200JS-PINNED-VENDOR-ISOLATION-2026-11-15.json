@@ -1,0 +1,9 @@
+{
+  "revision_base": "771a1a45984594768c38cd659eb4071bdf2d08f2",
+  "command": "python3 -B tools/iot/check-isolated-vendor-image-rules.py pinned-c25283e-archive",
+  "result": "PASS",
+  "test_sha256": "384ccf0684073badf2fd6e741da38ab3f87e27c1fddf93a81a4bf58bae5116f3",
+  "scope": "Actual three pinned vendor Makefiles exercised by recursive make -n; isolated output destinations checked; synthetic .config only selects WR1200JS/MT7621/Ralink. No real kernel or image built.",
+  "actual_image_build_verified": false,
+  "physical_runtime_verified": false
+}

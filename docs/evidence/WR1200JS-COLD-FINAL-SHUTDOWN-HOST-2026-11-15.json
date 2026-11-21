@@ -1,0 +1,127 @@
+{
+  "revision_base": "b9751aa5e9c671b6fbb2c159987f9a11372a0fd4",
+  "host_checks": [
+    {
+      "command": "python3 -B tools/iot/check-rc-cold-final-shutdown.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-cold-on-root.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-cold-on-root-shutdown.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-cold-on-root-recovery.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-cold-on-root-signal.py",
+      "result": "PASS"
+    }
+  ],
+  "preparation_check": {
+    "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+    "result": "PASS",
+    "scope": "Actual prepared GNU11 RC backend/C11 root units Werror; exact source equality, private exported nm symbol and duplicate preparation refusal"
+  },
+  "scope": "Actual RC fragment + actual terminal/fence + real SIGTERM. Backend quiesce/CLOSED, policy/profile and child receipt actors. Exact enabled OFF tuple vs separate INITIAL_OFF, held child drain, one OFF attempt, failed unmask retains, root/exclusion cleanup before signal. Unclaimed local handoff routes existing never-started cleanup predicate.",
+  "sha256": {
+    "rc-cold-final-shutdown.inc": "c29a2211ef6f95fdcfea286adc1d4fb051c92403a03cba42ea419655a8c03d53",
+    "cold-on-root.c": "a728d379f86910f01ec6df12c3ae3ae5af16b8d1802af6baf00019b650032bfe",
+    "cold-on-root.h": "75c6fc18dddbc9940bd96362b99e7f4f85b5aab1c87c36c49b5279323fdd274a",
+    "cold-on-root-signal.c": "ab70b6c38ebe9b2472d0fc6feca205f6540d42b739d660eb13de68a59ba185bb",
+    "cold-on-root-recovery.c": "b2fc5949c08daabcab6363bd6b4d9996c20db9b1154819fd6792b58cdc503d0e",
+    "cold-on-root-shutdown.c": "a486caa5022cb3d5895a046df6f859ad267212c19ad5b1daffbe0b188c77b70a",
+    "check-rc-cold-final-shutdown.py": "de4b89d2eff797571ee8fd1c83c8bcbe5e645b95f9576133fec920e245d720bb",
+    "check-cold-on-root-shutdown.py": "9a4fdf99745464a37d1de4bce7b77cf7027ba10e41e5e27747876c20f14360cd",
+    "check-cold-on-root-signal.py": "ab32ec72f6389d2fccc681c378d100b92ffe3a2f67f33ac0cbb30a5dee36cbf8",
+    "check-cold-on-root-recovery.py": "2bf5de0d1af832e4b5452d7500b8da88f1647b8495aab5db0f75384acc9c4e47",
+    "prepare-runtime.py": "e0e53efbdd3002a60aca61eece4ee904f8ccb680223a8d666e92d610904e3ccf",
+    "check-runtime-source.py": "d58709239035133fa4da4ad0c8ddd1c5e148b7c042ee497b722e4d456b660525",
+    "check-physical-stop-client-preparation.py": "193626cffbf5f69468f8bf9a9cc0a92c40a641e7a54015e07603911f356c618d",
+    "check-physical-stop-suite.py": "cdecbde410a24c4c88ca0a84a6a125890a935e4214b750971c864aadc0c82402",
+    "compile-runtime-link.sh": "49ef8b7ab48cfbb70b74aa8a03b3b35d11870412d690d1498b83fcee79ea1ffe"
+  },
+  "public_scheduler_bound": false,
+  "target_build_verified": false,
+  "physical_runtime_verified": false,
+  "published_a71_ci": {
+    "standard1293": {
+      "run": 43722658642,
+      "conclusion": "success"
+    },
+    "abi882": {
+      "run": 43722484605,
+      "conclusion": "success"
+    },
+    "optional1294": {
+      "run": 43723896837,
+      "status": "pending"
+    }
+  },
+  "superseded_optional": [
+    {
+      "run": 43716417249,
+      "verified_revision": "f32eb4822ed3df11bdc67e6367fe53ee553429a8",
+      "observed": {
+        "conclusion": "",
+        "displayTitle": "Padavan #1288 [optional] f32eb4822ed3df11bdc67e6367fe53ee553429a8 host=ubuntu-24.04 tc=source iot/peer82",
+        "status": "pending"
+      },
+      "confirmed_same_bad_include_order": true,
+      "action": "cancel requested: superseded queued source with confirmed optional1283 defect"
+    },
+    {
+      "run": 43716419819,
+      "verified_revision": "78dc55359dfc75ab636d607136702a743dff50b1",
+      "observed": {
+        "conclusion": "",
+        "displayTitle": "Padavan #1289 [optional] 78dc55359dfc75ab636d607136702a743dff50b1 host=ubuntu-24.04 tc=source iot/peer82",
+        "status": "pending"
+      },
+      "confirmed_same_bad_include_order": true,
+      "action": "cancel requested: superseded queued source with confirmed optional1283 defect"
+    },
+    {
+      "run": 43718932696,
+      "verified_revision": "415ed3b756edb58470931c60434918539ad877b0",
+      "observed": {
+        "conclusion": "",
+        "displayTitle": "Padavan #1291 [optional] 415ed3b756edb58470931c60434918539ad877b0 host=ubuntu-24.04 tc=source iot/peer82",
+        "status": "queued"
+      },
+      "confirmed_same_bad_include_order": true,
+      "action": "none"
+    },
+    {
+      "run": 43713494007,
+      "verified_revision": "c831e1afd55b4191197177b2b2f168ced33cd064",
+      "observed": {
+        "conclusion": "failure",
+        "displayTitle": "Padavan #1285 [optional] c831e1afd55b4191197177b2b2f168ced33cd064 host=ubuntu-24.04 tc=source iot/peer82",
+        "status": "completed"
+      },
+      "confirmed_same_bad_include_order": true,
+      "action": "none"
+    },
+    {
+      "run": 43718932696,
+      "recheck": {
+        "conclusion": "",
+        "displayTitle": "Padavan #1291 [optional] 415ed3b756edb58470931c60434918539ad877b0 host=ubuntu-24.04 tc=source iot/peer82",
+        "status": "in_progress",
+        "action": "not cancelled; no longer queued"
+      }
+    }
+  ],
+  "optional1285": {
+    "run": 43713494007,
+    "conclusion": "failure",
+    "first_error": "precreated-down-reply.inc:25:9 implicit declaration of wr_iot_precreated_down_observed",
+    "same_include_order_defect_as_1283": true,
+    "fix_revision": "a71fc1a771f5b28b3ccfcfedb39e73d6e9d3d3c9"
+  }
+}

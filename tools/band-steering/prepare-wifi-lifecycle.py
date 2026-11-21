@@ -76,6 +76,9 @@ helper = r'''
 #include <sys/wait.h>
 #include <signal.h>
 static struct wr_band_service_owner wr_wifi_owner;
+/* Last daemon pid we spawned, kept after ownership is cleared so a lost
+ * owner no longer hides the child's exit. */
+static pid_t wr_wifi_last_owner_pid;
 static int wr_wifi_applying;
 static int wr_wifi_last_status;
 static volatile sig_atomic_t wr_wifi_exit_pending;
@@ -129,6 +132,7 @@ int wr_band_apply_wifi_settings(int enabled, int radio2g, int radio5g,
     wr_wifi_applying = 1;
     status = wr_band_service_apply(&wr_wifi_owner, IFNAME_2G_MAIN, IFNAME_5G_MAIN,
                                   &ops, &context, enabled, result);
+    if (wr_wifi_owner.pid > 1) wr_wifi_last_owner_pid = wr_wifi_owner.pid;
     wr_wifi_applying = 0;
     return status;
 }
@@ -180,7 +184,7 @@ int wr_band_wifi_shutdown(void)
 }
 void wr_band_wifi_child_exit(pid_t pid, int status)
 {
-    if (pid != wr_wifi_owner.pid || pid <= 1) return;
+    if (pid <= 1 || (pid != wr_wifi_owner.pid && pid != wr_wifi_last_owner_pid)) return;
     /* SIGCHLD path: no NVRAM, allocation or logging from the handler. */
     wr_wifi_exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
     wr_wifi_exit_signal = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
@@ -201,6 +205,7 @@ void wr_band_wifi_refresh_exit_status(void)
     nvram_set_int_temp("wr_bs_off_confirmed", confirmed);
     logmessage("Band Steering", "Owned daemon exited: clean=%d off_confirmed=%d exit=%d signal=%d; requested setting retained",
                confirmed, confirmed, exit_code, exit_signal);
+    wr_wifi_last_owner_pid = 0;
     /* Keep ownership until child-owner consumes the cached wait status. */
 }
 int wr_band_wifi_startup(void)

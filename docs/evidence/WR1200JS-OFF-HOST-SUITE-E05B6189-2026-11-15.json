@@ -1,0 +1,8 @@
+{
+  "revision": "e05b618944a4ff24ce6167b0e01978755aba2d16",
+  "suite": "tools/iot/check-physical-stop-suite.py",
+  "exit_code": 0,
+  "log_bytes": 37117,
+  "log_sha256": "0b93007785e20a3515815f66c55b87147629c5f47809ca55cbbdeabaca2efc89",
+  "scope": "Registered host suite only; later bridge helper excluded; no target/device acceptance"
+}

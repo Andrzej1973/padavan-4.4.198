@@ -1,0 +1,33 @@
+{
+  "run": 42225929495,
+  "source": {
+    "dispatch_revision": "4f6011a6ecb93887d530f614480fa3f56e2fd7a6",
+    "requested_revision": "50b2cbd6d1704a01ed3bcfb7375e215c635f2aad",
+    "verified_revision": "50b2cbd6d1704a01ed3bcfb7375e215c635f2aad",
+    "runtime_verified": false
+  },
+  "source_artifact": 13510363560,
+  "probe_artifact": 13512936901,
+  "independent_modules": [
+    {
+      "module": "mt76x3_ap.ko",
+      "bytes": 5736300,
+      "sha256": "81bc8f3db536f1154e40fa235aee4e2630aac1c0c972b1039cc0fe3015479cc2",
+      "elf": "ELF32 LE MIPS"
+    },
+    {
+      "module": "reload-feature/mt76x3_ap-reload.ko",
+      "bytes": 5738408,
+      "sha256": "c016923de4712b619eb81d21cf12ddf9d844b57873f3948ee3bb8097c2b51b10",
+      "elf": "ELF32 LE MIPS"
+    },
+    {
+      "module": "wsc-feature/mt76x3_ap-wsc.ko",
+      "bytes": 6345748,
+      "sha256": "e0b65d1c5b9d93284452d6abd353acb13dbedfb3b3f7669c4e01d9185e8ae368",
+      "elf": "ELF32 LE MIPS"
+    }
+  ],
+  "production_installed": false,
+  "runtime_verified": false
+}

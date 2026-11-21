@@ -1,0 +1,30 @@
+{
+  "scope": "Isolated optional peer82 candidate; not production installed or device verified",
+  "changes": [
+    "Close children then main under RTNL; retain registration and allocations",
+    "Repeat bounded preclose/recovery drain while recovery workers remain live",
+    "Require completed preclose before recording PCI DRAINED",
+    "Move terminal command join after preclose/recovery drain and before recovery stop"
+  ],
+  "verification": {
+    "host": "PASS ASan/UBSan actual close helper and extracted drain with OS mocks; uncertain close, stale generation, root mutation, bounded unresolved preclose, delayed completion, no premature DRAINED",
+    "source": "PASS full merged inventory and reversible generator; command lifecycle, joined rearm, RTNL, module macro, radio-off, AGG lock, tasklet rearm, radio-on retirement gates",
+    "target": "PASS exact merged os/linux/pci_main_dev.c MIPS translation unit using retained baseline target flags; this is not full module/feature matrix",
+    "workflow": "PASS YAML parse and bash -n of full affected step"
+  },
+  "source_input_sha256": "a9abed6d4dbaadf88503d2cde5d0183ccadb2b0e42ff53bb4e3722f211d51b4d",
+  "files": {
+    "tools/iot/pci-netdev-preclose.inc": "c3f831f85b996c7ecd78b9e7c2a9d4a1519b766f26f79d560de41f176d1e1739",
+    "tools/iot/prepare-pci-netdev-preclose.py": "7e6f6906395ff4fd75a30f9de19dce47bf370bd71051e6a8761e18470732e8aa",
+    "tools/iot/check-pci-netdev-preclose.c": "ff336ca524ddc4a8c63d9703180230148a2e84dc0d0a4cfe0bb1cf5b14c16018",
+    "tools/iot/check-pci-netdev-preclose-binding.py": "3d5c1652f7aec410f2f17d7c81cefa43f67ca27ab35c1503c94ab45b99db2bde",
+    "tools/iot/check-wdev-unregister-reader-lifetime.py": "f0cf81ce39c01476166b2e321f0ee7e16232976c90cfa4791b26ca25cd940b8b"
+  },
+  "open": [
+    "WDS post-unregister callback retirement/reaper",
+    "Final PCI release ledger binding",
+    "Firmware stale ACK/epoch boundary",
+    "Full target feature matrix/image and device acceptance"
+  ],
+  "cleanup": "All generated candidate trees, C fixtures, host binaries and target object removed by TemporaryDirectory; existing unfinished inputs retained"
+}

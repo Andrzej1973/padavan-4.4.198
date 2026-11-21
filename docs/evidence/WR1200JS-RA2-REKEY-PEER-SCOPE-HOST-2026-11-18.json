@@ -1,0 +1,14 @@
+{
+  "scope": "Actual peer-scope helper and existing deletion wrapper, SDK boundary adapter",
+  "source_sha256": {
+    "ra2-rekey-peer-scope.h": "06b44c2ebf065ada6f83c2cc6bfe5ac49468521fcd7a4aa47265a67dc89909ba",
+    "check-ra2-rekey-peer-scope.py": "914018ac3a6b0b7f4272be092d3c54b6510fdc418e4e06ee5f319b5cd4ac6be5",
+    "ra2-key-arbitration-composition.py": "188fd004f1ed4d215db25b96bb9341a4c0e24a0c00f444e55653319593f23dda",
+    "ra2-mutation-binding.py": "273ee4a570d3c4e2e60d333c18686c33432c59cfb04def91094118ce919acdb2"
+  },
+  "host_asan_ubsan_direct_os_abl": true,
+  "candidate_installed": false,
+  "full_periodic_callback_tested_with_peer_scope": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

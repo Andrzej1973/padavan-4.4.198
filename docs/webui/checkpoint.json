@@ -1,0 +1,1090 @@
+{
+  "status": "paused",
+  "paused_on": "2026-11-11",
+  "resume_requires": "Separate explicit instruction from the owner",
+  "branch": "codex/wr1200js-service-webui",
+  "base_revision": "65e5956023d317fa02d4fdc7302c5724b8d103a8",
+  "scope": [
+    "Modern and Classic-related WebUI source and configuration model",
+    "page specifications and visual reference inputs",
+    "isolated backend candidates and unfinished validation research",
+    "verification evidence and final release variant requirements"
+  ],
+  "saved_local_drafts": [
+    "docs/evidence/WR1200JS-MODERN-CHANNEL-LIST-CALLERS-2026-11-10.json",
+    "docs/evidence/WR1200JS-MODERN-CHANNEL-SERIALIZATION-2026-11-10.json",
+    "docs/evidence/WR1200JS-MODERN-CI998-2026-11-11.json",
+    "docs/evidence/WR1200JS-MODERN-CI999-2026-11-11.json",
+    "docs/evidence/WR1200JS-MODERN-CI1000-1002-2026-11-11.json",
+    "docs/evidence/WR1200JS-CI1006-CANDIDATES-2026-11-11.json",
+    "tools/webui-preview/inspect_channel_serialization.py",
+    "tools/webui-preview/radio24-validate.h",
+    "tools/webui-preview/check-radio24-validate.c",
+    "docs/WR1200JS-MODERN-WIFI-APPLY-CONTRACT.md",
+    "docs/evidence/WR1200JS-MODERN-APPLY-LIFECYCLE-HOST-2026-11-10.json"
+  ],
+  "validation_at_capture": [
+    "python3 tools/webui-preview/check_json.py PASS ASan/UBSan",
+    "node tools/webui-preview/check_wifi_production.js PASS15routes"
+  ],
+  "runtime_verified": false,
+  "design_manifest": "docs/modern-design/references/manifest.json",
+  "file_count": 210,
+  "stored_bytes": 27440302,
+  "files": [
+    {
+      "path": ".agents/skills/padavan-webui-integration/SKILL.md",
+      "bytes": 2040,
+      "sha256": "f279663aa0f7eac149825537584eb90adc787c6a556b7010680d464da45fec7c"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 19129,
+      "sha256": "945749c38d3ed8c4f322b20e749edcbaa4941cc88a62c539598fb0ea93fe8189"
+    },
+    {
+      "path": "configs.build/wr1200js.config",
+      "bytes": 11587,
+      "sha256": "67146fca6069e2275397dc81e4a9ff7fdbafda241a4e804515b469d2ed387e9a"
+    },
+    {
+      "path": "docs/VPN-PROFILES-WEBUI.md",
+      "bytes": 3478,
+      "sha256": "a78381d603e0c60e711900a76485adcea5eebd0c74dcbbdd8ffff2cf68770ae8"
+    },
+    {
+      "path": "docs/WEBUI-CONFIG-INVENTORY.csv",
+      "bytes": 11677,
+      "sha256": "618944a31c83f85c98a87574f4a1dd55ec647266611ad9099f5014ad9941bc15"
+    },
+    {
+      "path": "docs/WEBUI-COVERAGE-AUDIT.md",
+      "bytes": 24100,
+      "sha256": "d31afc90c1d6bf7c4fad1e28a2c40aa087358e5278a81b5d37f28c9f1f7bc2f1"
+    },
+    {
+      "path": "docs/WEBUI-COVERAGE-INVENTORY.json",
+      "bytes": 119812,
+      "sha256": "ca14383cc8511e1b632d15836bddbd82a9d25ff12f3d95f588a3736eccd7609d"
+    },
+    {
+      "path": "docs/WEBUI-MODERN-HOME-SCOPE.md",
+      "bytes": 10905,
+      "sha256": "0d57829aaeb99e9f745bcbff4f0495c1db3291161d613d78cc2d646e6e38c371"
+    },
+    {
+      "path": "docs/WEBUI-MODERN-WIFI.md",
+      "bytes": 7786,
+      "sha256": "ddf893c9ff6f3d98f97adb55ef7ef8be1c69386015314081c894486fa3e79031"
+    },
+    {
+      "path": "docs/WEBUI-REBOOT-SCHEDULER.md",
+      "bytes": 2814,
+      "sha256": "2b16e5aa626b7aea03ff583b49d08ee67898ac6a4c5848a0471c294cb972e9ba"
+    },
+    {
+      "path": "docs/WR1200JS-FINAL-WEBUI-RELEASE-VARIANTS.md",
+      "bytes": 2117,
+      "sha256": "d7eb56e4f707799d575a92e0005ed020504d12a9a278780902c383a74bba2290"
+    },
+    {
+      "path": "docs/WR1200JS-MODERN-PAGE-COVERAGE.md",
+      "bytes": 12422,
+      "sha256": "98dbc9ba32b387c591ce41ff98c5988340a21734823d9d1794962ce1c0149b60"
+    },
+    {
+      "path": "docs/WR1200JS-MODERN-PAGE-MAP.json",
+      "bytes": 29814,
+      "sha256": "d1de2ce362ae4435e47feff3579801232a0a249ecba3e25888618de3fdf107d0"
+    },
+    {
+      "path": "docs/WR1200JS-MODERN-POST-CANDIDATE.md",
+      "bytes": 8030,
+      "sha256": "3e07b792830c496877bbff5495e1f535a3c06f6d8089fdcfbe82251a6e41e7fd"
+    },
+    {
+      "path": "docs/WR1200JS-MODERN-WIFI-APPLY-CONTRACT.md",
+      "bytes": 28957,
+      "sha256": "f57796fe5b2a5916e8ad905b6a8e740aa69839077bf7c459ce3b461b3b7c300e"
+    },
+    {
+      "path": "docs/ZAPRET2-WEBUI.md",
+      "bytes": 2441,
+      "sha256": "955c457c6dd6328575dffb2afea83322db8076322736fe173a70f24e521c171f"
+    },
+    {
+      "path": "docs/ZEROTIER-WEBUI-LIFECYCLE.md",
+      "bytes": 3668,
+      "sha256": "3f6672c14bf224229f069c376e14e3519830711504843994759f2cabc16f59ba"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-CI1006-CANDIDATES-2026-11-11.json",
+      "bytes": 1767,
+      "sha256": "f50e15735bd7600acb427289df121842e1e4850fde05b74428fd6fd16613d065"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-APPLY-LIFECYCLE-HOST-2026-11-10.json",
+      "bytes": 1069,
+      "sha256": "724934aad71c429397e69325715f1f3af860f6020e044406ffad8194428325f6"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-BATCH-CGI-HOST-2026-11-11.json",
+      "bytes": 1733,
+      "sha256": "79979c0c706d0723bdff21b87014207bfa8a978bcf52871b56b2014169c489b2"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-BODY-CGI-HOST-2026-11-10.json",
+      "bytes": 1534,
+      "sha256": "8c6ffa6f492ae12f437d0118f9f3f258db07b104fe3bd96f2e77744caf4f658d"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-BUILD973-FAILURE-2026-11-10.json",
+      "bytes": 1299,
+      "sha256": "5b19333e8ea51fdc3cc5faeb26923035fe6096ce5b78955ac1c7b947a9cac858"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-BUILD974-ROMFS-2026-11-10.json",
+      "bytes": 1066,
+      "sha256": "562f8e6b61c17fa6c155a46fd082f66bb0f671505adb45a2fbd80a71244df5c4"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-BUILD975-FAILURE-2026-11-10.json",
+      "bytes": 1119,
+      "sha256": "098f23fd4a8b6754f62e867a28b1f0a972f48bdfff4be73350da6ae7184115d3"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CGI-FORM-AUDIT-2026-11-10.json",
+      "bytes": 1062,
+      "sha256": "983364eb9a9647e17cb0482b4fb502720f1126b485faf1ca3a2b0a6c0bdd21af"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CHANNEL-LIST-CALLERS-2026-11-10.json",
+      "bytes": 6881,
+      "sha256": "7317c51ffd4a2c125838a15b3c864b329e80fa639390c360a4b2369de5e08654"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CHANNEL-QUERY-AUDIT-2026-11-10.json",
+      "bytes": 8826,
+      "sha256": "e5e42fd0487e1d7f7efb17206fb49880731e1f90a9badfaab48d45b580afed24"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CHANNEL-SERIALIZATION-2026-11-10.json",
+      "bytes": 989,
+      "sha256": "d7bc433fe223422345eb04ddd9a2537e6c0e69b8e418d31de45ad798059477b5"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI1000-1002-2026-11-11.json",
+      "bytes": 8666,
+      "sha256": "7d4ffa890692e44d6c5f54ccfc646574fa16245a1b756e3e097fc2296ac39035"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI1003-2026-11-11.json",
+      "bytes": 5661,
+      "sha256": "34b0852fbfcfd1f4d2567ae0b7032d2edf36dbe9a8942528cb9300ad506448e4"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI1004-1005-CHECKPOINT-2026-11-11.md",
+      "bytes": 2176,
+      "sha256": "3472c3e59ca7f0e57741418635497574db24e649eca6a7f10002871ac0115875"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI1004-2026-11-11.json",
+      "bytes": 9269,
+      "sha256": "0f654ab3f9d0d18d24023e8e6ab22de7ffc9ab82104efea6ef080a14c89e217e"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI988-989-2026-11-11.json",
+      "bytes": 3814,
+      "sha256": "5f0c259f803d948ea891229c4dcd57aa98927fe69cbd02a2b2f7c8590263b5df"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI990-991-2026-11-11.json",
+      "bytes": 3798,
+      "sha256": "9c1503d2e1f28e941823a1ac3aa8fed43c2c5ecd863667f24837ab8993b511ce"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI992-993-2026-11-11.json",
+      "bytes": 3996,
+      "sha256": "2b5e4f9675b0defc892f2db9426a26eb6be4e419f554cf1012b80e75feffa43d"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI994-995-2026-11-11.json",
+      "bytes": 4602,
+      "sha256": "257ac054b1db217e87d2d961907fd12bc3ace49b8fe70a422bc5ed1d727e4f5c"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI996-2026-11-11.json",
+      "bytes": 3499,
+      "sha256": "64733120e00d38d519a699f03827e8aaf6fa3cd3c15f7db39c81055b455f1dac"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI997-2026-11-11.json",
+      "bytes": 566,
+      "sha256": "4d80f4f52216a840856efa9f0de46a69d5126faf5f788dc66122f62973e627fb"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI998-2026-11-11.json",
+      "bytes": 566,
+      "sha256": "d95be6206d9231aef442a2dcf460746951f3231c17b22715211aa03ef13573d2"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CI999-2026-11-11.json",
+      "bytes": 6382,
+      "sha256": "976bbee338c125fa8a6764b301f79934195a07834c3d3393b9c1c4aae966ef43"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-CLASSIC-BROWSER-2026-11-10.json",
+      "bytes": 1154,
+      "sha256": "8d45b8dddddfa2a1fc73a6688aeaa37862e4229bb91640f1f2b90c67f6480d00"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-ENDPOINT-HOST-2026-11-11.json",
+      "bytes": 2031,
+      "sha256": "7d411bcbb16149563342fe4e50ab8f8dd4eddcc7dbcaed4fea39f29d16746f3a"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-GUEST-APPLY-RC-2026-11-10.json",
+      "bytes": 9384,
+      "sha256": "5ac6463dbdd6a5b2be62b14531585e6ab0180a9decd592b245385445ee62f56d"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-GUEST-BROWSER-2026-11-10.json",
+      "bytes": 1250,
+      "sha256": "76eac7dc295a994621fcb7cba51f8b0467212c15eae8e74b73f9a28207820440"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-GUEST-BROWSER-SOCKET-2026-11-11.json",
+      "bytes": 1995,
+      "sha256": "2dc1a372d685b89e5c9a190fe20d757cf15b7a2d96ec1d79dd1b504956e280f8"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-GUEST-CLIENT-HOST-2026-11-11.json",
+      "bytes": 1427,
+      "sha256": "0a8dc8c483f00dfb693b75c88ff12a0537a9714c2cce9889957f558fe36b0f7f"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-GUEST-JSON-HOST-2026-11-11.json",
+      "bytes": 2235,
+      "sha256": "74a45cc6c9da5319cb5f217552d993205c6e02f55fc206e875aaf911aab23c31"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-GUEST-PERSISTENCE-HOST-2026-11-10.json",
+      "bytes": 1690,
+      "sha256": "295f93e7037fa990df4767ae5a5179279dc295052b0e933c909e5615e0ad9f6a"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-GUEST-REQUEST-SEQUENCE-2026-11-10.json",
+      "bytes": 955,
+      "sha256": "8e2bf5eec0a74fae18e53d5f5330b3531446a4cd0663008ba975c8d4448e3070"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-GUEST-SCHEDULE-SOURCE-2026-11-10.json",
+      "bytes": 7393,
+      "sha256": "6f4999fd77753e50e160a7b2953c8990f13e5cc7a0bceb5a77c2e197fd2ef338"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-GUEST-SNAPSHOT-HOST-2026-11-11.json",
+      "bytes": 2086,
+      "sha256": "0d7448e4c9e4d1017d18118be438f5e075953e9b467a52fe231c877e26443722"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-HTTP-OPTIONAL983-2026-11-10.json",
+      "bytes": 1001,
+      "sha256": "e82a44f7407cbf4f5558f5f6f2160a94e9e0d0270e816c131a2d1533a55698ee"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-HTTP-ROUTING-2026-11-10.json",
+      "bytes": 1124,
+      "sha256": "518dec1318be755ef3c496acafec24e06113182f38ad0ca7b9bc292a1e6da020"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-IMAGE1005-2026-11-11.json",
+      "bytes": 3230,
+      "sha256": "0547afd040cdfdea237bcd20ecb61fb7d4bacfe11e3092ea2722910999c21b89"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-IOT-RESERVATION-2026-11-10.json",
+      "bytes": 1104,
+      "sha256": "23d9063b2f489933f7b2e45940e32069155b14e5a311d86407db8919cd90294e"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-NVRAM-BATCH-HOST-2026-11-11.md",
+      "bytes": 4046,
+      "sha256": "eb46f53a31b219876d09a92314ce818af715f79bdf9c976663b7cf18d3e5978a"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-NVRAM-COMMIT-ORDER-2026-11-11.md",
+      "bytes": 17249,
+      "sha256": "92f3aa3c06043b9e2ceb0bef59f1eea343db69a0356acb33971b774b58e819f8"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-PAGE04-BROWSER-2026-11-11.json",
+      "bytes": 3533,
+      "sha256": "bf66bb5985de603bd8b09fe7cca6efe2457ba6c0fcf16e610064a9d42c1df778"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-PAGE04-HOST-2026-11-11.md",
+      "bytes": 5429,
+      "sha256": "3ad36681f439537998c407358adc18dd5a9b1adf3391bc26d36607a44bde33c9"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-RADIO24-POLICY-2026-11-10.json",
+      "bytes": 4813,
+      "sha256": "a3775c74e37108daba546cbaff17c6e86ea585d3303d0ad742dd8513daf5a0c3"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-STANDARD977-2026-11-10.json",
+      "bytes": 8418,
+      "sha256": "ce18123e8c1aa78d8293718ded35e6ce92e4ce3f00605dac84950ca1c424f67b"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-MODERN-TRANSPORT-HOST-2026-11-10.json",
+      "bytes": 1621,
+      "sha256": "45c3360ee5a96e53da2c27f23c05bd3e94e87c17667a7c11d2076c856e38773f"
+    },
+    {
+      "path": "docs/evidence/WR1200JS-ZAPRET2-WEBUI-2026-10-25.md",
+      "bytes": 2862,
+      "sha256": "1392477a9819871de62f7e1017f191df0c872abc34303df91170ab0c88c80423"
+    },
+    {
+      "path": "docs/evidence/ZEROTIER-WEBUI-37175104110.md",
+      "bytes": 1799,
+      "sha256": "8c5d7130cd1db71881b55bd0b9b00f8e5c5b410aa15bd6d42aa33e0e8b8ff912"
+    },
+    {
+      "path": "docs/modern-design/01-WIFI-COMMON-UK.md",
+      "bytes": 10230,
+      "sha256": "5ee9c55fa495239aa16aaf739aa25541171ea27887dcc030e024e6e19ae6a17d"
+    },
+    {
+      "path": "docs/modern-design/02-WIFI-24-GENERAL-UK.md",
+      "bytes": 13837,
+      "sha256": "e39301f47cec8a2aedf87b8805d259a6b0b66a86232cf4bacfc5979c088baf98"
+    },
+    {
+      "path": "docs/modern-design/03-WIFI-24-GUEST-UK.md",
+      "bytes": 12764,
+      "sha256": "a118e618f059a2530bfbe993cef116529416e656f78ace253381ae71db5c91a0"
+    },
+    {
+      "path": "docs/modern-design/04-WIFI-5-GENERAL-UK.md",
+      "bytes": 6841,
+      "sha256": "6268526aaae1ba51509bc39b0536a49b7890470971fce8db2e95587e4cd3cea9"
+    },
+    {
+      "path": "docs/modern-design/references/README.md",
+      "bytes": 3636,
+      "sha256": "432bd8d154e1d97073404ebd787763cf99d825f728abdacbca9271c1b6a7e497"
+    },
+    {
+      "path": "docs/modern-design/references/manifest.json",
+      "bytes": 9393,
+      "sha256": "65310c010b596804519aca4b7cf936d58120c16f02136a7a1d94ded83f94f35e"
+    },
+    {
+      "path": "docs/modern-design/references/reference-1f6ddf5d6a7e17d9.png",
+      "bytes": 1545515,
+      "sha256": "1f6ddf5d6a7e17d96e7d86daedf5d410a0f52078f8297624adfcf0fc1b658d07"
+    },
+    {
+      "path": "docs/modern-design/references/reference-2133202b3361d6cf.png",
+      "bytes": 1579616,
+      "sha256": "2133202b3361d6cf5f6ad2185df95a0208841cf01c5e7c5bb313ae11a9c3b81b"
+    },
+    {
+      "path": "docs/modern-design/references/reference-2b6af470725f27fb.png",
+      "bytes": 13396,
+      "sha256": "2b6af470725f27fb36601272e90df80023f7711074086753a2ab82a5a5238235"
+    },
+    {
+      "path": "docs/modern-design/references/reference-2fd9b1d5b46336f2.png",
+      "bytes": 1780805,
+      "sha256": "2fd9b1d5b46336f25ec58fab5d83e765419eaee61b18da74aa635d07b4272d21"
+    },
+    {
+      "path": "docs/modern-design/references/reference-3ed846a9d47d2387.png",
+      "bytes": 61077,
+      "sha256": "3ed846a9d47d2387575aa9670bd654c524677ba0fd59ba61d8625124c8a999fe"
+    },
+    {
+      "path": "docs/modern-design/references/reference-4c1f59a77fc5c95b.png",
+      "bytes": 1515839,
+      "sha256": "4c1f59a77fc5c95bfa298ecfb0b1f6cac3c7722e6ba29f6418ab0ed67192c74d"
+    },
+    {
+      "path": "docs/modern-design/references/reference-4d604388e0b048a5.png",
+      "bytes": 38300,
+      "sha256": "4d604388e0b048a56a84ac056be62deee8d74760cc7f9a775cfe2b2c536f1f3e"
+    },
+    {
+      "path": "docs/modern-design/references/reference-4ef61a895a67e9ad.png",
+      "bytes": 30999,
+      "sha256": "4ef61a895a67e9ad521b21caed552b18293f4838069f509a31887c8982bb6dff"
+    },
+    {
+      "path": "docs/modern-design/references/reference-5a0d1eb53d43b946.png",
+      "bytes": 1553169,
+      "sha256": "5a0d1eb53d43b9466cc89798fce338bcf51f3d12e3b6ef4223fe4a9ba07cdd30"
+    },
+    {
+      "path": "docs/modern-design/references/reference-5a0f766091753dff.png",
+      "bytes": 1506407,
+      "sha256": "5a0f766091753dff93eb2eedd380dd160543d531ecb165fde49931d1d955f896"
+    },
+    {
+      "path": "docs/modern-design/references/reference-756ea9aedd13fe7d.png",
+      "bytes": 1758900,
+      "sha256": "756ea9aedd13fe7d80e815b2cc6184e6ab636c1b12bbb9bdd831d290c998c01a"
+    },
+    {
+      "path": "docs/modern-design/references/reference-76fc54a54abb4ddc.png",
+      "bytes": 71498,
+      "sha256": "76fc54a54abb4ddc524eb6c779613e0dcb1e716a3e50171a57557fbc84d46018"
+    },
+    {
+      "path": "docs/modern-design/references/reference-7ff5a2dec070936a.png",
+      "bytes": 1376073,
+      "sha256": "7ff5a2dec070936ae53254b332432df514eed72f6453455014bad6f44e5920cb"
+    },
+    {
+      "path": "docs/modern-design/references/reference-8385b9d23a482193.png",
+      "bytes": 33082,
+      "sha256": "8385b9d23a48219316d914c38eb0910dd4377750bc10e8796786b8af998ccb17"
+    },
+    {
+      "path": "docs/modern-design/references/reference-8a39eef1072f2f95.png",
+      "bytes": 1706462,
+      "sha256": "8a39eef1072f2f954f9d99231efa9325c5e5d04a6495795ed4b66ec16362a9de"
+    },
+    {
+      "path": "docs/modern-design/references/reference-8c12521fba3218a2.png",
+      "bytes": 1673258,
+      "sha256": "8c12521fba3218a28f951384eab2fdc469fdcca053cff6568d9b8a249c439c7b"
+    },
+    {
+      "path": "docs/modern-design/references/reference-92a400fc006c5d50.png",
+      "bytes": 86424,
+      "sha256": "92a400fc006c5d503bbfb3aabeb3a86f6c617039d669f961d02a59301a8fee44"
+    },
+    {
+      "path": "docs/modern-design/references/reference-a06fefb02d09d61d.png",
+      "bytes": 1752014,
+      "sha256": "a06fefb02d09d61d620db9c35e424c256a5cb46895f9e4b4b5793d8164379b84"
+    },
+    {
+      "path": "docs/modern-design/references/reference-b53d077079c35179.png",
+      "bytes": 1814723,
+      "sha256": "b53d077079c35179fd7ca0478902f0f2150ad13a656b5eccfb4df08ac57fb520"
+    },
+    {
+      "path": "docs/modern-design/references/reference-b73622f2f4367a53.png",
+      "bytes": 1544711,
+      "sha256": "b73622f2f4367a53c765fe26eeca4555e9df668d43bd38c21e7ee8771470f937"
+    },
+    {
+      "path": "docs/modern-design/references/reference-b8280ae5b82883b7.png",
+      "bytes": 39259,
+      "sha256": "b8280ae5b82883b7194d6ea17aba49e554e5d5e63daad020e2b85446c771cf4e"
+    },
+    {
+      "path": "docs/modern-design/references/reference-c06967e3b3cfcc26.png",
+      "bytes": 1542460,
+      "sha256": "c06967e3b3cfcc26f31ef153c23984d8369e89787945bce415d207770a2c677b"
+    },
+    {
+      "path": "docs/modern-design/references/reference-c1394ebc7b34db17.png",
+      "bytes": 1558783,
+      "sha256": "c1394ebc7b34db172f7d090d7c4954e6555b5803e064de5f7194f75c48229b03"
+    },
+    {
+      "path": "docs/modern-design/references/reference-c6a6ef94307fd329.png",
+      "bytes": 1590818,
+      "sha256": "c6a6ef94307fd329f53fdaec23f6f9f4f531163a7a678ba0677b14257685f092"
+    },
+    {
+      "path": "docs/webui/README.md",
+      "bytes": 5852,
+      "sha256": "e27f3c7e0c320ee7cae1b6c61b0f5c1a340eb5cd55029b2c289ed776df815be0"
+    },
+    {
+      "path": "docs/webui/reference/PADAVAN_4.4.198_Development_Plan_EN.txt",
+      "bytes": 6016,
+      "sha256": "16f6b1031c85d3ab9adf264f93c0ee47215c882e6f66a2be144b2b48af218158"
+    },
+    {
+      "path": "overlay/patches/0002-stubby-options-webui.patch",
+      "bytes": 2006,
+      "sha256": "c2da76ef25c3681844831c3a85dd099af78b5d35556dcedf32cc3d418f36ee9c"
+    },
+    {
+      "path": "sources.lock.json",
+      "bytes": 9345,
+      "sha256": "dbd62f7b975f7b7ccc2e0a52701fe57eca0c8f9f1ea67b3fad86b123a3c56666"
+    },
+    {
+      "path": "tools/board-capabilities/wr1200js.json",
+      "bytes": 1145,
+      "sha256": "b6730ececb639b790920c6fcc087d1f9073c0cee1300ac5bd5817b5ea0e87364"
+    },
+    {
+      "path": "tools/prepare-shared-wifi.py",
+      "bytes": 4988,
+      "sha256": "b5edaf07585ede64ae5eb61d0c2a4ddf71e15724f926ed80d04c69387d4a8528"
+    },
+    {
+      "path": "tools/shared-wifi/adapter.h",
+      "bytes": 3370,
+      "sha256": "e7711dc918db2aade8364e0f4d5474f96a56019cc9202f562260467c408d149e"
+    },
+    {
+      "path": "tools/shared-wifi/check-adapter.c",
+      "bytes": 3814,
+      "sha256": "4243cc1de409576f5cf3e4851bf934cdccb29f6bf6669876c7c9efc9e7cb100c"
+    },
+    {
+      "path": "tools/shared-wifi/check-browser.js",
+      "bytes": 3686,
+      "sha256": "ac0ace22d2b0ca477e557e755967823706dbb95c983603e1b676e9a65a1e8d3b"
+    },
+    {
+      "path": "tools/shared-wifi/check-full-dom.js",
+      "bytes": 2546,
+      "sha256": "4e38b71ec584ceb641145e0c2902a7a142b1c4c3e67293f0fc1dc270f567e179"
+    },
+    {
+      "path": "tools/shared-wifi/check-plan.c",
+      "bytes": 2120,
+      "sha256": "6e45901f49d549a914d2c1053c8549c330103bb9f02e00ca1e369e0a7e0d7c25"
+    },
+    {
+      "path": "tools/shared-wifi/check-source-integration.py",
+      "bytes": 1933,
+      "sha256": "a0a67f84e859a5d9296795c08be2f9e9ef4ab7f053cb04312296c53e49353d88"
+    },
+    {
+      "path": "tools/shared-wifi/check-ui.js",
+      "bytes": 2347,
+      "sha256": "24a6d2ba35f8dd3e7d641e29414fe60b3c0fb0263e21bb6bb6a25380231ef0f0"
+    },
+    {
+      "path": "tools/shared-wifi/check-validate.c",
+      "bytes": 1493,
+      "sha256": "262c8a33832b9337e26f83349217eb11be6c91b425ee296b6d9bc3c2e78c2909"
+    },
+    {
+      "path": "tools/shared-wifi/plan.h",
+      "bytes": 2619,
+      "sha256": "61f744e4b1da5c3724aa23e9418e6c1e7f587dd990e95263ed197d4658863f2a"
+    },
+    {
+      "path": "tools/shared-wifi/prepare-http-check.py",
+      "bytes": 3336,
+      "sha256": "df620fdeccc289ac38245816f4319d91f70e8315f165bc4e715e0f3261f36387"
+    },
+    {
+      "path": "tools/shared-wifi/prepare-ui.py",
+      "bytes": 4760,
+      "sha256": "92dca8152be5a2b402dc295cdeac41a32fd7c21d21de4d752d7fb8cde78466fa"
+    },
+    {
+      "path": "tools/shared-wifi/ui.js",
+      "bytes": 3595,
+      "sha256": "dc0c4f11c6763a7761e095f616ea0e062c0f96c72ac3ecb6f18af227806e9f23"
+    },
+    {
+      "path": "tools/shared-wifi/validate.h",
+      "bytes": 2309,
+      "sha256": "f8e79f82f43b0b1f908bd6315d165b3a0e1d82d45e2315c8084ebb6b98866dd2"
+    },
+    {
+      "path": "tools/shared-wifi/verify-ui-image.py",
+      "bytes": 1155,
+      "sha256": "0cb4ad09735b5564e78375df4e84cafd087c63ada683555020c21a352fde643b"
+    },
+    {
+      "path": "tools/webui-preview/.gitignore",
+      "bytes": 23,
+      "sha256": "0b2aeda4a5309f3271f2aea97905052040c1dbf32a9bc181852a74030419e89a"
+    },
+    {
+      "path": "tools/webui-preview/README.md",
+      "bytes": 12819,
+      "sha256": "fce3d7b9d2eff3e7e8fae6c31707ac1483a0a5e9cb57039dec2d1c3a8f12b0db"
+    },
+    {
+      "path": "tools/webui-preview/VERIFICATION.md",
+      "bytes": 8315,
+      "sha256": "5c51e29dd935cfcf622a0bb9d119978db3991ee1baef9e4a077cfa662bdb3f9c"
+    },
+    {
+      "path": "tools/webui-preview/build_wifi_schema.py",
+      "bytes": 5400,
+      "sha256": "9822970368a71a7f9063c71b92444421492dffceefe049cb3d8355f9bbb161e2"
+    },
+    {
+      "path": "tools/webui-preview/check-guest-adapter.c",
+      "bytes": 4138,
+      "sha256": "b9573aa30651f85a5a417a4ee56ce8354b5bff12b0366ec3978a31ff801d1290"
+    },
+    {
+      "path": "tools/webui-preview/check-guest-request.c",
+      "bytes": 2530,
+      "sha256": "d814737e277a4fbd1e6b4bad9087a4fdac7a9c94bfc95deaae9b0f81cf6e2aa0"
+    },
+    {
+      "path": "tools/webui-preview/check-guest-schedule.c",
+      "bytes": 1915,
+      "sha256": "1d99b64ccbe6af3ba01ac0ec7d48c4074e83d401d0a3553bf6450209cbc6b432"
+    },
+    {
+      "path": "tools/webui-preview/check-guest-transport.c",
+      "bytes": 1069,
+      "sha256": "1b8143d2344af2efea7b28fa07292057ebf9e32eea8ab3a22eccff7a4016e158"
+    },
+    {
+      "path": "tools/webui-preview/check-modern-form.c",
+      "bytes": 1527,
+      "sha256": "caa830c59f61cb0db9bf705c10d4c4c4c9dae687a1508957e47729eb502d1213"
+    },
+    {
+      "path": "tools/webui-preview/check-password-intent.c",
+      "bytes": 3231,
+      "sha256": "e7be9a033f6c11e95cc7c55310490456669ef33fe25970ea28706a85e1a4f82d"
+    },
+    {
+      "path": "tools/webui-preview/check-password-request.c",
+      "bytes": 2955,
+      "sha256": "438ae99a5effc89a9d4e1b0f4df22a02e548e33b687f864ef0128c5692dd7d75"
+    },
+    {
+      "path": "tools/webui-preview/check-production.py",
+      "bytes": 2992,
+      "sha256": "c8af2515f98370a49c7405343de21dc81126ee2735197ba774ba76ddd58c1953"
+    },
+    {
+      "path": "tools/webui-preview/check-radio24-validate.c",
+      "bytes": 2206,
+      "sha256": "38d8e896cdc5167c72b5079945cf69727d9eaa6bc30f4fceedda430939ab6dd8"
+    },
+    {
+      "path": "tools/webui-preview/check-wr-modern-json.c",
+      "bytes": 3481,
+      "sha256": "1c93644a13987685ca75c9c471cc5ec38d4ff6f0f65cc8705b7b2c1fd0b665e8"
+    },
+    {
+      "path": "tools/webui-preview/check_classic_navigation.js",
+      "bytes": 1635,
+      "sha256": "2fce6855bac4581e1920c0dc8ec649ac87f092f733161f020f7747ba12adf5b8"
+    },
+    {
+      "path": "tools/webui-preview/check_guest_batch_http_generation.py",
+      "bytes": 2867,
+      "sha256": "091768273d476cc93b4839a00696c4253a499465fd2d2cb7216282b75b3108ed"
+    },
+    {
+      "path": "tools/webui-preview/check_guest_browser.py",
+      "bytes": 6953,
+      "sha256": "e7481035934c12c013474d52064c46ad453a859d53c617ca5a027f1c7c87996b"
+    },
+    {
+      "path": "tools/webui-preview/check_guest_candidate.py",
+      "bytes": 15177,
+      "sha256": "c0545dcb63520e77c1f942280a790fdda5bf015696b547f7fe0b1d40ee952e52"
+    },
+    {
+      "path": "tools/webui-preview/check_guest_client.js",
+      "bytes": 3399,
+      "sha256": "ed3a0a886788fd632bf61ded443e9b38ce402064521a320ac3ac1d28c88042db"
+    },
+    {
+      "path": "tools/webui-preview/check_guest_notification_policy.py",
+      "bytes": 4896,
+      "sha256": "d839daa98940d9a0268ce9f088af238cb9b984715cec2c1c47cb68f469afcb73"
+    },
+    {
+      "path": "tools/webui-preview/check_guest_rc_control.py",
+      "bytes": 2998,
+      "sha256": "7d184c8f5b837bfb1bd29cc06db34f470a206b28435f67129d623be1c2c911ac"
+    },
+    {
+      "path": "tools/webui-preview/check_guest_rc_schedule.py",
+      "bytes": 3595,
+      "sha256": "45f9409989c9268229686c88b1d93bc8d29a5051b7555fab2fb2f625238b9870"
+    },
+    {
+      "path": "tools/webui-preview/check_guest_schedule.py",
+      "bytes": 2457,
+      "sha256": "495ed652fd65fa24dd7b7a5adc796e23015f9041583cee5b4bd56a58a5c7132e"
+    },
+    {
+      "path": "tools/webui-preview/check_image.py",
+      "bytes": 2300,
+      "sha256": "e011b0560796d42658ec2d0b95e206dcdca0c45aa6bc4925fcb7f84fc8a68c6a"
+    },
+    {
+      "path": "tools/webui-preview/check_installer.py",
+      "bytes": 5101,
+      "sha256": "0fdbb4691d8845427200b3d274f06bf66ddd6abb4eec52f924a688d22ffd7b16"
+    },
+    {
+      "path": "tools/webui-preview/check_json.py",
+      "bytes": 3428,
+      "sha256": "505e1bb4148e868b666710fa8f6d39dafe9b5e365344236d30a46a3c5d79d5b3"
+    },
+    {
+      "path": "tools/webui-preview/check_nvram_batch_core.py",
+      "bytes": 7607,
+      "sha256": "6d30b4b26ed77ccf844f4fff07dd370a86fe68fb04f3cf15d681c79a06c58850"
+    },
+    {
+      "path": "tools/webui-preview/check_nvram_commit_order.py",
+      "bytes": 1839,
+      "sha256": "95625095b2b53dfd123c52f61cb61396db9459ff3fe1bd50063462855d05cc43"
+    },
+    {
+      "path": "tools/webui-preview/check_page04_browser.py",
+      "bytes": 8610,
+      "sha256": "1ea3433fc2bf6f9a5d4ac045ca49911935b22eae89c2016245ea31e602b31338"
+    },
+    {
+      "path": "tools/webui-preview/check_password_candidate.py",
+      "bytes": 10036,
+      "sha256": "4459192f8c041a79fc935cb2db80f427cbbea2af046584d97f883ce71568a52d"
+    },
+    {
+      "path": "tools/webui-preview/check_references.py",
+      "bytes": 3144,
+      "sha256": "dea21951ca9d579ec216922df96f22167c58c0a2e05719fa2dee275fb6f75be7"
+    },
+    {
+      "path": "tools/webui-preview/check_trx_contents.py",
+      "bytes": 3555,
+      "sha256": "ac5bfd3ff67c8f286e787c7fb788981056b2d92408d4beadde110e0933ef7677"
+    },
+    {
+      "path": "tools/webui-preview/check_trx_gate.py",
+      "bytes": 2815,
+      "sha256": "4d8ac7f46e2b2adf8ff3a896d6d4110e152348682f95f0c57dbc5a058529a8ed"
+    },
+    {
+      "path": "tools/webui-preview/check_wifi.js",
+      "bytes": 3257,
+      "sha256": "3da6e34c3163334cf785a936f832346eaf09fcc99476375544dc2be85fc9a241"
+    },
+    {
+      "path": "tools/webui-preview/check_wifi_production.js",
+      "bytes": 9697,
+      "sha256": "153bf9b84e1446465a5f3f29ed0ea37cb9810e17e56801b03574b58ff90fe94b"
+    },
+    {
+      "path": "tools/webui-preview/ci_compile_http_candidate.py",
+      "bytes": 5191,
+      "sha256": "650ef20578ec79e52fb13a76d420a5dab7010965349de3c8776a3f7141ca0331"
+    },
+    {
+      "path": "tools/webui-preview/ci_compile_nvram_candidate.py",
+      "bytes": 6905,
+      "sha256": "3bdd90a30873cb8981fc0e7e83901a24501d310b8bc6500c0fa707377e7b55a8"
+    },
+    {
+      "path": "tools/webui-preview/data/dashboard.json",
+      "bytes": 11911,
+      "sha256": "f04193a337c267884dfdfe2d72c8b2c2682ce62cec69c8969eda482f6cdf6a60"
+    },
+    {
+      "path": "tools/webui-preview/guest-adapter.h",
+      "bytes": 4089,
+      "sha256": "bf9d9cbd4a4aa2bd7ff01c862bcfc17a5b73d08ce0ed932f53f33cbc2eed7712"
+    },
+    {
+      "path": "tools/webui-preview/guest-batch-cgi-fixture.c.inc",
+      "bytes": 4006,
+      "sha256": "1453ffe284144b7af9346be63f0d8a70b6c43cfad69a641b474f9d2a2400f36a"
+    },
+    {
+      "path": "tools/webui-preview/guest-batch-fixture.c.inc",
+      "bytes": 4209,
+      "sha256": "1eedaa49840de1c80364f1e2cb9bb91ff8677c5a64ceddabdc4534feb7bd9f36"
+    },
+    {
+      "path": "tools/webui-preview/guest-batch-http-fixture.c.inc",
+      "bytes": 6793,
+      "sha256": "8dc937b66542c6cc92bd978d48df63862552216e360f69d77e557c80d5318cda"
+    },
+    {
+      "path": "tools/webui-preview/guest-batch-http.c.inc",
+      "bytes": 4214,
+      "sha256": "d9eddff6ed20806025890fbb8e5d57284594566cc423160e2af0efc3cba9eb61"
+    },
+    {
+      "path": "tools/webui-preview/guest-batch.h",
+      "bytes": 2507,
+      "sha256": "30f1cc1f867881da9c987b74adc2f3cd493c0258d3cda2b952dddfa298999ad6"
+    },
+    {
+      "path": "tools/webui-preview/guest-body-fixture.c.inc",
+      "bytes": 2902,
+      "sha256": "3eba3e032528c2f25b9a5be0e53f4fdf7bea6278d153a9a0d1eaf78807ec501e"
+    },
+    {
+      "path": "tools/webui-preview/guest-browser-protocol.html",
+      "bytes": 3460,
+      "sha256": "60deb701e26a616eef0d21b9e9390348059a77200532dd39100da16d25f320ff"
+    },
+    {
+      "path": "tools/webui-preview/guest-endpoint-main.c.inc",
+      "bytes": 8358,
+      "sha256": "06d2ff270fd4ca947998994e11cde2f19559ccc026fa84675990534ddd166739"
+    },
+    {
+      "path": "tools/webui-preview/guest-http-fixture.c.inc",
+      "bytes": 5154,
+      "sha256": "98fb51c23ad4fd71f5b1ecef1c759fe7dcc769a7cb600b0b11b0887a2b5efcde"
+    },
+    {
+      "path": "tools/webui-preview/guest-json-output.c.inc",
+      "bytes": 3139,
+      "sha256": "7e4f2fb01a12572b5131b0da0d6f6e15b9eaecf2b689f846bde9df09ae7d1c26"
+    },
+    {
+      "path": "tools/webui-preview/guest-persistence-main.c.inc",
+      "bytes": 4941,
+      "sha256": "0ddd7d332a821a115c8f0ce0d980cacdd3c594406cbab63744a9139c87da7fc5"
+    },
+    {
+      "path": "tools/webui-preview/guest-request.h",
+      "bytes": 3246,
+      "sha256": "f3be64128acdd44bc2a5d2259eb0af88c156a8539224baeffef5c291824be93b"
+    },
+    {
+      "path": "tools/webui-preview/guest-schedule.h",
+      "bytes": 1544,
+      "sha256": "da216a1fc4815368638015598a5c2b843f65dc0a286eccf4d29b4688a5c7fe3a"
+    },
+    {
+      "path": "tools/webui-preview/guest-socket-main.c.inc",
+      "bytes": 970,
+      "sha256": "d0e2794c77719e0019e76efa6313a19aebd1a0c17eb886e5b8ef6586a802fffb"
+    },
+    {
+      "path": "tools/webui-preview/guest-transport.h",
+      "bytes": 955,
+      "sha256": "0d26166113d47efd03fdbf019303a0fd5a9794f981e4f31c6b49c7181db27486"
+    },
+    {
+      "path": "tools/webui-preview/guest_endpoint_fixture.py",
+      "bytes": 3747,
+      "sha256": "3abf3d8a2e2b6c3d18ce4844e062c2507e95ff5c7e5137282bc1efe6cfbdbc9b"
+    },
+    {
+      "path": "tools/webui-preview/inspect_channel_serialization.py",
+      "bytes": 2230,
+      "sha256": "e65ab9d49810272b0a2d024a08e183b0baab8721c239c46ed92209407fc87de3"
+    },
+    {
+      "path": "tools/webui-preview/inspect_radio24_policy.py",
+      "bytes": 3030,
+      "sha256": "1646faebcba5705c351ad170077ddcad61b8290a9a944233602f3d6643a6d2b1"
+    },
+    {
+      "path": "tools/webui-preview/inventory_classic.py",
+      "bytes": 4269,
+      "sha256": "c2afc6e9d08a3a944f93deb2954e35ae4153682fbbad966db6ecb7526cc8ae23"
+    },
+    {
+      "path": "tools/webui-preview/modern-body.h",
+      "bytes": 944,
+      "sha256": "cbd6d947111caf331919ff983bb6abb0bb74f734fd590c6465c0f2a6d35d10ec"
+    },
+    {
+      "path": "tools/webui-preview/modern-form.h",
+      "bytes": 1727,
+      "sha256": "827d9242ca039b98c61c13bbbe7df1e52bfdaf3c96311bae190f04849f4817df"
+    },
+    {
+      "path": "tools/webui-preview/nvram-batch-client.h",
+      "bytes": 1048,
+      "sha256": "48bf6f30386c4ab134119f7af7fa5fdaf7ca6a325bdcb274242f47864d59b1b8"
+    },
+    {
+      "path": "tools/webui-preview/nvram-batch-core.c.inc",
+      "bytes": 3189,
+      "sha256": "d3598b151c58380ce07de0aa390d62ee2bb80d0b9b72ba05ed3117396b778a31"
+    },
+    {
+      "path": "tools/webui-preview/nvram-batch-fixture.c.inc",
+      "bytes": 11210,
+      "sha256": "1f34bb3644293705130247af4d04dcb6f3d64f7cd324fddff4bfdb565e26c977"
+    },
+    {
+      "path": "tools/webui-preview/nvram-batch-user-fixture.c.inc",
+      "bytes": 883,
+      "sha256": "c7c927c9aa272e8c684b99fc16f6700a626d221e1fbfed7b7cd1efa7bad0f11f"
+    },
+    {
+      "path": "tools/webui-preview/nvram-batch-user.c.inc",
+      "bytes": 912,
+      "sha256": "4f2ad051fcdb66290e3bdc5f9d781c1d25081206c9ee354fadc8b3cceeb7f4b2"
+    },
+    {
+      "path": "tools/webui-preview/nvram-batch-wire.c.inc",
+      "bytes": 2267,
+      "sha256": "c11e538a323f09eb708a1c6893f7233e7f16eedc25569d135cae241eef521ba5"
+    },
+    {
+      "path": "tools/webui-preview/nvram-batch-wire.h",
+      "bytes": 1046,
+      "sha256": "d12889b1ced78ac2714bcd47dc6d193be73cd8d0a54e5aa3cb72ddba3b6eb0e5"
+    },
+    {
+      "path": "tools/webui-preview/nvram-commit-order-fixture.c.inc",
+      "bytes": 4200,
+      "sha256": "adb6957698c0f0bb9763fd8693794bb0af362b09c2c427b3e39f5c70fae6e6a8"
+    },
+    {
+      "path": "tools/webui-preview/nvram_abi_probe.py",
+      "bytes": 1394,
+      "sha256": "190395b536cf7eb6e76734cce0ba7ea18beaa54e7ae68e83de8fe561783ffe44"
+    },
+    {
+      "path": "tools/webui-preview/password-intent.h",
+      "bytes": 2217,
+      "sha256": "1fa1af3ad5352d9496957edec88ae9ed360cfc0137c20a6d4fb1428fa468908e"
+    },
+    {
+      "path": "tools/webui-preview/password-request.h",
+      "bytes": 2234,
+      "sha256": "57ca6730dddd1c5a3769a38fa2029e9cd7260784aa9425d1c8417bfc6aebd298"
+    },
+    {
+      "path": "tools/webui-preview/persistence-fixture.c.inc",
+      "bytes": 8437,
+      "sha256": "2dc197b2ea1a5c6b6d6509a73d443190ff8c1b656d7c36e52e8d51d9ac0a43f3"
+    },
+    {
+      "path": "tools/webui-preview/prepare-guest-batch-http.py",
+      "bytes": 1364,
+      "sha256": "deb40867fda398bdc2c47aaf26cf5878da00aebd1230a18189cfa7b2f3751ca0"
+    },
+    {
+      "path": "tools/webui-preview/prepare-guest-candidate.py",
+      "bytes": 2970,
+      "sha256": "6d06ca587c77939d98ec5d5d78136c30e421c170b83a9a835bdd090525d87649"
+    },
+    {
+      "path": "tools/webui-preview/prepare-guest-json.py",
+      "bytes": 1917,
+      "sha256": "066117bb9a2304a0f07ddfa11b838881555599aa73e4ad9c71d9e19d8091b15b"
+    },
+    {
+      "path": "tools/webui-preview/prepare-guest-transport.py",
+      "bytes": 3335,
+      "sha256": "539956eb8c78531fad06a2e21277d5dd60d79e8789af9e465c98c3bf28b0960c"
+    },
+    {
+      "path": "tools/webui-preview/prepare-modern-body.py",
+      "bytes": 3694,
+      "sha256": "f5fc86fa244f42895da8f927811dfc0b9ac42cd7b44c2a29c3cbdbc3ccaba19f"
+    },
+    {
+      "path": "tools/webui-preview/prepare-nvram-batch-candidate.py",
+      "bytes": 2469,
+      "sha256": "ddd5533a90aba6b724a6e4ad7d5cb1b8178d9a2a08b3cda9088ff509b4d8f225"
+    },
+    {
+      "path": "tools/webui-preview/prepare-nvram-commit-order.py",
+      "bytes": 1316,
+      "sha256": "9dc69ded7a74b144837b05c452295110d3847fc501117559df94c6b66ff600f3"
+    },
+    {
+      "path": "tools/webui-preview/prepare-password-candidate.py",
+      "bytes": 6621,
+      "sha256": "bc59fde79f0f0318225c863be8ca939ca119b76852a8d740192107c959fabf30"
+    },
+    {
+      "path": "tools/webui-preview/prepare-production.py",
+      "bytes": 5252,
+      "sha256": "56a01faf2b8428cd3e2e61229b24ccedb17c57b1ac93756ccac435a53f7fafa9"
+    },
+    {
+      "path": "tools/webui-preview/public/app.js",
+      "bytes": 18571,
+      "sha256": "eea034944b3f64af6adcea6d690aef4a24b66635899b4fc9c4879aabb68a6a32"
+    },
+    {
+      "path": "tools/webui-preview/public/favicon.svg",
+      "bytes": 562,
+      "sha256": "4734c64a7d01be56789cff09738c90e3905b245f1a2535182c39dc37586d5cb4"
+    },
+    {
+      "path": "tools/webui-preview/public/index.html",
+      "bytes": 11742,
+      "sha256": "61af441fae151f1f65ec44306d3f589e77cd52038591cf015165f94086924e1a"
+    },
+    {
+      "path": "tools/webui-preview/public/styles.css",
+      "bytes": 27918,
+      "sha256": "48e1693bf2bf43735d86d6212fba10ef9a1fdb1dc4bf5ac9263905160b445afb"
+    },
+    {
+      "path": "tools/webui-preview/public/wifi-schema.json",
+      "bytes": 72852,
+      "sha256": "6a720420a3a691c0e196997b578d89876930848937146ab25874c7bc0155638e",
+      "worktree_bytes": 75526,
+      "worktree_sha256": "7d322037e3638a797da00f2640be98af7e04e65343d1ac97c76633fbdbc609df",
+      "normalization": "Git text line endings"
+    },
+    {
+      "path": "tools/webui-preview/public/wifi.js",
+      "bytes": 37900,
+      "sha256": "cd675d3ba66ab95a60a4305d00c5122a54e7293a2aebd5bba4f0660eff530926"
+    },
+    {
+      "path": "tools/webui-preview/radio24-validate.h",
+      "bytes": 2537,
+      "sha256": "d64e7dd5c24022a163e100194412b6a2f7d7f601569b0ca584843201e272a888"
+    },
+    {
+      "path": "tools/webui-preview/server.py",
+      "bytes": 5890,
+      "sha256": "475362ccde380cecc640ecec8082d7193aa76b6acda3111d57e95b7d202eaa4b"
+    },
+    {
+      "path": "tools/webui-preview/start.bat",
+      "bytes": 175,
+      "sha256": "1d8aa8ff88da25a76a15180021a53fda7a01524b52807b2adea821e20ebe04a8"
+    },
+    {
+      "path": "tools/webui-preview/verify-production-shell.py",
+      "bytes": 1842,
+      "sha256": "f0ef91385caf66fcd8b11ca9d9bb1423df5ce0a4766041388302c8713be945cc"
+    },
+    {
+      "path": "tools/webui-preview/verify_preview.py",
+      "bytes": 6014,
+      "sha256": "744ae954d3b1ace21611569874442fd4b5c5fd26a6370dbe8c050e9aeedcd460"
+    },
+    {
+      "path": "tools/webui-preview/wifi-demo.jpg",
+      "bytes": 137901,
+      "sha256": "c7345e7864dfe747c3ea2e9d0b0a615c4029ab19ed5d8d38b465732249a24cf8"
+    },
+    {
+      "path": "tools/webui-preview/wr-modern-http.inc",
+      "bytes": 12586,
+      "sha256": "de81c4b841c8df74216eb331f790018b921967127e44fa16cd73aff8e7310838"
+    },
+    {
+      "path": "tools/wifi-capabilities/apply-board-capabilities.py",
+      "bytes": 6917,
+      "sha256": "ed8fa9723b1cfced75f1962cb4250b8540e5c488751507ea7aba105fc9904ce4"
+    },
+    {
+      "path": "tools/wifi-capabilities/boards/wr1200js.json",
+      "bytes": 2842,
+      "sha256": "3b2e8a54b5a4a63de2a30a4410d0767a3e1ee1ebd9b03388fc5ee70749c8aeed"
+    }
+  ],
+  "content_hash_scope": "Canonical Git contents; working-copy hashes recorded for text line-ending differences"
+}

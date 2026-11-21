@@ -1,0 +1,18 @@
+{
+  "run_id": 43049662578,
+  "number": 1014,
+  "source": "b85fa3514de74989f035039c1edc7445f1f7f79c",
+  "host": "ubuntu-22.04",
+  "job": 130623130240,
+  "monitor_run": 43052486307,
+  "monitor_artifact": 13870585788,
+  "firmware_build_step": "success; later acceptance gates incomplete",
+  "failed_step": "Resolve names through the image Stubby under QEMU",
+  "cause": "Late apt call bypasses invocation-local apt source selection; unable to locate qemu-user-static",
+  "causal_lines": [
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:36:55.1799261Z WR1200JS dependencies: Ubuntu 22.04 attempt 2; archive=https://mirrors.xtom.com/ubuntu security=https://mirrors.xtom.com/ubuntu",
+    "build (wr1200js) / build-wr1200js\tUNKNOWN STEP\t2026-11-11T15:50:44.1330564Z E: Unable to locate package qemu-user-static"
+  ],
+  "monitor_gap": "Failed step identified but causal package-location error omitted by bounded error matcher",
+  "fix": "Install QEMU, dnsutils, iptables and proot in initial bounded source-selected apt step; remove late apt calls; reject future raw apt calls in fixture"
+}

@@ -1,0 +1,88 @@
+#include "virtual-open-claim.h"
+#include <assert.h>
+#include <stdio.h>
+#define IN
+#define CONFIG_AP_SUPPORT 1
+#define WDEV_NUM_MAX 1
+#define NDIS_STATUS_FAILURE 1
+typedef unsigned int UINT;
+typedef unsigned long ULONG;
+typedef void VOID;
+struct adapter {
+ int wr_iot_transition_lock;
+ unsigned int VirtualIfCnt;
+ void *net_dev;
+ struct wr_iot_radio_transition wr_iot_transition;
+ struct wr_iot_interface_ref wr_iot_interface_refs[WDEV_NUM_MAX+1];
+};
+typedef struct adapter *PRTMP_ADAPTER;
+typedef struct request {
+ VOID *if_dev;
+ unsigned long owner_generation,owner_serial,owner_epoch;
+ int owner_operation;
+ int (*rt28xx_open)(void *);
+} RT_CMD_INF_UP_DOWN;
+static int held,beacons,opens,open_result;
+#define RTMP_IRQ_LOCK(lock,flags) do { (void)(lock);(flags)=0;assert(!held);held=1; } while(0)
+#define RTMP_IRQ_UNLOCK(lock,flags) do { (void)(lock);(void)(flags);assert(held);held=0; } while(0)
+#define VIRTUAL_IF_NUM(ad) ((ad)->VirtualIfCnt)
+#define VIRTUAL_IF_INC(ad) ((ad)->VirtualIfCnt++)
+#define VIRTUAL_IF_DEC(ad) ((ad)->VirtualIfCnt--)
+static int physical_open(void *dev){ assert(dev&&!held); opens++; return open_result; }
+void APMakeAllBssBeacon(PRTMP_ADAPTER ad){assert(ad&&!held);beacons++;}
+void APUpdateAllBeaconFrame(PRTMP_ADAPTER ad){assert(ad&&!held);beacons++;}
+static int checked_main_up(PRTMP_ADAPTER pAd,RT_CMD_INF_UP_DOWN *pInfConf){
+ struct wr_iot_virtual_open_claim claim={pInfConf->if_dev,
+   pInfConf->owner_generation,pInfConf->owner_serial,
+   pInfConf->owner_epoch,pInfConf->owner_operation};
+ ULONG flags;
+ int valid;
+ RTMP_IRQ_LOCK(&pAd->wr_iot_transition_lock,flags);
+ switch(0){case 0:
+/* EXTRACTED_BRANCH */
+ }
+ assert(!held);
+ return 0;
+}
+static void setup(struct adapter *ad,RT_CMD_INF_UP_DOWN *req,
+                  int *device,unsigned int count){
+ struct wr_iot_interface_ref *record;
+ struct wr_iot_radio_ticket ticket;
+ unsigned long sequence=0,generation;
+ wr_iot_radio_transition_init(&ad->wr_iot_transition);
+ ad->net_dev=device;
+ ad->VirtualIfCnt=count;
+ if(count){ad->wr_iot_transition.phase=WR_RADIO_READY;
+           ad->wr_iot_transition.main_ready=1;}
+ record=wr_iot_registry_add(ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,
+                            &sequence,device);
+ assert(record);record->published=1;
+ assert(wr_iot_main_open_reserve(&ad->wr_iot_transition,
+   ad->wr_iot_interface_refs,WDEV_NUM_MAX+1,device,count,
+   &ticket,&generation));
+ req->if_dev=device;req->owner_generation=generation;
+ req->owner_serial=ticket.serial;req->owner_epoch=ticket.epoch;
+ req->owner_operation=ticket.operation;req->rt28xx_open=physical_open;
+}
+int main(void){
+ struct adapter first={0},failed={0},later={0};
+ RT_CMD_INF_UP_DOWN a={0},b={0},c={0};
+ int device=1,other=2,third=3;
+ setup(&first,&a,&device,0);
+ assert(a.owner_operation==WR_RADIO_START);
+ assert(checked_main_up(&first,&a)==0&&first.VirtualIfCnt==1&&opens==1&&!held);
+ assert(first.wr_iot_transition.virtual_up_stage==1);
+ assert(checked_main_up(&first,&a)==NDIS_STATUS_FAILURE&&first.VirtualIfCnt==1&&opens==1&&!held);
+ setup(&failed,&b,&other,0);
+ open_result=1;
+ assert(checked_main_up(&failed,&b)==NDIS_STATUS_FAILURE&&failed.VirtualIfCnt==0&&opens==2&&!held);
+ assert(failed.wr_iot_transition.virtual_up_stage==2);
+ assert(checked_main_up(&failed,&b)==NDIS_STATUS_FAILURE&&failed.VirtualIfCnt==0&&opens==2&&!held);
+ setup(&later,&c,&third,1);
+ open_result=0;
+ assert(c.owner_operation==WR_RADIO_MAIN_OPEN);
+ assert(checked_main_up(&later,&c)==0&&later.VirtualIfCnt==2&&opens==2&&beacons==2&&!held);
+ assert(checked_main_up(&later,&c)==NDIS_STATUS_FAILURE&&later.VirtualIfCnt==2&&beacons==2&&!held);
+ puts("PASS extracted main UP: first start, rollback, replay, and later main open");
+ return 0;
+}

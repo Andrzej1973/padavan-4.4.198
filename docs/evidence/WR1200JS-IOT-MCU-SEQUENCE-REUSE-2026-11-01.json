@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-01",
+  "scope": "source inspection of freshly reproduced peer candidate",
+  "observations": [
+    "AndesGetCmdMsgSeq cycles 1..15 and excludes only currently queued ACK sequences",
+    "checked receive matches sequence then EXT_EVENT/EXT_EVENT_CMD_RESULT, exact packet and declared lengths, radio command result and firmware status",
+    "No attempt generation echoed in firmware response is checked"
+  ],
+  "inference": "A late same-command response after timeout and sequence reuse may satisfy a later checked command. Source inspection does not prove arrival timing or actual occurrence.",
+  "required_next_step": "Establish a protocol-supported drain/reset epoch or nonreuse rule covering all command issuers before accepting checked radio-off completion; retain LOAD_FW_ONE_TIME refusal meanwhile.",
+  "runtime_verified": false,
+  "reset_drain_review": {
+    "AndesCtrlPciInit": "resets cmd_seq to zero and initializes queues",
+    "AndesCtrlPciExit": "clears send/MCU flags, kills tasklet and frees software queues/locks; this function contains no hardware reset or DMA/IRQ completion proof",
+    "conclusion": "Software MCU reinitialization alone cannot establish an epoch excluding delayed firmware responses. Audit complete hardware producer stop/reset before claiming epoch safety."
+  },
+  "close_callsite_review": {
+    "source": "common/rtmp_init_inf.c checked shutdown path",
+    "observed_order": [
+      "RtmpNetTaskExit",
+      "checked hardware radio-off",
+      "RTMP_OS_IRQ_RELEASE",
+      "MCU_CTRL_EXIT",
+      "ring reset/free"
+    ],
+    "irq_wrapper": "os/linux/rt_linux.c RtmpOSIRQRelease invokes free_irq for PCI",
+    "limit": "Ordering supplies a candidate IRQ synchronization boundary before MCU cleanup but does not prove firmware no-late-response epoch after restart. Tasklet rearm and ring ownership must be checked with effective paths."
+  },
+  "tasklet_review": {
+    "entry": "RtmpNetTaskExit calls wr_iot_nettask_block_drain before any tasklet kill",
+    "submission_guard": "wr_iot_nettask_schedule admits under dedicated lock, counts inflight submissions, then wakes drain waiters on leave",
+    "drain": "blocks admission under same lock, refuses initializing/atomic contexts and waits up to 5000ms before join",
+    "limit": "Only guarded network-cookie tasklets are covered; complete IRQ/MCU and DMA producers still require separate evidence."
+  },
+  "extracted_allocator_check": "Actual AndesGetCmdMsgSeq body compiled with GCC C11 Wall Wextra Werror, empty-ackq lock/list stubs: sequence1 repeats on allocation16. Passed; this proves allocator reuse only, not late firmware response occurrence.",
+  "on_off_disambiguation": {
+    "command": "_EXT_CMD_RADIO_ON_OFF_CTRL_T carries ucWiFiRadioCtrl",
+    "response": "_EVENT_EXT_CMD_RESULT_T carries only ucExTenCID, three reserved bytes and u4Status; no ON/OFF echo",
+    "parser": "radio-result.h already explicitly limits itself to payload syntax/status",
+    "consequence": "A stale successful RADIO_ON result with reused sequence also cannot be distinguished from RADIO_OFF by current result fields. Ownership wrapper alone cannot prove OFF completion.",
+    "next_requirement": "Establish nonreuse/drain epoch covering both ON and OFF plus all legacy issuers; do not infer new OFF receipt from parser result alone."
+  },
+  "radio_issuer_inventory": {
+    "legacy_calls": [
+      "hw_ctrl/cmm_asic_mt.c:MTPciMlmeRadioOn -> CmdRadioOnOffCtrl(WIFI_RADIO_ON)",
+      "hw_ctrl/cmm_asic_mt.c:MTPciMlmeRadioOff -> CmdRadioOnOffCtrl(WIFI_RADIO_OFF)"
+    ],
+    "checked": "wr_iot_prepare_radio_off + wr_iot_send_radio_off_checked",
+    "effective_LOAD_FW_ONE_TIME": "Both legacy calls use AGG_TEMP alternative; checked path refuses before mutation",
+    "retransmit": "Legacy passes TRUE to AndesInitCmdMsg but actual initializer unconditionally sets need_retransmit=0 and retransmit_times=0; do not infer retry from call argument",
+    "requirement": "Unified admission/timeout epoch must cover both constructors and cannot rely on nominal retransmit argument. Successful-response cardinality and reset/drain boundary still unproved."
+  },
+  "firmware_reload_epoch_review": {
+    "board_path": "chips/mt7603.c uses DownLoadTypeA -> AndesMTLoadFwMethod1",
+    "effective_behavior": "LOAD_FW_ONE_TIME and TOP_MISC2 running bit: marks FW_RUN_TIME/FWLoad=1 then goto done, skipping CmdRestartDLReq",
+    "alternate_restart": "CmdRestartDLReq uses regular AndesSendCmdMsg; CmdReStartDLRsp switches/logs firmware statuses without propagating checked semantic success",
+    "conclusion": "Successful host reopen/load return does not prove firmware restart or flush of delayed responses. A separately checked restart/drain/reset boundary remains required."
+  },
+  "pdma_reset_review": {
+    "path": "common/cmm_mac_pci.c:wr_iot_pdma_reset_raw",
+    "observed": "Disables interrupts/PDMA, polls PSE TX-abort/TX-FIFO, then cleans control/data/RX rings",
+    "timeout": "TX FIFO timeout increments failure count and continues into ring cleanup; function returns VOID",
+    "conclusion": "This path is not a checked MCU restart/ACK epoch proof. It touches control-ring packets while software MCU messages may remain; ownership reconciliation and proven DMA stop are prerequisites, not consequences of cleanup."
+  },
+  "upstream_comparison": {
+    "url": "https://raw.githubusercontent.com/torvalds/linux/master/drivers/net/wireless/mediatek/mt76/mt7603/mac.c",
+    "retrieved_date": "2026-11-01",
+    "download_sha256": "2ddca5b165e98034a1bf5cd185b62f9af805d5cf970e79a54b1bff912397995a",
+    "function": "mt7603_mac_watchdog_reset",
+    "observed": "Stops TX workers, disables both RX NAPI and TX NAPI, stops MAC/DMA, disables IRQ, resets PSE client, cleans MCU TX queue and resets RX queues before restart",
+    "limit": "Different driver/kernel architecture; not portable code or proof of firmware ACK epoch. Watchdog sequence inspected contains no firmware reload step. Use only as producer/queue ordering comparison."
+  }
+}

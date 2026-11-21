@@ -1,0 +1,32 @@
+{
+  "scope": "LOCAL host contract for existing worker continuation of reserved/unconsumed API ticket",
+  "hashes": {
+    "tools/iot/mbss-close-recovery-owner.h": "b1f4c9e6bd5ba6bc41052c7a51afff04eac974c10813cd4c378ce3095b5384cc",
+    "tools/iot/driver-api-close-recovery.h": "818ae16f14e44507b1995b440328a38492524fbcb0bd5716bac93e6b96e66b3e",
+    "tools/iot/check-driver-api-close-reserved-recovery.c": "202598e79671ed898bbcf88271e0ae8d0dcb7d9702f13bd392aac19fbe825cd0",
+    "tools/iot/check-close-reserved-executor.c": "0e7044d828fb543c51e2ea62fa6de318382e12e0d8f4676bfb96c08d308c75d5"
+  },
+  "asan_ubsan": "PASS positive and8 refusal cases plus existing recovery/enter/scheduling regressions",
+  "ticket_reallocated": false,
+  "record_stage_fabricated": false,
+  "worker_executor_exercised": true,
+  "target_compiled": false,
+  "endpoint_installed": false,
+  "runtime_verified": false,
+  "remaining": [
+    "bind finish to scheduling",
+    "extra module retirement",
+    "early-stage recovery and target verification"
+  ],
+  "executor_scope": "Actual mbss-recovery-work.inc and mbss-close-checked.inc with injected CR/vendor/DMA/TxS/down/module operations, not hardware",
+  "executor_cases": [
+    "success preserves extra module hold",
+    "CR failure retained uncertain",
+    "vendor failure retained uncertain",
+    "DMA pending retry resumes same ticket without repeated vendor calls",
+    "TxS negative retained uncertain"
+  ],
+  "regression_suite": "8 actual C fixtures PASS ASan/UBSan",
+  "early_stage_fault_tests": "PASS generation drift after CR/vendor success retains stages0/1 without retry or clearing foreign running state",
+  "publication_scope": "Host verified; endpoint not installed; target/runtime unverified"
+}

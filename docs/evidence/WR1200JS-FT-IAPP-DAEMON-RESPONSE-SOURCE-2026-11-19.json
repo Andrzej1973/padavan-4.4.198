@@ -1,0 +1,88 @@
+{
+  "archive": "/home/andrzej/padavan-build/firmware-source-backup/padavan-4.4-c25283e-git-exact.tar",
+  "source_revision": "c25283e",
+  "source_members_sha256": {
+    "trunk/user/ralinkiappd/rtmpiapp.c": "be9150ce4240f54656b7c06b6e576b7dec78c6e336e04f78bf1232af37d842a7",
+    "trunk/user/ralinkiappd/rtmpiapp.h": "ed483ce83c98ca93ca921fe123831b41183a0020f30b3439792a61fc84f1b6b4",
+    "trunk/user/ralinkiappd/rt_config.h": "f3d18b6fe2d17f4bb02c8616d10670a025e6262be1dff7625abb23001e7776af"
+  },
+  "references": {
+    "send_event": [
+      {
+        "line": 1117,
+        "text": "FT_KDP_SecurityBlockSend(pCtrlBK,"
+      }
+    ],
+    "ack_event": [
+      {
+        "line": 1142,
+        "text": "FT_KDP_SecurityBlockAck(pCtrlBK,"
+      }
+    ],
+    "response_oid": [
+      {
+        "line": 2131,
+        "text": "OidReq->OID = (RT_SET_FT_KEY_RSP | OID_GET_SET_TOGGLE);"
+      }
+    ],
+    "response_initvec": [
+      {
+        "line": 2140,
+        "text": "pAckSB->InitVec,"
+      }
+    ],
+    "all_interfaces": [
+      {
+        "line": 2151,
+        "text": "for (idx = 0; idx < pCtrlBK->IfNameWlanCount; idx++) {"
+      },
+      {
+        "line": 2911,
+        "text": "for (idx = 0; idx < pCtrlBK->IfNameWlanCount; idx++) {"
+      }
+    ],
+    "request_copy": [
+      {
+        "line": 3464,
+        "text": "IAPP_MEM_MOVE(pIappSendSB->SB, pEvt, pEvtHdr->EventLen);"
+      },
+      {
+        "line": 3574,
+        "text": "IAPP_MEM_MOVE(pIappSendSB->SB, pEvt, pEvtHdr->EventLen);"
+      }
+    ],
+    "ack_copy": [
+      {
+        "line": 3464,
+        "text": "IAPP_MEM_MOVE(pIappSendSB->SB, pEvt, pEvtHdr->EventLen);"
+      },
+      {
+        "line": 3574,
+        "text": "IAPP_MEM_MOVE(pIappSendSB->SB, pEvt, pEvtHdr->EventLen);"
+      }
+    ]
+  },
+  "observations": [
+    "Both security-block send and ack allocate and zero a new frame then copy event payload into SB; no request-to-ack InitVec copying is visible in these functions",
+    "Received ACK is converted to RT_SET_FT_KEY_RSP with peer IP, received InitVec and received security block",
+    "The daemon sends the response OID to every registered Wi-Fi interface, so receiving ioctl interface alone does not prove request BSS",
+    "The source does not establish that request InitVec is echoed or bound to association generation; optional encrypt ioctl and peer handling remain separate"
+  ],
+  "next_checks": [
+    "Trace remote driver FT_KDP_KeyRequestToUs and daemon ACK event payload",
+    "Identify response fields stable end-to-end including R1KHID/S1KHID and association generation limitations",
+    "Design correlation that does not assume unique MAC or fresh nonce"
+  ],
+  "runtime_verified": false,
+  "remote_driver": {
+    "ft_c_sha256": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+    "ap_ftkd_sha256": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
+    "references": [
+      "common/ft.c:1514 FT_QueryKeyInfoForKDP",
+      "common/ft.c:1557 uses KeyInfo.R1KHID to derive PMK-R1",
+      "ap/ap_ftkd.c:757 FT_QueryKeyInfoForKDP mutates request block",
+      "ap/ap_ftkd.c:767 sends same request block in FT_KDP_SIG_KEY_RSP_AUTO"
+    ],
+    "observation": "The inspected query reads R1KHID and does not refer to S1KHID; same request block is sent as response. MAC/BSS identities may route a response but contain no per-attempt generation or unique sequence; delayed responses for same association identity remain indistinguishable."
+  }
+}

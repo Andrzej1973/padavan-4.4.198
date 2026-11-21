@@ -1,0 +1,31 @@
+{
+  "scope": "Experimental serialized normal-OFF owner for an existing successful ON identity",
+  "source": [
+    "tools/iot/precreated-stop.c",
+    "tools/iot/precreated-stop.h"
+  ],
+  "flow": [
+    "Guard plus fresh disable snapshot",
+    "Original current OPEN receipt then one CLOSE submission",
+    "Progress then explicit software-owner release",
+    "Fresh original-identity CLOSED configuration observation before every subsequent phase",
+    "Owned gate closure/quarantine, services, bridge DOWN/detach/remove",
+    "Reserved disable apply, final software observations and commit",
+    "Release outer guard only after commit"
+  ],
+  "failure_behavior": "Keep phase, original attempt/CLOSE receipt, disable snapshot and guard on refusal; pre-submission cancellation only. Completed status does not issue more operations.",
+  "host_checks": {
+    "actual_stop_and_close_controller": "PASS ASan/UBSan eight network-phase failures, uncertain CLOSE once, pending release, stale CLOSED/serial, foreign process, ordered retry/commit and cancellation. External resource hooks injected.",
+    "prepared_sdk": "PASS actual40-file pinned RC generation, exact-source verifier and prepared native translation-unit compile.",
+    "preflight": "PASS full61-fixture host preflight after adding _GNU_SOURCE to strict C11 fixture; initial feature-macro omission corrected."
+  },
+  "target": "New prepared RC object compilation added to ABI workflow; not yet run for this package. Prior ABI43358974238 succeeded for4b204ac1.",
+  "production_bound": false,
+  "runtime_verified": false,
+  "remaining": [
+    "Production ON/admission/shutdown cancellation integration",
+    "Immutable no-host driver lifecycle admission",
+    "Full target/image checks and physical WR1200JS acceptance"
+  ],
+  "cleanup": "Temporary source trees/binaries automatically removed; completed host log removed (12544bytes). No retained scratch."
+}

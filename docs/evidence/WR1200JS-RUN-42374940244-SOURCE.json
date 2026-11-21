@@ -1,0 +1,21 @@
+{
+  "run_id": 42374940244,
+  "event": "pull_request",
+  "pull_request": 2,
+  "api_head_sha": "f7d51ba35b1ebf99618c2ed07f1c89cee6d28fc6",
+  "run_title_revision": "7494783dbbfc3742626bafdbcf45d126e84e9f48",
+  "merge_commit_parents": [
+    "70964a3dab872f83478bccce3e7c37a4e4ec176c",
+    "f7d51ba35b1ebf99618c2ed07f1c89cee6d28fc6"
+  ],
+  "evidence": [
+    "GitHub REST actions/runs/42374940244",
+    "GitHub REST git/commits/7494783dbbfc3742626bafdbcf45d126e84e9f48",
+    ".github/workflows/build-multiple-boards.yml: run-name and select job",
+    "tools/select-verification-revision.py"
+  ],
+  "interpretation": "PR run title uses github.sha, a synthetic merge commit. API head_sha is the PR branch head. Selector requires checkout HEAD equal dispatch SHA; no override is permitted for PR. Actual selected source remains to be checked in verification-source artifact.",
+  "artifact_observed": false,
+  "build_success_claimed": false,
+  "runtime_verified": false
+}

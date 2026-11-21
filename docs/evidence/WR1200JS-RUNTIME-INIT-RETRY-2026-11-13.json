@@ -1,0 +1,20 @@
+{
+  "issue": "First transient mailbox/listen failure permanently suppressed status initialization",
+  "fix": "Retry initialization at most once per monotonic second; ppoll retry deadline only until listener is ready; wrong UID disables retries",
+  "test": "PASS actual RC wait ASan/UBSan: unsafe directory refuses, immediate retry deferred, repaired directory becomes usable after real ppoll retry interval, child status query succeeds",
+  "preserved": [
+    "notification priority",
+    "pending continuation100ms",
+    "signal mask restoration",
+    "foreign endpoint ownership rules"
+  ],
+  "sources": {
+    "tools/iot/rc-runtime.c": "ffbfa90fcb2b6d775f77a97058848af373966f0ca02d1a9e862a012a574f05eb",
+    "tools/iot/check-rc-runtime.c": "ebaf58e5ae5c72a18b1548371e7988b31fb77aba9bf26e168f404422ca440b52"
+  },
+  "target": "not yet compiled for MIPS",
+  "device": "not tested",
+  "cleanup": "fixture TemporaryDirectory and socket removed automatically",
+  "prepared_source_check": "PASS actual RC/HTTP/control/runtime exact source and board selection",
+  "prepared_native_tu": "PASS GNU11 -Wall -Wextra -Werror -O2"
+}

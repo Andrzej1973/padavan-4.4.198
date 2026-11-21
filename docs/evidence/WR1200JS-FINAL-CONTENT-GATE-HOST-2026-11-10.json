@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "real SquashFS with nonzero image offset PASS",
+    "changed file bytes rejected",
+    "changed file mode rejected",
+    "missing required nfqws2 rejected",
+    "missing filesystem rejected"
+  ],
+  "scope": "Host fixtures testing final-content gate, not firmware target acceptance",
+  "scratch_removed": true,
+  "runtime_verified": false
+}

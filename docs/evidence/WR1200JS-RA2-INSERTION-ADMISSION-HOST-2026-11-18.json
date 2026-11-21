@@ -1,0 +1,17 @@
+{
+  "scope": "Pending public insertion plus native mutation admission; private insertion body is a host boundary actor",
+  "source_sha256": {
+    "ra2-mutation-admission-kernel.h": "8ab0c451745fded4373293e29ef380d43382051d057f463d8b23976a8b487720",
+    "ra2-mutation-binding.py": "f04353faa995a7649123d2c5679435df3012718e4b2c4bb6b25cf35c520e5e42",
+    "check-ra2-mutation-admission.py": "4bd7a75e7081f52e7e59e528c8c4320cb4d10e85948a8db906d05e387bff8508",
+    "peer-normal-insert.inc": "36a9adc5beeff3afb274f4cd299ad0dbc7e1df037948e0d1fb0253ea59a58cef"
+  },
+  "host_asan_ubsan_direct_os_abl": true,
+  "actual_public_table_transaction_body_executed": true,
+  "private_insert_body_executed": false,
+  "success_null_release_balanced": true,
+  "active_key_ra2_refused_guest_passthrough": true,
+  "candidate_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

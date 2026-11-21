@@ -1,0 +1,20 @@
+{
+  "result": "PASS ASan/UBSan DBG and non-DBG",
+  "scope": "actual final candidate TxS callback, producer admission and generated gate header; DMA observation/locks injected",
+  "checker_sha256": "e71a5dc1bc51d639975f6701ff3b18b5b92c2af690e45d332cb2b00ac60747ef",
+  "checks": [
+    "callback changes reopened state to IDLE",
+    "busy DMA rejects builder despite IDLE",
+    "unknown DMA rejects builder despite IDLE",
+    "zero DMA admits pinned builder; explicit end releases pin"
+  ],
+  "not_proven": [
+    "hardware DMA snapshot correctness",
+    "RF/FIFO retirement",
+    "late report delivery or absence",
+    "safe reopen or isolation release"
+  ],
+  "target_compiled": false,
+  "runtime_verified": false,
+  "scratch": "temporary final candidate and fixture binaries removed"
+}

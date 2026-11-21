@@ -1,0 +1,17 @@
+{
+  "scope": "local post-OPEN startup recovery, production backend unbound",
+  "tests": {
+    "check-start-close.py": "PASS actual CLOSE controller and startup recovery with injected transport/resources",
+    "check-start-closed-rollback-composition.py": "PASS ASan/UBSan actual admission/stage/snapshot/post-CLOSE rollback,18 injected restore write positions;9 foreign fields at OBSERVE and FINISH; full64 CLOSED serial mismatch blocks release",
+    "check-start-dns-rollback-composition.py": "PASS ASan/UBSan actual DNS finish/recover/state/abort with actual admission/stage/snapshot/post-CLOSE rollback.8 DNS resource faults and18 restore fault positions; retained nested guards; fresh CLOSED/all9 values before release."
+  },
+  "pending": [
+    "MIPS target compilation",
+    "production activation dispatch",
+    "image/device acceptance"
+  ],
+  "runtime_verified": false,
+  "cleanup": "TemporaryDirectory scratch auto-removed; source fixtures retained",
+  "fixture_correction": "Injected lease adapters renamed in generated DNS fragment to avoid collisions with existing saved-file inline helpers; initial conflicting declaration fixture build corrected.",
+  "prepared_rc": "PASS pinned40 RC files/exact unit/header/object checks and native compile of both new units"
+}

@@ -1,0 +1,72 @@
+{
+  "revision_base": "0fb62dc8814a63cdb314f456a274c993d37e8985",
+  "root_cause": "Pinned init_router reserves the profile and starts baseline network; normal IoT RC activation was notification/mailbox-only with no explicit saved-ON bootstrap",
+  "host_checks": [
+    {
+      "command": "python3 -B tools/iot/check-rc-boot.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-boot-scheduling.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-cold-on-composition.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-radio-on-composition.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-rc-runtime.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 -B tools/iot/check-physical-stop-client-preparation.py",
+      "result": "PASS"
+    }
+  ],
+  "mailbox_check": {
+    "source": "check-control-mailbox.c + control-mailbox.c",
+    "compiler": "host GCC GNU11 Werror ASan/UBSan",
+    "result": "PASS including initial-only refusal cases"
+  },
+  "scope": "Actual initial mailbox + control-server dispatch/continuation. Driver/mode/activation actors; actual generated after-init arm snippet compiled/executed for both boards and policy gates. Prepared RC units host Werror.",
+  "sha256": {
+    "rc-boot.c": "f02a36b862cf1d81aaaba612f5b31659a2e7ae2b1482761dfd760cc962ba3c8d",
+    "rc-boot.h": "786aa0cb95c89a76e4e1497a0e0dfd32e19ae7da31b1c0ccc4aa1369eda3d52b",
+    "rc-runtime.c": "cd892ecf4157964078cc78e3a4d67433a868869e5fbce3cdcb6857fbe96072da",
+    "rc-backend.c": "309246d1b1389b84540724f358b1570e960e33871f7f0c0a9e76d6fbba6e3b8f",
+    "rc-backend.h": "c2b70e1f75f0dab6b70cc5e08560474c9eb6a6eda92d07d9bf2412b509f5b5bc",
+    "control-mailbox.c": "63cd952a0cfc4696dc87e4d18e541f3a72a96612b273e4e085b7a125ea67f875",
+    "control-mailbox.h": "dbb7dc40833408c68456bbe6e64b7efd24763f74d6c2bc214cd1af69b586f5bc",
+    "check-control-mailbox.c": "1d6ef2818e392bc0a21226e1f0ccaf497662f29a2bfef89864ed25c99f7b2b15",
+    "check-rc-boot.py": "592b7d00464bd097c10d05c2e8421a4a5ad2636d409bbca5778326c2fc138695",
+    "check-rc-boot-scheduling.py": "e866fdacb8a78f55fb4d5294461b45158c9fce82e7122455f809a5f91b8be899",
+    "check-rc-runtime.c": "c57e4ab1e376855d525d067f52c6c217d5969a51924cfadc939d245a68a50d57",
+    "prepare-runtime.py": "1483e7ae69ea1aeab2e24a0b716200c08d740e8199da734b8b69e2d7a74ffe63",
+    "check-runtime-source.py": "e30e1c7be95ca6919b82cf06edd954eac3bdf3e639b9ff4926c09ac91e4c91e9",
+    "check-physical-stop-client-preparation.py": "6a560fadd54e9c0269511bd66cb266352760494dc68458d873d7bb82fedb2eb7",
+    "check-physical-stop-suite.py": "579295db05effc07242569a86be39c4ad646ef372442a92e2930bd9d562f341d",
+    "compile-runtime-link.sh": "2302b2219123ff5980b7c5cb26b793efdc50d9a22cc046211a0c4e19a88df5f5"
+  },
+  "paired_startup_bound": true,
+  "production_promoted": false,
+  "target_build_verified": false,
+  "physical_runtime_verified": false,
+  "previous_0fb_ci": {
+    "standard": {
+      "run": 43726078609,
+      "conclusion": "success"
+    },
+    "abi": {
+      "run": 43726074655,
+      "conclusion": "success"
+    },
+    "optional": {
+      "run": 43727300197,
+      "status": "dispatched exact 0fb revision"
+    }
+  }
+}

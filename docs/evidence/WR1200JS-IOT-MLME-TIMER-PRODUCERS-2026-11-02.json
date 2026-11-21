@@ -1,0 +1,27 @@
+{
+  "scope": "Isolated optional peer82 layer after checked MLME halt",
+  "bound_timers": [
+    "Mlme.PeriodicTimer",
+    "Mlme.RxAntEvalTimer"
+  ],
+  "storage": "Both embedded in adapter, initialized by MlmeInit; checked close pins adapter and precedes release-all",
+  "producer_path": "MlmePeriodicExecTimer -> RTEnqueueInternalCmd(CMDTHREAD_MLME_PERIOIDC_EXEC) -> MlmePeriodicExec -> APMlmePeriodicExec -> WdsTableMaintenance; command consumer requires its own join",
+  "verification": {
+    "generated_caller": "PASS ASan/UBSan refusal on first/second timer join failure before MLME kill; successful common timer joins precede kill",
+    "checked_join": "PASS actual candidate timer checked join ASan/UBSan in direct and RTMP_TIMER_TASK_SUPPORT host variants",
+    "target": "PASS exact merged common/mlme.c MIPS TU with retained target flags; no full-module claim",
+    "workflow": "PASS YAML and full affected bash syntax"
+  },
+  "files": {
+    "tools/iot/prepare-mlme-timer-producer-join.py": "95568b8bf35a47f4dc32d46246d8c7f7399fc8dd69da02667a90a1f1f179461f",
+    "tools/iot/check-mlme-checked-halt.py": "515f5f3e4e1ed295dd4f282c49e4b39324e5bad73c6f43e4bedafd2c894283d2"
+  },
+  "remaining": [
+    "Other MLME/AP/APCLI timers and dynamic timer objects",
+    "Producer/catalog storage lifetime",
+    "Command-worker join placement versus RTNL caller contract",
+    "WDS post-unregister reaper and final PCI release",
+    "Full target feature matrix and runtime"
+  ],
+  "cleanup": "Generated source trees, fixtures, host binaries, MIPS object and syntax temp removed"
+}

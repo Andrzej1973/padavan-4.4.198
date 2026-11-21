@@ -1,0 +1,15 @@
+{
+  "scope": "local second-runner success with injected OPEN/commit and initial-only fixture link correction",
+  "checks": [
+    "Second reopen runner reaches ACTIVE retaining distinct request and submitted prior witness, old STOPPED owner unchanged; ASan UBSan PASS",
+    "Initial startup16 setter failure composition PASS after unreachable reopen adapter stubs",
+    "Standalone initial runner and commit regression PASS in prior step"
+  ],
+  "limitations": [
+    "OPEN/commit resource hooks injected; not real loaded-key or firmware acceptance",
+    "Owner handoff not implemented",
+    "Prepared reopen objects/headers and full preflight not complete"
+  ],
+  "fixture_change": "Initial-only generated compositions use assertion-failing reopen adapters, avoid linking unused resource pipelines; actual reopen compositions link actual implementations",
+  "cleanup": "TemporaryDirectory builds removed; active preflight log retained until verified terminal"
+}

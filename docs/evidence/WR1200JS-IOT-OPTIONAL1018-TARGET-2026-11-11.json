@@ -1,0 +1,67 @@
+{
+  "run": 43058250743,
+  "number": 1018,
+  "artifact": 13873798948,
+  "revision": "4f80200ee6cd969a96f7319b0839b23606ac1038",
+  "scope": "actual isolated target module hashes/ELF and attached source/host checks; production installation and device acceptance unverified",
+  "modules": {
+    "mt76x3_ap.ko": {
+      "bytes": 5910000,
+      "sha256": "dc8c0d4abf84ac7a5138dc2bcf05176ea9c5cae8b9ec58c870d6ab8b69f7f04e",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "bytes": 5907936,
+      "sha256": "0bce66d1d1868994a76285445d8589b7cf13011101392b4f1775e381b7b872f8",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "bytes": 5916268,
+      "sha256": "33d03be33aff4b371d4112e6d1a343508e9d0ca58d15e5064254838ed4952fb2",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "bytes": 5912108,
+      "sha256": "38ef9f5de361439e29de0d56f5581cbde691bee73f49b03323c437efff2f1f77",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "bytes": 6519908,
+      "sha256": "134bce2ac9c6a2e104f4e7268c6f0b6409c43127a1808694d5ebadc993a11523",
+      "elf": "ELF32 little-endian MIPS"
+    }
+  },
+  "ra2-ps-retain.txt": "PASS actual SDK PS maintenance/completion: scoped ra2 retention/TIM, Main/Guest/foreign/expired/wake refusal, bounded AID and existing completion accounting; station I/O and wake dequeue injected\nOwned scratch removed bytes 56527",
+  "periodic-first-beacon.txt": "PASS actual bounded first-beacon wait: shared budget, idle producer retry, identity/owner revalidation, no-progress/reject/cancel refusal and retained references on poison. Scheduler/time/MMIO injected; no RF proof.\nPASS generated periodic wrapper/admission + actual bounded OPEN wait with pending/unknown TxS, later progress, non-IDLE and revoked producer. Host scheduler/MMIO/submission injected. Scratch removed bytes 418535",
+  "PsDataTxSHandler_symbol_present": true,
+  "compiled_task_macros": {
+    "KTHREAD_SUPPORT": true,
+    "OS_ABL_FUNC_SUPPORT": false,
+    "CONFIG_PM": false,
+    "RTMP_TIMER_TASK_SUPPORT": false,
+    "WSC_INCLUDED": false,
+    "WSC_AP_SUPPORT": false,
+    "WSC_V2_SUPPORT": false,
+    "WORKQUEUE_BH": false,
+    "CONFIG_ANDES_SUPPORT": true,
+    "MT7603": true,
+    "MT_MAC": true,
+    "RTMP_PCI_SUPPORT": true,
+    "RESOURCE_PRE_ALLOC": true,
+    "LOAD_FW_ONE_TIME": true,
+    "AIRPLAY_SUPPORT": false,
+    "MBSS_SUPPORT": true,
+    "WH_EZ_SETUP": false,
+    "BCN_OFFLOAD_SUPPORT": false
+  },
+  "production_installed": false,
+  "runtime_verified": false,
+  "prepared_source_evidence": {
+    "ap/ap.c": "c9f1589ee1d0b5d5ff941b89593902d214faa95de89b264b55310fa78d2e64e7",
+    "tx_rx/txs.c": "6a6fb274dfc8c873b9dd26666b6ea1c420b2af4596bbf77a0ced9877e792cdad",
+    "include/ra2-ps-retain.h": "05b8ae101467680127c0294746fe8a4536d93ea3bc7fe96295f5f615e0fad67b"
+  },
+  "local_retention_helper_matches": true,
+  "preparation_manifest_target_compiled": false,
+  "manifest_scope_note": "Preparation manifest remains precompile target_compiled=false; final target-compile-result.json and actual matching MIPS ELF establish compilation separately"
+}

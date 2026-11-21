@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Padavan Modern — локальний перегляд</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+  <script src="/shared-wifi.js" defer></script>
+  <script src="/wifi.js" defer></script>
+</head>
+<body>
+  <div class="preview-banner" role="status">
+    <span class="demo-dot" aria-hidden="true"></span>
+    <span id="preview-banner-text">ЛОКАЛЬНЕ DEMO · дані та служби на цій сторінці не є станом роутера</span>
+    <button id="theme-button" class="theme-button" type="button" aria-haspopup="dialog">Padavan Classic</button>
+  </div>
+  <header class="topbar">
+    <a class="brand" href="/modern/" aria-label="Padavan Modern — головна">
+      <svg class="brand-mark" viewBox="0 0 80 64" aria-hidden="true">
+        <path d="M12 40h56v15H12zM17 40V28h6v12m34 0V28h6v12M9 55h62v5H9z"/>
+        <path d="M26 22a20 20 0 0 1 28 0M32 28a12 12 0 0 1 16 0M38 34a4 4 0 0 1 4 0"/>
+        <circle cx="22" cy="48" r="2"/><circle cx="58" cy="48" r="2"/>
+      </svg>
+      <span><strong>Padavan</strong><small>Advanced Router Firmware</small></span>
+    </a>
+    <nav class="band-switcher" aria-label="Швидкий перехід до діапазонів">
+      <a href="/modern/#wifi/split/24/general">2,4 ГГц</a>
+      <a href="/modern/#wifi/split/5/general">5 ГГц</a>
+      <a href="/modern/#wifi/iot">IoT</a>
+    </nav>
+    <div class="build-meta"><span>Версія прошивки: <b id="firmware">—</b></span><span>Час: <b id="clock">—</b></span></div>
+    <div class="header-actions" aria-label="Дії макета">
+      <button type="button" class="header-action" disabled title="Недоступно в локальному DEMO"><span aria-hidden="true">⟳</span> Перезавантаження</button>
+      <button type="button" class="header-action compact" disabled title="Classic ASP/CGI у preview не запускається"><span aria-hidden="true">▤</span> Лог</button>
+      <button type="button" class="header-action compact" disabled title="Недоступно в локальному DEMO"><span aria-hidden="true">⏻</span> Вихід</button>
+      <button type="button" class="header-action admin" disabled title="Недоступно в локальному DEMO"><span aria-hidden="true">♟</span> admin⌄</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Навігація Padavan Classic">
+      <button class="nav-item active" type="button" data-route="home" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span>Головна</span></button>
+      <button class="nav-item" type="button" data-route="internet"><span class="nav-icon" aria-hidden="true">◎</span><span>Інтернет</span></button>
+      <button id="wifi-navigation" class="nav-item" type="button" data-page="Бездротова мережа"><span class="nav-icon" aria-hidden="true">⌁</span><span>Бездротова мережа</span></button>
+      <button class="nav-item" type="button" data-route="iot"><span class="nav-icon" aria-hidden="true">◌</span><span>Мережа IoT</span></button>
+      <button class="nav-item" type="button" data-route="lan"><span class="nav-icon" aria-hidden="true">▦</span><span>Локальна мережа</span></button>
+      <button class="nav-item" type="button" data-route="vpn"><span class="nav-icon" aria-hidden="true">⬡</span><span>VPN</span></button>
+      <button class="nav-item" type="button" data-route="dns"><span class="nav-icon" aria-hidden="true">◎</span><span>DNS і проксі</span></button>
+      <button class="nav-item" type="button" data-route="services"><span class="nav-icon" aria-hidden="true">▣</span><span>Служби</span></button>
+      <button class="nav-item" type="button" data-route="monitoring"><span class="nav-icon" aria-hidden="true">⌁</span><span>Моніторинг</span></button>
+      <button class="nav-item" type="button" data-route="firewall"><span class="nav-icon" aria-hidden="true">⬟</span><span>Брандмауер</span></button>
+      <button class="nav-item" type="button" data-route="qos"><span class="nav-icon" aria-hidden="true">◴</span><span>QoS</span></button>
+      <button class="nav-item" type="button" data-route="system"><span class="nav-icon" aria-hidden="true">⚙</span><span>Система</span></button>
+      <button class="nav-item" type="button" data-route="log"><span class="nav-icon" aria-hidden="true">▤</span><span>Журнал</span></button>
+      <div id="sidebar-note" class="sidebar-note">Локальний макет усіх погоджених розділів. Дані позначені DEMO; налаштування не передаються роутеру.</div>
+    </aside>
+
+    <main id="modern-home" class="main-content">
+      <div class="dashboard-grid">
+        <div class="dashboard-column">
+          <section class="panel overview-panel" aria-labelledby="overview-title">
+            <div class="panel-heading"><span class="pulse-mark" aria-hidden="true">⌁</span><h1 id="overview-title">Огляд мережі</h1></div>
+            <div id="overview-cards" class="overview-grid" aria-label="Демонстраційний стан мереж"></div>
+          </section>
+
+          <section class="panel system-panel" aria-labelledby="system-title">
+            <div class="panel-heading"><span class="pulse-mark" aria-hidden="true">▤</span><h2 id="system-title">Стан системи</h2></div>
+            <div class="metrics-column">
+            <article class="metric-card devices-card">
+              <span class="metric-icon" aria-hidden="true">▣</span>
+              <div class="metric-body"><h3>Пристрої</h3><p class="online"><span class="status-dot"></span>Підключено: <b id="device-total">—</b></p><dl id="device-breakdown"></dl></div>
+            </article>
+            <article class="metric-card progress-card">
+              <span class="metric-icon" aria-hidden="true">▦</span><div class="metric-body"><h3>Завантаження CPU</h3><div class="bar-row"><span class="bar"><i id="cpu-bar"></i></span><b id="cpu-label">—</b></div></div>
+            </article>
+            <article class="metric-card progress-card">
+              <span class="metric-icon" aria-hidden="true">▤</span><div class="metric-body"><h3>Використання пам’яті</h3><div class="bar-row"><span class="bar"><i id="memory-bar"></i></span><b id="memory-label">—</b></div></div>
+            </article>
+            <article class="metric-card temperature-card">
+              <span class="metric-icon" aria-hidden="true">♨</span>
+              <div class="metric-body"><h3>Температури</h3><dl><dt>CPU</dt><dd id="temperature-cpu">Н/Д</dd><dt>Wi-Fi 5 ГГц</dt><dd id="temperature-radio">Н/Д</dd></dl></div>
+            </article>
+            <article class="metric-card zram-card">
+              <span class="metric-icon" aria-hidden="true">▣</span>
+              <div class="metric-body"><h3>zram <span class="online"><span class="status-dot"></span><span id="zram-status">Увімкнено (макет)</span></span></h3><div class="bar-row"><span>Використання:</span><b id="zram-used">—</b></div><div class="bar-row"><span class="bar"><i id="zram-bar"></i></span><b id="zram-percent">—</b></div><p class="subline">Стиснення: <span id="zram-compression">—</span></p></div>
+            </article>
+            <article class="metric-card usb-card"><span class="metric-icon" aria-hidden="true">♧</span><div class="metric-body"><h3>USB-накопичувач <span class="online"><span class="status-dot"></span><span id="usb-status">Підключено (макет)</span></span></h3><p>Файлова система: <b id="usb-filesystem">—</b></p><p>Вільно / всього: <b id="usb-space">—</b></p></div></article>
+            <article class="metric-card interfaces-card"><span class="metric-icon" aria-hidden="true">⌁</span><div class="metric-body"><h3>Інтерфейси</h3><p id="interfaces-detail">—</p></div></article>
+            <article class="metric-card uptime-card"><span class="metric-icon" aria-hidden="true">◷</span><div class="metric-body"><h3>Час роботи</h3><p id="uptime-value">—</p></div></article>
+            </div>
+          </section>
+
+          <section class="panel telemetry-panel" aria-labelledby="telemetry-title">
+            <div class="panel-heading"><span class="pulse-mark" aria-hidden="true">⌁</span><h2 id="telemetry-title">Мережа та процеси</h2></div>
+            <div class="telemetry-grid">
+              <article class="telemetry-card traffic-card">
+                <div class="telemetry-heading"><h3>Мережевий трафік WAN</h3><span class="demo-chip">DEMO</span></div>
+                <p class="traffic-rates">↓ <b id="traffic-download">—</b><span>↑ <b id="traffic-upload">—</b></span></p>
+                <svg id="traffic-chart" class="traffic-chart" viewBox="0 0 620 150" role="img" aria-label="Демонстраційний графік трафіку WAN"></svg>
+              </article>
+              <article class="telemetry-card processes-card">
+                <div class="telemetry-heading"><h3>Процеси CPU</h3><span class="demo-chip">DEMO</span></div>
+                <ol id="process-list" class="process-list"></ol>
+              </article>
+            </div>
+          </section>
+        </div>
+
+        <aside class="dashboard-side">
+          <section class="panel services-panel" aria-labelledby="services-title">
+            <div class="panel-heading"><span class="heading-symbol" aria-hidden="true">▦</span><h2 id="services-title">Швидкі служби</h2></div>
+            <p class="section-note">Плитки відповідають вибраним службам WR1200JS; їхня робота на пристрої ще не підтверджена.</p>
+            <div id="services-grid" class="services-grid" aria-label="Служби вибраної збірки"></div>
+          </section>
+        </aside>
+      </div>
+      <footer class="footer"><span id="footer-device">Youhua WR1200JS (Powered by Padavan)</span><a class="footer-release" href="https://github.com/Andrzej1973/padavan-4.4.198/releases" target="_blank" rel="noopener noreferrer" title="Відкрити список релізів GitHub; оновлення встановлюється вручну">↗ Останній реліз</a></footer>
+    </main>
+    <main id="modern-wifi" class="main-content" hidden aria-label="Налаштування Wi-Fi"></main>
+    <main id="modern-page" class="main-content" hidden aria-label="Сторінка Padavan Modern"></main>
+  </div>
+
+  <dialog id="info-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-heading"><h2 id="dialog-title">Розділ Classic</h2><button id="close-dialog" class="close-button" type="button" aria-label="Закрити">×</button></div>
+    <p id="dialog-copy"></p>
+    <p class="dialog-path">Файл сторінки: <code id="dialog-file"></code></p>
+    <p>Цей preview не запускає роутерний ASP/CGI і не звертається до роутера.</p>
+    <button id="dialog-ok" class="primary-button" type="button">Зрозуміло</button>
+  </dialog>
+</body>
+</html>

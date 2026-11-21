@@ -1,0 +1,173 @@
+#define _GNU_SOURCE
+#include <signal.h>
+#include <poll.h>
+#include <time.h>
+#include <unistd.h>
+#include "rc-runtime.h"
+#include "radio-off-owner.h"
+#include "radio-on-owner.h"
+#include "cold-on-scheduler.h"
+#include "rc-boot.h"
+#include "rc-normal-shutdown.h"
+#include "radio-off-followup.h"
+#include "rc-shutdown-admission.h"
+#include "control-channel.h"
+#include "config-save-server.h"
+#include "config-edit-server.h"
+#include "rc-backend.h"
+#include "rc-physical-stop.h"
+#include "restart-scheduler.h"
+#include "status-endpoint.h"
+#ifndef WR_IOT_RUNTIME_UID
+#define WR_IOT_RUNTIME_UID 0
+#endif
+static struct wr_iot_status_endpoint endpoint;
+static int initialized,listening,disabled;
+static unsigned long long next_init;
+static unsigned long long next_progress;
+static struct wr_iot_rc_view_hooks view_hooks;
+static pid_t view_owner;
+static int view_bound(void)
+{return view_owner==getpid()&&view_hooks.init&&view_hooks.ready_fd&&view_hooks.delay_ms&&view_hooks.step;}
+int wr_iot_rc_runtime_register_view(const struct wr_iot_rc_view_hooks *hooks)
+{
+ if(!hooks||!hooks->init||!hooks->ready_fd||!hooks->delay_ms||!hooks->step||view_owner||initialized||
+    wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
+    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
+ view_hooks=*hooks;view_owner=getpid();return 1;
+}
+static struct wr_iot_radio_off_owner radio_off_owner;
+static int radio_off_reload,radio_off_redispatch;
+static struct wr_iot_off_followup radio_off_followup;
+static struct wr_iot_physical_stop_request radio_off_receipt;
+static int radio_off_receipt_valid;
+#include "radio-on-release-runtime.h"
+int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *out)
+{
+ if(!out)return 0;
+ memset(out,0,sizeof(*out));
+ if(!radio_off_receipt_valid)return 0;
+ *out=radio_off_receipt;return 1;
+}
+static int radio_off_pending(void)
+{return radio_off_owner.owner==getpid()||radio_off_followup.phase==WR_OFF_FOLLOWUP_DONE;}
+int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *off,int reload)
+{
+ if((reload!=0&&reload!=1)||wr_iot_rc_shutdown.radio_on_owned||radio_off_receipt_valid||radio_off_owner.owner||radio_off_owner.busy||radio_off_followup.owner||
+    radio_off_followup.phase!=WR_OFF_FOLLOWUP_IDLE||radio_off_redispatch||wr_iot_rc_shutdown.radio_off_owned)return 0;
+ if(!wr_iot_radio_off_begin(&radio_off_owner,off))return 0;
+ wr_iot_rc_shutdown.radio_off_owned=1;radio_off_reload=reload;return 1;
+}
+static void radio_off_continue(void)
+{
+ if(radio_off_followup.phase==WR_OFF_FOLLOWUP_DONE){
+  if(radio_off_owner.owner||radio_off_owner.busy||radio_off_followup.busy||
+     radio_off_followup.finish_guard||radio_off_followup.finish_fence.owner||
+     radio_off_followup.finish_fence.level||radio_off_followup.off||radio_off_followup.finish_off||
+     radio_off_followup.profile.baseline.active||radio_off_followup.profile.baseline.files.count||
+     wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return;
+  if(radio_off_receipt_valid||radio_off_followup.released.action!=WR_STOP_RELEASE||
+     !wr_iot_physical_stop_request_valid(&radio_off_followup.released))return;
+  radio_off_receipt=radio_off_followup.released;radio_off_receipt_valid=1;
+  memset(&radio_off_followup,0,sizeof(radio_off_followup));radio_off_reload=0;radio_off_redispatch=1;return;
+ }
+ if(radio_off_owner.owner!=getpid())return;
+ if(!radio_off_owner.result){(void)wr_iot_radio_off_step(&radio_off_owner,radio_off_reload);return;}
+ if(radio_off_owner.result!=1)return;
+ if(radio_off_followup.phase==WR_OFF_FOLLOWUP_FINAL_PENDING||radio_off_followup.phase==WR_OFF_FOLLOWUP_FINALIZING){
+  (void)wr_iot_off_followup_finish(&radio_off_followup,&radio_off_owner);return;
+ }
+
+ if(!radio_off_followup.owner)(void)wr_iot_off_followup_begin(&radio_off_followup,&radio_off_owner);
+ else (void)wr_iot_off_followup_step(&radio_off_followup);
+}
+static int runtime_observed(const struct wr_iot_control_result *result)
+{
+ if(result&&result->state==WR_IOT_RESULT_APPLIED&&wr_iot_rc_edit_observed(result))return 1;
+ if(result&&(result->state==WR_IOT_RESULT_SAVED_FLASH||result->state==WR_IOT_RESULT_STORED_RAM)){
+  if(wr_iot_rc_edit_observed(result))return 1;
+  if(wr_iot_rc_save_observed(result))return 1;
+  if(result->state==WR_IOT_RESULT_SAVED_FLASH)return 0;
+ }
+ return wr_iot_rc_backend_observed(result);
+}
+static unsigned long long runtime_ms(void)
+{struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t)||t.tv_sec<=0)return 0;return (unsigned long long)t.tv_sec*1000+(unsigned long long)t.tv_nsec/1000000;}
+static void runtime_init(void)
+{
+ struct wr_iot_mailbox m;unsigned long long now=runtime_ms();
+ if(listening||disabled)return;
+ if(!initialized){initialized=1;wr_iot_status_endpoint_init(&endpoint);}
+ if(geteuid()!=WR_IOT_RUNTIME_UID){disabled=1;return;}
+ if(!now||(next_init&&now<next_init))return;
+ /* A transient filesystem/socket error must not disable status forever.
+  * Keep retries bounded; existing foreign endpoints remain untouched. */
+ next_init=now+1000;
+ wr_iot_mailbox_init(&m);
+ if(!wr_iot_mailbox_open(&m,WR_IOT_CONTROL_DIRECTORY,1))return;
+ wr_iot_mailbox_close(&m);
+ listening=wr_iot_status_endpoint_listen(&endpoint,WR_IOT_CONTROL_DIRECTORY,WR_IOT_RUNTIME_UID);
+}
+
+void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
+ const volatile int *alarm)
+{
+ sigset_t blocked,previous;struct pollfd p[2];struct timespec delay,*timeout=NULL;
+ unsigned long long now;int pending,fd;unsigned int view_delay;
+ if(!wait_mask||!notification||!alarm)return;
+ sigemptyset(&blocked);sigaddset(&blocked,SIGUSR1);sigaddset(&blocked,SIGALRM);
+ /* Atomic flag-check/wait transition: pending signals are delivered by ppoll
+  * under the vendor's supplied wait mask, not lost between test and sleep. */
+ if(sigprocmask(SIG_BLOCK,&blocked,&previous))return;
+ if((*notification||*alarm)&&!wr_iot_rc_normal_shutdown_pending())goto done;
+ runtime_init();if(view_bound())view_hooks.init();
+ pending=radio_off_redispatch||radio_off_pending()||wr_iot_cold_on_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending()||wr_iot_rc_normal_shutdown_pending()||wr_iot_rc_boot_pending();now=runtime_ms();
+ fd=wr_iot_status_endpoint_ready_fd(&endpoint);
+ p[0]=(struct pollfd){fd,POLLIN,0};
+ p[1]=(struct pollfd){view_bound()?view_hooks.ready_fd():-1,POLLIN,0};
+ if(pending||endpoint.connection>=0){
+  unsigned long long ms=100;
+  if(pending&&now&&now>=next_progress)ms=0;
+  else if(pending&&now&&next_progress-now<ms)ms=next_progress-now;
+  delay.tv_sec=0;delay.tv_nsec=(long)ms*1000000;timeout=&delay;
+ }
+ if(!listening&&!disabled){
+  unsigned long long ms=1000;
+  if(now&&next_init>now)ms=next_init-now;
+  if(ms>1000)ms=1000;
+  if(!timeout||(unsigned long long)delay.tv_nsec/1000000>ms){
+   delay.tv_sec=(time_t)(ms/1000);delay.tv_nsec=(long)(ms%1000)*1000000;timeout=&delay;
+  }
+ }
+ view_delay=view_bound()?view_hooks.delay_ms():0;
+ if(view_delay){
+  if(view_delay>1000)view_delay=1000;
+  if(!timeout||(unsigned long long)delay.tv_sec*1000+(unsigned long long)delay.tv_nsec/1000000>view_delay){
+   delay.tv_sec=(time_t)(view_delay/1000);delay.tv_nsec=(long)(view_delay%1000)*1000000;timeout=&delay;
+  }
+ }
+ (void)ppoll(p,2,timeout,wait_mask);
+ if((*notification||*alarm)&&!wr_iot_rc_normal_shutdown_pending())goto done;
+ (void)wr_iot_status_endpoint_step(&endpoint,runtime_observed);
+ if(view_bound())view_hooks.step();
+ now=runtime_ms();
+ if((radio_off_redispatch||radio_off_pending()||wr_iot_cold_on_pending()||wr_iot_radio_on_pending()||wr_iot_rc_pending()||wr_iot_rc_physical_pending()||wr_iot_restart_scheduler_pending()||wr_iot_rc_normal_shutdown_pending()||wr_iot_rc_boot_pending())&&now&&now>=next_progress){
+  next_progress=now+100;
+  if(radio_off_pending())radio_off_continue();
+  else if(wr_iot_cold_on_pending()){
+   if(wr_iot_cold_on_step()==1&&wr_iot_cold_on_retire())radio_off_redispatch=1;
+  }
+  else if(wr_iot_radio_on_pending()){
+   if(wr_iot_radio_on_step()==1&&wr_iot_radio_on_retire())radio_off_redispatch=1;
+  }
+  else if(radio_off_redispatch){radio_off_redispatch=0;(void)wr_iot_rc_dispatch();}
+  else if(wr_iot_rc_physical_pending())wr_iot_rc_physical_step();
+  else if(wr_iot_restart_scheduler_pending())(void)wr_iot_restart_scheduler_step();
+  else if(wr_iot_rc_pending())(void)wr_iot_rc_continue();
+  else if(wr_iot_rc_normal_shutdown_pending())(void)wr_iot_rc_normal_shutdown_step();
+  else if(wr_iot_rc_boot_pending()){
+   if(wr_iot_rc_boot_step())radio_off_redispatch=1;
+  }
+ }
+ done:(void)sigprocmask(SIG_SETMASK,&previous,NULL);
+}

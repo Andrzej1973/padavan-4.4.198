@@ -1,0 +1,22 @@
+{
+  "scope": "isolated WSC feature only",
+  "source": "ap/apcli_sync.c",
+  "input_sha256": "2252b15357451acf6908af84bdae71f6bee2ca1bf0b2355dc1c8e2f90c91c067",
+  "output_sha256": "81e6daaa7592df458356558e9ca68ab97460c7ae0f59aaa3d55b1ad8216d94bf",
+  "changed_sources": {
+    "ap/apcli_sync.c": {
+      "input_sha256": "2252b15357451acf6908af84bdae71f6bee2ca1bf0b2355dc1c8e2f90c91c067",
+      "output_sha256": "81e6daaa7592df458356558e9ca68ab97460c7ae0f59aaa3d55b1ad8216d94bf"
+    },
+    "common/wsc.c": {
+      "input_sha256": "8280845ea389550b63ebdac42d851e84adb2002443021b94c492181cc57f3fea",
+      "output_sha256": "da7be986af56fe086fd9cefad8641fe79e41f0b4400a43f8a2c8ec2669abef99"
+    },
+    "common/crypt_biginteger.c": {
+      "input_sha256": "55d2e1d84cda96eb3d3624ca673d8f3cfb5855cdffd7421e41d63988ac78d769",
+      "output_sha256": "a775812b25eb8de52b3aad11118cbaf078e6356433bf4996b78418c73381ef63"
+    }
+  },
+  "production_installed": false,
+  "runtime_verified": false
+}

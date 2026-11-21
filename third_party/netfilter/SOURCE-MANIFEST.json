@@ -1,0 +1,44 @@
+{
+  "purpose": "Static build dependencies for Zapret2 nfqws2 on the WR1200JS MIPS target",
+  "recorded": "2026-10-25",
+  "packages": [
+    {
+      "name": "libmnl",
+      "version": "1.0.5",
+      "archive": "libmnl-1.0.5.tar.bz2",
+      "url": "https://www.netfilter.org/projects/libmnl/files/libmnl-1.0.5.tar.bz2",
+      "bytes": 314791,
+      "sha256": "274b9b919ef3152bfb3da3a13c950dd60d6e2bcd54230ffeca298d03b40d0525",
+      "license": "LGPL-2.1-or-later",
+      "extracted": {"files": 76, "bytes": 1720916},
+      "link": "static"
+    },
+    {
+      "name": "libnfnetlink",
+      "version": "1.0.2",
+      "archive": "libnfnetlink-1.0.2.tar.bz2",
+      "url": "https://www.netfilter.org/projects/libnfnetlink/files/libnfnetlink-1.0.2.tar.bz2",
+      "bytes": 298844,
+      "sha256": "b064c7c3d426efb4786e60a8e6859b82ee2f2c5e49ffeea640cfe4fe33cbc376",
+      "license": "GPL-2.0-or-later",
+      "extracted": {"files": 42, "bytes": 1519115},
+      "link": "static"
+    },
+    {
+      "name": "libnetfilter_queue",
+      "version": "1.0.5",
+      "archive": "libnetfilter_queue-1.0.5.tar.bz2",
+      "url": "https://www.netfilter.org/projects/libnetfilter_queue/files/libnetfilter_queue-1.0.5.tar.bz2",
+      "bytes": 313856,
+      "sha256": "f9ff3c11305d6e03d81405957bdc11aea18e0d315c3e3f48da53a24ba251b9f5",
+      "license": "GPL-2.0-or-later",
+      "extracted": {"files": 62, "bytes": 1681446},
+      "link": "static"
+    }
+  ],
+  "notes": [
+    "Archives are vendored byte-exact; build scripts must verify the SHA-256 before extraction.",
+    "Static linking avoids shipping three extra shared objects in the router image.",
+    "License texts are inside each archive (COPYING)."
+  ]
+}

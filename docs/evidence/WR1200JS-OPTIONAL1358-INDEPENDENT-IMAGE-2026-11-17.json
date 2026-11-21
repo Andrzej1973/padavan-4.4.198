@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-17",
+  "run": 44127447652,
+  "artifact": 14348039870,
+  "source_revision": "832febdea4e5475033d40f892b56cb1035257f55",
+  "verification_source": {
+    "dispatch_revision": "cb7afcb043222ee84901536bbc6d16d2122e5d92",
+    "requested_revision": "832febdea4e5475033d40f892b56cb1035257f55",
+    "verified_revision": "832febdea4e5475033d40f892b56cb1035257f55",
+    "runtime_verified": false
+  },
+  "github_run": {
+    "conclusion": "success",
+    "displayTitle": "Padavan #1358 [optional] 832febdea4e5475033d40f892b56cb1035257f55 host=ubuntu-24.04 tc=source iot/peer82",
+    "headSha": "cb7afcb043222ee84901536bbc6d16d2122e5d92"
+  },
+  "status": "INDEPENDENT_CANDIDATE_IMAGE_AND_LIFECYCLE_PAIR_PASS",
+  "image_sha256": "a2e4c5e01f468ef3f4fc294d6d35f9139fdc169f3e420b1b02e7d9f49c4e035e",
+  "image_bytes": 14513620,
+  "remaining_partition_bytes": 1673772,
+  "header_payload_crc_verified": true,
+  "squashfs_offset": 1981504,
+  "lifecycle_pair_recomputed": true,
+  "native_snapshot_evidence": {
+    "verified": true,
+    "kernel_getall_sha256": "1328a1e4fa4f098286ce7a30561ebb51f645010e6fcb6c4b7182000bb721ef08",
+    "kernel_generate_sha256": "c25f6619194849e9c2897c6ea73aff9b935aaf88a52afb037a2a2069a5d3cef1",
+    "native_header_sha256": "411b381cdff5d6fea5fda76510e7a5dacff591dd067ce47c3cc3e225ae42b33e",
+    "nvram_space": 61440,
+    "nvram_header_bytes": 20,
+    "snapshot_c_sha256": "4f305b1bf4a647c209c4aa39550b4678ed8afbc125601eadb62fc49957388203",
+    "snapshot_h_sha256": "d31c873448a171b3d8c127ba5daedd774e756448fd6273ffa9179f0b0c856f55"
+  },
+  "configuration_ram_target_symbols": true,
+  "desired_generation_target_symbols": true,
+  "automatic_initial_shutdown_target_symbols": true,
+  "automatic_cold_shutdown_target_symbols": true,
+  "automatic_mailbox_shutdown_target_symbols": true,
+  "embedded_replacements": {
+    "sbin/rc": {
+      "bytes": 1046044,
+      "sha256": "420b6a12a81ee35f9dd325225e1c561acd3054a81a8be3929aaf85a76b57496d",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 407228,
+      "sha256": "ce548965ca386a63bf5c05d370b85a72c39303f115dbfb41aa30e049127d6c2a",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/bin/iappd.sh": {
+      "bytes": 1567,
+      "sha256": "020f6b714bc6c174681b2ce040a9d57ba7d9943679591f00a8b8b17ea29a62fa"
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "bytes": 6300076,
+      "sha256": "af4bc0aeb89214c70af42ac37d9969482adba18c98993c7c7a97f24d52d4085c",
+      "elf": "ELF32 LE MIPS"
+    }
+  },
+  "dependency_closure": {
+    "runtime_verified": false,
+    "production_installed": false,
+    "dependency_closure_verified": true,
+    "elf_files": {
+      "candidate:sbin/rc": {
+        "sha256": "420b6a12a81ee35f9dd325225e1c561acd3054a81a8be3929aaf85a76b57496d",
+        "needed": [
+          "libiw.so.30",
+          "libshared.so",
+          "libdisk.so",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libiw.so.30": {
+        "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+        "needed": [
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libuClibc-1.0.48.so": {
+        "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+        "needed": [
+          "ld-uClibc.so.1"
+        ]
+      },
+      "image:lib/ld-uClibc-1.0.48.so": {
+        "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+        "needed": []
+      },
+      "image:lib/libshared.so": {
+        "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+        "needed": []
+      },
+      "image:lib/libdisk.so": {
+        "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+        "needed": []
+      },
+      "candidate:usr/sbin/httpd": {
+        "sha256": "ce548965ca386a63bf5c05d370b85a72c39303f115dbfb41aa30e049127d6c2a",
+        "needed": [
+          "libshared.so",
+          "libiw.so.30",
+          "libdisk.so",
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libssl.so.3": {
+        "sha256": "3cb01582ae199b37e864e0470a2418d9c0023805e6fa11ecf6e0a3dfdcaaa938",
+        "needed": [
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libcrypto.so.3": {
+        "sha256": "1c94f2da2adab126eba18cb543e832f993320942507abaf3de32eaa77f9659c3",
+        "needed": [
+          "libc.so.0"
+        ]
+      }
+    },
+    "errors": []
+  },
+  "board_checks": {
+    "uimage_magic": true,
+    "product_id": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "size_range": true,
+    "iot_hwnat_dtb": true
+  },
+  "module_vermagic_4_4_198": true,
+  "limits": [
+    "Selected embedded replacements and dependencies independently extracted; full unchanged-ROMFS proof remains CI scope",
+    "Covers832feb desired generation integration and RAM transport; excludes later native commit-order/readback/conditional-save packages",
+    "Candidate not main-image promoted or device accepted"
+  ],
+  "runtime_verified": false,
+  "production_promoted": false
+}

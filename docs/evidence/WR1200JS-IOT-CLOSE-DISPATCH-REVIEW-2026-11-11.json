@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-11",
+  "decision": "CLOSE/progress dispatch remains unbound pending RF/late-TxS producer lifetime evidence",
+  "checked_source": {
+    "tools/iot/prepare-driver-api.py": "f4cba7cfa408ebb754a61e6021899f363f0d2302a492258e56376d7479e18786",
+    "tools/iot/close-bundle-assets.py": "ebf68f3ceb165b9a41bcfa53ec7676448359abeca8bf1c295121498ea122ae17",
+    "tools/iot/driver-api-closed-entry.inc": "43c36c1f515cb26db637c96b3fc3d61483ac66497e7831c75602414ea05c6bbf",
+    "tools/iot/driver-api-close-entry.inc": "a6c6a1bebb50d1d2c59c0d17718022f3d2c6eddc49a5a0c7b3749a7e9700559a",
+    "tools/iot/driver-api-close-finish-binding.inc": "b123c6be45872baba99433354a12a919783e1a50de8e40152fa304472da81e8d",
+    "tools/iot/driver-api-close-progress.inc": "d13042037f6b63f7a4143bc5dbe42f7448fde787475a7dade8b3f45ef9838e30",
+    "tools/iot/driver-api-close-retirement-thread-body.inc": "2974c98887e752cca2d0ecc9e49123d6b92390f5d36923c30ae3dbe2d1d5d7b7"
+  },
+  "call_chain": [
+    "rt28xx_ioctl:0x89fd -> wr_iot_driver_closed_ioctl currently routes configuration/refusal/uncertain/current-OPEN queries",
+    "candidate include-only CLOSE bundle -> wr_iot_driver_close_reply -> request_enter -> dev_close -> finish_recover",
+    "finish_recover -> finish_reference / synchronous_put or recovery queue",
+    "progress -> reconcile or launch -> fixed retirement thread -> module_put_and_exit"
+  ],
+  "evidence": [
+    "prepare-driver-api.py integrates bundle before closed entry without routing operation10/13",
+    "CLOSE successful status is reference completion and preserves active owner fence",
+    "progress is a reference-retirement operation, not an RF or isolation-release result",
+    "fixed retirement body explicitly disclaims RF/FIFO/late-TxS/reopen proof"
+  ],
+  "missing": [
+    "per-BSS producer stop/flush receipt covering later TxS, DMA and callbacks, or firmware-echoed lifetime identity",
+    "safe owner-fence release/reopen and production RC network rollback binding using that receipt"
+  ],
+  "source_changed": false,
+  "runtime_verified": false,
+  "scratch_created": false
+}

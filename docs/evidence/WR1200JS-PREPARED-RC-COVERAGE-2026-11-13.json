@@ -1,0 +1,22 @@
+{
+  "source": "b0c9d5e9a57368ce15ac990e20fa72f92fb9d569",
+  "local_check": {
+    "input": "40 actual RC files,703580bytes extracted from pinned c25283e archive; board l1profile from overlay",
+    "commands": [
+      "prepare-rc.py",
+      "prepare-activation-header-check.py"
+    ],
+    "outcome": "PASS actual RC preparation and exact disable-unit source identity; new quarantine header and installed reapply function confirmed",
+    "scope": "Source generation only, not target compile/link"
+  },
+  "coverage_finding": "Firmware host preflight covers actual normal-OFF composition; prepared RC target compilation belongs to separate Band Steering driver ABI workflow. Latest previous ABI source was b7597c93, not current RC changes.",
+  "target_check": {
+    "run": 43358186573,
+    "headSha": "b0c9d5e9a57368ce15ac990e20fa72f92fb9d569",
+    "status": "success; four actual MIPS RC objects independently verified in WR1200JS-RC-TARGET-ABI-2026-11-13.json"
+  },
+  "verifier_followup": "PASS full installed fragment and quarantine.h identity check; injected renamed/missing reapply refused before probe generation. Scratch removed.",
+  "runtime_verified": false,
+  "cleanup": "All extracted RC files/probe removed automatically via TemporaryDirectory",
+  "firewall_probe_followup": "New reapply helper added to installed-source extraction; actual prepared pinned RC probe compiled and passed ASan/UBSan including UP-bridge eligibility distinction. Target verification of this expanded probe pending."
+}

@@ -1,0 +1,31 @@
+{
+  "scope": "Local experimental no-host Linux operation14 for software CLOSE ownership release",
+  "files_sha256": {
+    "driver-api-close-release.h": "dd3c0253a4f9fc29e4452b4a0a88a8a9efdf3ed15cc91a1c5b25c2744b9d64f9",
+    "driver-api-close-release-binding.inc": "ffc821398e62e0dfa02586e12a143e21a7e707c547ce1cc6bde7c27026f00191",
+    "driver-api-close-release-wire.h": "bbf78f8ab65f98017558c90c182536f2be4a5aa991624c8dcf1d9cb1f95da40f",
+    "release-dispatch-composition.py": "35512f5ca605204ed05d07c461a5770469489b604c122a68db90a7099b721c0d",
+    "check-driver-api-close-release.c": "abedaf5032abbf13722bdddca7d4b7fb2d34d6b3d5d80dd04f25121fb6c98785",
+    "check-driver-api-close-release-binding.py": "a22c89a05dfb2283bca98d70f011ba31ccb05b7449161b56e1dbaa3d40e2d28e",
+    "check-release-dispatch-composition.py": "f2fe681c5905d595b23905ddf7d4d96d6d9852373d94dfaafe80403fc79f1f19"
+  },
+  "checks_passed": [
+    "Release reference helper ASan/UBSan including idempotence and stale OPEN receipt",
+    "Actual binding with injected progress/observer, disjoint locks and generation/reset/control refusals",
+    "Strict64-byte wire codec opcode14",
+    "Actual common dispatch privilege/copy/wire refusal and legacy queries",
+    "Thirteen-path source composition and constructor drift refusal",
+    "Optional shell syntax"
+  ],
+  "integration": "Only separate no-host compile-only tree receives opcode14 after common capability and copy checks. Existing production candidate unchanged. Full optional module gate will compile the dispatcher and binding.",
+  "remaining": [
+    "Target full-module compilation",
+    "Reset versus producer snapshot synchronization source review",
+    "Cold no-host lifetime acceptance",
+    "RC operation14 client/controller integration",
+    "Physical repeated OFF/reopen and Main/Guest acceptance"
+  ],
+  "activation_ready": false,
+  "runtime_verified": false,
+  "cleanup": "All host fixture temporary sources/binaries removed."
+}

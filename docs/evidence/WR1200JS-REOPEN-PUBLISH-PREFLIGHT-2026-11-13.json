@@ -1,0 +1,16 @@
+{
+  "host_suite": {
+    "session": 14475,
+    "exit_code": 0,
+    "log_sha256": "f0308e4b000dee006e959c9b67ae67263d738edc024488ce5e8b09faf539b1ac",
+    "last_line": "PASS early host compatibility: 71 existing standalone fixtures, CLOSE composition and WDS producer capture; actual driver binding checked later"
+  },
+  "runtime_preparation": {
+    "session": 63211,
+    "exit_code": 0,
+    "scope": "exact RC/HTTP/control/runtime source and board Make selection"
+  },
+  "prepared_rc": "six strict native translation units PASS",
+  "mips": "pending",
+  "device": "not tested"
+}

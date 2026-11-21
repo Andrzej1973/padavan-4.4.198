@@ -1,0 +1,17 @@
+{
+  "revision_base": "e08c88102eeaaab6e3cd1e077c13ba5ff28fa00c",
+  "checks": [
+    "python3 -B tools/repository/check-audit.py PASS including DTS/image limit drift refusals",
+    "python3 -B tools/iot/check-isolated-trx.py PASS actual SquashFS corruption checks",
+    "bash -n tools/iot/ci-stage-candidate-romfs.sh PASS",
+    "embedded Python AST parse PASS"
+  ],
+  "sha256": {
+    "ci-stage-candidate-romfs.sh": "7d72568cc9ae8bf7d5c2ca0e4a744ec00cdc696970e9704bc55f5ed89910a8b7"
+  },
+  "firmware_partition_offset": 327680,
+  "firmware_partition_bytes": 16187392,
+  "actual_candidate_board_gate_passed": false,
+  "actual_candidate_trx_built": false,
+  "physical_runtime_verified": false
+}
