@@ -1,3 +1,32 @@
+## Local main merge and Phase 1 checkpoint — 2026-11-21
+
+Active checkout: `/home/andrzej/padavan-build/router-guide-work`, branch
+`main`, HEAD `3ea4a86fdd0b8201f3d529dadcdd0751a7acb8d3`. The verified local
+`origin/main` SHA `70964a3dab872f83478bccce3e7c37a4e4ec176c` is an ancestor of
+HEAD; the ordinary merge commit `c50480744f4f91caec15e82db0cf0253343f5125`
+joins the service WebUI branch. No push was performed; local main is 1130
+commits ahead of origin/main.
+
+Local Phase 1 commits: `db0d7f02086a4e7c8b6d9e214925e340bcf87dcb` adds the
+repository/profile validator and CI gate; `3ea4a86fdd0b8201f3d529dadcdd0751a7acb8d3`
+records its validation boundary. Local audit, negative fixtures, board selector,
+owned dependency checks, Python/YAML parsing and failure-monitor offline tests
+pass. No full image or device acceptance is claimed. The live nilabsent master
+was rechecked at the same pinned SHA `c29b12da69b1593a6e8cf65cd43767fc99bb6386`.
+
+Remaining working-tree changes are intentionally preserved and not part of the
+Phase 1 commits. Mi Mini changes are deferred until WR1200JS acceptance with all
+four required variants; its status text now says so. IoT host evidence, patches,
+owner materials, generated helpers and `.scratch/` remain unclassified at the
+individual-file level and were neither staged nor removed. The failure-monitor
+parser/test edit passes offline fixtures, but no causal CI log for its new
+`can't open file` pattern is recorded; keep it uncommitted until that source is
+verified. Phase 1A call-site inventory remains a separate follow-up; no source
+tree extraction was performed.
+
+Next: continue a path-by-path review of preserved IoT/evidence changes and
+identify the monitor failure run/log before committing any of those groups.
+
 ## FT IAPP claimed AUTH owner transfer — 2026-11-21
 
 Added prepared adapter-owned identity storage and transfer helpers in

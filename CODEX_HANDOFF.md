@@ -35420,3 +35420,37 @@ resource_retirement_verified=false. Compact evidence:
 `docs/evidence/WR1200JS-IOT-OPTIONAL-5D2A580-2026-11-09.json`.
 No artifact ZIP, module or extracted tree retained;0 disk scratch to remove.
 No device acceptance or safe late-TxS retirement claimed.
+## Sol handoff checkpoint — local merge and Phase 1 — 2026-11-21
+
+Workspace `/home/andrzej/padavan-build/router-guide-work`; branch `main`;
+HEAD `3ea4a86fdd0b8201f3d529dadcdd0751a7acb8d3`. Remote `main` was freshly
+verified at `70964a3dab872f83478bccce3e7c37a4e4ec176c`; it is an ancestor of
+HEAD. Merge `c50480744f4f91caec15e82db0cf0253343f5125` includes the full
+`codex/wr1200js-service-webui` branch. Local main is 1130 commits ahead; do not
+publish without separate authorization.
+
+Two local Phase 1 commits:
+- `db0d7f02086a4e7c8b6d9e214925e340bcf87dcb` — repository layout and board
+  admission validation; validator is integrated before board selection.
+- `3ea4a86fdd0b8201f3d529dadcdd0751a7acb8d3` — record exact local status,
+  evidence limits and pending CI/image checks.
+
+Local repository audit, negative fixtures, board selector, archive dependency
+hash checks, Python/YAML parsing, and failure-monitor offline regression pass.
+No full image, GitHub run for these unpublished SHAs, or device acceptance is
+claimed. Nilabsent `master` was rechecked at the same SHA recorded in
+`docs/NILABSENT-ARCHITECTURE-ANALYSIS.md`.
+
+The worktree remains dirty by design. Mi Mini implementation/build changes are
+deferred until WR1200JS acceptance including all four final variants; the local
+priority documentation was corrected. Keep the owner materials, hundreds of
+IoT/evidence files, `.scratch/`, generated binaries and Nim helpers untouched;
+none were included in Phase 1 commits. The monitor parser/test edit passes its
+offline test, but a matching causal CI log for the added missing-file pattern
+has not been identified, so leave it uncommitted. Phase 1A is still a separate
+call-site audit; no bulk source relocation is approved or needed.
+
+Next action: continue the detailed audit of remaining IoT/evidence groups and
+verify the failure-monitor source run before deciding whether its patch merits
+a separate local commit. Sol remains sole writer; no push, device operation or
+deletion was performed.
