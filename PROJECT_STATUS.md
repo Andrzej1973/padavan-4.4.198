@@ -1,3 +1,29 @@
+## Standard1441 / ABI961 success; optional1442 active — 2026-11-21
+
+Standard1441/run44902143769 and ABI961/run44902041131 succeeded for exact
+source `2fcc4f3fd45430a5135f348482a8da3d3ffc3ce1`.
+The downloaded standard artifact14706976076 matches API SHA256 and passes ZIP
+CRC. TRX13128620 bytes, SHA256
+`db9c5a71eb14fd909f70cb13a8833dee1f527a9cbb12a02c023783bd30ee17a3`.
+Receipt: `docs/evidence/WR1200JS-STANDARD1441-RESULT-2026-11-21.json`.
+This is standard/ABI evidence, not corrected optional FT target acceptance.
+
+After confirming no equivalent queued/running optional, optional1442/run
+44904023629 was dispatched for the same source: WR1200JS, ubuntu24.04,
+source toolchain, candidate_scope=iot, iot_candidate_variant=peer82.
+API title/head SHA confirms2fcc4f3f; verification-source artifact and target
+reports must still be inspected. Run is active. Observe this exact run, do not
+dispatch a duplicate. A failure requires comparing its failure-monitor report
+with original step/diagnostic artifact before changes. No device work authorized.
+
+The preservation/ancestry recheck is committed locally atfe01dde1. All48845
+initial paths exist;3477 are baseline symlinks without recorded target hashes.
+Six changed regular files match committed content; the others match their
+baseline hashes. More architectural extraction remains a separate Phase1A,
+as documented; no broad relocation was attempted. Related CI results and any
+necessary corrections remain local until one coherent combined push.
+Artifact downloaded in memory only; no new archive/extraction was retained.
+
 ## Standard1440 result and optional1439 correction — 2026-11-21
 
 Owner requests exactly one push combining these results and corrections.

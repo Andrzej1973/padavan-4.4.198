@@ -1,0 +1,30 @@
+{
+  "run": 44902143769,
+  "number": 1441,
+  "source": "2fcc4f3fd45430a5135f348482a8da3d3ffc3ce1",
+  "conclusion": "success",
+  "abi_run": 44902041131,
+  "abi_conclusion": "success",
+  "artifact": 14706976076,
+  "zip_sha256": "9a2629ef9c657f38adbe604491f4c63dae47aec986f2069e8e62a62102dd7589",
+  "zip_crc_checked": true,
+  "files": [
+    {
+      "path": "SETUP_WR1200JS.txt",
+      "bytes": 44755,
+      "sha256": "a8e1a8154709e5559021755ca0c8a8aa187392b277cfa7bae6d2db5963c65b32"
+    },
+    {
+      "path": "wr1200js.config",
+      "bytes": 11600,
+      "sha256": "635cb4bc006a66215ea2ed7026e1ced0a5f35c929de03f1277432407bd5b1ca5"
+    },
+    {
+      "path": "WR1200JS_4.4.198.9-1441_2fcc4f3f.trx",
+      "bytes": 13128620,
+      "sha256": "db9c5a71eb14fd909f70cb13a8833dee1f527a9cbb12a02c023783bd30ee17a3"
+    }
+  ],
+  "scope": "Standard firmware and ABI CI successful. Artifact ZIP identity/CRC and member hashes independently checked. Optional FT candidate, full ROMFS and physical acceptance remain separate.",
+  "cleanup": "ZIP read only in memory; no archive or extraction retained."
+}
