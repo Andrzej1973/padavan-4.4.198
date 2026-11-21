@@ -1,4 +1,130 @@
-# Supplied MI-MINI config — 2026-10-03
+# Mi Mini port status
+
+## Current owner priority — 2026-11-21
+
+Mi Mini work is deferred until WR1200JS acceptance, including the four required
+final variants. Do not continue source audits, implementation, builds, or device
+work for Mi Mini during this stage, including while WR1200JS jobs are running.
+The dated entries below preserve earlier findings and proposed next steps; they
+are not authorization to resume Mi Mini work. Keep its board disabled until its
+own image and mandatory IoT gates pass after the WR1200JS stage.
+
+## RBUS stop located; failure propagation still open — 2026-11-07
+
+Resolved the previous partial trace: common/mlme.c MlmeRadioOff uses
+include/chip/mac_pci.h:439–440, calling RT28xxPciMlmeRadioOFF. Its explicit RBUS
+branch in common/cmm_mac_pci.c:2373–2432 disables DMA and polls DMA/MAC idle.
+There is no missing-stop conclusion. The bounded DMA loop can exhaust without
+returning failure; MAC timeout logs and continues; the API is VOID. Before
+accepting ring release, implement a checked stop/lifetime-retention contract
+rather than simply adding a timeout. Exact evidence updated in the close-path
+JSON. No source behavior changed; runtime remains unverified.
+
+
+## RBUS close path remains under review — 2026-11-07
+
+RTMPDrvClose waits indefinitely for DeQueueRunning, then runs MlmeHalt,
+RtmpNetTaskExit, APShutdown and RtmpMgmtTaskExit. The later checked PCI radio-off
+call is restricted to PCI/PCIE infType, so it cannot establish RBUS DMA idle.
+IRQ release precedes ring reset/free, but APShutdown descendants and producer
+exclusion still require review. Do not infer a DMA bug from this partial trace,
+and do not add a timeout that continues into freeing live memory.
+[Exact source/line evidence](evidence/MI-MINI-CLOSE-PATH-2026-11-07.json).
+Potential future source step after WR1200JS acceptance: trace APShutdown/MAC
+stop specifically for RBUS.
+
+
+## Background detach ownership trace — 2026-11-07
+
+Pinned nilabsent d2c5846: rbus_main_dev.c detach calls RtmpPhyNetDevExit,
+then RtmpRaDevCtrlExit, then RtmpOSNetDevFree. rt_main_dev.c:741–781 removes
+APCLI/WDS/MBSS under their feature guards and unregisters the primary netdev.
+rt_linux.c:1700–1709 unregisters netdev then releases its netdev_ops;
+common/rtmp_init.c RtmpRaDevCtrlExit calls RTMPFreeAdapter. rt_linux.c:1585–1611
+frees private netdev metadata and finally free_netdev. The candidate clears
+rt2880_dev after that path. Do not add another adapter free after CtrlExit.
+This source trace does not yet prove timer/task/IRQ/DMA quiescence: continue
+through registered close callback and concrete RTMPFreeAdapter implementation.
+No detach code changed; no runtime acceptance claimed.
+
+
+## MMIO admission implementation — 2026-11-07
+
+Candidate platform probe rejects missing/wrong-sized/wrong-base WMAC resources
+before mapping or vendor attach. Host ASan/UBSan tests execute its actual probe
+with injected resource/IRQ/map/attach outcomes. Bundle hash and lightweight CI
+fixture updated; no target/device acceptance, DTS instantiation or clock/reset
+support implied. This was a local host-only candidate step, not board build
+admission or authorization for further Mi Mini work. Next, after the deferred
+stage resumes: review clock/reset/pinctrl/Factory binding and DT.
+
+
+## Background DT resource review — 2026-11-07
+
+Exact OpenWrt reference606ee33b8a049244759de735a48e98b00ec8ad5c identifies
+WMAC MMIO0x10180000/0x40000 and CPU interrupt6; EEPROM cells at Factory0/0x8000.
+These are source references, not device evidence or a ready vendor4.4 DTS.
+Current adapter acquires mapped MMIO+IRQ but no clock/reset/pinctrl ownership;
+Factory binding expects case-sensitive `Factory` whereas reference DTS uses
+`factory`. Reference modern clock/NVMEM bindings are not pinned4.4 bindings.
+Reference firmware0x50000/0xf80000 preserves tail partitions and must not be
+adopted as the owner's Padavan partition map. CPU IRQ6 must be resolved through
+DT irq domain, not assumed to be global Linux IRQ6. Next: resolve these adapter
+and binding contracts before creating/enabling a bootable board DT.
+[Exact source/blob evidence](evidence/MI-MINI-DT-RESOURCE-REFERENCE-2026-11-07.json).
+
+
+## Background source check — 2026-11-07
+
+Fresh nilabsent master c29b12da69b1593a6e8cf65cd43767fc99bb6386 has the same
+RT2860 radio subtree SHA ee88f6d0b37bab21bbc2ec34eb7c49480e297818 as pinned
+d2c5846299949c57a4e867284069900b561dd2a4. A radio donor rebase is not needed
+merely because master advanced; other board/package files can still differ.
+The platform adapter requires `xiaomi,mi-mini-mt7620-radio`, but pinned kernel
+DTS has no such node and the installer explicitly leaves DTS unchanged.
+A linked probe/attach symbol is therefore insufficient to instantiate the
+radio. Next board step: review DT resources, IRQ/reset/clock/Factory binding
+and image integration; do not invent numeric resources from another board.
+[Exact evidence](evidence/MI-MINI-RADIO-DONOR-AND-DT-2026-11-07.json).
+
+
+## Historical scope and schedule — owner clarification 2026-11-07
+
+The owner means the entire [audit and plan](MI-MINI-AUDIT-2026-11-07.md),
+not just enabling LPRD. The 2026-11-07 spare-interval schedule was superseded
+on 2026-11-17; Mi Mini work now waits until WR1200JS acceptance.
+The completed audit is the source inventory and plan, not board acceptance.
+LPRD's local profile change remains a separate recorded change.
+
+| Phase | Current state / next action |
+| --- | --- |
+| Hardware/source audit | Report complete; verify exact R1CM revision, bootloader, MTD and current donor sources before dependent work |
+| Board and image port | Existing isolated radio/kernel candidate only; complete Ethernet, DTS/platform, GPIO, USB, both radios and safe image layout |
+| Router and mandatory IoT | Not accepted; prove routing, DHCP/DNS, isolation, main/guest/IoT, lifecycle and image inclusion for this board |
+| Manual repeater/WISP | Plan recorded; verify each uplink and AP coexistence before automatic selection |
+| Automatic dual-band uplink | Not implemented by adopting this plan; add link/gateway/loss/RSSI metrics, priorities, hysteresis, dwell/backoff and recovery |
+| USB/Ethernet printing | Reuse p910nd and existing controls, optional LPRD included locally; implement LAN policy and direct network-printer inventory, then verify actual printers |
+| WebUI and safe mode changes | Extend existing authenticated pages in the approved style; preserve Router mode, configuration and management access with rollback |
+| Release/device acceptance | Open; target modules, full image/ROMFS/size/SHA256 and separately authorized runtime tests remain required |
+
+Future next action after WR1200JS acceptance: review the existing board/radio
+candidate against fresh donor sources and close its board/image gaps; do not
+start with a new printer server or claim the port enabled in the build catalog.
+Use the same checkout, single writer and CI queues.
+
+## Printing and execution priority — 2026-11-07
+
+Owner-approved candidate profile change: include LPRD in addition to the
+existing USB RAW/p910nd route; leave U2EC excluded. See
+[the current dependency decision](MI-MINI-DEPENDENCY-REVIEW.md).
+No image/target/device or printing acceptance is established by this selector.
+Keep `boards.json` disabled until the complete board/image and mandatory IoT
+gates pass. The earlier background-work timing is superseded: resume Mi Mini
+implementation only after WR1200JS acceptance. Reuse existing printer controls,
+enforce LAN/approved-VPN access, preserve Router mode, and implement manual WISP
+before automatic stability-based uplink selection.
+
+## Supplied MI-MINI config — 2026-10-03
 
 ## Isolated radio CI record — 2026-10-26
 

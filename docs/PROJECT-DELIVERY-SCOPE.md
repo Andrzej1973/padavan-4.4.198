@@ -18,8 +18,9 @@ CAKE factory OFF must not silently overwrite an owner's saved enabled choice.
 
 This supersedes the earlier two-image delivery matrix and mandatory CAKE in
 every final image. Keep CAKE included/default OFF in the current development
-baseline until explicit final variant selection is implemented. It does not
-resume paused Modern development or authorize router changes.
+baseline until explicit final variant selection is implemented. The owner
+explicitly resumed Hybrid Modern settings/apply development on 2026-11-20;
+IoT remains first priority and this does not authorize router changes.
 
 Verify each image independently: exact revision/toolchain/configuration,
 TRX size and SHA256, ROMFS, feature inclusion/absence, complete WebUI controls,
@@ -36,17 +37,19 @@ factory default (`CONFIG_FIRMWARE_INCLUDE_SQM=y`, `sqm_enable=0`). This supersed
 older "without CAKE"/"CAKE excluded" scope statements, including stale automatic
 goal text. Preserve saved user configuration and acceleration preferences;
 activation is an explicit user choice. Existing Classic SQM integration may be
-restored for this requirement; Modern WebUI development remains paused.
-Target image and physical runtime verification are separate and still required.
+restored for this requirement. Modern settings/apply work resumed on 2026-11-20
+by direct owner instruction. Target image and physical runtime verification are
+separate and still required.
 See docs/CAKE-SQM-RESTORATION.md for the historical cause and current gates.
 
 # WR1200JS project delivery requirements
 
 ## WebUI paused by the owner — 2026-11-11
 
-WebUI development is paused until a separate explicit owner instruction.
-Preserved source, settings model, visual references, verification evidence and
-resumption steps are indexed in [WebUI preservation](webui/README.md).
+WebUI development was paused until a separate explicit owner instruction.
+The owner supplied that instruction on 2026-11-20 for settings integration and
+apply verification; IoT remains the first priority. Preserved source, settings
+model, visual references and evidence are indexed in [WebUI preservation](webui/README.md).
 
 
 ## Two final WebUI variants — owner requirement 2026-11-11
@@ -72,6 +75,26 @@ This clarification records the requested WebUI reservation; the attachment's
 other proposed operations require their own task scope and verified execution.
 
 
+## Historical Mi Mini schedule — superseded 2026-11-17
+
+The complete [Mi Mini audit and implementation plan](MI-MINI-AUDIT-2026-11-07.md)
+is accepted into project work, not merely its LPRD recommendation. Scope:
+R1CM Linux 4.4.198 board/image port; full Router mode; manual and automatic
+dual-band uplink/repeater with stability metrics and anti-flap policy; existing
+USB printing and Ethernet printer management; integrated existing WebUI,
+resource/security gates, and mandatory board-specific IoT acceptance.
+
+This 2026-11-07 scheduling note is retained as project history. The owner’s
+2026-11-17 requirement supersedes it: do not start Mi Mini audit or implementation
+work until WR1200JS acceptance, including all four final variants. Builds in
+progress do not open the Mi Mini stage. The accepted Mi Mini scope below remains
+deferred planning context and does not authorize current implementation.
+
+Track actual Mi Mini progress and next action in
+[Mi Mini status](mi-mini-port-status.md); use the audit's full phases and
+acceptance criteria. Before executing each phase, recheck the same upstream
+sources for current versions and compatibility. Do not equate adopting the
+plan, a profile selector or a successful compile with completed board support.
 
 User UI palette request, 2026-10-17: enabled service toggle controls should
 be green; disabled controls retain neutral grey. Preserve ON/OFF text and
@@ -554,9 +577,9 @@ results from expectations. Preserve existing router settings. Report missing
 baseline measurements and avoid claiming an improvement without evidence.
 These configuration checks and runtime comparisons have not been performed here.
 
-## Priority clarification — user instruction 2026-10-03
+## Historical priority clarification — superseded 2026-11-17
 
-Focus primary implementation and completion work on YOUHUA WR1200JS firmware. Continue Mi Mini only during spare time or WR1200JS build waits, when it does not delay WR1200JS completion. Mi Mini remains an accepted second-priority deliverable. All development remains in Andrzej1973/padavan-4.4.198, branch main.
+The 2026-10-03 instruction to continue Mi Mini during spare time or WR1200JS build waits is superseded. Keep all Mi Mini audit, implementation, build and device work deferred until WR1200JS acceptance, including the four required final variants. Mi Mini remains a planned second-stage deliverable; build waits do not authorize parallel work. All development remains in Andrzej1973/padavan-4.4.198, branch main.
 
 ## Final delivery: unchanged upstream router configurations — user instruction 2026-10-03
 

@@ -1,4 +1,23 @@
-# Mi Mini profile review — 2026-10-09
+# Mi Mini profile review
+
+## Owner update — 2026-11-07
+
+The owner requested enabling the recommended additional LPR printing path:
+`configs.build/mi-mini.config` now selects `CONFIG_FIRMWARE_INCLUDE_LPRD=y`.
+RAW printing reuses the existing USB `p910nd` mechanism; U2EC stays excluded.
+This is package inclusion in an unbuilt candidate, not a runtime service start
+or proof of printer compatibility. Before image acceptance verify LPRng and
+p910nd packaging, `CONFIG_USB_PRINTER`, authenticated existing UI controls,
+boot/hotplug recovery and LAN/approved-VPN-only access in both operating modes.
+Do not publish printing on WAN, guest or IoT without explicit policy.
+
+WR1200JS remains the active project. Mi Mini work is deferred until WR1200JS
+acceptance, including the four required final variants. This plan records
+future Router/Repeater requirements: manual uplinks before automatic health
+selection, Ethernet printers accessed directly where possible, and mandatory
+per-board IoT acceptance gates. No Mi Mini build is enabled here.
+
+## Historical review — 2026-10-09
 
 Supplied file SHA256: `73222454d22e88f8075a2bc047024e192ec63f0e8e3b8f4e440427bb99ac2442`.
 
