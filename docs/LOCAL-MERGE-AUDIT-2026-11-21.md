@@ -187,3 +187,30 @@ fully revalidated. Source drift and uncertain/private records must retain that
 status; no generic PASS or device-acceptance conclusion may be inferred from
 their preservation. The detailed inventories remain local rather than exposing
 private paths in GitHub.
+
+## Retention decisions for remaining evidence
+
+After selective preservation,307 original evidence files remain local. The
+private per-file disposition records each exact path, size, SHA256, purpose,
+tracked textual references, current-source hash matches/drift, publication
+readiness and retention reason. Exact content comparison against candidate
+tracked files found no tracked duplicates. All originals remain at their
+existing paths; no archive, relocation or deletion is needed to retain them.
+
+| Retention category | Files | Decision |
+| --- | ---: | --- |
+| Historical source/host/CI evidence with unvalidated claims | 285 | Retain locally; use only after checking source revision and original result |
+| Private workspace inventory | 1 | Keep outside publication |
+| Historical static build inventory | 1 | Retain locally; generator is preserved separately |
+| Historical cleanup receipts | 14 | Keep as history; never infer new deletion permission |
+| Provenance-sensitive observation | 1 | Keep private; no new device authority |
+| Untrusted historical diagnostic logs | 4 | Retain original context; review before reuse/publication |
+| Historical source hash manifest | 1 | Retain as identity metadata, not test proof |
+
+This disposition completes the safe keep/exclude decision for these records;
+it does not certify their historical claims. Uncertainty is a reason to preserve
+them separately, as permitted by the owner's repository-completion task.
+The separate dependency snapshot, taken before the last two source-audit records
+were committed, counted309 remaining records and104 with tracked textual
+references. References are evidence of documentation use, not semantic test
+coverage. No original is redundant merely because its hash or test result is old.
