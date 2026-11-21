@@ -1,3 +1,20 @@
+## Standard1443 / ABI962 success; optional1444 active — 2026-11-21
+
+Standard1443/run44905596073 and ABI962/run44905573916 succeeded for exact
+source `052c7eb00312d3b6279d88bd9d918be94a5a068b`.
+Artifact14707714691 independently matches API SHA256 and ZIP CRC. TRX
+13127560 bytes, SHA256
+`7bbe0481f34f8bc326565d809b2fd593a4f5abb6399171682e07cf0365b99ce5`.
+Receipt: docs/evidence/WR1200JS-STANDARD1443-RESULT-2026-11-21.json.
+
+No equivalent optional was queued/running. Optional1444/run44906887469 now
+checks that exact SHA: WR1200JS, ubuntu24.04, source toolchain, iot/peer82.
+API title/head SHA agrees. Observe this run; independently inspect its source
+receipt and FT target reports on completion. This is the required recheck of
+1442's temporary-header correction, not yet a success claim. No duplicate run
+or additional push. Keep related results/fixes local for one combined push.
+Artifacts read only in memory; no new local archive/extraction retained.
+
 ## Optional1442 missing target-probe header corrected locally — 2026-11-21
 
 Optional1442/run44904023629 failed for exact2fcc4f3f. Verified dispatch,

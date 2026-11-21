@@ -1,0 +1,31 @@
+{
+  "run": 44905596073,
+  "number": 1443,
+  "source": "052c7eb00312d3b6279d88bd9d918be94a5a068b",
+  "conclusion": "success",
+  "abi_run": 44905573916,
+  "abi_number": 962,
+  "abi_conclusion": "success",
+  "artifact": 14707714691,
+  "zip_sha256": "a7935533850ed2fbacc9ff12ad1a8a18c184d8e770ebd578ae4ad66eec79cbce",
+  "zip_crc_checked": true,
+  "files": [
+    {
+      "path": "SETUP_WR1200JS.txt",
+      "bytes": 44755,
+      "sha256": "be33b4e2696f5aeedc0d59bf842df290e1a0be46c7410784409401597e92401e"
+    },
+    {
+      "path": "wr1200js.config",
+      "bytes": 11600,
+      "sha256": "635cb4bc006a66215ea2ed7026e1ced0a5f35c929de03f1277432407bd5b1ca5"
+    },
+    {
+      "path": "WR1200JS_4.4.198.9-1443_052c7eb0.trx",
+      "bytes": 13127560,
+      "sha256": "7bbe0481f34f8bc326565d809b2fd593a4f5abb6399171682e07cf0365b99ce5"
+    }
+  ],
+  "scope": "Standard and ABI CI plus independent artifact ZIP digest, CRC and file hashes. Corrected optional FT target probe, full ROMFS and physical acceptance remain separate.",
+  "cleanup": "Artifact read in memory; no local archive or extraction retained."
+}
