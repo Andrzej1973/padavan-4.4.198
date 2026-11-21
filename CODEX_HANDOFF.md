@@ -1,3 +1,37 @@
+## OFF reload profile receipt reaches ON admission — 2026-11-21
+
+Snapshot-prepared OFF reload now observes its own canonical pinned profile,
+including provisioned OFF, through the existing file scanner. Generated B can
+pass with unchanged legacy A; later desired C does not retarget that observer.
+File observation retains stable-context, guard and exact baseline-file checks;
+it is not proof of driver-loaded B. No loaded keys are rewritten.
+
+Final OFF cleanup keeps a nonsecret file receipt after wiping profile/pin/
+credentials. RC reobserves it under the service guard and publishes it alongside
+the exact historical physical RELEASE. Prepared ON admission requires that
+receipt and the same encoded physical identity, while still requiring fresh
+DOWN/mode/fence/capture checks. ON release and shutdown clear both receipts.
+Reload1 ON still validates its newly generated profile before Main UP.
+
+Host checks passed exit0 with ASan/UBSan: OFF profile, followup, final cleanup,
+RC OFF composition, ON admission, ON release and OFF entry/runtime. Prepared0/1
+cases cover canonical B with legacy A, later C, copy/foreign-file refusal,
+failed unmask retention, file identity surviving cleanup, and missing guard/
+file or wrong physical nonce refusal. RC composition injects physical/SDK/final
+actors; final-cleanup fixture executes the actual OFF generation/followup/
+cleanup path, with revision/native/SDK/terminal actors injected. ON admission
+uses an injected RC observer; actual RC observer is checked separately.
+No single fixture or target/device acceptance is implied by this composition.
+
+Remaining: reload0 still uses legacy observer during OFF; retain actual loaded
+profile provenance for ordinary toggles/INITIAL/cold/disabled origins, and audit
+receipt refresh after generation rollback that replaces the inode. Keep loaded
+promotion and production-image flags false. Target link now requires the new
+owned profile observer; new exact-SHA target/image evidence remains pending.
+Standard1455 and ABI for602ac017 succeeded; optional1456/run44925218732 is active
+for that exact source, not this newer package. Scratch helpers removed by their
+temporary-directory cleanup; no device change or new persistent scratch.
+
 ## OFF reload generation revision pinned — 2026-11-21
 
 Snapshot-prepared OFF reload now captures a canonical desired revision under

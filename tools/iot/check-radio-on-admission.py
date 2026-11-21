@@ -23,6 +23,14 @@ int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *r){receipt_
 int wr_iot_rc_radio_on_mode_read(struct wr_iot_rc_mode *m){mode_reads++;m->router=1;m->radio=mode_ok;m->mode=change_mode&&mode_reads>1;return 1;}
 int wr_iot_radio_resume_down_observed(const struct wr_iot_physical_stop_request*r){assert(depth&&wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.radio_off_owned&&r->action==WR_STOP_RELEASE);return down;}
 int wr_iot_rc_off_profile_current(void){profile_reads++;if(change_profile&&profile_reads>1){FILE*f=fopen(profile_path,"w");assert(f&&fputs("foreign profile\n",f)>=0&&!fclose(f));}return profile_ok;}
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+int wr_iot_rc_radio_off_profile_current(const struct wr_iot_physical_stop_request *r){
+ unsigned char a[64],b[64];
+ assert(wr_iot_physical_stop_request_encode(a,sizeof(a),r)&&
+  wr_iot_physical_stop_request_encode(b,sizeof(b),&receipt)&&!memcmp(a,b,sizeof(a)));
+ return wr_iot_rc_off_profile_current();
+}
+#endif
 #include "radio-on-admission.c"
 static int fail_unmask,signals;
 static int mask_hook(int how,const sigset_t *set,sigset_t *old){if(how==SIG_SETMASK&&fail_unmask)return -1;return sigprocmask(how,set,old);}
@@ -66,6 +74,7 @@ int main(int argc,char**argv){
 '''
 with tempfile.TemporaryDirectory(prefix='wr-on-admission-') as d:
     p=Path(d)/'check.c'; p.write_text(body); binary=Path(d)/'check'
-    subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(binary)],check=True)
-    subprocess.run([str(binary),d],check=True,timeout=15)
+    for prepared in (0,1):
+      subprocess.run(['gcc','-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED='+str(prepared),'-std=c11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(binary)],check=True)
+      subprocess.run([str(binary),d],check=True,timeout=15)
 print('PASS ON admission: actual capture/fence/cancel, absent receipt and mode refusal, stale receipt/DOWN/profile/mode drift retained, generated baseline cannot cancel, original bytes unchanged; no Main UP or RC binding')

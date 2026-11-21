@@ -15,6 +15,14 @@ static int on_same_receipt(const struct wr_iot_physical_stop_request *expected)
   wr_iot_physical_stop_request_encode(a,sizeof(a),expected)&&
   wr_iot_physical_stop_request_encode(b,sizeof(b),&current)&&!memcmp(a,b,sizeof(a));
 }
+static int on_profile_current(const struct wr_iot_physical_stop_request *receipt)
+{
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ return wr_iot_rc_radio_off_profile_current(receipt);
+#else
+ (void)receipt;return wr_iot_rc_off_profile_current();
+#endif
+}
 static int on_admission_begin(struct wr_iot_on_admission *s,int reload)
 {
  struct wr_iot_rc_mode before={0},after={0};struct wr_iot_physical_stop_request receipt={0};int token;
@@ -31,11 +39,11 @@ static int on_admission_begin(struct wr_iot_on_admission *s,int reload)
  s->owner=getpid();s->guard=token;s->released=receipt;s->phase=WR_ON_ADMISSION_REFUSED;
  wr_iot_rc_shutdown.radio_off_owned=1;
  if(on_same_receipt(&s->released)&&wr_iot_radio_resume_down_observed(&s->released)&&
-    (reload||wr_iot_rc_off_profile_current())&&wr_iot_radio_profile_take(&s->profile)&&
+    (reload||on_profile_current(&s->released))&&wr_iot_radio_profile_take(&s->profile)&&
     s->profile.files.saved[0].existed&&s->profile.files.saved[0].size&&
     wr_iot_rc_radio_on_mode_read(&after)&&before.router==after.router&&before.radio==after.radio&&before.mode==after.mode&&
     on_same_receipt(&s->released)&&wr_iot_radio_resume_down_observed(&s->released)&&
-    (reload||wr_iot_rc_off_profile_current())&&s->profile.files.count==1&&
+    (reload||on_profile_current(&s->released))&&s->profile.files.count==1&&
     wr_iot_generated_matches(&s->profile.files.generated[0],s->profile.files.paths[0])&&
     !wr_iot_rc_shutdown.pending)s->phase=WR_ON_ADMISSION_CAPTURED;
  s->busy=0;return 1;

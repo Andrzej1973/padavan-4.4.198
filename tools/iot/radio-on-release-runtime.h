@@ -22,6 +22,9 @@ static void rc_on_release_cleanup(void *context)
  rc_on_release_wipe(&s->generation.provisioning,sizeof(s->generation.provisioning));
 #endif
  radio_off_receipt_valid=0;rc_on_release_wipe(&radio_off_receipt,sizeof(radio_off_receipt));
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ rc_on_release_wipe(&radio_off_profile_receipt,sizeof(radio_off_profile_receipt));
+#endif
  s->generation.phase=WR_ON_GEN_COMMITTED;s->generation.admission=NULL;
  s->main.generation=NULL;s->guest.main=NULL;s->services.guest=NULL;
  s->multicast.main=NULL;s->multicast.guest=NULL;
@@ -111,6 +114,9 @@ static void rc_on_shutdown_cleanup(void *unused)
   rc_on_release_wipe(a->profile.files.saved[i].data,a->profile.files.saved[i].size);
  wr_iot_bundle_release(&a->profile.files);rc_on_release_wipe(&a->profile,sizeof(a->profile));
  radio_off_receipt_valid=0;rc_on_release_wipe(&radio_off_receipt,sizeof(radio_off_receipt));
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ rc_on_release_wipe(&radio_off_profile_receipt,sizeof(radio_off_profile_receipt));
+#endif
  rc_on_release_wipe(&s->generation.desired,sizeof(s->generation.desired));
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
  /* Synchronous generator borrow ended before terminal fence cleanup. */

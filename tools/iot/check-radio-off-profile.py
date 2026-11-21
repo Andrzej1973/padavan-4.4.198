@@ -9,12 +9,18 @@ static int depth,observed=1,generator_calls,partial;
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
 static int revision_current=1,capture_ok=1,enter_calls,leave_calls;
 static const struct wr_iot_generation_config *bound_revision;
+static char capture_record[WR_IOT_SAVED_CONFIG_MAX];
 int wr_iot_generation_config_capture(struct wr_iot_generation_config *p,const char *id,
  unsigned long long created,struct wr_iot_saved_config *out){
  assert(depth&&p&&!p->owner&&!p->self&&out&&id&&created);
  if(!capture_ok)return 0;
  p->owner=getpid();p->self=(uintptr_t)p;p->created=created;
- memcpy(p->id,id,sizeof(p->id));return 1;
+ memcpy(p->id,id,sizeof(p->id));
+ if(capture_record[0]){p->present=1;memcpy(p->record,capture_record,sizeof(p->record));}
+ return 1;
+}
+int wr_iot_generation_config_owned(const struct wr_iot_generation_config *p){
+ return p&&p->owner==getpid()&&p->self==(uintptr_t)p&&p->created;
 }
 int wr_iot_generation_config_release(struct wr_iot_generation_config *p){
  assert(p&&p->owner==getpid()&&p->self==(uintptr_t)p&&bound_revision!=p);
@@ -36,6 +42,13 @@ int wr_iot_radio_off_observed(const struct wr_iot_physical_stop_request*r){asser
 int wr_iot_rc_restart_generate(int arg){assert(depth&&!arg);generator_calls++;
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
 assert(bound_revision);
+if(bound_revision->present){
+ struct wr_iot_saved_config config={0};FILE *in=tmpfile(),*out=fopen(profile_path,"w");
+ assert(in&&out&&wr_iot_saved_config_decode(&config,bound_revision->record,strlen(bound_revision->record)));
+ assert(fputs(baseline,in)>=0);rewind(in);
+ assert(wr_iot_precreated_profile(in,out,config.profile.ssid,config.profile.password,0));
+ assert(!fclose(in)&&!fclose(out));wr_iot_saved_wipe(&config,sizeof(config));return 0;
+}
 #endif
 if(partial){replace_file("partial\n",8);return partial==2?0:-1;}make_profile();return 0;}
 #include "radio-off-profile-check.c"
@@ -90,6 +103,21 @@ assert(!unlink(profile_path));
  assert(wr_iot_off_profile_step(&s)==-1&&generator_calls==generated_before);
  wr_iot_bundle_release(&s.baseline.files);assert(wr_iot_generation_config_release(&s.config_revision));
  assert(!unlink(profile_path));revision_current=1;
+ struct wr_iot_saved_config desired={.profile={.enabled=0,.ssid="IoT-B",.password="password-B",
+  .gateway="192.168.50.1",.mask="255.255.255.0",.first="192.168.50.10",.last="192.168.50.30"}};
+ assert(wr_iot_saved_config_encode(capture_record,sizeof(capture_record),&desired));
+ memset(&s,0,sizeof(s));make_profile();partial=0;
+ assert(wr_iot_off_profile_begin(&s,&off));
+ assert(!wr_iot_off_profile_step(&s)&&s.phase==WR_OFF_PROFILE_GENERATED);
+ assert(wr_iot_off_profile_step(&s)==1&&s.phase==WR_OFF_PROFILE_VERIFIED);
+ assert(!wr_iot_rc_off_profile_current()); /* Legacy A is deliberately unchanged. */
+ strcpy(desired.profile.ssid,"IoT-C");
+ assert(wr_iot_saved_config_encode(capture_record,sizeof(capture_record),&desired));
+ assert(wr_iot_off_profile_step(&s)==1); /* Later desired C cannot retarget B. */
+ struct wr_iot_off_profile duplicate=s;assert(!wr_iot_off_profile_current(&duplicate));
+ make_profile();assert(!wr_iot_off_profile_step(&s)); /* Foreign file no longer matches B. */
+ wr_iot_bundle_release(&s.baseline.files);assert(wr_iot_generation_config_release(&s.config_revision));
+ assert(!unlink(profile_path));memset(capture_record,0,sizeof(capture_record));
 #endif
  /* A versioned desired generation can differ from unchanged legacy keys.
   * File provenance succeeds; the current OFF observer still refuses it.
@@ -117,3 +145,5 @@ print('PASS OFF profile actual snapshot/journal: copied owner refused, reload0 n
 print('PASS source-gap reproduction: new desired file valid; unchanged legacy OFF observer refuses; loaded handoff remains unbound')
 
 print('PASS OFF revision binding prepared0/1: injected capture failure and drift refuse generation; borrow ends before verification; legacy observer gap remains')
+
+print('PASS owned OFF observer: generated disabled B accepted with unchanged legacy A; later desired C does not retarget B; copy and foreign file refused')

@@ -1,0 +1,83 @@
+{
+  "scope": "prepared OFF reload pinned-file observer and historical file receipt to ON admission",
+  "base_revision": "602ac01739a0e5c6551eeb4fd669f0899a113e4c",
+  "source_sha256": {
+    "radio-off-profile-check.c": "9314741427ff8f2cd899f5aa05136fc2f8c4dea33f18c2163737da4370b00ab9",
+    "radio-off-profile.c": "ad22c5a306a0bd9bf21da16a9dafd990f8260a849ffd5f2abbc568432540c139",
+    "radio-off-profile.h": "a31dbd50cbda99b3c01d1267cb069f8ce966d32dcbeca6a2443264c470cd6aba",
+    "radio-off-followup.c": "6dcc63ca5ebd83bdc98db5b1a5996f7240bd2d80f182131dd4b1ee22ca0e23bb",
+    "radio-off-followup.h": "a470b59fcee18cc2b8afb3fa591b66f1a9d8797562d417d31a02859ae4aaa6ae",
+    "rc-runtime.c": "1d0852ebf12847d6f3698d7b98161bf3a20bdcd384782b0bf15909d6a9ad5bb8",
+    "rc-runtime.h": "d104493f4a4d8a73568bd331e40286e1d5654e429b8904e166fa10c4fb30b5c7",
+    "radio-on-admission.c": "c4b58c8bf562ca3a00f7af93c15f77291741cc44ce96edf39d0963505dbaa153",
+    "radio-on-release-runtime.h": "30b90404729be92146897cc78013b29e35ab6d6047846f4acfcd1120c9386794",
+    "compile-runtime-link.sh": "a2e7840cf49bdd5a394c8985ad27aad88675f1cf248c36d9a0dcc412008d8a52"
+  },
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-radio-off-profile.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-off-followup.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-off-finish.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-rc-radio-off-composition.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-on-admission.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-on-release.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-off-entry-runtime.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    }
+  ],
+  "shell_syntax_exit_status": 0,
+  "limits": [
+    "Separate component fixtures; SDK/physical/terminal/native actors injected",
+    "Prepared0/1 covers OFF observer/final cleanup/RC publication/ON admission; ON release and OFF entry fixtures use default preparation",
+    "reload0 OFF legacy observer and loaded provenance remain unresolved",
+    "Rollback receipt refresh requires audit",
+    "New target/image/device evidence absent; production and loaded-promotion gates remain false"
+  ],
+  "scratch_retained": false
+}

@@ -41,6 +41,18 @@ static int radio_off_reload,radio_off_redispatch;
 static struct wr_iot_off_followup radio_off_followup;
 static struct wr_iot_physical_stop_request radio_off_receipt;
 static int radio_off_receipt_valid;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+static struct wr_iot_restart_profile_receipt radio_off_profile_receipt;
+int wr_iot_rc_radio_off_profile_current(const struct wr_iot_physical_stop_request *expected)
+{
+ unsigned char before[64],after[64];
+ return radio_off_receipt_valid&&
+  wr_iot_physical_stop_request_encode(before,sizeof(before),expected)&&
+  wr_iot_physical_stop_request_encode(after,sizeof(after),&radio_off_receipt)&&
+  !memcmp(before,after,sizeof(before))&&
+  wr_iot_restart_profile_receipt_current(&radio_off_profile_receipt);
+}
+#endif
 #include "radio-on-release-runtime.h"
 int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *out)
 {
@@ -68,7 +80,19 @@ static void radio_off_continue(void)
      wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return;
   if(radio_off_receipt_valid||radio_off_followup.released.action!=WR_STOP_RELEASE||
      !wr_iot_physical_stop_request_valid(&radio_off_followup.released))return;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+  {
+   int token=wr_iot_service_guard_enter(1);if(token!=1)return;
+   if(!wr_iot_restart_profile_receipt_current(&radio_off_followup.profile_receipt)){
+    wr_iot_service_guard_leave(token);return;
+   }
+   radio_off_profile_receipt=radio_off_followup.profile_receipt;
+   radio_off_receipt=radio_off_followup.released;radio_off_receipt_valid=1;
+   wr_iot_service_guard_leave(token);
+  }
+#else
   radio_off_receipt=radio_off_followup.released;radio_off_receipt_valid=1;
+#endif
   memset(&radio_off_followup,0,sizeof(radio_off_followup));radio_off_reload=0;radio_off_redispatch=1;return;
  }
  if(radio_off_owner.owner!=getpid())return;

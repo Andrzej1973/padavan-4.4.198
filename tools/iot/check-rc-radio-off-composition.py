@@ -67,8 +67,33 @@ code=code.replace(a,r'''
  pending=resume_pending=0;notification=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(physical_steps==off_base+1&&policy_reads==2);notification=0;
 '''+a)
+prepared_code=code.replace('int wr_iot_service_guard_dup(void){assert(0);return -1;}',
+ 'static int receipt_guard;\nint wr_iot_service_guard_enter(int on){assert(on==1&&!receipt_guard);receipt_guard=1;return 1;}\nint wr_iot_service_guard_dup(void){return receipt_guard?open("/dev/null",O_RDONLY):-1;}')
+prepared_code=prepared_code.replace('void wr_iot_service_guard_leave(int token){(void)token;assert(0);}',
+ 'void wr_iot_service_guard_leave(int token){assert(token==1&&receipt_guard);receipt_guard=0;}')
+prepared_code+='\nint wr_iot_generation_config_release(struct wr_iot_generation_config *p){(void)p;assert(0);return 0;}\n'
+needle='s->phase=WR_OFF_FOLLOWUP_DONE;wr_iot_rc_shutdown.radio_off_owned=0;return 1;'
+assert needle in prepared_code
+prepared_code=prepared_code.replace(needle, r'''snprintf(s->profile_receipt.path,sizeof(s->profile_receipt.path),"%s/profile",directory);
+ FILE *profile=fopen(s->profile_receipt.path,"w");assert(profile&&fputs("owned profile\n",profile)>=0&&!fclose(profile));
+ assert(wr_iot_generated_capture(&s->profile_receipt.file,s->profile_receipt.path));
+ s->profile_receipt.owner=getpid();s->profile_receipt.valid=1;
+ s->phase=WR_OFF_FOLLOWUP_DONE;wr_iot_rc_shutdown.radio_off_owned=0;return 1;''')
+needle='receipt.epoch++;assert(wr_iot_rc_radio_off_receipt(&receipt)&&receipt.epoch==1);'
+assert needle in prepared_code
+prepared_code=prepared_code.replace(needle,needle+r'''
+ assert(!wr_iot_rc_radio_off_profile_current(&receipt));
+ assert(wr_iot_service_guard_enter(1)==1&&wr_iot_rc_radio_off_profile_current(&receipt));
+ struct wr_iot_physical_stop_request foreign=receipt;foreign.nonce[0]++;
+ assert(!wr_iot_rc_radio_off_profile_current(&foreign));
+ assert(!unlink(radio_off_profile_receipt.path));
+ assert(!wr_iot_rc_radio_off_profile_current(&receipt));
+ wr_iot_service_guard_leave(1);
+''')
 with tempfile.TemporaryDirectory(prefix='wr-rc-off-') as d:
- p=Path(d)/'check.c';p.write_text(code);b=Path(d)/'check'
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),str(here/'control-mailbox.c'),str(here/'status-endpoint.c'),str(here/'status-channel.c'),'-o',str(b)],check=True)
- subprocess.run([str(b)],check=True,timeout=15)
-print('PASS actual RC ppoll/OFF consumer: policy refusal prevents physical bypass, one physical step per cadence, OFF priority over resume/ordinary, retained terminal no replay/new admission; SDK/physical actors injected, entry unbound')
+ p=Path(d)/'check.c';b=Path(d)/'check'
+ for prepared,fixture in ((0,code),(1,prepared_code)):
+  p.write_text(fixture)
+  subprocess.run(['gcc','-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED='+str(prepared),'-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),str(here/'control-mailbox.c'),str(here/'status-endpoint.c'),str(here/'status-channel.c'),'-o',str(b)],check=True)
+  subprocess.run([str(b)],check=True,timeout=15)
+print('PASS actual RC ppoll/OFF consumer prepared0/1: guarded profile receipt survives cleanup, wrong physical nonce/absent file/absent guard refused; policy and terminal ownership retained; SDK/physical/final actors injected')

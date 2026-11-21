@@ -59,7 +59,7 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
   token=wr_iot_service_guard_enter(1);
   if(token==1){
    if(s->profile.phase==WR_OFF_PROFILE_VERIFIED&&
-      wr_iot_radio_off_observed(&s->released)&&wr_iot_rc_off_profile_current()){
+      wr_iot_radio_off_observed(&s->released)&&wr_iot_off_profile_current(&s->profile)){
     s->state_attempted=1;
     s->phase=wr_iot_rc_radio_off_state(&s->policy,&s->released)?
      WR_OFF_FOLLOWUP_BRIDGE:WR_OFF_FOLLOWUP_RETAINED;
@@ -101,7 +101,7 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
  if(entered==WR_OFF_FOLLOWUP_POSTWAN&&s->phase==WR_OFF_FOLLOWUP_POSTWAN){
   token=wr_iot_service_guard_enter(1);
   if(token==1){
-   if(wr_iot_radio_off_observed(&s->released)&&wr_iot_rc_off_profile_current()){
+   if(wr_iot_radio_off_observed(&s->released)&&wr_iot_off_profile_current(&s->profile)){
     if(s->postwan_slot>=7)s->phase=WR_OFF_FOLLOWUP_IAPP_PENDING;
     else if(wr_iot_radio_off_bridge_observed(&s->released,s->postwan_slot))s->postwan_slot++;
    }else s->postwan_slot=0;
@@ -112,7 +112,7 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
  if(entered==WR_OFF_FOLLOWUP_IAPP_PENDING&&s->phase==WR_OFF_FOLLOWUP_IAPP_PENDING){
   token=wr_iot_service_guard_enter(1);
   if(token==1){
-   result=wr_iot_radio_off_observed(&s->released)&&wr_iot_rc_off_profile_current();
+   result=wr_iot_radio_off_observed(&s->released)&&wr_iot_off_profile_current(&s->profile);
    wr_iot_service_guard_leave(token);
    if(result&&followup_current(s)&&wr_iot_terminal_iapp_begin(&s->iapp,&s->child))
     s->phase=WR_OFF_FOLLOWUP_IAPP;
@@ -138,7 +138,7 @@ int wr_iot_off_followup_final_current(const struct wr_iot_off_followup *s)
     (s->policy.reload&&(!p->generated||!p->files.sealed))||
     (!s->policy.reload&&(p->generated||p->files.journalled))||
     !wr_iot_generated_matches(&p->files.generated[0],p->files.paths[0])||
-    !wr_iot_radio_off_observed(&s->released)||!wr_iot_rc_off_profile_current())return 0;
+    !wr_iot_radio_off_observed(&s->released)||!wr_iot_off_profile_current(&s->profile))return 0;
  for(slot=0;slot<7;slot++)if(!wr_iot_radio_off_bridge_observed(&s->released,slot))return 0;
  return followup_current(s)&&wr_iot_radio_off_observed(&s->released)&&
   wr_iot_generated_matches(&p->files.generated[0],p->files.paths[0])&&wr_iot_radio_profile_guard();
@@ -167,7 +167,22 @@ int wr_iot_off_followup_finish(struct wr_iot_off_followup *s,struct wr_iot_radio
  }else{
   if(s->off!=off||s->finish_off||s->finish_guard||s->finish_fence.owner||s->finish_fence.level)return 0;
   token=wr_iot_service_guard_enter(1);if(token!=1)return 0;
-  if(!wr_iot_off_followup_final_current(s)||!wr_iot_radio_stop_fence_begin(&s->finish_fence)){
+  if(!wr_iot_off_followup_final_current(s)){
+   wr_iot_service_guard_leave(token);return 0;
+  }
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+  {
+   struct wr_iot_restart_profile_receipt receipt={0};
+   const struct wr_iot_saved_bundle *files=&s->profile.baseline.files;size_t length;
+   if(!memchr(files->paths[0],0,sizeof(files->paths[0]))){wr_iot_service_guard_leave(token);return 0;}
+   length=strlen(files->paths[0]);if(!length||length>=sizeof(receipt.path)){wr_iot_service_guard_leave(token);return 0;}
+   memcpy(receipt.path,files->paths[0],length+1);receipt.file=files->generated[0];
+   receipt.owner=getpid();receipt.valid=1;
+   if(!wr_iot_restart_profile_receipt_current(&receipt)){wr_iot_service_guard_leave(token);return 0;}
+   s->profile_receipt=receipt;
+  }
+#endif
+  if(!wr_iot_radio_stop_fence_begin(&s->finish_fence)){
    wr_iot_service_guard_leave(token);return 0;
   }
   s->finish_off=off;s->finish_guard=token;s->phase=WR_OFF_FOLLOWUP_FINALIZING;

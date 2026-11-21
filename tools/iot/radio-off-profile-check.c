@@ -23,3 +23,27 @@ int wr_iot_rc_off_profile_current(void)
  ok=wr_iot_restart_profile_current(&desired);
  done:off_profile_wipe(&desired,sizeof(desired));off_profile_wipe(&saved,sizeof(saved));return ok;
 }
+
+int wr_iot_off_profile_current(const struct wr_iot_off_profile *s)
+{
+ if(!s||s->self!=s||s->owner!=getpid()||
+    (s->phase!=WR_OFF_PROFILE_GENERATED&&s->phase!=WR_OFF_PROFILE_VERIFIED)||
+    !wr_iot_radio_profile_guard()||!s->baseline.active||
+    s->baseline.owner!=getpid()||s->baseline.files.count!=1||
+    !wr_iot_generated_matches(&s->baseline.files.generated[0],s->baseline.files.paths[0]))return 0;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(s->reload){
+  struct wr_iot_saved_config config={0};int ok=0;
+  if(!wr_iot_generation_config_owned(&s->config_revision))return 0;
+  if(s->config_revision.present){
+   if(wr_iot_saved_config_decode(&config,s->config_revision.record,
+      strnlen(s->config_revision.record,sizeof(s->config_revision.record)))){
+    config.profile.enabled=1; /* Scanner selection, including provisioned OFF. */
+    ok=wr_iot_restart_profile_file_current(&config.profile);
+   }
+   wr_iot_saved_wipe(&config,sizeof(config));return ok;
+  }
+ }
+#endif
+ return wr_iot_rc_off_profile_current();
+}

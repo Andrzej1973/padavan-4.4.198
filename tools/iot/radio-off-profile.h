@@ -14,5 +14,7 @@ int wr_iot_off_profile_begin(struct wr_iot_off_profile *,const struct wr_iot_rad
 /* One phase:1 verified generated/current profile,-1 restored baseline,0 retained.
  * Neither return retires the context nor completes the SDK OFF lifecycle. */
 int wr_iot_off_profile_step(struct wr_iot_off_profile *);
+/* Owned generated file only; never proves driver-loaded credentials. */
+int wr_iot_off_profile_current(const struct wr_iot_off_profile *);
 int wr_iot_rc_off_profile_current(void);
 #endif

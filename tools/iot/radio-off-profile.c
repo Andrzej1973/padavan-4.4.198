@@ -58,9 +58,9 @@ int wr_iot_off_profile_step(struct wr_iot_off_profile *s)
 #endif
   }
  }else if(s->phase==WR_OFF_PROFILE_GENERATED){
-  s->phase=wr_iot_rc_off_profile_current()?WR_OFF_PROFILE_VERIFIED:WR_OFF_PROFILE_RESTORING;
+  s->phase=wr_iot_off_profile_current(s)?WR_OFF_PROFILE_VERIFIED:WR_OFF_PROFILE_RESTORING;
   result=s->phase==WR_OFF_PROFILE_VERIFIED;
- }else if(s->phase==WR_OFF_PROFILE_VERIFIED)result=wr_iot_rc_off_profile_current();
+ }else if(s->phase==WR_OFF_PROFILE_VERIFIED)result=wr_iot_off_profile_current(s);
  else if(s->phase==WR_OFF_PROFILE_RESTORING){
   if(wr_iot_radio_profile_restore(&s->baseline)){s->phase=WR_OFF_PROFILE_RESTORED;result=-1;}
  }else if(s->phase==WR_OFF_PROFILE_RESTORED)
