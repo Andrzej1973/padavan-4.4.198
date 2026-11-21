@@ -21,6 +21,9 @@ struct wr_iot_restart_generation {
  struct wr_iot_saved_config provisioning;
 #endif
 };
+/* Exact captured profile/file proof after generation, also after Main UP.
+ * Later desired writes do not retarget it; no driver-loaded-key assertion. */
+int wr_iot_restart_generation_profile_current(const struct wr_iot_restart_generation *);
 int wr_iot_restart_generation_begin(struct wr_iot_restart_generation *);
 /* At most one generator/restore/finish phase.1 only fresh VERIFIED, baseline
  * still held. No Main UP or outer guard release; no implicit generator retry. */

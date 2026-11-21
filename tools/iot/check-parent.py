@@ -4,6 +4,8 @@ here=Path(__file__).resolve().parent;root=Path(__file__).resolve().parent
 source=(here/'check-restart-finish-check.py').read_text();ns={'__file__':str(here/'check-restart-finish-check.py')};exec(compile(source[:source.index('\nwith tempfile.TemporaryDirectory(')],'<finish actor setup>','exec'),ns)
 body='#define WR_IOT_TEST_INITIAL_PARENT 1\n'+ns['body'].split('int main(int argc',1)[0]+r'''
 #include "restart-initial-parent.c"
+/* This predicate fixture never asks the separate ACTIVE backend observer. */
+int wr_iot_restart_initial_active_current(struct wr_iot_restart_restore *s){(void)s;assert(0);return 0;}
 int main(int argc,char **argv){
  assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
  (void)check;(void)restored;(void)active_ok;wr_iot_rc_shutdown.active=1;initial_mode=1;

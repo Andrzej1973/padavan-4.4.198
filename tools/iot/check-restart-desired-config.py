@@ -25,6 +25,19 @@ assert anchor in body
 body=body.replace(anchor,replacement,1)
 body=body.rstrip()[:-1]+'return 0;\n}\n'
 body+=r'''
+#include "restart-main-controller.h"
+#include "restart-main-bridge.h"
+static int main_ups;
+enum wr_iot_restart_up_result wr_iot_restart_main_up(void){main_ups++;main_down=0;return WR_RESTART_UP_RETURNED;}
+int wr_iot_rebind_configuration_current(const struct wr_iot_physical_stop_request *p,
+ const unsigned char *id,struct wr_iot_driver_identity *out){
+ assert(p->epoch==1&&id[0]==7);*out=(struct wr_iot_driver_identity){2,2};return 1;
+}
+int wr_iot_initial_main_current(const struct wr_iot_physical_initial_request *p,
+ const unsigned char *id,struct wr_iot_driver_identity *out){(void)p;(void)id;(void)out;assert(0);return 0;}
+enum wr_iot_main_bridge_result wr_iot_restart_main_bridge_attach(void){assert(0);return WR_MAIN_BRIDGE_REFUSED;}
+int wr_iot_restart_main_bridge_current(void){assert(0);return 0;}
+#include "restart-main-controller.c"
 int main(int argc,char**argv){
  assert(legacy_restart_main(argc,argv)==0);
  for(int scenario=0;scenario<4;scenario++){
@@ -64,6 +77,24 @@ int main(int argc,char**argv){
   }else{
    assert(wr_iot_restart_generation_step(&g)&&g.phase==WR_RESTART_GEN_VERIFIED);
    assert(restart_config_profile_current(&g));
+   assert(wr_iot_restart_generation_profile_current(&g));
+   struct wr_iot_restart_generation copied=g;
+   assert(!wr_iot_restart_generation_profile_current(&copied));
+   if(scenario==0){
+    struct wr_iot_restart_main main={0};unsigned char id[16]={7};
+    assert(!wr_iot_restart_profile_current(&origin.desired));
+    assert(wr_iot_restart_main_begin(&main,&g,id)&&main_ups==1);
+    strcpy(config.profile.ssid,"Later desired C");
+    assert(wr_iot_saved_config_encode(desired_record,sizeof(desired_record),&config));
+    assert(wr_iot_restart_main_step(&main)&&main.phase==WR_MAIN_READY);
+    assert(wr_iot_restart_generation_profile_current(&g));
+    make_profile();assert(!wr_iot_restart_main_step(&main)&&main_ups==1);
+    /* Fixture-only disposal after fake Main actor; no production rollback. */
+    wr_iot_bundle_release(&g.profile.files);
+    assert(wr_iot_generation_config_release(&g.config_revision));
+    wr_iot_saved_wipe(&g.provisioning,sizeof(g.provisioning));
+    assert(!unlink(profile_path));continue;
+   }
    if(scenario==0)assert(!wr_iot_restart_profile_current(&origin.desired));
    assert(wr_iot_restart_generation_abort(&g));
    for(unsigned step=0;step<4&&g.phase!=WR_RESTART_GEN_ROLLED_BACK;step++)
@@ -88,3 +119,5 @@ with tempfile.TemporaryDirectory(prefix='wr-restart-desired-') as d:
  subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED=1','-DWR_IOT_NATIVE_NVRAM_SPACE=61440','-DWR_IOT_NATIVE_NVRAM_HEADER_BYTES=20','-I'+d,'-I'+str(here),str(root/'check.c'),str(here.parent/'band-steering/settings-snapshot.c'),'-o',str(root/'check')],check=True)
  subprocess.run([str(root/'check'),d],check=True,timeout=15)
 print('PASS actual restart generation/journal with native desired capture enabled and proven absent record; CLOSE/INITIAL original regression, injected native/SDK boundaries; new ON/OFF credentials, mismatched request and drift recovery covered; no physical acceptance')
+
+print('PASS restart Main observes retained B with unchanged legacy A and later desired C; copied generation and foreign A file refuse; native revision/file/controller actual, Main/driver actors injected')

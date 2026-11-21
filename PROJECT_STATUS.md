@@ -1,3 +1,28 @@
+## Restart consumers use the captured generation profile — 2026-11-21
+
+Source trace found that prepared restart generation could create desired B,
+while Main observation, INITIAL parent, final acceptance and pre-handoff cancel
+still checked legacy A. Those consumers now share the retained generation's
+profile observer. A present canonical revision requires its stable owned pin
+and existing exact file scanner; proven absence preserves origin-specific
+legacy policy. Later desired C cannot retarget B after Main may have started.
+Physical identity/epoch, Guest, service and shutdown predicates remain required.
+This is file/generation provenance, not a replacement for loaded-key evidence.
+
+Five host helpers passed ASan/UBSan exit0: native restart desired generation,
+Main composition, final check, pre-handoff check and INITIAL parent. New desired
+case executes actual native capture/journal/scanner/Main controller with injected
+Main/driver actors: legacy A refuses while B becomes Main-ready, later C remains
+separate, copied generation and foreign A file refuse without another UP.
+Other gate fixtures retain their existing default-preparation coverage. The
+INITIAL predicate helper also needed its missing unused ACTIVE actor restored
+as an explicit refusing stub; actual parent checks remain under test.
+Target link requires the exported generation observer. No new target/image/
+device acceptance; standard1458 and optional1456 remain active for older SHAs.
+OFF reload0 and complete loaded provenance across all origins remain open;
+this restart defect was another barrier on the required apply path. No scratch
+retained beyond automatic helper cleanup; no router operation.
+
 ## Pre-UP rollback refreshes the OFF file receipt — 2026-11-21
 
 ON cancellation after actual restoration now refreshes the retained nonsecret

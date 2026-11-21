@@ -22,7 +22,7 @@ int wr_iot_restart_prehandoff_cancel_check(struct wr_iot_restart_restore *s)
     (s->guest.phase!=WR_GUEST_DOWN_OBSERVED&&s->guest.phase!=WR_GUEST_POLICY_OFF)))return 0;
  if(!wr_iot_restart_guest_admin_state(&guest)||guest||
     !wr_iot_generated_matches(&s->generation.profile.files.generated[0],s->generation.profile.files.paths[0])||
-    !wr_iot_restart_profile_current(&s->generation.origin.desired)||
+    !wr_iot_restart_generation_profile_current(&s->generation)||
     !wr_iot_rebind_configuration_current(&s->generation.origin.physical,s->open_id,&current)||
     current.adapter_epoch<=s->generation.origin.physical.epoch||
     current.device_generation!=s->generation.origin.physical.generation||

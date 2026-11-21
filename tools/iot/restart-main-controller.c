@@ -32,10 +32,10 @@ static int main_origin_observed(struct wr_iot_restart_main *s,
 {
  const struct wr_iot_rc_physical_resume *r=&s->generation->origin;
  if(r->origin==WR_PHYSICAL_ORIGIN_INITIAL)
-  return (r->desired.enabled?wr_iot_restart_initial_enabled_profile_current(&r->desired):wr_iot_restart_disabled_profile_current())&&
+  return wr_iot_restart_generation_profile_current(s->generation)&&
    wr_iot_initial_main_current(&r->initial,s->open_id,out);
  if(r->origin!=WR_PHYSICAL_ORIGIN_CLOSE)return 0;
- return wr_iot_restart_profile_current(&r->desired)&&
+ return wr_iot_restart_generation_profile_current(s->generation)&&
   wr_iot_rebind_configuration_current(&r->physical,s->open_id,out);
 }
 int wr_iot_restart_main_step(struct wr_iot_restart_main *s)

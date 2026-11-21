@@ -1,0 +1,66 @@
+{
+  "scope": "restart Main and downstream gates consume retained generation profile",
+  "base_revision": "3e88834415877d110c655c0435242b994af6a23f",
+  "source_sha256": {
+    "restart-generation.c": "040974dbc0807a6391fa40621cfa173c84c636c2bfd85125880a4293c49399c0",
+    "restart-generation.h": "a82d2e628570dcdc2ee154f2c76a12829a5d6cfd61bd300d0586aff3bdb0bccc",
+    "restart-main-controller.c": "bf2e56d00cad566aac79b5c34c4a7c65b182e0aafe25ddec5c04a17d498bee7f",
+    "restart-initial-parent.c": "d049be8daa86a3f103aa34db59cea312aeade5e1bc2911528842833ad8199eb0",
+    "restart-finish-check.c": "f4bd22ab434ed168464a349d6ae768e6bf68d3baeb7b63d46a71f905b29ed124",
+    "restart-prehandoff-check.c": "d32441e3828c7645a6d7173fe6f83a151bc4f9762b12372d09800c86c37b52d6",
+    "compile-runtime-link.sh": "02b740953b231afd527314b97cbcd1aadc239801cbb94b749593a71b7acea8c9",
+    "check-restart-desired-config.py": "7467996428e365e9ee2e98c2fc7758ff47b5c2e4516f5f7caaa51049ed3ed731",
+    "check-parent.py": "9bc7944435430725902b4e90d263a3cf6ced63908927b6a49b953df3a2b4f88e"
+  },
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-restart-desired-config.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-restart-main-composition.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-restart-finish-check.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-restart-prehandoff-check.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-parent.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    }
+  ],
+  "shell_syntax_exit_status": 0,
+  "limits": [
+    "Prepared native desired Main scenario has injected Main/driver actors",
+    "Other gate fixtures exercise their existing default preparation",
+    "No single prepared all-gates end-to-end result claimed",
+    "OFF reload0 and complete loaded provenance remain open",
+    "New target, final image and device verification pending"
+  ],
+  "scratch_retained": false
+}

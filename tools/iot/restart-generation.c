@@ -92,6 +92,16 @@ static int restart_config_take(struct wr_iot_restart_generation *s)
  wr_iot_saved_wipe(&s->provisioning,sizeof(s->provisioning));return 0;
 }
 #endif
+int wr_iot_restart_generation_profile_current(const struct wr_iot_restart_generation *s)
+{
+ if(!s||s->owner!=getpid())return 0;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(!wr_iot_generation_config_owned(&s->config_revision))return 0;
+ if(s->config_revision.present)return restart_config_profile_current(s);
+#endif
+ return generation_profile_current(&s->origin);
+}
+
 static void restart_config_wipe_terminal(struct wr_iot_restart_generation *s)
 {
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
