@@ -1092,6 +1092,20 @@ jobs:
             sha256sum "$image"
           done
 
+      - name: Record generated HTTP library compile and link provenance
+        if: always()
+        run: |
+          python3 -B tools/check-curl-build-provenance.py
+          python3 tools/collect-curl-build-provenance.py padavan-4.4 --output curl-build-provenance.json
+
+      - name: Preserve HTTP library compile and link provenance
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: curl-build-provenance${{ inputs.artifact_suffix }}
+          path: curl-build-provenance.json
+          if-no-files-found: warn
+
       - name: Preserve CAKE inclusion and default-OFF checks
         if: always()
         uses: actions/upload-artifact@v7
