@@ -214,3 +214,30 @@ The separate dependency snapshot, taken before the last two source-audit records
 were committed, counted309 remaining records and104 with tracked textual
 references. References are evidence of documentation use, not semantic test
 coverage. No original is redundant merely because its hash or test result is old.
+
+## Final preservation and ancestry recheck — 2026-11-21
+
+At published main `2fcc4f3fd45430a5135f348482a8da3d3ffc3ce1`, historical
+origin/main70964a3d, local service tipc9e1e892 and remote service tipb5814692
+are all ancestors. Mergec5048074 retains its two recorded parents. Local main
+and origin/main agree; Git connectivity check passes; no staged/modified
+tracked files or unmerged entries were present at this observation. Only the
+existing main checkout is registered; no new checkout was created.
+
+All48845 original inventory paths still exist. The baseline included3477
+symlinks without content hashes; all3477 are still symlinks. Their original
+link-target text was not inventoried, so unchanged target text cannot be proven
+from that baseline. The earlier broad hash statement must be read with this
+limit. For regular files, six differ from baseline: the five reviewed records
+listed above plus the Phase1A preservation note. All six match committed HEAD
+bytes. Twenty-three original paths are now tracked. Every other hashed regular
+file matches its baseline digest. The private detailed receipt remains local.
+
+Standard1440 passed for6e715891. Its successor2fcc4f3f corrects optional1439
+FT composition. Its push triggered ABI961/run44902041131, but firmware push
+paths do not include these isolated FT helper paths. After checking existing
+runs, standard1441/run44902143769 was manually dispatched on main and its API
+head SHA independently confirmed2fcc4f3f. Both runs were active at observation;
+no success is inferred. Required optional iot/peer82 awaits standard success.
+The next publication will combine related results/fixes in one push as directed
+by the owner; no intermediate push was made for this receipt.

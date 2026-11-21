@@ -15,9 +15,9 @@ The temporary report was removed. The historical detailed inventory stays local.
 
 The owner requested considering the next phase after toolchain comparison.
 The safe preparatory part has started: inventory actual build transformation
-call sites before extracting shared code. The local Phase 1 package remains
-unpublished pending its separate review; this does not imply full Phase 1
-image acceptance or authorize a bulk tree move.
+call sites before extracting shared code. The Phase 1 package was subsequently reviewed and published on main; see
+REPOSITORY-MIGRATION-REPORT.md. Publication does not imply full release-variant
+acceptance or authorize a bulk tree move.
 
 The historical local build call-site inventory recorded243 textual calls to232
 distinct Python/Node/shell script paths,
