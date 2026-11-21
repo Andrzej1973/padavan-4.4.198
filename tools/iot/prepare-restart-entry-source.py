@@ -37,7 +37,7 @@ body='''
  if(wr_iot_radio_off_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
  if(wr_iot_radio_on_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
  if(wr_iot_initial_restart_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
- if(wr_iot_restart_entry(radio_on,need_reload_conf))return;
+ if(wr_iot_restart_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
 #endif
 '''
 net=net.replace(signature,includes+signature+body,1)
@@ -59,5 +59,5 @@ for h in here.glob('*.h'):text=text.replace('#include "'+h.name+'"','#include "w
 header.write_bytes((here/'restart-entry.h').read_bytes());unit.write_text(text)
 (rc/'wr-iot/initial-restart-entry.h').write_bytes((here/'initial-restart-entry.h').read_bytes())
 (rc/'wr-iot-initial-restart-entry.c').write_text(initial_text)
-report.write_text(json.dumps({'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,'initial_restart_hook_bound':True,'historical_radio_on_hook_bound':True,'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True,'physical_runtime_verified':False,'source_sha256':{'net_wifi.c':hashlib.sha256(net.encode()).hexdigest(),'wr-iot-rc-backend.c':hashlib.sha256(backend.encode()).hexdigest(),'wr-iot-restart-entry.c':hashlib.sha256(text.encode()).hexdigest(),'wr-iot-initial-restart-entry.c':hashlib.sha256(initial_text.encode()).hexdigest(),'Makefile':hashlib.sha256((rc/'Makefile').read_bytes()).hexdigest()}},indent=2)+'\n')
+report.write_text(json.dumps({'board':'WR1200JS','production_ready':False,'private_restart_hook_bound':True,'owned_restart_refusal_no_fallback':True,'initial_restart_hook_bound':True,'historical_radio_on_hook_bound':True,'cold_radio_on_hook_bound':True,'owned_radio_off_hook_bound':True,'physical_runtime_verified':False,'source_sha256':{'net_wifi.c':hashlib.sha256(net.encode()).hexdigest(),'wr-iot-rc-backend.c':hashlib.sha256(backend.encode()).hexdigest(),'wr-iot-restart-entry.c':hashlib.sha256(text.encode()).hexdigest(),'wr-iot-initial-restart-entry.c':hashlib.sha256(initial_text.encode()).hexdigest(),'Makefile':hashlib.sha256((rc/'Makefile').read_bytes()).hexdigest()}},indent=2)+'\n')
 print('PASS experimental private restart hook staged before legacy fence; driver/image/runtime acceptance pending')

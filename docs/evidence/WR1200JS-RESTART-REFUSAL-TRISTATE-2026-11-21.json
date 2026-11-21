@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-21",
+  "base_revision": "def44e0cc426486a97a8fa9483944f4e29774f74",
+  "scope": "Candidate owned restart admission, generated caller, manifest and related ON/OFF/cold consumers",
+  "defect": "Boolean wr_iot_restart_entry returned0 both for no owner and for owned admission refusal. Generated hook returned only on1, allowing the latter to reach legacy physical SDK body. Header warned against treating0 as fallback, but caller did so.",
+  "implementation": [
+    "wr_iot_restart_entry uses existing NATIVE/OWNED/REFUSED enum. Only inapplicable radio-ON/no owner is NATIVE; guard/clock/entropy/mode/pending/physical-claim refusal is REFUSED.",
+    "Generated hook returns for every result except NATIVE. Manifest requires the exact tri-state caller and matching current restart-entry header.",
+    "Source report records owned_restart_refusal_no_fallback=true while production_ready and physical_runtime_verified remain false.",
+    "Related source/entry mocks updated to enum contract; ON/OFF fixtures inherit changed shared receipt actor."
+  ],
+  "sha256": {
+    "tools/iot/check-radio-off-entry.py": "b96ada0383c6559e2ca7811cfa1840fa06d30fa3ae941142eda458209d74e0c3",
+    "tools/iot/check-radio-on-entry.py": "cb7812b7b189e189970ac6403d43e294614dc3691b12f6f37d27175fa7cb29f8",
+    "tools/iot/check-restart-entry-manifest.py": "fdb265d6082c8c189a74a3c1e99804770b291017a714562909dcf339679f7178",
+    "tools/iot/check-restart-entry-source.py": "db43f4767f5728facb857038f5bc10e05a1ab9dd8957494bb4ded57991ee9fef",
+    "tools/iot/check-restart-entry.py": "1913f92a5c3ffebb4d10335f4fc4e3ea9105213a103e1bf6a1b7da038b43a701",
+    "tools/iot/prepare-restart-entry-source.py": "489ab990b04589c84d56f589ea73518ca5d334308ca28323498073cbc6d7d7ab",
+    "tools/iot/restart-entry.c": "0d7c36e9bb7b7b9b92f8a45eaef55ecd0c4b3ee4e78b51c7978d9e4848eb379b",
+    "tools/iot/restart-entry.h": "b6aefb13c1f494700c73b4c87fd8ee93582e5aa5087f88efe7a31cb1fe683010"
+  },
+  "verification": {
+    "compiler_lanes": 1,
+    "batch": {
+      "helpers": [
+        "check-restart-entry.py",
+        "check-restart-entry-source.py",
+        "check-initial-restart-entry.py",
+        "check-radio-on-entry.py",
+        "check-radio-off-entry.py",
+        "check-cold-on-entry.py",
+        "check-radio-on-entry-root.py",
+        "check-radio-off-entry-runtime.py",
+        "check-rc-resume-finish.py",
+        "check-config-runtime-staging.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 39.69,
+      "peak_kib": 126628,
+      "scope": "ASan/UBSan behavior and strict staged host compilation. Existing physical/SDK boundaries injected."
+    },
+    "final_source_manifest": {
+      "command": "python3 tools/iot/check-restart-entry-source.py",
+      "exit_status": 0,
+      "elapsed_seconds": 2.18,
+      "peak_kib": 33340,
+      "scope": "Final header-corruption regression added after batch. Generated hook with tri-state actors, policy0 and other-board native regression; actual staged restart and INITIAL entry host objects emitted. Changed anchors/symlink/duplicate inputs and corrupted source/header manifests refuse."
+    },
+    "actual_caller_entry_composition": [
+      "Exact hook literal extracted from preparer and composed with actual restart-entry.c. Physical/SDK claim and cold/INITIAL selection are explicit actors.",
+      "guard/clock/short or zero entropy/mode drift/pending shutdown/claim failure never increment synthetic legacy body.",
+      "A positive claim returns before legacy; no-owner NATIVE reaches preserved legacy body.",
+      "Predecessor-equivalent boolean semantics (return only on OWNED) reproduces the old refusal fallthrough.",
+      "Separate direct calls verify owned exclusions and invalid reload are REFUSED."
+    ],
+    "additional": [
+      "git diff --check exit0",
+      "tracked caller search finds no remaining boolean production call or int declaration; int occurs only in negative header fixture."
+    ],
+    "intermediate_failure": "Changed shared receipt actor literal initially prevented two sibling fixtures from defining their receipt counters. Updated both consumers and reran the complete ten-helper batch before publication. No source fallback or test weakening."
+  },
+  "limits": [
+    "Hook is installed only in paired experimental candidate tree. No ordinary main-image promotion or device mutation.",
+    "Source/host predicate safety does not prove actual SDK/DMA/IRQ/late-TxS/loaded-key/RF completion.",
+    "New exact target link/image/runtime checks remain required."
+  ],
+  "ci_observation": {
+    "standard1467": {
+      "id": 44937164144,
+      "revision": "def44e0cc426486a97a8fa9483944f4e29774f74",
+      "observed_status": "in_progress",
+      "last_active_step": "Prepare requested WR Band Steering integration"
+    },
+    "ABI975": {
+      "id": 44937164093,
+      "last_observed_status": "in_progress"
+    },
+    "qualification": "No duplicate dispatch; these old-SHA results do not cover this next package. Required optional queues after its source standard succeeds, even if branch advances."
+  },
+  "publication": "One coherent source/caller/manifest/consumer package after local verification.",
+  "scratch": {
+    "persistent_output_retained": false,
+    "manual_deletion": false,
+    "note": "TemporaryDirectory removed helper and staged object trees; no archive or top-level core retained. Historical/private material unchanged."
+  }
+}

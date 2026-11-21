@@ -1,3 +1,15 @@
+## Candidate owned restart admission is tri-state — 2026-11-21
+
+The generated net_wifi caller previously treated Boolean restart0 as native,
+although the header warned that owned refusal0 must not authorize fallback.
+Entry and caller now share the existing NATIVE/OWNED/REFUSED contract. Refused
+owned restart returns before legacy SDK stop/reopen; no-owner NATIVE preserves
+its existing guarded path. Exact generated hook + real entry host composition
+covers refusal/claim and reproduces predecessor Boolean fallthrough. Candidate
+manifest verifies exact caller/header; inactive gate and other-board paths stay
+native. This corrects candidate source safety, not production installation or
+physical acceptance. See WR1200JS-RESTART-REFUSAL-TRISTATE evidence.
+
 ## Ordinary mailbox ACTIVE producer — 2026-11-21
 
 Prepared ordinary mailbox ON/reopen now attempts exact file-history capture

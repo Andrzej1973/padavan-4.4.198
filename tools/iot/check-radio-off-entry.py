@@ -4,7 +4,7 @@ import ast,subprocess,tempfile
 here=Path(__file__).resolve().parent
 source=(here/'check-restart-entry.py').read_text()
 body=next(ast.literal_eval(n.value) for n in ast.parse(source).body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='code' for t in n.targets)).split('int main(void){',1)[0]
-body=body.replace('int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){(void)r;assert(0);return 0;}', 'static int has_receipt;\nint wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){memset(r,0,sizeof(*r));return has_receipt;}')
+body=body.replace('int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){(void)r;return 0;}', 'static int has_receipt;\nint wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){memset(r,0,sizeof(*r));return has_receipt;}')
 body=body.replace('int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request*r,int reload){(void)r;(void)reload;assert(0);return 0;}', 'static int off_calls;\nint wr_iot_rc_radio_off_begin(const struct wr_iot_control_request*r,int reload){assert(!held&&reload==1&&r->created&&strlen(r->id)==32&&!r->request.enabled&&!r->request.password[0]);off_calls++;return claimed;}')
 body=body.replace('int wr_iot_rc_mode_read(struct', 'static int radio_setting=1;\nint wr_iot_rc_mode_read(struct').replace('{1,1,drift','{1,radio_setting,drift')
 body+=r'''

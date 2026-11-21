@@ -5,7 +5,7 @@ here=Path(__file__).resolve().parent
 source=(here/'check-restart-entry.py').read_text()
 body=next(ast.literal_eval(n.value) for n in ast.parse(source).body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='code' for t in n.targets))
 body=body.split('int main(void){',1)[0]
-body=body.replace('int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){(void)r;assert(0);return 0;}', 'static int has_receipt=1,receipt_reads,receipt_drift;\nint wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){receipt_reads++;if(!has_receipt)return 0;*r=(struct wr_iot_physical_stop_request){WR_STOP_RELEASE,1,2,3,4,5,{1}};if(receipt_drift&&receipt_reads==2)r->attempt++;return 1;}')
+body=body.replace('int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){(void)r;return 0;}', 'static int has_receipt=1,receipt_reads,receipt_drift;\nint wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request*r){receipt_reads++;if(!has_receipt)return 0;*r=(struct wr_iot_physical_stop_request){WR_STOP_RELEASE,1,2,3,4,5,{1}};if(receipt_drift&&receipt_reads==2)r->attempt++;return 1;}')
 body=body.replace('int wr_iot_rc_radio_on_saved_request(struct wr_iot_request*r){(void)r;assert(0);return 0;}', 'static int saved_ok=1;\nint wr_iot_rc_radio_on_saved_request(struct wr_iot_request*r){assert(held);memset(r,0,sizeof(*r));return saved_ok;}')
 body=body.replace('int wr_iot_rc_radio_on_begin(const struct wr_iot_control_request*r,int reload){(void)r;(void)reload;assert(0);return 0;}', 'static int on_calls;\nint wr_iot_rc_radio_on_begin(const struct wr_iot_control_request*r,int reload){assert(!held&&!r->request.enabled&&r->created&&strlen(r->id)==32&&reload==1);on_calls++;return claimed;}')
 body+=r'''

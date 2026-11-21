@@ -1,3 +1,31 @@
+## Owned restart refusal cannot reach legacy SDK — 2026-11-21
+
+Found and corrected candidate admission/caller mismatch: restart entry returned
+boolean0 for both no-owner and owned refusal, while generated net_wifi hook
+fell through on0 despite header warning. It now uses NATIVE/OWNED/REFUSED like
+other entries; only NATIVE permits the preserved guarded legacy body. Failed
+owned guard/time/entropy/mode/physical claim remains REFUSED, never stock retry.
+Manifest checks exact caller and current header; source report records the gate
+without promoting production_ready or physical runtime acceptance.
+
+Exact generated hook literal plus real restart-entry.c tests cover refusal and
+claim with SDK/selection actors; predecessor-equivalent Boolean semantics
+reproduce the fallthrough. Policy0 and other-board paths preserve native body.
+Actual staged restart/INITIAL entry objects compile; corrupted header/source,
+changed anchors/symlink and duplicate preparation refuse. Ten related entry,
+root/OFF runtime/finish/staging helpers pass exit0 in39.69s peak126628KiB. Final
+source/manifest refinement passes2.18s peak33340KiB. Two inherited fixture literal
+anchors corrected locally before that batch; no intermediate push.
+Evidence: docs/evidence/WR1200JS-RESTART-REFUSAL-TRISTATE-2026-11-21.json.
+
+Publish this coherent source/caller/consumer package once. Existing def44e0c
+standard1467/run44937164144 is running (last observed Band Steering preparation),
+ABI975/run44937164093 running. No duplicate dispatch. Queue required exact-source
+optional after standard success, even if branch advanced. Host/target/image/
+physical gates remain separate; experimental hook is not main-image promotion.
+No router operation. Helper/staging trees disposed automatically; no retained
+archive/core or manual historical scratch cleanup.
+
 ## Ordinary ACTIVE history and source-header closure — 2026-11-21
 
 Prepared mailbox ACTIVE completion now bootstraps file history only from the
