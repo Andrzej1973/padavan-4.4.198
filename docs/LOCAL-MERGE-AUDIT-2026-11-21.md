@@ -80,3 +80,27 @@ change whose real triggering CI log remains to be established. Preserve each
 until its claims and dependency scope are reviewed. Public evidence must be
 reviewed for private material before selective staging. Phase 1A extraction
 remains a separate proposed stage; no bulk source move was performed.
+
+## Published checkpoint and focused follow-up
+
+Remote main was verified at `03f5170407203e0317958fa1835920f992841dbf` after
+the authorized fast-forward push. Its service checks run 44898285567 and
+Zapret2 run 44898285594 completed successfully. Firmware standard1438/run
+44898285630 and ABI run 44898285575 were still running at this observation;
+no success is claimed for those jobs or any final image.
+
+The inherited Mi Mini push trigger also started diagnostic run 44898285641.
+This contradicted the deferred stage. It was cancelled using the installed
+Windows GitHub CLI; GitHub independently confirmed `cancelled`. Follow-up
+commit `6aee08b9f4446f60e7e323617c2755fe8d64ad8c` gates the job until the owner
+resumes Mi Mini after WR1200JS acceptance. Its run 44898344777 is `skipped`.
+Only the gate was staged; the pre-existing local resource-checker step remains
+unstaged with its deferred helper/source changes. Staged YAML parsed and the
+gate expression was checked before publication.
+
+The modified MCU E2 static evidence was partially checked against the existing
+pinned vendor header: header SHA256, firmware image SHA256 and computed payload
+end match. Its 20 blocks contain 1443 decoded instructions, but full reproduction
+requires the optional `pypcode` dependency absent from the current Python.
+Keep this change local pending reproduction; both runtime and firmware ACK
+contract flags remain false. Raw hashes do not validate the disassembly.
