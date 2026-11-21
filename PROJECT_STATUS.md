@@ -1,3 +1,22 @@
+## OFF reload generation revision pinned — 2026-11-21
+
+Snapshot-prepared OFF reload now captures a canonical desired revision under
+its existing guard, tied to physical RELEASE nonce/closed serial and the stable
+OFF profile context. It borrows that pin only during the existing generator.
+Capture failure claims no baseline; desired drift refuses generation and enters
+baseline restoration without retry. Unprepared source and reload0 preserve their
+existing behavior. This does not replace the legacy final observer or establish
+loaded-driver provenance; differing desired credentials can still refuse there.
+
+Host OFF profile prepared0/1, OFF followup, final signal-fence cleanup and actual
+saved-store/revision helpers passed with ASan/UBSan, exit0. New OFF orchestration
+cases inject the revision API; separate saved-store checks execute its actual
+implementation with modeled NVRAM. Target/image/device verification pending.
+Next retain the prepared-profile identity through final OFF receipt publication
+and ON admission: current cleanup wipes profile and rc-runtime.c retains only
+physical receipt bytes. Do not substitute saved B for loaded A shutdown proof.
+No router operation. Temporary helpers cleaned automatically; no retained output.
+
 ## Standard push trigger repaired — 2026-11-21
 
 The main push filter listed only older individual tools/iot paths. Changes to

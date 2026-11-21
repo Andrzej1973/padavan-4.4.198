@@ -1,3 +1,45 @@
+## OFF reload generation revision pinned — 2026-11-21
+
+Snapshot-prepared OFF reload now captures a canonical desired revision under
+its existing guard, tied to physical RELEASE nonce/closed serial and the stable
+OFF profile context. It borrows that pin only during the existing generator.
+Capture failure claims no baseline; desired drift refuses generation and enters
+baseline restoration without retry. Unprepared source and reload0 preserve their
+existing behavior. This does not replace the legacy final observer or establish
+loaded-driver provenance; differing desired credentials can still refuse there.
+
+Host OFF profile prepared0/1, OFF followup, final signal-fence cleanup and actual
+saved-store/revision helpers passed with ASan/UBSan, exit0. New OFF orchestration
+cases inject the revision API; separate saved-store checks execute its actual
+implementation with modeled NVRAM. Target/image/device verification pending.
+Next retain the prepared-profile identity through final OFF receipt publication
+and ON admission: current cleanup wipes profile and rc-runtime.c retains only
+physical receipt bytes. Do not substitute saved B for loaded A shutdown proof.
+No router operation. Temporary helpers cleaned automatically; no retained output.
+
+## OFF reload selector gap — source trace 2026-11-21
+
+The mismatch extends to generation, not only the final observer.
+radio-off-profile.c calls wr_iot_radio_profile_generate with
+wr_iot_rc_restart_generate when reload=1, without generation_profile_enter.
+prepare-rc.py maps that callback to gen_ralink_config_2g; its ra2 selector calls
+wr_iot_generation_boot_request_read. In a snapshot-prepared runtime,
+saved-config-store.c:wr_iot_generation_profile_request with no bound view reads
+the current complete desired record twice. Thus OFF reload can select saved B
+while its later off_profile_current observer still expects legacy credentials.
+The generation function itself does not open ra2; this is not loaded-B evidence.
+
+Required distinction: old loaded A supplies shutdown authority; the profile
+prepared after physical DOWN may intentionally be B, but must have its own
+retained canonical revision and file identity. Neither a saved-B read nor a
+file-B match may replace A's driver/epoch/receipt proof. Capture that preparation
+revision under the existing OFF owner/guard, bind it only around generation,
+and retain its observer through followup and OFF-to-ON admission. Account for
+reload=0 (existing file), failed generation/restoration, INITIAL and disabled
+origins before replacing the legacy observer. Later desired C must not silently
+retarget an in-flight B generation. This source trace adds no runtime evidence;
+the production correction and loaded-promotion gate remain open.
+
 ## OFF context address ownership correction — 2026-11-21
 
 radio-off-profile.c previously checked process ownership but accepted a copied

@@ -6,10 +6,38 @@ body=next(ast.literal_eval(n.value) for n in ast.parse(source).body if isinstanc
 body+=r'''
 #include "radio-off-profile.h"
 static int depth,observed=1,generator_calls,partial;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+static int revision_current=1,capture_ok=1,enter_calls,leave_calls;
+static const struct wr_iot_generation_config *bound_revision;
+int wr_iot_generation_config_capture(struct wr_iot_generation_config *p,const char *id,
+ unsigned long long created,struct wr_iot_saved_config *out){
+ assert(depth&&p&&!p->owner&&!p->self&&out&&id&&created);
+ if(!capture_ok)return 0;
+ p->owner=getpid();p->self=(uintptr_t)p;p->created=created;
+ memcpy(p->id,id,sizeof(p->id));return 1;
+}
+int wr_iot_generation_config_release(struct wr_iot_generation_config *p){
+ assert(p&&p->owner==getpid()&&p->self==(uintptr_t)p&&bound_revision!=p);
+ memset(p,0,sizeof(*p));return 1;
+}
+int wr_iot_generation_profile_enter(const struct wr_iot_generation_config *p){
+ assert(depth&&!bound_revision);enter_calls++;
+ if(!revision_current)return 0;
+ assert(p->owner==getpid()&&p->self==(uintptr_t)p);bound_revision=p;return 1;
+}
+int wr_iot_generation_profile_leave(const struct wr_iot_generation_config *p){
+ assert(depth&&bound_revision==p);leave_calls++;bound_revision=NULL;return 1;
+}
+#endif
+
 int wr_iot_service_guard_enter(int on){assert(on==1&&!depth);if(!guard)return 0;depth=1;return 1;}
 void wr_iot_service_guard_leave(int token){assert(token==1&&depth);depth=0;}
 int wr_iot_radio_off_observed(const struct wr_iot_physical_stop_request*r){assert(depth&&r->action==WR_STOP_RELEASE);return observed;}
-int wr_iot_rc_restart_generate(int arg){assert(depth&&!arg);generator_calls++;if(partial){replace_file("partial\n",8);return partial==2?0:-1;}make_profile();return 0;}
+int wr_iot_rc_restart_generate(int arg){assert(depth&&!arg);generator_calls++;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+assert(bound_revision);
+#endif
+if(partial){replace_file("partial\n",8);return partial==2?0:-1;}make_profile();return 0;}
 #include "radio-off-profile-check.c"
 #include "radio-off-profile.c"
 int main(int argc,char**argv){
@@ -41,8 +69,28 @@ int main(int argc,char**argv){
    assert(generator_calls==1);
   }
   /* Fixture-only free of retained RAM after checking non-retirement. */
-  wr_iot_bundle_release(&s.baseline.files);assert(!unlink(profile_path));
+  wr_iot_bundle_release(&s.baseline.files);
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+  if(s.config_revision.owner)assert(wr_iot_generation_config_release(&s.config_revision));
+  assert(!bound_revision);
+#endif
+assert(!unlink(profile_path));
  }
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ /* Failed capture cannot claim files; revision drift never reaches generator. */
+ struct wr_iot_radio_off_owner off={.owner=getpid(),.result=1,.policy_ready=1,
+  .policy={.reload=1},.released={WR_STOP_RELEASE,1,2,3,4,5,{1}}};
+ struct wr_iot_off_profile s={0};make_profile();capture_ok=0;
+ assert(!wr_iot_off_profile_begin(&s,&off)&&!s.owner&&!s.baseline.active&&!depth);
+ capture_ok=1;assert(wr_iot_off_profile_begin(&s,&off));
+ revision_current=0;int generated_before=generator_calls,entered_before=enter_calls,left_before=leave_calls;
+ assert(!wr_iot_off_profile_step(&s)&&s.phase==WR_OFF_PROFILE_RESTORING);
+ assert(generator_calls==generated_before&&enter_calls==entered_before+1&&leave_calls==left_before&&!bound_revision);
+ assert(wr_iot_off_profile_step(&s)==-1);
+ assert(wr_iot_off_profile_step(&s)==-1&&generator_calls==generated_before);
+ wr_iot_bundle_release(&s.baseline.files);assert(wr_iot_generation_config_release(&s.config_revision));
+ assert(!unlink(profile_path));revision_current=1;
+#endif
  /* A versioned desired generation can differ from unchanged legacy keys.
   * File provenance succeeds; the current OFF observer still refuses it.
   * This records the unbound handoff, not a loaded-PMK or device receipt. */
@@ -61,8 +109,11 @@ int main(int argc,char**argv){
 with tempfile.TemporaryDirectory(prefix='wr-off-profile-') as d:
  root=Path(d);(root/'rc.h').write_text('const char *nvram_safe_get(const char *);\n')
  p=root/'check.c';p.write_text(body);b=root/'check'
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(p),'-o',str(b)],check=True)
- subprocess.run([str(b),d],check=True,timeout=15)
+ for prepared in (0,1):
+  subprocess.run(['gcc','-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED='+str(prepared),'-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(p),'-o',str(b)],check=True)
+  subprocess.run([str(b),d],check=True,timeout=15)
 print('PASS OFF profile actual snapshot/journal: copied owner refused, reload0 no generation/inode writes, generate once, retained verified baseline, partial restores bytes, foreign inode retained/no replay; SDK and DOWN actors injected, unbound')
 
 print('PASS source-gap reproduction: new desired file valid; unchanged legacy OFF observer refuses; loaded handoff remains unbound')
+
+print('PASS OFF revision binding prepared0/1: injected capture failure and drift refuse generation; borrow ends before verification; legacy observer gap remains')

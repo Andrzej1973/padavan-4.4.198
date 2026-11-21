@@ -1,0 +1,51 @@
+{
+  "scope": "OFF reload canonical generation pin only",
+  "base_revision": "22da345b95da92d765b612cd53d8e2cec36081fe",
+  "source_sha256": {
+    "tools/iot/radio-off-profile.c": "149ad8d0166b8b5e56ffc426679ce8b1b0d4b2d33b93cf4a40b609dd3b0ada15",
+    "tools/iot/radio-off-profile.h": "71a14dfac39f02278969ea7708739baf3f9c2e87b2da9dbed056fff94347ff81",
+    "tools/iot/check-radio-off-profile.py": "dd2d2a267ea8bc62812d1dae47dcca3177686bd1ab4074c084572f7b3b6ddfdf"
+  },
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-radio-off-profile.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-off-followup.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-radio-off-finish.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-saved-config-store.py",
+      "exit_status": 0,
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ]
+    }
+  ],
+  "limits": [
+    "OFF orchestration revision API injected; actual store revision API checked separately with modeled NVRAM",
+    "Legacy OFF observer mismatch remains",
+    "Final OFF cleanup discards profile context; physical receipt alone retained",
+    "reload0 existing-file provenance not integrated",
+    "No target, final-image or physical acceptance claimed"
+  ],
+  "scratch_retained": false
+}
