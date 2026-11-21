@@ -1,10 +1,44 @@
+## Published main and preservation audit — 2026-11-21
+
+Snapshot before this status commit: local main and live GitHub main both
+`4d2116f8489c36adf89de2a55ed7599c03357699`. The existing merge
+`c50480744f4f91caec15e82db0cf0253343f5125` contains the service WebUI branch;
+no history rewrite, new checkout or worktree was used. The owner authorized
+push in this chat. Phase 1 architecture/profile gates and selected reviewed
+historical evidence are published. See `docs/LOCAL-MERGE-AUDIT-2026-11-21.md`.
+Earlier local-only/ahead-count notes below are historical snapshots.
+
+CI for source `03f5170407203e0317958fa1835920f992841dbf`: service44898285567
+and Zapret44898285594 succeeded. Standard1438/run44898285630 and
+ABI44898285575 remain in progress at the last live check. Later documentation
+commits do not inherit exact-SHA CI coverage. Mi Mini44898285641 was cancelled;
+commit6aee08b9 gates its job and run44898344777 confirmed skipped. Mi Mini
+implementation remains deferred until WR1200JS four-variant acceptance.
+
+Remaining local work is preserved: deferred Mi Mini code/config/resource
+checker, MCU disassembly awaiting optional pypcode reproduction, monitor
+parser/test patch awaiting a real causal missing-file CI log, private owner
+materials, historical environment records, hundreds of unreviewed evidence
+files, scratch and standalone helpers. Do not stage these as one package.
+The private inventory identifies every nonignored untracked file by size/hash;
+it establishes preservation identity, not truth of historical assertions.
+
+Next: finish per-record evidence/source/privacy disposition, trace the monitor
+missing-file case, and inspect the running standard/ABI results. After the
+standard succeeds, queue the required optional exact source revision with
+appropriate inputs and no duplicate run. Large Phase 1A extraction remains a
+separate stage. Sol stays sole writer. No device action or deletion is authorized
+by this audit; target/image/device acceptance remain separate.
+
 ## Local main merge and Phase 1 checkpoint — 2026-11-21
 
 Active checkout: `/home/andrzej/padavan-build/router-guide-work`, branch
-`main`, HEAD `3ea4a86fdd0b8201f3d529dadcdd0751a7acb8d3`. The verified local
+`main`. The checkpoint started at
+`3ea4a86fdd0b8201f3d529dadcdd0751a7acb8d3` and its status commit is
+`6cd77dacca426a698dbb836b779323e11600499d`, the HEAD recorded here. The verified local
 `origin/main` SHA `70964a3dab872f83478bccce3e7c37a4e4ec176c` is an ancestor of
 HEAD; the ordinary merge commit `c50480744f4f91caec15e82db0cf0253343f5125`
-joins the service WebUI branch. No push was performed; local main is 1130
+joins the service WebUI branch. No push was performed; local main is 1131
 commits ahead of origin/main.
 
 Local Phase 1 commits: `db0d7f02086a4e7c8b6d9e214925e340bcf87dcb` adds the

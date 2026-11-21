@@ -83,6 +83,21 @@ remains a separate proposed stage; no bulk source move was performed.
 
 ## Published checkpoint and focused follow-up
 
+The eight initially unclassified nonignored files were read/classified:
+`ie_length_check.nim` is a standalone boundary model with an intentional negative
+control that makes its default suite exit 1; it is not driver acceptance.
+`slot_lookup_check.nim` models stale/MAC-only lookup and prints an expected
+negative control, but does not make its exit code a reliable test verdict.
+Keep both local pending a deliberate helper package. `tools/replace_text.nim`
+is a generic file-editing utility, unrelated to firmware behavior; retain locally
+with its generated binary until a separate review justifies inclusion.
+`tools/iot/ft_pending_identity_check` is generated output; its source is already
+tracked, so do not stage the binary. `selected-boards.json` is generated selector
+output, not an authoritative board catalog. The Phase 1A preparation note and
+`tools/repository/inventory-build-calls.py` are a deferred static-inventory
+proposal, not extraction implementation or a complete dependency graph.
+No helper or generated output was removed or executed by this classification.
+
 Remote main was verified at `03f5170407203e0317958fa1835920f992841dbf` after
 the authorized fast-forward push. Its service checks run 44898285567 and
 Zapret2 run 44898285594 completed successfully. Firmware standard1438/run
