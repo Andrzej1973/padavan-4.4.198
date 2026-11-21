@@ -1,0 +1,29 @@
+{
+  "run": 44900391693,
+  "number": 1440,
+  "source": "6e715891611093fa335c9a79aacf1fee5afd0853",
+  "conclusion": "success",
+  "jobs": "select, WR1200JS build, downloads and firmware ZIP all success",
+  "artifact": 14706335806,
+  "zip_sha256": "821a111b2defa1d89a5ed4eff9b91297eb4848f469e725a34e3e4f45f5cae216",
+  "zip_crc_checked": true,
+  "files": [
+    {
+      "path": "SETUP_WR1200JS.txt",
+      "bytes": 44755,
+      "sha256": "355b16f08d7f74edcb5d22d364d6dec26498f74201f946c97805e702185c9ce4"
+    },
+    {
+      "path": "WR1200JS_4.4.198.9-1440_6e715891.trx",
+      "bytes": 13128144,
+      "sha256": "05682045e88a90aafd33b426872ef4826e5a04a2f0e8c20daac1bd7a4d26f462"
+    },
+    {
+      "path": "wr1200js.config",
+      "bytes": 11600,
+      "sha256": "635cb4bc006a66215ea2ed7026e1ced0a5f35c929de03f1277432407bd5b1ca5"
+    }
+  ],
+  "scope": "CI standard result and independent artifact digest/CRC/file hashes only. No optional FT candidate success, complete ROMFS audit or device acceptance claimed.",
+  "cleanup": "Artifact read in memory; no local archive or extraction retained."
+}

@@ -27,6 +27,14 @@ bounded = runpy.run_path(str(here/'ft-parser-bounds-composition.py'))['compose']
 prepared = enqueue['bind_ft'](bounded, proto, pending_proto)
 module = runpy.run_path(str(here/'ft-auth-request-context-composition.py'))
 composed, composed_header = module['compose_ft'](prepared, header)
+# Exercise the next real target-composition consumer: an include inserted before
+# a saved body offset must not splice FT_FtAction into its preceding comment.
+wrapped, wrapper_receipts = runpy.run_path(
+    str(here/'ra2-ft-mutation-composition.py'))['compose'](composed)
+assert len(wrapper_receipts) == 1
+wrapper, original_definition = wrapper_receipts[0]
+assert wrapped.replace(wrapper, original_definition, 1) == composed
+assert '\nVOID FT_FtAction(' in composed
 storage_input = dict(schema)
 storage_input['include/rtmp.h'] = storage_input['include/rtmp.h'].replace(
     '\tMAC_TABLE MacTab;',

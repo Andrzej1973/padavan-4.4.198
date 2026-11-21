@@ -1,3 +1,30 @@
+## Standard1440 result and optional1439 correction — 2026-11-21
+
+Owner requests exactly one push combining these results and corrections.
+Standard1440/run44900391693 succeeded for
+`6e715891611093fa335c9a79aacf1fee5afd0853`. Its downloaded artifact14706335806
+matches the API ZIP digest and passes CRC; TRX13128144 bytes, SHA256
+`05682045e88a90aafd33b426872ef4826e5a04a2f0e8c20daac1bd7a4d26f462`.
+See `docs/evidence/WR1200JS-STANDARD1440-RESULT-2026-11-21.json`.
+
+Optional1439/run44900105182 failed before target TUs: the FT AUTH composer
+inserted an include before splicing a body at previously saved offsets. This
+glued FT_FtAction into the preceding comment. Include insertion now follows
+the splice; the native mutation matcher remains unchanged. The host checker
+exercises that downstream consumer and its exact reversible wrapper contract.
+Both host checker invocations exited0; an independent negative control rejects
+the committed old composer with the exact1439 error and accepts the correction.
+The failure monitor now includes that causal diagnostic in its bounded excerpt;
+the offline Nim executable suite passes, including duplicate suppression.
+
+These are host/source checks. Corrected target compilation and optional image
+verification remain pending. After the single combined push, inspect automatic
+standard runs for the exact published SHA; after standard success, check for
+an equivalent queued/running optional before dispatching iot/peer82 for that SHA.
+No device changes. Private/untracked historical work remains preserved.
+Monitor compilation/fixtures used a self-cleaning temporary directory; artifact
+ZIP was read in memory. No new scratch output remains from these checks.
+
 ## Standard1438 image and optional1439 — 2026-11-21
 
 Standard1438/run44898285630 succeeded for exact source
@@ -17,9 +44,8 @@ Its dispatch HEAD is261d090375b514a9803608597c34dcd80aefde1c; downloaded
 verification-source artifact14705881577 independently confirms requested and
 verified source03f5170407203e0317958fa1835920f992841dbf. Artifact ZIP SHA256
 `cd72598650639ac8bc902fdd8a324218c14527d77cab7173eb7e078a608b52da` matches API.
-The optional run is in progress, not accepted. Continue observing that same
-run; inspect its target/feature/candidate reports when complete. Do not submit
-a duplicate or claim current branch HEAD inherits this source's build result.
+Historical observation: the optional run was then in progress. It subsequently
+failed; see the current correction and source/target verification limits above.
 
 ## Published main and preservation audit — 2026-11-21
 

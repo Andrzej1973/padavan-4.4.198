@@ -110,6 +110,14 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     missing_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(missing_log))
     missing=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'missing-state')],capture_output=True,text=True,env=missing_env,check=True)
     assert "can't open file" in missing.stdout and 'tools/check-libyaml-download.py' in missing.stdout
+    # Optional1439/run44900105182: target preflight reports the native definition drift.
+    mutation_log=root/'ft-mutation-1439.log'
+    mutation_log.write_text('failed prepared FT/MLME/insertion generation MIPS TUs; driver/image unchanged\nnative mutation definition changed: FT_FtAction\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(44900105182)]}))
+    mutation_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(mutation_log))
+    mutation_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'mutation-state')]
+    assert 'native mutation definition changed: FT_FtAction' in subprocess.run(mutation_cmd,capture_output=True,text=True,env=mutation_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(mutation_cmd,capture_output=True,text=True,env=mutation_env,check=True).stdout
     # ABI899: SystemExit validation lacks a generic error prefix.
     adapter_log=root/'adapter-drift-abi899.log'
     adapter_log.write_text('Installed disable adapter differs: initial-off\n##[error]Process completed with exit code 1.\n')

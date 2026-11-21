@@ -7,8 +7,10 @@ separate Phase 1A call-site inventory remains a follow-up artifact; no Phase 1A
 source extraction has started. The owner subsequently authorized push, and
 Phase 1 is published as an ancestor of main `03f5170407203e0317958fa1835920f992841dbf`.
 That exact source has successful ABI, service and Zapret2 runs; standard1438
-run `44898285630` remains in progress at the latest observation. No completed
-image or device acceptance is claimed. See the current
+run `44898285630` succeeded with an independently checked image artifact.
+Standard1440/run44900391693 also succeeded for6e715891; optional1439 failed
+FT source preflight and its correction awaits target verification. No physical
+acceptance or four-variant release completion is claimed. See the current
 [merge audit](LOCAL-MERGE-AUDIT-2026-11-21.md) for publication and preservation.
 
 ## Audit and decision

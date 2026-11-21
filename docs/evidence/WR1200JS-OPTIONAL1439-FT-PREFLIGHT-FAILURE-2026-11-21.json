@@ -20,5 +20,18 @@
   "target_compiled": false,
   "module_installed": false,
   "runtime_verified": false,
-  "cleanup": "Both diagnostic ZIPs read in memory; no archive or extracted tree retained. No rerun dispatched."
+  "cleanup": "Both diagnostic ZIPs read in memory; no archive or extracted tree retained. No rerun dispatched.",
+  "correction": {
+    "cause": "include insertion invalidated saved FT_FtAction body offsets before splice",
+    "fix": "splice body first, then insert include; native refusal contract unchanged",
+    "regression": "host FT checker consumes composed function through native mutation composer and checks reversible wrapper",
+    "host_checker_exit_statuses": [
+      0,
+      0
+    ],
+    "negative_control": "old composer reproduces exact error; corrected composer accepted",
+    "monitor": "bounded filter recognizes native mutation definition changed; offline executable suite PASS, duplicate notification refused",
+    "target_verification": "pending corrected source CI; not inferred from host fixtures",
+    "scratch": "temporary compiler/cache/fixture tree removed automatically"
+  }
 }

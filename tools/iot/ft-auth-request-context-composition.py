@@ -128,9 +128,6 @@ def compose_ft(text, header):
  }
  pEntry->Sst = SST_AUTH;
  NdisReleaseSpinLock(&pAd->MacTabLock);''')
-    text = one(text, '#include "ft-auth-request-context.h"',
-               '#include "ft-auth-request-context.h"\n'
-               '#include "ft-iapp-auth-owner-transfer.h"')
     cleanup = ''' if(wr_ft_scope.active||wr_ft_pending_scope.active){
  NdisAcquireSpinLock(&pAd->MacTabLock);
  if(wr_ft_scope.active)(void)wr_ft_peer_leave_locked(pAd,&wr_ft_scope);
@@ -157,4 +154,9 @@ def compose_ft(text, header):
    pAd->wr_iot_peer_table_owner.poisoned=1;
   if(wr_ft_scope.active)(void)wr_ft_peer_leave_locked(pAd,&wr_ft_scope);''')
     body = one(body, cleanup, retained)
-    return text[:start]+body+text[end:], header
+    # Splice with the offsets from this exact text before adding earlier includes.
+    text = text[:start]+body+text[end:]
+    text = one(text, '#include "ft-auth-request-context.h"',
+               '#include "ft-auth-request-context.h"\n'
+               '#include "ft-iapp-auth-owner-transfer.h"')
+    return text, header
