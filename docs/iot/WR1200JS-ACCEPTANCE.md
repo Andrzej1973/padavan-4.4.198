@@ -1,3 +1,20 @@
+## Optional1471 independent image and current CI correction — 2026-11-21
+
+Exact3304214e optional1471/run44944175255 SUCCESS; independent artifact14723592493
+checks bind the pair generator and source selector to3304214e, verify archive
+SHA/CRC, TRX CRC/size/board policy and selected actual ROMFS/MIPS replacements.
+Image14568506B SHA256
+`7fc350bd6fc228a46d40e853c1412cbb718ba5a29687f784308d087349caadc8`;
+partition remaining1618886B. Temporary extraction removed130532952 apparent bytes.
+This is an isolated image, excludes ae0288d6 OFF terminal publication and does
+not establish full ROMFS preservation, production promotion or physical runtime.
+See [independent image evidence](../evidence/WR1200JS-OPTIONAL1471-INDEPENDENT-IMAGE-2026-11-21.json).
+
+Standard1472/ae0288d6 failed an isolated consumer's missing OFF-owner declarations.
+The corrected fixture and current/foreign PID visibility cases pass all eight
+modes; complete early-host CI entry passes locally401.68s/164916KiB/exit0.
+Full exact-source target/image checks remain required after publication.
+
 ## Current software checkpoint and open image gates — 2026-11-21
 
 Published3304214e has successful standard1470/run44942896803 and ABI977/

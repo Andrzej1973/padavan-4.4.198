@@ -356,7 +356,12 @@ observer=runtime[start:runtime.index('#endif',start)].strip().replace('&radio_of
 sequence=configured.split('int main(int argc',1)[0]
 stub='int wr_iot_rc_radio_off_profile_current(const struct wr_iot_physical_stop_request *r){(void)r;assert(0);return 0;}'
 assert sequence.count(stub)==1
-sequence=sequence.replace(stub,observer).replace('return down&&rollback_calls>0;','return down;')
+sequence=sequence.replace(stub,'''#include "radio-off-followup.h"
+/* Actual receipt observer now also waits for both spent OFF owners. Keep
+ * their real types in this isolated consumer; OFF execution is tested by RC. */
+static struct wr_iot_radio_off_owner radio_off_owner;
+static struct wr_iot_off_followup radio_off_followup;
+'''+observer).replace('return down&&rollback_calls>0;','return down;')
 sequence+=r'''
 int main(int argc,char**argv){
  (void)check;(void)shutdown_handler;assert(argc==2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
@@ -371,6 +376,13 @@ int main(int argc,char**argv){
  assert(wr_iot_generated_capture(&radio_off_profile_receipt.file,profile_path));
  {int g=wr_iot_service_guard_enter(1);struct wr_iot_physical_stop_request wrong=receipt;
   wrong.nonce[0]++;assert(!wr_iot_rc_radio_off_profile_current(&wrong));
+  assert(wr_iot_rc_radio_off_profile_current(&receipt));
+  for(int foreign=0;foreign<2;foreign++){
+   radio_off_owner.owner=getpid()+foreign;
+   assert(!wr_iot_rc_radio_off_profile_current(&receipt));radio_off_owner.owner=0;
+   radio_off_followup.owner=getpid()+foreign;
+   assert(!wr_iot_rc_radio_off_profile_current(&receipt));radio_off_followup.owner=0;
+  }
   assert(wr_iot_rc_radio_off_profile_current(&receipt));wr_iot_service_guard_leave(g);
  }
  membership=guest_desired=guest_isolate=1;mc_read=aux_ok=1;up_result=WR_RESTART_UP_RETURNED;

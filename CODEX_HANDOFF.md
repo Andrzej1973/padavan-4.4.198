@@ -1,3 +1,33 @@
+## OFF receipt consumer CI correction and optional1471 image — 2026-11-21
+
+Published ae0288d6 standard1472/run44945937042 failed its early host step.
+Monitor44946206997 artifact14723202713 correctly identified undeclared OFF
+owners in check-radio-on-owner-desired.py; original job136973199302 confirms.
+The reload-sequence fixture extracted the real RC observer without its new
+owner dependencies. Prior local handoff-only coverage missed these two modes.
+The fixture now declares actual OFF owner/followup types and checks current/
+foreign PID visibility refusal before retirement. Production code unchanged.
+All eight modes PASS80.45s peak164804KiB. Complete CI early host entry PASS
+401.68s peak164916KiB exit0, one compiler lane; includes71 standalone fixtures
+and native configuration/activation/recovery/status/CLOSE compositions.
+Monitor was useful, no parser change. ABI/run44945937034 SUCCESS for ae0288d6.
+Evidence: WR1200JS-OFF-RECEIPT-CONSUMER-CI-2026-11-21.json.
+
+Optional1471/run44944175255 SUCCESS for exact3304214e. Independently downloaded
+artifact14723592493 in memory, matched GitHub SHA256, checked ZIP CRC and exact
+verification-source14722643374. Recomputed pair with source3304214e generator;
+independent TRX/selected ROMFS/MIPS/hash/board checks PASS. Image14568506B,
+SHA2567fc350bd6fc228a46d40e853c1412cbb718ba5a29687f784308d087349caadc8;
+partition remaining1618886B. This does not cover later OFF-publication source.
+Removed temporary extraction130532952 apparent bytes; no archive on disk.
+Evidence: WR1200JS-OPTIONAL1471-INDEPENDENT-IMAGE-2026-11-21.json.
+
+Publish this focused CI-consumer correction once, confirm new standard/ABI SHA,
+then queue exact-source optional after standard success. No duplicate runs or
+main-image/physical acceptance claim. Next source review: retained ON release
+must preserve full final proof across failed unmask, followed by production
+entry/configuration promotion gates. IoT stays first; no device operations.
+
 ## Atomic OFF terminal publication and retained retry — 2026-11-21
 
 OFF finalization now reobserves owner/file/physical DOWN and all seven bridge

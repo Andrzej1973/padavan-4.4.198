@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-21",
+  "failed_source": "ae0288d60045cb3d912705732a06a33fef609234",
+  "standard_run": 44945937042,
+  "failed_job": 136973199302,
+  "failed_step": "Check IoT host compiler compatibility early",
+  "monitor_run": 44946206997,
+  "monitor_artifact": 14723202713,
+  "monitor_archive_sha256": "4d8b6d85adacf7708c233d9a37db223c592c7d7f212c980567b960159e94a13d",
+  "monitor_useful": true,
+  "original_job_log_confirmed": true,
+  "cause": "Isolated reload-sequence consumer extracts actual RC file observer but omitted the real OFF owner/followup declarations required by its new visibility barrier. Previous local publication ran only handoff modes and missed these consumers.",
+  "fix": "Supply real owner/followup types; assert current and foreign owner PIDs both refuse file receipt visibility until retired. Production source unchanged.",
+  "direct_eight_modes": {
+    "seconds": 80.45,
+    "peak_kib": 164804,
+    "exit": 0
+  },
+  "full_ci_early_host_entry": {
+    "command": "python3 -B tools/iot/check-host-compatibility.py",
+    "seconds": 401.68,
+    "peak_kib": 164916,
+    "exit": 0,
+    "output_lines": 208,
+    "standalone_fixture_count": 71,
+    "includes": "All eight desired-owner modes plus native configuration/activation/recovery/status and CLOSE compositions"
+  },
+  "source_sha256": "fd6221f363262ba064405a166003853ae408bd66245556615125e74a98cb1f58",
+  "cleanup": "Compiler/test directories and anonymous captured output use temporary contexts; no retained raw logs/archive. Private historical scratch preserved.",
+  "production_promoted": false,
+  "device_runtime_verified": false
+}
