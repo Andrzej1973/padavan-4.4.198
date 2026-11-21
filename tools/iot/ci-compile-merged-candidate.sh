@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Run from repository root with candidate inputs supplied through env.
 set -euo pipefail
+# Reject retired selectors before creating or compiling any candidate tree.
+case "${IOT_CANDIDATE_VARIANT:-}" in
+  legacy|peer82) ;;
+  *) echo 'Unsupported IoT candidate variant; use legacy or peer82' >&2; exit 1 ;;
+esac
 root="$RUNNER_TEMP/wr1200js-steering-driver-probe"
 kernel="$root/trunk/linux-4.4.x"
 driver="$kernel/drivers/net/wireless/mediatek/mt76x3"
@@ -186,98 +191,6 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   bash tools/iot/ci-prepare-mbss-caller.sh "$merged" "$candidate" "$results"
   merged="$candidate/mbss-poll-caller"
   cp "$candidate/peer/peer-chain.json" "$results/peer-chain.json"
-elif [ "$IOT_CANDIDATE_VARIANT" = v39 ]; then
-  mkdir -p "$candidate"
-  cp -a tools/iot/candidates/aux-remove-close-v39 "$candidate/driver"
-  cp tools/iot/candidates/aux-remove-close-v39/manifest.json "$candidate/manifest.json"
-  python3 tools/iot/check-remove-result-abi.py "$candidate/driver"
-elif [ "$IOT_CANDIDATE_VARIANT" = v40 ] ||
-     [ "$IOT_CANDIDATE_VARIANT" = v41 ] ||
-     [ "$IOT_CANDIDATE_VARIANT" = v42 ]; then
-  mkdir -p "$candidate" .iot-local-check
-  python3 tools/iot/check-mt7603-checked-off.py
-  python3 tools/iot/check-mt7603-mac-stop-contract.py \
-    tools/iot/candidates/aux-remove-close-v39 \
-    --linux-header "$kernel/drivers/net/wireless/mediatek/mt76x3/include/os/rt_linux.h"
-  python3 tools/iot/prepare-mt7603-checked-off-candidate.py \
-    tools/iot/candidates/aux-remove-close-v39 \
-    .iot-local-check/mt7603-radio-off-v40-ci \
-    --linux-header "$kernel/drivers/net/wireless/mediatek/mt76x3/include/os/rt_linux.h"
-  python3 tools/iot/check-radio-off-send.py \
-    .iot-local-check/mt7603-radio-off-v40-ci
-  if [ "$IOT_CANDIDATE_VARIANT" = v41 ] ||
-     [ "$IOT_CANDIDATE_VARIANT" = v42 ]; then
-    python3 tools/iot/prepare-mbss-checked-stop-candidate.py \
-      .iot-local-check/mt7603-radio-off-v40-ci \
-      .iot-local-check/mt7603-mbss-stop-v41-ci
-    if [ "$IOT_CANDIDATE_VARIANT" = v42 ]; then
-      python3 tools/iot/prepare-beacon-producer-candidate.py \
-        .iot-local-check/mt7603-mbss-stop-v41-ci \
-        .iot-local-check/mt7603-beacon-producer-v42-ci
-      cp -a .iot-local-check/mt7603-beacon-producer-v42-ci "$candidate/driver"
-      cp .iot-local-check/mt7603-beacon-producer-v42-ci.manifest.json \
-        "$results/beacon-producer-binding.json"
-    else
-      cp -a .iot-local-check/mt7603-mbss-stop-v41-ci "$candidate/driver"
-    fi
-    cp .iot-local-check/mt7603-mbss-stop-v41-ci.manifest.json \
-      "$results/mbss-stop-binding.json"
-  else
-    cp -a .iot-local-check/mt7603-radio-off-v40-ci "$candidate/driver"
-  fi
-  python3 tools/iot/prepare-dma-idle-check.py \
-    "$candidate/driver/hw_ctrl/cmm_asic_mt.c" \
-    "$RUNNER_TEMP/wr-iot-v40-dma-source.c" \
-    "$RUNNER_TEMP/wr-iot-v40-dma-fixture.c"
-  gcc -std=c11 -Wall -Wextra -Werror \
-    "$RUNNER_TEMP/wr-iot-v40-dma-fixture.c" -o "$RUNNER_TEMP/wr-iot-v40-dma-fixture"
-  "$RUNNER_TEMP/wr-iot-v40-dma-fixture"
-  cmp tools/iot/virtual-open-claim.h "$candidate/driver/include/virtual-open-claim.h"
-  cmp tools/iot/mt7603-main-observe.h "$candidate/driver/include/mt7603-main-observe.h"
-  cp tools/iot/check-interface-reference.c "$RUNNER_TEMP/check-v40-reference.c"
-  gcc -std=c11 -Wall -Wextra -Werror \
-    -I "$candidate/driver/include" \
-    "$RUNNER_TEMP/check-v40-reference.c" -o "$RUNNER_TEMP/check-v40-reference"
-  "$RUNNER_TEMP/check-v40-reference"
-  sed 's|"netdev-registration.inc"|"wr-iot-netdev-registration.inc"|' \
-    tools/iot/check-netdev-registration.c > "$RUNNER_TEMP/check-v40-registration.c"
-  gcc -std=c11 -Wall -Wextra -Werror \
-    -I "$candidate/driver/include" \
-    "$RUNNER_TEMP/check-v40-registration.c" -o "$RUNNER_TEMP/check-v40-registration"
-  "$RUNNER_TEMP/check-v40-registration"
-  gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
-    -I "$candidate/driver/include" -I tools/iot \
-    tools/iot/check-mbss-post-open.c -o "$RUNNER_TEMP/wr-iot-mbss-post-open"
-  "$RUNNER_TEMP/wr-iot-mbss-post-open"
-  gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
-    -I "$candidate/driver/include" -I tools/iot \
-    tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-admission"
-  "$RUNNER_TEMP/wr-iot-mbss-close-admission"
-  gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
-    -DMT_MAC=1 \
-    -I "$candidate/driver/include" -I tools/iot \
-    tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-mt"
-  "$RUNNER_TEMP/wr-iot-mbss-close-mt"
-  gcc -std=c11 -Wall -Wextra -Werror -DWR_IOT_V40=1 \
-    -DMT_MAC=1 -DRTMP_PCI_SUPPORT=1 \
-    -I "$candidate/driver/include" -I tools/iot \
-    tools/iot/check-mbss-close.c -o "$RUNNER_TEMP/wr-iot-mbss-close-mt-pci"
-  "$RUNNER_TEMP/wr-iot-mbss-close-mt-pci"
-  gcc -std=c11 -Wall -Wextra -Werror -I tools/iot \
-    tools/iot/check-mbss-close-recovery-owner.c \
-    -o "$RUNNER_TEMP/wr-iot-mbss-close-recovery-owner"
-  "$RUNNER_TEMP/wr-iot-mbss-close-recovery-owner"
-  python3 tools/iot/check-virtual-if-call-coverage.py "$candidate/driver"
-  expected_overlay_count=58
-  if [ "$IOT_CANDIDATE_VARIANT" = v42 ]; then
-    expected_overlay_count=60
-  fi
-  python3 tools/iot/prepare-v39-merge-manifest.py \
-    "$pristine" "$candidate/driver" \
-    tools/iot/candidates/aux-remove-close-v39/manifest.json \
-    "$candidate/manifest.json" \
-    --expected-overlay-count "$expected_overlay_count"
-  python3 tools/iot/check-remove-result-abi.py "$candidate/driver"
 elif [ "$IOT_CANDIDATE_VARIANT" = legacy ]; then
   python3 tools/iot/prepare-radio-queue-candidate.py "$pristine" "$candidate"
 else
@@ -292,12 +205,6 @@ if [ "$IOT_CANDIDATE_VARIANT" != peer82 ]; then
   python3 tools/iot/assemble-prepared-candidate.py \
     "$pristine" "$driver" "$candidate/driver" \
     "$candidate/manifest.json" "$merged"
-fi
-if [ "$IOT_CANDIDATE_VARIANT" = v39 ] ||
-   [ "$IOT_CANDIDATE_VARIANT" = v40 ] ||
-   [ "$IOT_CANDIDATE_VARIANT" = v41 ] ||
-   [ "$IOT_CANDIDATE_VARIANT" = v42 ]; then
-  python3 tools/iot/check-remove-result-abi.py "$merged"
 fi
 if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/prepare-fw-rom-ready.py "$merged"
@@ -529,10 +436,10 @@ active = [site for unit in units.values() for site in unit['sites']
           if site['active_after_directives']]
 sem_count = sum(site['form'] == 'SEM' for site in active)
 irq_count = sum(site['form'] == 'IRQ' for site in active)
-# This inventory scans unit source text, not v42's new inline
-# helper header. v42 replaces the abort-open SEM site with a gated
+# This inventory scans unit source text, not the prepared inline
+# helper header. peer82 replaces the abort-open SEM site with a gated
 # helper; its header is checked by manifest and target compile.
-expected = (20, 19, 10, 9) if variant in ('v42', 'peer82') else (21, 20, 11, 9)
+expected = (20, 19, 10, 9) if variant == 'peer82' else (21, 20, 11, 9)
 if (site_count, len(active), sem_count, irq_count) != expected:
     raise SystemExit('Merged candidate active beacon lock forms changed')
 # Both forms use the BH wrapper only while MULTI_CORE_SUPPORT is off.
@@ -562,14 +469,6 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     wr_iot_mcu_boot_rx_restart wr_iot_mcu_boot_other_tx_idle \
     wr_iot_mcu_boot_irq_prepare wr_iot_mcu_boot_dma_start \
     wr_iot_mcu_boot_dma_start_hw wr_iot_mcu_boot_dma_stop_hw; do
-    awk -v name="$symbol" '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == name { found=1 } END { exit !found }' \
-      "$results/mt76x3-symbols.txt"
-  done
-fi
-if [ "$IOT_CANDIDATE_VARIANT" = v40 ] ||
-   [ "$IOT_CANDIDATE_VARIANT" = v41 ] ||
-   [ "$IOT_CANDIDATE_VARIANT" = v42 ]; then
-  for symbol in wr_iot_mbss_begin_close wr_iot_mbss_close_checked wr_iot_virtual_down_checked; do
     awk -v name="$symbol" '$4 == "FUNC" && $7 != "UND" && $3 > 0 && $8 == name { found=1 } END { exit !found }' \
       "$results/mt76x3-symbols.txt"
   done

@@ -1,3 +1,21 @@
+## Optional workflow historical-tail cleanup — 2026-11-21
+
+Owner requested removing unused historical workflow material after reviewing
+an optional-build screenshot. Retired standalone v39/v40/v41/v42 dispatch
+choices and their CI-only preparation/validation branches. Keep current
+peer82 and legacy control. Unknown/retired values now fail before creating
+any tree. Removed prepare-v39-merge-manifest.py: its only executable caller
+was the retired branch; historical source/hash receipts remain dated evidence.
+
+Peer82 preparation remains byte-identical. The old donor tree and shared
+helpers remain because live tools still consume them. All workflow files,
+standard/image guards, concurrency and failure-monitor behavior remain.
+Shell syntax, YAML, selector rejection, unchanged peer82 branch and absence
+of live removed-helper references checked. No full build or device operation.
+Receipt: docs/evidence/WR1200JS-OPTIONAL-WORKFLOW-CLEANUP-2026-11-21.json.
+No scratch output or archive generated. Publish as one coherent cleanup push;
+standard1445 and ABI963 continue for prior1a272b79 independently.
+
 ## Optional1444 FT compile corrections — 2026-11-21
 
 Optional1444/run44906887469 verified exact052c7eb0 but failed temporary FT

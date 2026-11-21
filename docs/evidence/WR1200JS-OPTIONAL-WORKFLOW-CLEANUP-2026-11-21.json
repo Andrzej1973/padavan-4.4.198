@@ -1,0 +1,29 @@
+{
+  "scope": "Retire obsolete standalone optional candidate selectors v39-v42; retain current peer82 and legacy control",
+  "removed_file": {
+    "path": "tools/iot/prepare-v39-merge-manifest.py",
+    "bytes": 2848,
+    "sha256": "abf5eaa34d5eb46cb71721c02ff0e774d41875a3c6587e63ad0e9e5816b375cd",
+    "git_blob": "2503f5473d4db97b880520187ce9e1027fda6dfe",
+    "only_live_caller": "retired v40-v42 branch in ci-compile-merged-candidate.sh",
+    "remaining_references": "historical evidence/hash manifests retained as dated records"
+  },
+  "retained": [
+    "peer82 complete preparation branch unchanged byte-for-byte",
+    "legacy queue control selector",
+    "aux-remove-close-v39 donor tree: check-tx-power-builder.py still reads mcu/andes_mt.c",
+    "check-remove-result-abi.py: prepare-remove-result-composition.py still calls it",
+    "prepare-dma-idle-check.py: prepare-radio-error-candidates.py still calls it",
+    "all workflow files, required firmware/image guards, four release-variant requirements, monitor queues"
+  ],
+  "checks": [
+    "bash -n passes",
+    "workflow YAML parsed; dispatch choices exactly legacy/peer82",
+    "old/new peer82 preparation byte comparison equal",
+    "retired/unknown selectors refuse before any filesystem/build access",
+    "no executable references to removed manifest generator remain in tools/.github",
+    "git diff --check passes"
+  ],
+  "limits": "Host/static workflow cleanup; no claim of full target/image/device acceptance. Existing standard1445 and ABI963 remain active for prior1a272b79.",
+  "cleanup": "No build output, archive, copied source tree or temporary data generated."
+}
