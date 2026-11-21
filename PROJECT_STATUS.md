@@ -1,3 +1,26 @@
+## Standard1438 image and optional1439 — 2026-11-21
+
+Standard1438/run44898285630 succeeded for exact source
+`03f5170407203e0317958fa1835920f992841dbf`; ABI44898285575, service44898285567
+and Zapret44898285594 also succeeded. Independent image receipt:
+`docs/evidence/WR1200JS-STANDARD1438-INDEPENDENT-IMAGE-2026-11-21.json`.
+TRX is13127812 bytes, SHA256
+`b8055d3d3b18a55ef1ebe212c6a077b49bc072b05aef63335614adcec867e312`.
+ZIP digest/CRC, U-Boot header/payload CRC, one valid SquashFS and selected
+Modern/Classic/management/Zapret files were checked; CAKE module and SQM page
+are present. This is not complete ROMFS equality, release-variant or runtime
+acceptance. Temporary image/extraction removed.
+
+After checking for duplicate queued/running jobs, optional1439/run44900105182
+was dispatched for WR1200JS, ubuntu24.04, source toolchain, iot/peer82.
+Its dispatch HEAD is261d090375b514a9803608597c34dcd80aefde1c; downloaded
+verification-source artifact14705881577 independently confirms requested and
+verified source03f5170407203e0317958fa1835920f992841dbf. Artifact ZIP SHA256
+`cd72598650639ac8bc902fdd8a324218c14527d77cab7173eb7e078a608b52da` matches API.
+The optional run is in progress, not accepted. Continue observing that same
+run; inspect its target/feature/candidate reports when complete. Do not submit
+a duplicate or claim current branch HEAD inherits this source's build result.
+
 ## Published main and preservation audit — 2026-11-21
 
 Snapshot before this status commit: local main and live GitHub main both

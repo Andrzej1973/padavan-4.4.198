@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-21",
+  "run": 44898285630,
+  "verified_revision": "03f5170407203e0317958fa1835920f992841dbf",
+  "run_conclusion": "success",
+  "artifact_id": 14705811435,
+  "artifact_zip_sha256": "1f4e5ee09b2361a3060fb8dc349d75c21be877c6c3c2b2cb6be2a25363418dd0",
+  "artifact_zip_digest_matches_API": true,
+  "artifact_zip_crc_verified": true,
+  "image_name": "WR1200JS_4.4.198.9-1438_03f51704.trx",
+  "image_bytes": 13127812,
+  "image_sha256": "b8055d3d3b18a55ef1ebe212c6a077b49bc072b05aef63335614adcec867e312",
+  "config_sha256": "635cb4bc006a66215ea2ed7026e1ced0a5f35c929de03f1277432407bd5b1ca5",
+  "image_header_name": "\u0004\u0004\ufffd\tWR1200JS",
+  "uboot_header_crc_verified": true,
+  "payload_crc_verified": true,
+  "linux_mips_kernel_type_verified": true,
+  "squashfs_offset": 1982224,
+  "selected_romfs_sha256": {
+    "sbin/rc": "26533cc9c07c4a6e8f9fd1a9f579eacbbddf0f29a84f3203913590ac4f94227b",
+    "usr/sbin/httpd": "cf8c34bb03385e2a11eba6771930769ade0f8bcf3ba5c1d15a16045ab163f4d6",
+    "www/modern/index.html": "1ed975c55042e4b3c995cadcdde970cb419cb3c35ac0dc12b08696a95aebd9f1",
+    "www/modern/app.js": "1e1d2150bf40b63da19564d679a2eacd3bbb68322cbeb793e7180da6e2bb75e7",
+    "www/modern/wifi.js": "360a8d948a3388c1f3336e0f33a5f1bcdbd7306ee5f17cd51c1c6b00520b817e",
+    "www/Advanced_Services_Content.asp": "cb26db2efac3d4bcb70e464983d25663835d9f99b78c0320be55ee08f26b219b",
+    "www/Advanced_WAdvanced2g_Content.asp": "fc6dda53e4d1219b3bc187a0bb60fe17521c6ba7ca146e4560559010b2c5ef22",
+    "www/EN.dict": "94d775b57215bf1fec43abd2210ddb51488c510f9c943e198fb29d555a2ee5f2",
+    "www/UK.dict": "995eebd7887937ef73a56e9e020fc1cdde8d36ec7c37a6bcd2839621c07ae222",
+    "www/RU.dict": "8ccea16f1fb478fff1f5a0b09a1c41015bac4a7339f6bf4874232fe0ce145d13",
+    "usr/sbin/nfqws2": "863b9cd6474840ddfde40c9840f1decc502eb9558127a84c4f3205ead8cd103a",
+    "usr/sbin/zapret2": "fe2c2d1fa68bd19e29af03fe3ff8292c3b8e26c57ec96b5e402c51cbc1645456"
+  },
+  "cake_modules": [
+    "lib/modules/4.4.198/kernel/net/sched/sch_cake.ko"
+  ],
+  "classic_sqm_page_present": true,
+  "scope": "Independent standard artifact/container and selected ROMFS presence/hash checks. Not full ROMFS-to-build-tree equality, complete feature behavior or four-variant release acceptance. Optional IoT target verification remains separate.",
+  "runtime_verified": false,
+  "cleanup": "Artifact ZIP held in memory; temporary image and selected ROMFS extraction removed. No firmware image retained locally."
+}
