@@ -1,0 +1,210 @@
+{
+  "schema": 1,
+  "date": "2026-11-21",
+  "base_revision": "99be345d895f8f3719e10903182a0f3b6fef165a",
+  "scope": "Prepared restart post-IAPP completion, terminal consumption, routed shutdown handoff and libc stat ABI closure",
+  "changes": [
+    "Successful physical finish donates inert backend/file metadata before cleanup; cancellation clears it.",
+    "Guarded root ID/handoff/Main/backend/file and parent-network observations precede IAPP, DONE and successful retirement.",
+    "Runtime retires DONE/cancellation then schedules one deferred mailbox redispatch; refused retirement retries.",
+    "Routed shutdown can discard only fully released WAN state without declaring DONE; existing backend OFF/physical RELEASE remains required.",
+    "Validated new physical OFF admission consumes only a fully released WAN/DONE refusal through a separate disposal API; new restart retains the strict completion gate. Its quiesce/backend close and physical RELEASE are still independent prerequisites.",
+    "No-IAPP completion refusal retries after consumed physical take without repeating take.",
+    "glibc and pinned uClibc GNU/POSIX timestamp layouts preserve nanoseconds; XSI mkstemp declaration enabled in OFF-owner."
+  ],
+  "target_local": {
+    "toolchain_archive_sha256": "5a9254920f52954b2910ad968086135436e320bfb1360928cf96f4f0bf03870a",
+    "toolchain_report_sha256": "83c2a8c8b0c79dff5d3e5597d775db5f8b134b64fbfa9136d2ede0c881516426",
+    "gcc": "10.5.0",
+    "libc": "uClibc-ng 1.0.48",
+    "linux_headers": "4.4.198",
+    "staged_prepared0_and_1_objects": 22,
+    "staging_elapsed_seconds": 12.83,
+    "staging_peak_kib": 57460,
+    "producer_consumer_symbols_checked": true,
+    "gnu_and_posix_xsi_receipt_qemu": {
+      "exit": 0,
+      "seconds": 0.88,
+      "peak_kib": 29032,
+      "nanosecond_mtime_and_ctime_mutations_refused": true
+    },
+    "native_gnu_and_posix_xsi_receipt": {
+      "exit": 0,
+      "seconds": 1.97,
+      "peak_kib": 47128
+    },
+    "predecessor_header_reproduction": {
+      "revision": "99be345d",
+      "compile_exit": 1,
+      "stat_member_errors": 12,
+      "corrected_compile_exit": 0
+    },
+    "full_firmware_build": false,
+    "full_runtime_link": false
+  },
+  "ci_observed": {
+    "standard1467": {
+      "run": 44937164144,
+      "source": "def44e0cc426486a97a8fa9483944f4e29774f74",
+      "conclusion": "success"
+    },
+    "abi975": {
+      "run": 44937164093,
+      "conclusion": "success"
+    },
+    "standard1468": {
+      "run": 44937659790,
+      "source": "99be345d895f8f3719e10903182a0f3b6fef165a",
+      "conclusion": "success"
+    },
+    "abi976": {
+      "run": 44937659665,
+      "conclusion": "success"
+    },
+    "optional1469": {
+      "run": 44938579402,
+      "dispatch": "99be345d895f8f3719e10903182a0f3b6fef165a",
+      "verified_source": "def44e0cc426486a97a8fa9483944f4e29774f74",
+      "conclusion": "failure",
+      "job": 136950636841,
+      "failed_step": "Compile isolated merged IoT MT7603 candidate",
+      "cause": "POSIX uClibc stat lacks st_mtim/st_ctim in restart-profile-receipt.h",
+      "verification_source_artifact": 14721195135,
+      "verification_source_zip_sha256": "002570b2f1491302088dc7af58007155c864de31a565752296a1cef70eb37403",
+      "monitor_run": 44940631080,
+      "monitor_artifact": 14721975375,
+      "monitor_zip_sha256": "00040f4899e6ba80675a9e65ebd981475dc07adfa0a56b3e5e204ec05dee8447",
+      "zip_crc_and_original_job_checked": true,
+      "monitor_useful": true,
+      "monitor_changed": false,
+      "same_header_blob_at_def44e0c_and_99be345d": "c6aa743bd0172330930a6fea67dfa1b20b67ae4c"
+    },
+    "optional_for_99be345d": "Not dispatched: same unchanged header has a confirmed target failure. Corrected package requires its own exact-source standard/optional verification."
+  },
+  "local_findings_fixed": [
+    "Synthetic completion fixture copied policies from already retired ON-owner; now initializes explicit current-policy actors.",
+    "An ad hoc batch named a nonexistent cold entry runtime helper; corrected to existing check-cold-on-entry.py; final suite prechecks all paths.",
+    "Expanded staged compilation caught different glibc/uClibc POSIX feature guards; corrected selector and XSI mkstemp declaration without weakening timestamp comparisons."
+  ],
+  "cleanup": {
+    "removed": "/tmp/wr-restart-postiapp-target-8oub0jw0",
+    "absent_verified": true,
+    "earlier_du_apparent_unique_bytes": 152317760,
+    "sum_entry_logical_bytes_including_hardlinks": 189174912,
+    "allocated_bytes_reclaimed_not_independently_measured": true,
+    "archive_downloads_kept_in_memory_only": true,
+    "fixture_directories": "TemporaryDirectory contexts disposed automatically",
+    "historical_scratch_and_user_data": "Preserved",
+    "second_temporary_compiler_phase": {
+      "path": "/tmp/wr-restart-off-admission-target-v06pylsk",
+      "apparent_unique_bytes": 152317760,
+      "absent_verified": true,
+      "reason": "Exact source compiler revalidated added ordinary OFF admission before publication; temporary context disposed automatically."
+    }
+  },
+  "limits": {
+    "production_promoted": false,
+    "final_image_verified": false,
+    "physical_acceptance": false,
+    "device_operations": false
+  },
+  "next": [
+    "Publish this coherent package once and verify exact remote SHA and automatic standard/ABI runs.",
+    "After successful standard queue optional for that exact source; triage first actual failure using monitor and original log.",
+    "Continue production promotion gates without equating host objects or QEMU file IO with final image/device acceptance."
+  ],
+  "source_file_sha256": {
+    "tools/iot/check-config-runtime-staging.py": "194fa443546f116eb3b5fdb62e976442c4aaf59c1cda5b0c80cfab91d03b0718",
+    "tools/iot/check-physical-scheduler-prepare.py": "e0eca72b190f19b6073a13df79602e3e30b56e8601b9a7234e1bf01536d66d85",
+    "tools/iot/check-radio-on-owner-desired.py": "ccf10ab8010bd725eff2f4911e5832659f6ac66e13428709a751bcc8a19bbc44",
+    "tools/iot/check-rc-physical-quiesce.py": "7eb5ee617e89dd3717b2da3b03bfc91b45d4f05aa3c10cf2ec5951d6acce8821",
+    "tools/iot/check-rc-physical-stop.c": "5bd83657c229bb579bd79c946a99fa3c32d4455ac7aae4df20a16415fda3f55b",
+    "tools/iot/check-rc-resume-finish.py": "e2355af141ed4b7a924dc1283a8230377f952ced1a3336023781c3caf10e4b4e",
+    "tools/iot/check-rc-runtime.c": "75bff885d31c597df670ced978e9f71dbe1e0f8ef6d09b8300b005748778e375",
+    "tools/iot/check-rc-scheduler-composition.py": "94f60ead14234e2634fb99e06b89263bb5af7adc9c170e60678adabe1a435f38",
+    "tools/iot/check-restart-finish-check.py": "4d3d56428a799a00593f2eee5174a24dce728455539ff62bf2d3aff9adca8f9d",
+    "tools/iot/check-restart-profile-receipt.py": "5cdc3d88ee78b7190cc53732ee3f81b06b940936d9b1e610ef6e1637391996d1",
+    "tools/iot/check-restart-resume-retire.py": "3fa8d1a87ea7d3517f728121940d8da214cca2ce3a10e389565d5c98a55b961f",
+    "tools/iot/check-restart-scheduler.py": "2d9da45217503fb442512c0bb186d92ae9b8f2650f9716e3855461243a78a3c3",
+    "tools/iot/check-resume-retire-composition.py": "f82b1b949ececdef7c6f2dd30796c0edd4bcb677e8a71007a53ccef5e8e45839",
+    "tools/iot/check-resume-wan-followup.py": "597db88d58dda2d9185c852eb36b92fdd69230fb120c09b3133e7827d78fdfc0",
+    "tools/iot/check-scheduler-fresh-begin.py": "c4f0c1300495a7ccc9c1c4219869c31502d3922fc570de00f9270cca5287afde",
+    "tools/iot/check-scheduler-resume-composition.py": "27d177bf6c1bed33431a3455e12e946b368b3bd40e421d2fc99d9ef861886aa5",
+    "tools/iot/check-scheduler-shutdown.py": "a295851ff14a63e00dd80126e8af19a784308480165ce4aacc65a00e74c0e928",
+    "tools/iot/compile-runtime-link.sh": "83f5dc637cdc0784c5a4c848c026e0764089a3de12dfbbb27552fdeb185aed08",
+    "tools/iot/radio-off-owner.c": "ff86b9ca31f77f0ac81c877598aa3d6b2da44bb80d997b3918a1709b471ef177",
+    "tools/iot/rc-physical-stop.c": "2b62ee0734a884d03e4c134c70551f9f456a4c6f324618988ff9c2ade478c6e8",
+    "tools/iot/rc-restart-profile-history.inc": "89ee32c4ebb0240dc4738aa4cdb8aa63fbf85692b35283d9a0e3e35f30cb5162",
+    "tools/iot/rc-runtime.c": "0a7a1e9a28a2970c4db2000e88ce19d54dada6223d7ddba68bc4bad1810ce59d",
+    "tools/iot/restart-finish-check.c": "16bae2d5408276acffebc25e51ea91a9e4fe5d10fc144c871c103de112ea04f2",
+    "tools/iot/restart-profile-history.h": "2acd5a30da043c81cd55bb6baabbb711a89b052e73bf6f43a9b6930b333a1770",
+    "tools/iot/restart-profile-receipt.h": "94da67fe63b5463b81509a48e0beb15fd5a289e7afa06ededab2b5f8f8bebc71",
+    "tools/iot/restart-restore.h": "2b09f825c3622fd61468ab36361e0c087441adc0d667648278ea0f8c1afa1617",
+    "tools/iot/restart-resume-retire.c": "548305bd94e7af19c1fb19fb403aab09bee4e347df3d04f7fcb0f51b939394ce",
+    "tools/iot/restart-resume.c": "ff1f84c3aea275b78b30702fe31cd28bc87726ec9c8dd50d3a1c9a12815bd671",
+    "tools/iot/restart-resume.h": "b26841014c856bfc574f6af945c089bc60ffc741c4dbc36b30d02f264e5d806b",
+    "tools/iot/restart-scheduler.c": "80c89226f65476b5661e7c3bbdd036adba45895c6e34c4a641880da30832328a",
+    "tools/iot/restart-scheduler.h": "39849985d51ffd0cea982d698a4eb1a7e38f1cad726ffdf89e07fe3814b3ecdf"
+  },
+  "host_broad": {
+    "checks": [
+      "check-config-edit-suite.py",
+      "check-radio-on-owner-desired.py --handoff-only",
+      "check-restart-finish-check.py",
+      "check-resume-wan-followup.py",
+      "check-resume-retire-composition.py",
+      "check-restart-resume-retire.py",
+      "check-restart-scheduler.py",
+      "check-scheduler-resume-composition.py",
+      "check-rc-resume-finish.py",
+      "check-physical-scheduler-prepare.py",
+      "check-physical-scheduler-normal-shutdown.py",
+      "check-radio-off-entry-runtime.py",
+      "check-radio-on-entry-root.py",
+      "check-restart-entry-source.py"
+    ],
+    "exit": 0,
+    "harness_seconds": 203.28,
+    "process_elapsed_seconds": 213.61,
+    "peak_kib": 165012,
+    "compiler_lanes": 1,
+    "nested_config_suite": "Complete edit/view, native HTTP/mailbox/RC, Classic and Modern IoT fixtures; hardware/persistence actors remain explicit.",
+    "staged_lifecycle_objects": 22,
+    "scope": "Broad completion/retirement baseline; explicit OFF-admission API was then completed and separately rechecked below."
+  },
+  "off_admission_supplement": {
+    "scope": "Finish ordinary explicit OFF recovery for released completion refusal before publication; new restart keeps strict completion proof.",
+    "checks": [
+      "check-restart-resume-retire.py",
+      "check-restart-scheduler.py",
+      "check-scheduler-shutdown.py",
+      "check-scheduler-fresh-begin.py",
+      "check-scheduler-resume-composition.py",
+      "check-physical-scheduler-prepare.py",
+      "check-rc-resume-finish.py",
+      "check-rc-scheduler-composition.py",
+      "check-physical-scheduler-normal-shutdown.py",
+      "check-config-runtime-staging.py",
+      "check-radio-off-entry-runtime.py"
+    ],
+    "exit": 0,
+    "seconds": 69.39,
+    "peak_kib": 115808,
+    "ordinary_off_independent_quiesce_and_physical_take": true,
+    "host_final_staged_objects": 22,
+    "host_final_staging_seconds": 14.68,
+    "target_final_staged_objects": 22,
+    "target_final_staging_seconds": 13.17,
+    "target_gnu_and_posix_xsi_receipt_qemu_seconds": 0.92,
+    "final_staging_and_qemu_batch_seconds_including_download_extract": 37.06,
+    "final_staging_and_qemu_batch_peak_kib": 59188,
+    "producer_consumer_symbols_including_explicit_off_disposer": true
+  },
+  "host_final": {
+    "check": "check-config-edit-suite.py",
+    "scope": "Complete edit/view suite rerun after final explicit OFF API and fixture closure",
+    "exit": 0,
+    "seconds": 121.99,
+    "peak_kib": 81172
+  }
+}

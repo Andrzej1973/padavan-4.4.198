@@ -98,7 +98,7 @@ assert prepared.count(anchor)==1
 prepared=prepared.replace(anchor,' assert(!history_commits&&history_prepares>=2&&physical.finish_profile.binding.created==9);\n'+anchor)
 anchor=' assert(shutdowns==cancel_mode&&root.phase=='
 assert prepared.count(anchor)==1
-prepared=prepared.replace(anchor,' assert(history_commits==!cancel_mode&&!physical.finish_profile.binding.kind);\n'+anchor)
+prepared=prepared.replace(anchor,' assert(history_commits==!cancel_mode&&!physical.finish_profile.binding.kind);\n assert(root.completion.binding.created==(cancel_mode?0:9));\n'+anchor)
 
 with tempfile.TemporaryDirectory(prefix='wr-resume-finish-') as d:
  p=Path(d)/'test.c';b=Path(d)/'test'

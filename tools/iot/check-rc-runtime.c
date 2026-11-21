@@ -58,6 +58,7 @@ int wr_iot_off_followup_finish(struct wr_iot_off_followup*s,struct wr_iot_radio_
 int wr_iot_rc_dispatch(void){assert(0);return 0;}
 int wr_iot_restart_scheduler_pending(void){return resume_pending;}
 int wr_iot_restart_scheduler_step(void){resume_steps++;return 0;}
+int wr_iot_restart_scheduler_retire(void){assert(0);return 0;}
 int wr_iot_rc_physical_pending(void){return physical_pending;}
 void wr_iot_rc_physical_step(void){physical_steps++;}
 int wr_iot_rc_pending(void){return pending;}

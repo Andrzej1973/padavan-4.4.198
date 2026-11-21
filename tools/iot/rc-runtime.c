@@ -204,7 +204,9 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
   }
   else if(radio_off_redispatch){radio_off_redispatch=0;(void)wr_iot_rc_dispatch();}
   else if(wr_iot_rc_physical_pending())wr_iot_rc_physical_step();
-  else if(wr_iot_restart_scheduler_pending())(void)wr_iot_restart_scheduler_step();
+  else if(wr_iot_restart_scheduler_pending()){
+   if(wr_iot_restart_scheduler_step()!=0&&wr_iot_restart_scheduler_retire())radio_off_redispatch=1;
+  }
   else if(wr_iot_rc_pending())(void)wr_iot_rc_continue();
   else if(wr_iot_rc_normal_shutdown_pending())(void)wr_iot_rc_normal_shutdown_step();
   else if(wr_iot_rc_boot_pending()){

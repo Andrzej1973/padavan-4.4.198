@@ -30,10 +30,28 @@ int main(void){
   assert(wr_iot_restart_resume_retire(&s));struct wr_iot_restart_resume zero={0};assert(!memcmp(&s,&zero,sizeof(s)));
   assert(!wr_iot_restart_resume_retire(&s));
  }
- puts("PASS terminal resume retirement: only consumed DONE/CANCELLED, admission/live pointer/heap/active OFF refusal, volatile wipe of entire context, duplicate refusal; no driver/resource operations");
+ struct wr_iot_restart_resume tail={.owner=getpid(),.phase=WR_RESUME_WAN};
+ tail.restore.owner=getpid();tail.restore.phase=WR_RESTORE_FINISHED;tail.restore.generation.phase=WR_RESTART_GEN_COMMITTED;
+ assert(!wr_iot_restart_resume_retire(&tail));
+ tail.restore.generation.profile.active=1;assert(!wr_iot_restart_resume_retire_for_off(&tail));tail.restore.generation.profile.active=0;
+ struct wr_iot_restart_resume explicit_off=tail;explicit_off.phase=WR_RESUME_DONE;
+ assert(wr_iot_restart_resume_retire_for_off(&explicit_off)&&!explicit_off.owner&&tail.owner);
+ wr_iot_rc_shutdown.normal_route_requested=SIGTERM;
+ tail.restore.generation.profile.active=1;assert(!wr_iot_restart_resume_retire(&tail));tail.restore.generation.profile.active=0;
+ tail.terminal.fence.level=1;assert(!wr_iot_restart_resume_retire(&tail));tail.terminal.fence.level=0;
+ tail.terminal.child=&tail.restore.iapp;assert(!wr_iot_restart_resume_retire(&tail));tail.terminal.child=NULL;
+ assert(wr_iot_restart_resume_retire(&tail)&&!tail.owner);wr_iot_rc_shutdown.normal_route_requested=0;
+ puts("PASS resume retirement: DONE/CANCELLED proof or routed released WAN handoff without DONE, live admission/pointer/heap/child/fence refusal, volatile wipe and duplicate refusal; completion observer actor");
 }
 '''
+prepared='#define WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED 1\n'+code
+prepared=prepared.replace('#include "restart-resume-retire.c"', 'static int completion_ok,checks;\nint wr_iot_restart_restore_completed_current(struct wr_iot_restart_restore*r){assert(r->phase==WR_RESTORE_FINISHED);checks++;return completion_ok;}\n#include "restart-resume-retire.c"')
+prepared=prepared.replace('  assert(wr_iot_restart_resume_retire(&s));', '  int before=checks;completion_ok=0;\n  if(!cancelled){assert(!wr_iot_restart_resume_retire(&s)&&s.owner);assert(checks==before+1);}\n  completion_ok=1;assert(wr_iot_restart_resume_retire(&s));\n  assert(checks==before+(cancelled?0:2));')
+prepared=prepared.replace(' assert(wr_iot_restart_resume_retire_for_off(&explicit_off)&&!explicit_off.owner&&tail.owner);', ' completion_ok=0;int off_checks=checks;assert(wr_iot_restart_resume_retire_for_off(&explicit_off)&&!explicit_off.owner&&tail.owner&&checks==off_checks);')
+prepared=prepared.replace(' assert(wr_iot_restart_resume_retire(&tail)&&!tail.owner);', ' completion_ok=0;int before=checks;assert(wr_iot_restart_resume_retire(&tail)&&!tail.owner&&checks==before);')
 with tempfile.TemporaryDirectory(prefix='wr-resume-retire-') as d:
- p=Path(d)/'test.c';p.write_text(code);b=Path(d)/'test'
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(b)],check=True)
- subprocess.run([str(b)],check=True)
+ p=Path(d)/'test.c';b=Path(d)/'test'
+ for source in (code,prepared):
+  p.write_text(source)
+  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(b)],check=True)
+  subprocess.run([str(b)],check=True)

@@ -69,3 +69,25 @@ void wr_iot_rc_restart_profile_commit(const struct wr_iot_restart_profile_histor
  }
  profile_history_commit(&s->binding,&s->profile);
 }
+
+int wr_iot_rc_restart_profile_current(const struct wr_iot_restart_restore *s)
+{
+ static const char hex[]="0123456789abcdef";char id[33]={0};unsigned i;
+ struct wr_iot_profile_binding binding={0};struct wr_iot_restart_profile_receipt file={0};
+ if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_RESTORE_FINISHED||
+    s->main.identity.adapter_epoch!=s->completion.binding.identity.adapter_epoch||
+    s->main.identity.device_generation!=s->completion.binding.identity.device_generation||
+    (s->generation.origin.origin==WR_PHYSICAL_ORIGIN_CLOSE?
+      s->completion.binding.kind!=WR_PROFILE_BACKEND_REBIND_ACTIVE:
+      (s->generation.origin.origin!=WR_PHYSICAL_ORIGIN_INITIAL||
+       (s->completion.binding.kind!=WR_PROFILE_BACKEND_ACTIVE&&s->completion.binding.kind!=WR_PROFILE_BACKEND_INITIAL_OFF)))||
+    (s->completion.binding.kind!=WR_PROFILE_BACKEND_INITIAL_OFF&&s->handoff_created!=s->completion.binding.created))return 0;
+ for(i=0;i<16;i++){id[2*i]=hex[s->open_id[i]>>4];id[2*i+1]=hex[s->open_id[i]&15];}
+ return memchr(s->completion.binding.id,0,sizeof(s->completion.binding.id))&&
+  !strcmp(id,s->completion.binding.id)&&
+  wr_iot_restart_profile_receipt_current(&s->completion.profile)&&
+  wr_iot_rc_profile_history_read(&binding,&file)&&
+  profile_history_equal(&binding,&s->completion.binding)&&
+  !strcmp(file.path,s->completion.profile.path)&&
+  wr_iot_restart_profile_receipt_current(&s->completion.profile);
+}

@@ -14,4 +14,6 @@ int wr_iot_rc_restart_profile_prepare(struct wr_iot_restart_restore *,
  struct wr_iot_restart_profile_history *);
 /* Only successful outer fence cleanup may commit a prepared output. */
 void wr_iot_rc_restart_profile_commit(const struct wr_iot_restart_profile_history *);
+/* Caller holds service guard. Reobserve the exact successful finish receipt. */
+int wr_iot_rc_restart_profile_current(const struct wr_iot_restart_restore *);
 #endif

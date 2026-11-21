@@ -14,6 +14,7 @@ int wr_iot_rc_physical_restart_ready(struct wr_iot_rc_physical_intent*i){i->rest
 int wr_iot_restart_resume_begin(struct wr_iot_restart_resume*s,const unsigned char*id,unsigned long long created){assert(id[0]&&created);starts++;owner=s;s->owner=getpid();s->phase=WR_RESUME_RESTORE;return 1;}
 int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s){assert(s==owner);steps++;if(terminal)s->phase=WR_RESUME_DONE;return terminal;}
 int wr_iot_restart_resume_shutdown(struct wr_iot_restart_resume*s,const struct wr_iot_control_request*r){assert(s==owner&&!r->request.enabled&&!r->request.password[0]);stops++;return 1;}
+int wr_iot_restart_resume_retire_for_off(struct wr_iot_restart_resume*s){(void)s;assert(0);return 0;}
 int wr_iot_restart_resume_retire(struct wr_iot_restart_resume*s){if(s->phase!=WR_RESUME_DONE)return 0;memset(s,0,sizeof(*s));return 1;}
 int wr_iot_rc_physical_preresume_cancel(void){assert(0);return 0;}
 int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent*i){(void)i;assert(0);return 0;}
@@ -27,9 +28,14 @@ int main(void){
  assert(!wr_iot_restart_scheduler_shutdown("bad",11)&&!stops);
  assert(wr_iot_restart_scheduler_shutdown("08000000000000000000000000000000",11)&&stops==1);
  assert(!wr_iot_restart_scheduler_retire());terminal=1;
- assert(wr_iot_restart_scheduler_step()&&!wr_iot_restart_scheduler_pending());
+ assert(wr_iot_restart_scheduler_step()&&wr_iot_restart_scheduler_pending());
+ wr_iot_rc_shutdown.normal_route_requested=SIGTERM;assert(!wr_iot_restart_scheduler_pending());
+ owner->phase=WR_RESUME_WAN;owner->restore.phase=WR_RESTORE_FINISHED;wr_iot_rc_shutdown.active=0;
+ assert(!wr_iot_restart_scheduler_pending());owner->terminal.fence.level=1;assert(wr_iot_restart_scheduler_pending());owner->terminal.fence.level=0;
+ owner->phase=WR_RESUME_DONE;
+ wr_iot_rc_shutdown.normal_route_requested=0;assert(wr_iot_restart_scheduler_pending());
  assert(wr_iot_restart_scheduler_retire()&&!resume.owner);
- assert(wr_iot_restart_scheduler_begin(id,12)&&starts==2&&owner==&resume);
+ wr_iot_rc_shutdown.active=1;assert(wr_iot_restart_scheduler_begin(id,12)&&starts==2&&owner==&resume);
  puts("PASS private restart scheduler: exact ready gate, one stable owner, duplicate begin refuses, explicit bounded step, OFF identity only, terminal-only retirement/reuse; owning actors injected, no RC hooks");
 }
 '''

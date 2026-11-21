@@ -25,7 +25,13 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume *);
 /* Fresh OFF envelope only, for pending normal shutdown after handoff.
  * CLOSED remains retained until a separate verified cancellation consumer. */
 int wr_iot_restart_resume_shutdown(struct wr_iot_restart_resume *,const struct wr_iot_control_request *);
-/* Only consumed terminal state with no live resources; volatile private wipe.
+/* Consumed terminal state with no live resources; volatile private wipe.
+ * An already routed normal shutdown may also discard a fully released WAN
+ * tail without declaring DONE. Actual backend OFF remains that consumer's job.
  * Returns1 when reusable zero state established,0 leaves retained state. */
 int wr_iot_restart_resume_retire(struct wr_iot_restart_resume *);
+/* Only a validated new physical OFF admission may consume an already released
+ * WAN/DONE tail without successful completion proof. No backend state changes
+ * or restart success; that OFF still owns its independent close/RELEASE gates. */
+int wr_iot_restart_resume_retire_for_off(struct wr_iot_restart_resume *);
 #endif

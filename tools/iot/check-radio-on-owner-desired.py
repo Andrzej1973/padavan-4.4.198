@@ -155,6 +155,23 @@ int wr_iot_restart_initial_active_current(struct wr_iot_restart_restore*s){retur
 #include "rc-restart-profile-history.inc"
 '''
 
+# Compose the actual post-cleanup observer with the actual backend/file receipt
+# implementation. Root bookkeeping is synthetic here; physical cleanup and the
+# complete pump are exercised by their existing native compositions.
+completed_observer=(here/'restart-finish-check.c').read_text().split('#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1\n',1)[1].rsplit('#endif',1)[0]
+backend_actor+='\n#include "restart-multicast.h"\n'+completed_observer+r'''
+static int completed_fixture_current(struct wr_iot_restart_restore *root){
+ root->generation.phase=WR_RESTART_GEN_COMMITTED;
+ assert(wr_iot_rc_restart_guest_policy(&root->guest.desired));
+ assert(wr_iot_rc_restart_guest_isolation_policy(&root->guest.isolate));
+ assert(wr_iot_rc_restart_service_policy(&root->services.policy));
+ assert(wr_iot_rc_restart_multicast_policy(&root->multicast.policy));
+ int admission=wr_iot_rc_shutdown.active;wr_iot_rc_shutdown.active=0;
+ int result=wr_iot_restart_restore_completed_current(root);
+ wr_iot_rc_shutdown.active=admission;return result;
+}
+'''
+
 # Execute the exact prepared enabled cold retirement producer with synthetic
 # terminal bookkeeping. Whole cold orchestration remains covered separately.
 cold_retire=(here/'rc-cold-terminal.inc').read_text().split('static int wr_iot_cold_terminal_retire(',1)[1]
@@ -261,6 +278,18 @@ history_cases=r'''
    assert(wr_iot_rc_restart_profile_prepare(&root,&stage)&&stage.binding.kind==WR_PROFILE_BACKEND_REBIND_ACTIVE);
    root.main.identity.adapter_epoch++;assert(!wr_iot_rc_restart_profile_prepare(&root,&stage));root.main.identity.adapter_epoch--;
    assert(wr_iot_rc_restart_profile_prepare(&root,&stage));wr_iot_rc_restart_profile_commit(&stage);
+   root.completion=stage;root.phase=WR_RESTORE_FINISHED;assert(completed_fixture_current(&root));
+   assert(wr_iot_rc_restart_profile_current(&root));
+   root.completion.binding.identity.adapter_epoch++;assert(!wr_iot_rc_restart_profile_current(&root));root.completion.binding.identity.adapter_epoch--;
+   root.main.identity.device_generation++;assert(!wr_iot_rc_restart_profile_current(&root));root.main.identity.device_generation--;
+   root.open_id[0]++;assert(!wr_iot_rc_restart_profile_current(&root));root.open_id[0]--;
+   root.handoff_created++;assert(!wr_iot_rc_restart_profile_current(&root));root.handoff_created--;
+
+   root.completion.profile.valid=0;assert(!wr_iot_rc_restart_profile_current(&root));root.completion.profile.valid=1;
+   root.busy=1;assert(!wr_iot_rc_restart_profile_current(&root));root.busy=0;
+   root.phase=WR_RESTORE_HANDOFF;assert(!wr_iot_rc_restart_profile_current(&root));root.phase=WR_RESTORE_FINISHED;
+   network_current=0;assert(!wr_iot_rc_restart_profile_current(&root));network_current=1;
+   assert(wr_iot_rc_restart_profile_current(&root));
    assert(wr_iot_rc_profile_history_read(&binding,&clear));
    memset(&rebind,0,sizeof(rebind));backend.phase=WR_IOT_OWNER_ACTIVE;
    strcpy(backend.start.input.id,"06000000000000000000000000000000");backend.start.input.created=13;
@@ -270,6 +299,10 @@ history_cases=r'''
    assert(wr_iot_rc_restart_profile_prepare(&root,&stage)&&stage.binding.kind==WR_PROFILE_BACKEND_ACTIVE);
    wr_iot_rc_restart_profile_commit(&stage);wr_iot_initial_restart_parent=NULL;
    assert(wr_iot_rc_profile_history_read(&binding,&clear)&&binding.created==13);
+   root.completion=stage;assert(wr_iot_rc_restart_profile_current(&root)&&completed_fixture_current(&root));
+   /* A newer valid history must not retarget the old completed root. */
+   root.completion.binding.created--;assert(!wr_iot_rc_restart_profile_current(&root));root.completion.binding.created++;
+
    /* Disabled INITIAL uses a fresh never-opened idle actor, not ACTIVE. */
    memset(&backend,0,sizeof(backend));root.generation.origin.desired.enabled=0;
    root.main.identity=(struct wr_iot_driver_identity){2,2};root.open_id[0]=1;physical_initial.created=14;
@@ -277,6 +310,16 @@ history_cases=r'''
    assert(!backend.owner);wr_iot_rc_restart_profile_commit(&stage);
    assert(backend.phase==WR_IOT_OWNER_INITIAL_OFF&&backend.initial_off.created==14);
    assert(wr_iot_rc_profile_history_read(&binding,&clear)&&binding.kind==WR_PROFILE_BACKEND_INITIAL_OFF);
+   root.completion=stage;assert(wr_iot_rc_restart_profile_current(&root)&&completed_fixture_current(&root));
+   struct timespec times[2]={clear.file.metadata.st_atim,clear.file.metadata.st_mtim};
+   times[1].tv_nsec=(times[1].tv_nsec+1)%1000000000;
+   assert(!utimensat(AT_FDCWD,root.completion.profile.path,times,0));
+   assert(!wr_iot_rc_restart_profile_current(&root)&&!completed_fixture_current(&root));
+   /* Fixture restores only an actor snapshot for subsequent cases. */
+   assert(wr_iot_generated_capture(&root.completion.profile.file,root.completion.profile.path));
+   wr_iot_rc_restart_profile_commit(&root.completion);
+   assert(wr_iot_rc_restart_profile_current(&root));
+
    wr_iot_rc_shutdown.active=0;wr_iot_bundle_release(&root.generation.profile.files);
   }
   network_current=0;assert(!wr_iot_rc_profile_history_read(&binding,&clear));network_current=1;

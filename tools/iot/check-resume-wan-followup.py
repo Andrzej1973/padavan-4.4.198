@@ -55,8 +55,20 @@ int main(void){
 
 }
 '''
+prepared=code.replace('#define WR_IOT_IAPP_POLICY_H', '#define WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED 1\n#define WR_IOT_IAPP_POLICY_H')
+prepared=prepared.replace('static int dispatches,network_ok,leds,terminal_steps;', 'static int dispatches,network_ok,leds,terminal_steps;\nstatic int completion_ok=1,completion_checks;\nint wr_iot_restart_restore_completed_current(struct wr_iot_restart_restore*s){assert(s->phase==WR_RESTORE_FINISHED);completion_checks++;return completion_ok&&network_ok;}')
+anchor=' assert(wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_DONE&&leds==1&&terminal_steps==2);'
+assert prepared.count(anchor)==1
+prepared=prepared.replace(anchor,r'''
+ completion_ok=0;assert(!wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_WAN&&terminal_steps==2);
+ assert(completion_checks>=1&&dispatches==1&&leds==1);
+ completion_ok=1;assert(wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_DONE);
+ completion_ok=0;assert(!wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_DONE);completion_ok=1;
+''')
 with tempfile.TemporaryDirectory(prefix='wr-resume-wan-') as d:
- p=Path(d)/'test.c';p.write_text(code);b=Path(d)/'test'
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(b)],check=True)
- subprocess.run([str(b)],check=True,timeout=5)
+ p=Path(d)/'test.c';b=Path(d)/'test'
+ for source in (code,prepared):
+  p.write_text(source)
+  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(b)],check=True)
+  subprocess.run([str(b)],check=True,timeout=5)
 print('PASS actual resume/WAN controller: capture before cleanup, failed take holds, successful take once enters deferred phase, active/pending block, one SDK dispatch then fresh network observer gates DONE; physical/SDK actors injected')

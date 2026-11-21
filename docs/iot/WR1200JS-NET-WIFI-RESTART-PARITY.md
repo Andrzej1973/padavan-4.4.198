@@ -524,8 +524,11 @@ its own signal fence/service guard. Its child is the stable embedded root child.
 Pending shutdown before launch cancels without exec; once launched, pending
 shutdown drains its receipt while retaining guard/fence. Unknown stays retained;
 confirmed completion cleans guard before signal replay. No command replay.
-Resume DONE follows terminal success; retirement rejects remaining terminal
-fence/guard/child. Actual fence/SIGTERM tests, root/WAN order composition, legacy
+Resume DONE follows terminal success; prepared snapshot builds also require
+fresh exact backend/file and parent-network proof after IAPP and before
+retirement. Runtime consumes the terminal and schedules mailbox redispatch;
+failed retirement stays scheduled without starving routed shutdown. Retirement
+rejects remaining terminal fence/guard/child. Actual fence/SIGTERM tests, root/WAN order composition, legacy
 resume/scheduler, real child tests and native preparation pass. ABI adds target
 compile of terminal unit and gate1 resume. SDK/MIPS/image/device results pending;
 stock net_wifi entrypoint remains unbound and persistent post-WAN repair is open.

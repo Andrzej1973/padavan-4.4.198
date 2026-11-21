@@ -53,7 +53,7 @@ static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
     (!intent->restart&&(intent->radio_on||intent->reload))||physical.owner||
     wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
     wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
- if(!wr_iot_restart_scheduler_prepare())return 0;
+ if(!wr_iot_restart_scheduler_prepare(!intent->restart&&!intent->radio_on))return 0;
  if(routed?!wr_iot_radio_stop_fence_begin_routed_shutdown(&physical.fence):
            !wr_iot_radio_stop_fence_begin(&physical.fence))return 0;
  physical.owner=getpid();physical.intent=*intent;physical.routed_shutdown=routed;
@@ -101,7 +101,7 @@ int wr_iot_rc_physical_begin_initial(const struct wr_iot_rc_physical_intent *int
     (!intent->restart&&(intent->radio_on||intent->reload))||physical.owner||
     wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
     wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
- if(!wr_iot_restart_scheduler_prepare())return 0;
+ if(!wr_iot_restart_scheduler_prepare(!intent->restart&&!intent->radio_on))return 0;
  if(!wr_iot_radio_stop_fence_begin(&physical.fence))return 0;
  physical.owner=getpid();physical.intent=*intent;
  physical.guard=wr_iot_service_guard_enter(1);
@@ -475,6 +475,7 @@ static void resume_cleanup(void *context)
 static void resume_success_cleanup(void *context)
 {
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ ((struct wr_iot_restart_restore *)context)->completion=physical.finish_profile;
  wr_iot_rc_restart_profile_commit(&physical.finish_profile);
  memset(&physical.finish_profile,0,sizeof(physical.finish_profile));
 #endif
@@ -509,6 +510,7 @@ static void resume_cancel_cleanup(void *context)
 {
  struct wr_iot_restart_restore *s=context;
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ memset(&s->completion,0,sizeof(s->completion));
  memset(&physical.finish_profile,0,sizeof(physical.finish_profile));
 #endif
  resume_cleanup(s);

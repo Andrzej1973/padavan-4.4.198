@@ -24,7 +24,23 @@ int main(void){
  puts("PASS actual resume pump/retire reuse: two terminal cycles at same address, no retirement while live, no retained identity/credential context, each begin/handoff/finish/take once; component actors injected");
 }
 '''
+prepared='#define WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED 1\n'+code
+prepared=prepared.replace('#include "restart-resume-retire.c"',r'''
+static int completion_ok;
+int wr_iot_restart_restore_completed_current(struct wr_iot_restart_restore*r){assert(r->owner==getpid()&&r->phase==WR_RESTORE_FINISHED);return completion_ok;}
+#include "restart-resume-retire.c"
+''')
+prepared=prepared.replace('  finish_ok=1;assert(wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_DONE);',r'''
+  finish_ok=1;completion_ok=0;int before=takes;
+  assert(!wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_WAN&&takes==before+1);
+  assert(!wr_iot_restart_resume_step(&s)&&takes==before+1);
+  completion_ok=1;assert(wr_iot_restart_resume_step(&s)&&s.phase==WR_RESUME_DONE&&takes==before+1);
+  completion_ok=0;assert(!wr_iot_restart_resume_step(&s)&&!wr_iot_restart_resume_retire(&s)&&s.owner);
+  completion_ok=1;
+''')
 with tempfile.TemporaryDirectory(prefix='wr-resume-reuse-') as d:
- p=Path(d)/'test.c';p.write_text(code);b=Path(d)/'test'
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(b)],check=True)
- subprocess.run([str(b)],check=True)
+ p=Path(d)/'test.c';b=Path(d)/'test'
+ for source in (code,prepared):
+  p.write_text(source)
+  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),'-o',str(b)],check=True)
+  subprocess.run([str(b)],check=True)

@@ -8,6 +8,14 @@
 #include "rc-shutdown-admission.h"
 static void envelope_wipe(void *data,size_t size)
 {volatile unsigned char*p=data;while(size--)*p++=0;}
+static int resume_completed_current(struct wr_iot_restart_resume *s)
+{
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ return wr_iot_restart_restore_completed_current(&s->restore);
+#else
+ (void)s;return 1;
+#endif
+}
 int wr_iot_restart_resume_begin(struct wr_iot_restart_resume*s,const unsigned char*id,unsigned long long created)
 {
  int started;
@@ -23,6 +31,7 @@ int wr_iot_restart_resume_begin(struct wr_iot_restart_resume*s,const unsigned ch
 static void resume_postwan_shutdown_cleanup(void *context)
 {
  struct wr_iot_restart_resume *s=context;
+ envelope_wipe(&s->restore.completion,sizeof(s->restore.completion));
  envelope_wipe(&s->initial_receipt,sizeof(s->initial_receipt));
  envelope_wipe(&s->stop_input,sizeof(s->stop_input));
  s->restore.phase=WR_RESTORE_CANCELLED;s->phase=WR_RESUME_CANCELLED;s->busy=0;
@@ -36,7 +45,7 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
  struct wr_iot_driver_closed_result closed={0};
  unsigned i;int done=0;
  if(!s||s->owner!=getpid()||s->busy)return 0;
- if(s->phase==WR_RESUME_DONE)return 1;
+ if(s->phase==WR_RESUME_DONE)return resume_completed_current(s);
  if(s->phase==WR_RESUME_CANCELLED)return -1;
  s->busy=1;
  switch(s->phase){
@@ -129,7 +138,8 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
 #if WR_IOT_IAPP_POLICY_PREPARED
    s->phase=WR_RESUME_WAN;
 #else
-   s->phase=WR_RESUME_DONE;done=1;
+   s->phase=WR_RESUME_WAN;
+   if(resume_completed_current(s)){s->phase=WR_RESUME_DONE;done=1;}
 #endif
   }
   break;
@@ -146,7 +156,7 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
   break;
  case WR_RESUME_WAN:
   if(s->terminal.owner){
-   if(wr_iot_terminal_iapp_step(&s->terminal)==1){s->phase=WR_RESUME_DONE;done=1;}
+   if(wr_iot_terminal_iapp_step(&s->terminal)==1&&resume_completed_current(s)){s->phase=WR_RESUME_DONE;done=1;}
    break;
   }
   if(wr_iot_wan_followup_step(&s->wan)){
@@ -162,13 +172,18 @@ int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s)
         wr_iot_initial_postrelease_current(&s->restore.generation.origin.initial,
          s->restore.open_id,&s->restore.main.identity))):
       wr_iot_rc_backend_observed(&observed)){
+    if(!resume_completed_current(s))break;
     if(!s->led_attempted){s->led_attempted=1;s->led_returned=wr_iot_rc_restart_led_on()==1;}
     if(s->led_returned){
      if(!s->terminal.owner){s->terminal.defer_pending_shutdown=1;(void)wr_iot_terminal_iapp_begin(&s->terminal,&s->restore.iapp);}
-     if(wr_iot_terminal_iapp_step(&s->terminal)==1){s->phase=WR_RESUME_DONE;done=1;}
+     if(wr_iot_terminal_iapp_step(&s->terminal)==1&&resume_completed_current(s)){s->phase=WR_RESUME_DONE;done=1;}
     }
    }
   }
+  break;
+#else
+ case WR_RESUME_WAN:
+  if(resume_completed_current(s)){s->phase=WR_RESUME_DONE;done=1;}
   break;
 #endif
  default:break;

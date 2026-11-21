@@ -30,7 +30,18 @@ int wr_iot_restart_scheduler_begin_fresh(void)
 int wr_iot_restart_scheduler_pending(void)
 {
  struct wr_iot_rc_physical_intent intent={0};
- if(resume.owner)return resume.phase!=WR_RESUME_DONE&&resume.phase!=WR_RESUME_CANCELLED;
+ /* Terminal owners remain scheduled until explicit retirement succeeds. */
+ if(resume.owner){
+  /* A released terminal has no live fence to drain. Do not starve the routed
+   * shutdown consumer when a signal wins before retirement. */
+  if(resume.phase==WR_RESUME_WAN&&resume.restore.phase==WR_RESTORE_FINISHED&&
+     wr_iot_rc_shutdown.normal_route_requested&&!wr_iot_rc_shutdown.active&&
+     !resume.busy&&!resume.restore.busy&&!resume.terminal.guard&&!resume.terminal.busy&&
+     !resume.terminal.child&&!resume.terminal.fence.owner&&!resume.terminal.fence.level)return 0;
+  if((resume.phase==WR_RESUME_DONE||resume.phase==WR_RESUME_CANCELLED)&&
+     (wr_iot_rc_shutdown.pending||wr_iot_rc_shutdown.normal_route_requested||wr_iot_rc_shutdown.replay_signal))return 0;
+  return 1;
+ }
  /* Hold ordinary continuation across RELEASE -> begin, including entropy
   * refusal. A pending admission signal retains the physical owner here. */
  return wr_iot_rc_shutdown.active&&wr_iot_rc_physical_restart_ready(&intent)&&
@@ -83,11 +94,11 @@ int wr_iot_restart_scheduler_shutdown(const char *id,unsigned long long created)
 int wr_iot_restart_scheduler_retire(void)
 {return wr_iot_restart_resume_retire(&resume);}
 
-int wr_iot_restart_scheduler_prepare(void)
+int wr_iot_restart_scheduler_prepare(int off_admission)
 {
- if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
+ if((off_admission!=0&&off_admission!=1)||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return 0;
  if(!resume.owner)return resume.phase==WR_RESUME_IDLE&&!resume.busy;
- return wr_iot_restart_resume_retire(&resume);
+ return off_admission?wr_iot_restart_resume_retire_for_off(&resume):wr_iot_restart_resume_retire(&resume);
 }
 
 int wr_iot_restart_scheduler_unowned(void)

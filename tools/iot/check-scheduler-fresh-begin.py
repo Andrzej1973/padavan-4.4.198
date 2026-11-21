@@ -21,6 +21,7 @@ int wr_iot_rc_physical_restart_ready(struct wr_iot_rc_physical_intent*i){i->rest
 int wr_iot_restart_resume_begin(struct wr_iot_restart_resume*s,const unsigned char*id,unsigned long long created){for(unsigned i=0;i<16;i++)assert(id[i]==9);assert(created==20);begins++;s->owner=getpid();s->phase=retain?WR_RESUME_RETAINED:WR_RESUME_RESTORE;return !retain;}
 int wr_iot_restart_resume_step(struct wr_iot_restart_resume*s){(void)s;return 0;}
 int wr_iot_restart_resume_shutdown(struct wr_iot_restart_resume*s,const struct wr_iot_control_request*r){(void)s;(void)r;assert(0);return 0;}
+int wr_iot_restart_resume_retire_for_off(struct wr_iot_restart_resume*s){(void)s;assert(0);return 0;}
 int wr_iot_restart_resume_retire(struct wr_iot_restart_resume*s){(void)s;return 0;}
 int wr_iot_rc_physical_preresume_cancel(void){assert(0);return 0;}
 int wr_iot_rc_physical_take(struct wr_iot_rc_physical_intent*i){(void)i;assert(0);return 0;}

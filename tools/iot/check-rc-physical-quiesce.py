@@ -21,7 +21,7 @@ int wr_iot_auth_stop_begin(struct wr_iot_auth_stop*s,unsigned long long now){ass
 int wr_iot_auth_stop_step(struct wr_iot_auth_stop*s,unsigned long long now){assert(s->owner==getpid()&&now);return 1;}
 
 int wr_iot_restart_scheduler_unowned(void){return 1;}
-int wr_iot_restart_scheduler_prepare(void){assert(!wr_iot_rc_shutdown.active);return 1;}
+int wr_iot_restart_scheduler_prepare(int off_admission){(void)off_admission;assert(!wr_iot_rc_shutdown.active);return 1;}
 int wr_iot_restart_prehandoff_cancel_check(struct wr_iot_restart_restore*s){(void)s;return 0;}
 int wr_iot_restart_generation_rollback_current(const struct wr_iot_restart_generation*g){(void)g;return 0;}
 int wr_iot_restart_restore_finish_check(struct wr_iot_restart_restore*s){(void)s;return 0;}

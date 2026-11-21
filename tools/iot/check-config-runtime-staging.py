@@ -2,6 +2,7 @@
 """Exercise actual runtime unit/header preparation without repository includes."""
 from pathlib import Path
 from types import SimpleNamespace
+import argparse
 import ast
 import json
 import runpy
@@ -16,8 +17,12 @@ tree = ast.parse(text)
 once = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "once")
 snapshot_code = text[text.index("try:\n snapshot="):text.index("\ndef once")]
 units_code = text[text.index("common=('status-channel'"):text.index("for target,data in pending.items()")]
+parser=argparse.ArgumentParser()
+parser.add_argument('native_linux',nargs='?',type=Path)
+parser.add_argument('--compiler',default='gcc')
+args=parser.parse_args()
 with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
-    cases=[(False,False),(True,False)]+([(True,True)] if len(sys.argv)>1 else [])
+    cases=[(False,False),(True,False)]+([(True,True)] if args.native_linux else [])
     for prepared,flash in cases:
         root = Path(directory) / (str(prepared)+str(flash))
         trunk = root / "trunk"
@@ -56,7 +61,7 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             subprocess.run([sys.executable, str(shared / "prepare-nvram-snapshot.py"),
                             "--kernel-root", str(kernel)], check=True)
         if flash:
-            ordered=runpy.run_path(str(shared/'prepare-nvram-commit-order.py'))['prepare'](Path(sys.argv[1]).read_text())
+            ordered=runpy.run_path(str(shared/'prepare-nvram-commit-order.py'))['prepare'](args.native_linux.read_text())
             staged=runpy.run_path(str(shared/'prepare-nvram-flash-readback.py'))['prepare'](ordered)
             (kernel/'drivers/nvram/nvram_linux.c').write_text(staged)
             (kernel/'drivers/nvram/wr-nvram-flash-wire.h').write_bytes((here/'native-flash-wire.h').read_bytes())
@@ -80,20 +85,33 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
         assert "PREPARED " + str(int(prepared)) + "\n" in marker
         for unit in ("native-flash-reader", "flash-save-native"):
             subprocess.run(["make", "-C", str(rc), "ROOTDIR=" + str(trunk),
-                            "CC=gcc", "CFLAGS=-std=gnu11 -Wall -Wextra -Werror -O2 -I" + str(rc),
+                            "CC="+args.compiler, "CFLAGS=-std=gnu11 -Wall -Wextra -Werror -O2 -I" + str(rc),
                             "wr-iot-" + unit + ".o"], check=True)
-        for unit in ("config-view-runtime", "config-view-channel", "config-view-endpoint", "config-edit-server", "config-server", "config-owner", "saved-config-store", "native-flash-reader", "flash-save-attempt", "flash-save-native", "flash-worker", "config-save-owner", "config-save-server", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode", "rc-backend", "radio-on-owner", "rc-runtime", "rc-physical-stop", "radio-off-owner", "radio-off-profile", "radio-off-profile-check"):
+        for unit in ("config-view-runtime", "config-view-channel", "config-view-endpoint", "config-edit-server", "config-server", "config-owner", "saved-config-store", "native-flash-reader", "flash-save-attempt", "flash-save-native", "flash-worker", "config-save-owner", "config-save-server", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode", "rc-backend", "radio-on-owner", "rc-runtime", "rc-physical-stop", "radio-off-owner", "radio-off-profile", "radio-off-profile-check", "restart-finish-check", "restart-resume", "restart-resume-retire", "restart-scheduler"):
             assert ("wr-iot-" + unit + ".o") in (rc / "Makefile").read_text()
             # Changed lifecycle units also emit actual host objects. Keep the
             # compiler lane serial; these isolated trees are removed on exit.
             objects=("rc-backend", "rc-physical-stop", "radio-off-owner", "radio-off-profile",
-                     "radio-off-profile-check", "radio-on-owner", "rc-runtime")
+                     "radio-off-profile-check", "radio-on-owner", "rc-runtime", "restart-finish-check",
+                     "restart-resume", "restart-resume-retire", "restart-scheduler")
             mode=["-c", "-o", str(rc / ("wr-iot-" + unit + ".o"))] if unit in objects else ["-fsyntax-only"]
-            subprocess.run(["gcc", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
+            subprocess.run([args.compiler, "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
                             "-I" + str(rc), "-I"+str(trunk/"linux-4.4.x/include/nvram"), *mode,
                             str(rc / ("wr-iot-" + unit + ".c"))], check=True)
+        if prepared:
+            nm=args.compiler[:-3]+'nm' if args.compiler.endswith('gcc') else 'nm'
+            for unit,symbol in (("rc-backend","wr_iot_rc_restart_profile_current"),
+                                ("restart-finish-check","wr_iot_restart_restore_completed_current"),
+                                ("restart-resume-retire","wr_iot_restart_resume_retire_for_off")):
+                symbols=subprocess.check_output([nm,str(rc/("wr-iot-"+unit+".o"))],text=True)
+                assert any(line.split()[1:]==['T',symbol] for line in symbols.splitlines()), (unit,symbol)
+            for unit in ("restart-resume","restart-resume-retire"):
+                symbols=subprocess.check_output([nm,str(rc/("wr-iot-"+unit+".o"))],text=True)
+                assert any(line.split()==['U','wr_iot_restart_restore_completed_current'] for line in symbols.splitlines())
+            symbols=subprocess.check_output([nm,str(rc/"wr-iot-restart-scheduler.o")],text=True)
+            assert any(line.split()==['U','wr_iot_restart_resume_retire_for_off'] for line in symbols.splitlines())
         for unit in ("config-view-client","config-view-channel","config-view-endpoint"):
             assert ("wr-iot-"+unit+".o") in (http/'Makefile').read_text()
-            subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-I'+str(http),
+            subprocess.run([args.compiler,'-std=gnu11','-Wall','-Wextra','-Werror','-O2','-I'+str(http),
                             '-fsyntax-only',str(http/('wr-iot-'+unit+'.c'))],check=True)
-print("PASS actual staged config units: RC object/header mappings and generated prepared0/1 capability compile with isolated includes; pinned native snapshot guard required for1; host only")
+print(f"PASS actual staged config units: lifecycle_objects={len(cases)*len(objects)} compiler={args.compiler}; exact prepared0/1 headers and completion producer/consumer symbols; isolated objects only, no full link/image/device acceptance")

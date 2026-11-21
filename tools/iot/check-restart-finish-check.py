@@ -74,8 +74,43 @@ int main(int argc,char**argv){
  puts("PASS finish software gate/actual generation/profile/Main/root: ACTIVE, Guest, auth and service receipts checked; generated file owned across Guest/services phases, uncertain Main once, baseline retained and restore fenced after UP, physical-origin drift refused; Guest/services/driver/transport actors injected");
 }
 '''
+# Reuse native lifecycle setup, then exercise exact post-cleanup observer with
+# explicit backend proof actor (real backend/file composition is covered by
+# check-radio-on-owner-desired). Do not turn on unrelated snapshot generation.
+completed=body
+observer=(here/'restart-finish-check.c').read_text().split('#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1\n',1)[1].rsplit('#endif',1)[0]
+actors=r'''
+static int backend_ok=1,parent_mc_ok=1,guard_ok=1,checks;
+int wr_iot_service_guard_enter(int enabled){assert(enabled==1);return guard_ok;}
+void wr_iot_service_guard_leave(int token){assert(token==1);}
+int wr_iot_rc_restart_profile_current(const struct wr_iot_restart_restore*s){assert(s->phase==WR_RESTORE_FINISHED);checks++;return backend_ok;}
+int wr_iot_rc_restart_multicast_policy(struct wr_iot_multicast_policy*p){*p=(struct wr_iot_multicast_policy){1,1,1};return 1;}
+int wr_iot_restart_multicast_current(unsigned bss,int enabled){assert(bss<=1&&enabled==1);return parent_mc_ok;}
+'''
+completed=completed.replace('int main(int argc,char**argv){',actors+observer+'\nint main(int argc,char**argv){')
+anchor=' /* Process-only fixture cleanup. Production snapshot remains retained. */'
+assert completed.count(anchor)==1
+completed=completed.replace(anchor,r'''
+ s.phase=WR_RESTORE_FINISHED;s.generation.phase=WR_RESTART_GEN_COMMITTED;
+ s.multicast.policy=(struct wr_iot_multicast_policy){1,1,1};wr_iot_rc_shutdown.active=0;
+ assert(wr_iot_restart_restore_completed_current(&s)&&checks==2);
+ backend_ok=0;assert(!wr_iot_restart_restore_completed_current(&s));backend_ok=1;
+ guest_ok=0;assert(!wr_iot_restart_restore_completed_current(&s));guest_ok=1;
+ auth_ok=0;assert(!wr_iot_restart_restore_completed_current(&s));auth_ok=1;
+ parent_mc_ok=0;assert(!wr_iot_restart_restore_completed_current(&s));parent_mc_ok=1;
+ s.multicast.policy.guest=0;assert(!wr_iot_restart_restore_completed_current(&s));s.multicast.policy.guest=1;
+ s.services.policy.kick_rssi++;assert(!wr_iot_restart_restore_completed_current(&s));s.services.policy.kick_rssi--;
+ guard_ok=0;assert(!wr_iot_restart_restore_completed_current(&s));guard_ok=1;
+ wr_iot_rc_shutdown.radio_off_owned=1;assert(!wr_iot_restart_restore_completed_current(&s));wr_iot_rc_shutdown.radio_off_owned=0;
+ wr_iot_rc_shutdown.pending=SIGTERM;assert(!wr_iot_restart_restore_completed_current(&s));wr_iot_rc_shutdown.pending=0;
+ s.busy=1;assert(!wr_iot_restart_restore_completed_current(&s));s.busy=0;
+ assert(wr_iot_restart_restore_completed_current(&s));
+ wr_iot_rc_shutdown.active=1;
+'''+anchor)
 with tempfile.TemporaryDirectory(prefix='wr-finish-check-') as d:
  root=Path(d);(root/'rc.h').write_text('const char *nvram_safe_get(const char *);\n')
- p=root/'test.c';p.write_text(body);b=root/'test'
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(p),'-o',str(b)],check=True)
- subprocess.run([str(b),d],check=True)
+ p=root/'test.c';b=root/'test'
+ for source in (body,completed):
+  p.write_text(source)
+  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(p),'-o',str(b)],check=True)
+  subprocess.run([str(b),d],check=True)

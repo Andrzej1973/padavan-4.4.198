@@ -36,6 +36,26 @@ static inline int wr_iot_restart_profile_receipt_cancel_take(
  memcpy(candidate.path,profile->files.paths[0],length+1);candidate.file=profile->files.generated[0];
  candidate.owner=getpid();candidate.valid=1;*out=candidate;return 1;
 }
+/* Linux glibc and the pinned MIPS uClibc expose the same timestamp data
+ * through different public member names in POSIX-only mode (glibc selects
+ * timespec with __USE_XOPEN2K8, uClibc with __USE_MISC). Keep the
+ * nanoseconds in both layouts; feature macros must precede all libc headers. */
+static inline unsigned long wr_iot_profile_mtime_nsec(const struct stat *s)
+{
+#if defined(__USE_MISC) || (!defined(__UCLIBC__) && defined(__USE_XOPEN2K8))
+ return (unsigned long)s->st_mtim.tv_nsec;
+#else
+ return s->st_mtimensec;
+#endif
+}
+static inline unsigned long wr_iot_profile_ctime_nsec(const struct stat *s)
+{
+#if defined(__USE_MISC) || (!defined(__UCLIBC__) && defined(__USE_XOPEN2K8))
+ return (unsigned long)s->st_ctim.tv_nsec;
+#else
+ return s->st_ctimensec;
+#endif
+}
 static inline int wr_iot_restart_profile_receipt_current(const struct wr_iot_restart_profile_receipt *receipt)
 {
  struct stat current;
@@ -43,8 +63,8 @@ static inline int wr_iot_restart_profile_receipt_current(const struct wr_iot_res
   memchr(receipt->path,0,sizeof(receipt->path))&&receipt->path[0]&&
   wr_iot_radio_profile_guard()&&wr_iot_generated_matches(&receipt->file,receipt->path)&&
   (!receipt->file.existed||(!lstat(receipt->path,&current)&&
-   current.st_mtim.tv_nsec==receipt->file.metadata.st_mtim.tv_nsec&&
-   current.st_ctim.tv_nsec==receipt->file.metadata.st_ctim.tv_nsec));
+   wr_iot_profile_mtime_nsec(&current)==wr_iot_profile_mtime_nsec(&receipt->file.metadata)&&
+   wr_iot_profile_ctime_nsec(&current)==wr_iot_profile_ctime_nsec(&receipt->file.metadata)));
 }
 /* Refresh identity only after restoring this receipt's original captured bytes.
  * Caller retains pre-UP rollback ownership/guard; this proves no loaded keys. */
@@ -69,8 +89,8 @@ static inline int wr_iot_restart_profile_receipt_restored(
     old->st_dev!=captured->st_dev||old->st_ino!=captured->st_ino||
     old->st_size!=captured->st_size||old->st_mode!=captured->st_mode||
     old->st_uid!=captured->st_uid||old->st_gid!=captured->st_gid||
-    old->st_mtim.tv_sec!=captured->st_mtim.tv_sec||old->st_mtim.tv_nsec!=captured->st_mtim.tv_nsec||
-    old->st_ctim.tv_sec!=captured->st_ctim.tv_sec||old->st_ctim.tv_nsec!=captured->st_ctim.tv_nsec)return 0;
+    old->st_mtime!=captured->st_mtime||wr_iot_profile_mtime_nsec(old)!=wr_iot_profile_mtime_nsec(captured)||
+    old->st_ctime!=captured->st_ctime||wr_iot_profile_ctime_nsec(old)!=wr_iot_profile_ctime_nsec(captured))return 0;
  if(!wr_iot_saved_capture(&restored,receipt->path)||!restored.existed||
     restored.size!=saved->size||memcmp(restored.data,saved->data,saved->size))goto done;
  candidate=*receipt;candidate.file=profile->restored_file;

@@ -1,3 +1,55 @@
+## Restart post-IAPP completion, retirement and target ABI — 2026-11-21
+
+Prepared physical finish now donates nonsecret backend/file metadata to its
+stable root before cleanup. Guarded completion rechecks root ID, handoff time,
+Main identity, exact backend/file and Main/Guest/isolation/multicast/auth policy
+before IAPP, after child success, on DONE retry and before successful retirement.
+No file regeneration, desired fallback or credential retention is introduced.
+Runtime retires completed/cancelled restart state and defers one mailbox
+redispatch. Failed retirement stays scheduled. A routed normal shutdown may
+consume only a fully released WAN tail without declaring DONE, then must still
+close its actual backend and prove physical RELEASE. Live child/fence/profile
+resources refuse disposal. Before publication the same stage also completes
+ordinary explicit OFF recovery: only validated OFF physical admission can
+consume a released WAN/DONE refusal without success proof; new restart cannot.
+Its independent quiesce/backend OFF/physical RELEASE still executes. No-IAPP proof retry never repeats physical take.
+
+Optional1469/run44938579402 failed its isolated RC link for verified source
+def44e0c (dispatch99be345d): POSIX uClibc lacks st_mtim/st_ctim. Monitor44940631080
+artifact14721975375 and original job136950636841 agree; monitor useful, unchanged.
+Stat helpers now preserve nanoseconds in GNU/POSIX glibc/uClibc layouts; OFF-owner
+explicitly requests the XSI mkstemp declaration. Existing receipt helper runs
+both namespaces with the target compiler/QEMU before the broader CI RC link.
+
+Final host batch: complete edit/view suite plus13 related helpers PASS exit0,
+213.61s process elapsed (203.28s inner harness), peak165012KiB, one compiler lane.
+Actual staged prepared0/1 compilation and producer/consumer symbols:22 host
+objects and22 MIPS objects; target staging12.83s peak57460KiB. Exact pinned source
+GCC10.5/uClibc1.0.48 receipt GNU+POSIX/XSI QEMU execution passes0.88s peak29032KiB;
+native modes pass1.97s peak47128KiB. Explicit OFF closure passes11 further
+helpers in69.39s peak115808KiB. Final22-host/22-MIPS staging (14.68s/13.17s)
+checks new disposal producer/consumer symbols; both QEMU namespaces pass0.92s.
+That final compiler/staging batch takes37.06s peak59188KiB including extraction;
+its separate temporary compiler tree is also disposed and verified absent.
+Complete edit/view suite rerun after final OFF API closure: PASS121.99s,
+peak81172KiB, exit0; authenticated Classic/Modern consumers remain covered. Predecessor header reproduces12 stat-member
+errors in POSIX target compilation; corrected header compiles. Earlier local
+fixture/namespace failures were fixed before publication; evidence records scope.
+
+Standard1467/ABI975 fordef44e0c and standard1468/ABI976 for99be345d succeeded.
+No optional99be345d repeat: unchanged header has the known target failure.
+Publish this completed lifecycle/consumer/ABI package once; confirm remote and
+new automatic standard/ABI SHA, then queue exact-source optional after standard.
+Host objects/QEMU file IO are not full RC link, final image or physical acceptance.
+Production promotion and four-image/device gates remain open. No router action.
+
+Cleanup: removed exact temporary source compiler tree (earlier du about145MiB
+apparent unique data); verified absent. Per-entry logical sum includes hardlinks,
+so allocated bytes reclaimed were not independently measured. Downloaded archives
+were memory-only; fixture scratch disposed automatically. Historical/private
+scratch and unrelated untracked work remain untouched.
+Evidence: docs/evidence/WR1200JS-RESTART-POSTIAPP-COMPLETION-2026-11-21.json.
+
 ## Owned restart refusal cannot reach legacy SDK — 2026-11-21
 
 Found and corrected candidate admission/caller mismatch: restart entry returned

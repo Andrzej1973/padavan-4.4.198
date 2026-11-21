@@ -1,3 +1,43 @@
+## Restart post-IAPP completion and consumption — 2026-11-21
+
+Prepared successful finish donates its nonsecret file/backend receipt to the
+stable restart root before wiping the physical preflight and credential state.
+Cancellation discards the receipt. Fresh guarded completion checks compare the
+exact root ID, handoff time, Main identity, backend binding and file continuity,
+then current Main/Guest bridge, isolation, multicast and authentication policy.
+They run before terminal IAPP, after its success, on repeated DONE observation
+and immediately before retirement. Child exit alone cannot authorize DONE.
+CLOSE, INITIAL ON and INITIAL OFF retain their distinct real backend predicates.
+No current desired-record fallback or profile rewrite is introduced.
+
+Runtime consumes completed restart state immediately and schedules one mailbox
+redispatch after retirement. Terminal owners remain scheduled when retirement
+refuses, while a released terminal yields to an already routed shutdown request.
+A routed normal shutdown can discard a released WAN tail with no live resource
+without declaring DONE, then uses the existing backend OFF/physical RELEASE
+consumer; missing file continuity cannot grant ON success or block that handoff.
+Validated new ordinary OFF admission also has a separate released-tail disposal
+API: it consumes no live resources and still performs its own backend quiesce,
+close and physical RELEASE. A new restart retains the strict completion gate;
+it cannot use this OFF exception or fall through to legacy reopening.
+The no-IAPP path can retry completion proof after physical take without taking
+or applying the physical result again. Existing host fixtures cover these
+boundaries and actual backend/file composition; hardware/network adapters remain
+actors. Candidate source, target/full link, final image and physical acceptance
+remain separate. Evidence: WR1200JS-RESTART-POSTIAPP-COMPLETION-2026-11-21.json.
+
+## Target stat-layout correction — 2026-11-21
+
+Optional1469/run44938579402 built def44e0c (dispatch99be345d) and failed the
+isolated RC link on nanosecond member names in restart-profile-receipt.h.
+The useful monitor artifact and original failed job confirm the same cause.
+Linux stat helpers now select the public layout used by the libc headers,
+preserving seconds and nanoseconds rather than weakening continuity to seconds.
+The existing real-file receipt helper also accepts an exact target compiler,
+sysroot and QEMU; the runtime-link stage executes it before its broader build.
+Source toolchain5a925492/GCC10.5/uClibc1.0.48 passes that native MIPS execution;
+full RC link, assembled image and device acceptance remain CI/separate gates.
+
 ## Candidate owned restart admission is tri-state — 2026-11-21
 
 The generated net_wifi caller previously treated Boolean restart0 as native,
