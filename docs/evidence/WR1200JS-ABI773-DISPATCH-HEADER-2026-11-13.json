@@ -21,5 +21,15 @@
     "Modified preflight Python AST parses"
   ],
   "cleanup": "TemporaryDirectory compile outputs removed; monitor extract 1692 bytes removed separately",
-  "device_acceptance": false
+  "device_acceptance": false,
+  "corrected_ci": {
+    "sha": "72908f7e222249042593140acb7a3c85b1f607cb",
+    "abi_run": 43504235757,
+    "abi_conclusion": "success",
+    "standard_run": 43504248059,
+    "standard_status": "completed",
+    "standard_conclusion": "success",
+    "rechecked_date": "2026-11-21",
+    "scope": "GitHub run conclusions and exact head SHA only; no independent image or device acceptance."
+  }
 }

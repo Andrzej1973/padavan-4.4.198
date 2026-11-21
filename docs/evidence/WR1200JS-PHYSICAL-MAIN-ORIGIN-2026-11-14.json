@@ -54,5 +54,19 @@
   "production_orchestration": false,
   "target_verified": false,
   "runtime_verified": false,
-  "scratch": "Temporary native/prepared trees auto-removed; bounded logs removed after PASS"
+  "scratch": "Temporary native/prepared trees auto-removed; bounded logs removed after PASS",
+  "published_revision": "166fbe18b5b1141514c5cf1dcc7bc45826d97676",
+  "published_remote_verified": true,
+  "new_revision_ci": {
+    "abi_run": 43577043339,
+    "standard_run": 43577046155,
+    "results_pending": false,
+    "abi_status": "completed",
+    "abi_conclusion": "success",
+    "standard_status": "completed",
+    "standard_conclusion": "success",
+    "verified_head_sha": "166fbe18b5b1141514c5cf1dcc7bc45826d97676",
+    "rechecked_date": "2026-11-21",
+    "scope": "GitHub run conclusions and exact SHA only; not independent image inspection or physical acceptance."
+  }
 }
