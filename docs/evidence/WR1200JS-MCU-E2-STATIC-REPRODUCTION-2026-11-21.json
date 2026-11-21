@@ -1,0 +1,20 @@
+{
+  "pypcode_version": "4.1.0",
+  "wheel_sha256": "099d5504fac374643c96841c5e4f94a52228d417354d6467e169bce75f04d4c0",
+  "exact_json_match": true,
+  "differing_top_level_keys": [],
+  "instruction_blocks": 20,
+  "instruction_count": 1443,
+  "scope": "Static decoder reproducibility only; not execution, ROM resolution, ACK contract or runtime verification.",
+  "date": "2026-11-21",
+  "reviewed_checkout_revision": "32827617e35df0460b845ba66b9b9e81bcb90b3c",
+  "generator": "tools/iot/inspect-mt7603-mcu-static.py",
+  "generator_sha256": "a4686b26c3f599ad6fb90f2713681ac6b165f989413dd7831f877550792e93dc",
+  "report": "docs/evidence/WR1200JS-MCU-E2-STARTUP-STATIC.json",
+  "report_sha256": "70943459dbda85b39fc196b2a0e4e3d7caa10a92d8bf3c344ab39c22e953a678",
+  "dependency_source": "https://pypi.org/pypi/pypcode/4.1.0/json",
+  "exit_status": 0,
+  "cleanup": "Wheel held only in memory; extracted dependency removed by TemporaryDirectory. No persistent package installation or source mutation.",
+  "firmware_ack_contract_verified": false,
+  "runtime_verified": false
+}

@@ -119,3 +119,20 @@ end match. Its 20 blocks contain 1443 decoded instructions, but full reproductio
 requires the optional `pypcode` dependency absent from the current Python.
 Keep this change local pending reproduction; both runtime and firmware ACK
 contract flags remain false. Raw hashes do not validate the disassembly.
+
+Follow-up resolved the reproduction dependency without a persistent install:
+the official PyPI pypcode4.1.0 Linux cp312 wheel was downloaded into memory,
+checked against its published SHA256 and extracted into TemporaryDirectory.
+The committed inspector reproduced the complete evidence JSON exactly:20
+blocks and1443 decoded instructions. No differing top-level fields. Temporary
+dependency extraction was removed; no local wheel archive was retained.
+The static report can now be preserved with
+`docs/evidence/WR1200JS-MCU-E2-STATIC-REPRODUCTION-2026-11-21.json`.
+This supersedes only the reproduction deferral above, not ACK/ROM/runtime limits.
+
+Mechanical review of312 remaining local evidence files found145 with hashes
+that differ from current source,27 mentioning local filesystem paths, no
+matches for the narrow credential patterns checked and no true runtime/device
+acceptance flags. These checks are triage only: they do not clear private data
+or prove historical results. Keep the detailed per-record review local and
+continue selective source/claim review before publication.
