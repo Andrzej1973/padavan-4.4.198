@@ -166,3 +166,24 @@ fails exactly the new missing-file assertion. That negative-control build
 needed explicit -d:ssl outside its normal config.nims directory. All temporary
 compiler/cache/fixture output was removed. This resolves the earlier reason
 for leaving the parser patch uncommitted. No recurring automation was resumed.
+
+## Original-content preservation recheck
+
+At checkpoint f454e87a the entire initial48845-file nonignored untracked
+inventory was re-read and hashed. Missing original paths:0. Sixteen initial
+files are now tracked. Exactly five baseline files changed: the three reviewed
+FT cache/storage evidence records and the two historical IoT plan documents.
+All five current files match their committed HEAD bytes exactly; their changes
+are the recorded audit metadata and historical/current-priority clarifications.
+Every other baseline file retains its initial SHA256. No originals were moved
+or removed. This check includes the initial scratch files, not only docs.
+New audit reports are additional metadata and are outside the initial baseline.
+
+The remaining untracked content is preserved locally. Raw owner materials,
+workspace histories/inventories, generated selector/binaries and standalone
+helpers are excluded from publication by the dispositions above. Remaining
+historical evidence has per-record mechanical triage, but its claims are not
+fully revalidated. Source drift and uncertain/private records must retain that
+status; no generic PASS or device-acceptance conclusion may be inferred from
+their preservation. The detailed inventories remain local rather than exposing
+private paths in GitHub.
