@@ -1,3 +1,19 @@
+## Active project resumed: IoT configuration provenance audit — 2026-11-21
+
+The full project goal is active; earlier completion refers only to merge.
+Local source trace reconciles existing HTTP/edit/mailbox/RC/save/readback code;
+no duplicate facade is needed. Native flash mutex ordering and post-save RAM/
+flash observation are documented with their limits. Concrete remaining gap:
+OFF's profile observer still reads legacy credentials while generation can use
+versioned desired credentials. Need exact retained loaded-generation provenance,
+including INITIAL/cold/disabled cases; do not redirect to live desired keys.
+Existing backend/rebind owner identities and retained input should be reused;
+synchronous driver-owner credential pointers must not escape ioctl lifetime.
+See the updated saved-configuration, desired-loaded-promotion and config-edit
+integration documents. Source trace only; no new host/target/runtime execution
+claimed, no router changes. Documentation batch remains local for one coherent
+publication with the forthcoming implementation/verification. No scratch made.
+
 ## Merge completion verified — 2026-11-21
 
 The controlled merge/preservation goal is complete. Mergec50480744f4f91caec15e82db0cf0253343f5125

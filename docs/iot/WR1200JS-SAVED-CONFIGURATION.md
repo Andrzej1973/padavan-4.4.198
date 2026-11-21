@@ -1,3 +1,52 @@
+## Native save serialization traced — 2026-11-21
+
+The conditional native save in native-flash-save.inc acquires nvram_sem, then
+nvram_lock. Under the spin lock it compares the exact desired record, validates
+nvram_manual and generates the whole snapshot. It drops the spin lock before
+MTD I/O, retaining nvram_sem through comparison/write/readback. The reviewed
+prepare-nvram-commit-order.py moves ordinary commit's same mutex before snapshot
+generation, so commits serialize snapshot+flash in one order. Native readback
+uses the same mutex. This source trace is not device execution evidence.
+
+Ordinary RAM mutation is a different authority: the flash mutex does not mean
+all NVRAM SET callers hold the IoT service guard, nor that RAM stays unchanged
+after snapshot generation. flash-save-attempt.c therefore checks expected RAM
+and policy before admission, checks flash independently, rechecks RAM/policy
+before an attempt and after matching readback, and seals an attempted/skipped
+write against replay. AUTO with manual policy returns manual-pending without
+writing. Commit error plus later matching bytes does not become observed success.
+A terminal receipt is an observation at that boundary, not a permanent lock on
+future settings or proof that ra2 loaded the desired credentials.
+
+No supported-source defect requiring a new lock was established by this trace.
+Next inspect loaded-generation promotion and actual prepared startup/manifest
+coverage; preserve the current strict false acceptance fields meanwhile.
+
+## Current integration checkpoint — 2026-11-21
+
+Hybrid Modern settings/apply resumed by the owner on2026-11-20; IoT remains
+first. Older pause/unpublished/next-step statements below are historical.
+Do not infer current absence of an implementation from those statements.
+
+Source recheck on main14ef311c finds saved-config-store.c, config-save-server.c,
+flash-save-native.c and native-flash-reader.c. The save facade registers only
+when both native readback and snapshot capabilities are verified. Native save
+uses the checked WR_NVRAM_IOCTL_SAVE_PROFILE path outside PID1; it is not an
+unconditional HTTP NVRAM write. prepare-runtime.py stages save/edit/view startup
+and reports HTTP route binding separately. Those sources do not by themselves
+prove durability, loaded-profile promotion or main-image installation.
+
+The runtime report still explicitly sets configuration_flash_bound=false and
+configuration_loaded_promotion_bound=false; package-candidate-pair.py requires
+both false. Do not flip these fields to claim completion. Next trace the actual
+edit-view HTTP → typed mailbox → RC edit owner → store/save → fresh observation
+chain and its loaded-generation handoff. Reconcile implemented pieces before
+adding another facade. Verify native writer arbitration, KEEP/REPLACE revision,
+manual/automatic save outcomes and retained old-generation shutdown identity.
+Only then change the manifest contract with source, target and image evidence.
+Optional1451 proves prepared FT TUs, not this configuration acceptance.
+No router state changes are authorized.
+
 # Saved IoT configuration and loaded profile
 
 ## Current source scope — 2026-11-17

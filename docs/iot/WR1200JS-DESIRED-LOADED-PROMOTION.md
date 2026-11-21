@@ -1,3 +1,83 @@
+## Existing retained owner candidates — 2026-11-21
+
+rc-backend.c retains backend and rebind owners at stable private addresses.
+wr_iot_rc_rebind_active_current validates request ID/time, adapter epoch,
+device generation, physical nonce/serial and all six request fields against
+rebind.start.input, then requires the actual rebind observer. This is an existing
+provenance route to reuse rather than introducing global saved credentials.
+wr_iot_rc_config_backend_capture/current already binds save/edit ownership to
+a current backend kind/ID/time and refuses radio-owned transitions. It captures
+backend identity, not a transferable credential or permission to mutate radio.
+
+The driver owner is a different lifetime: driver-api-owner.h owner_take borrows
+the request only until synchronous leave; leave wipes credentials. A later OFF
+observer must not retain that pointer or infer its validity from a matching WCID.
+OPEN's loaded-key admission and persistent driver generation readback must be
+joined to the retained RC generation at the existing handoff. Physical main
+radio OFF includes INITIAL/cold/disabled paths without an ACTIVE runner, so
+an ACTIVE-only accessor cannot replace every off_profile_current call.
+
+Implementation must first define those separate origin cases at radio-off
+admission/profile generation/followup and radio-on admission; do not turn a
+missing ACTIVE owner into legacy fallback for a present desired generation.
+This refinement leaves the source mismatch unresolved and keeps promotion false.
+
+## Concrete remaining OFF provenance gap — 2026-11-21
+
+Source trace: radio-on-generation.c captures config_revision/provisioning and
+binds that pin around generation. Its profile-current observer uses the captured
+provisioning through restart_profile_file_current when the desired record was
+present. radio-on-release.c calls that observer, retaining separation from later
+desired writes. This establishes source intent, not loaded hardware acceptance.
+
+By contrast radio-off-profile-check.c:wr_iot_rc_off_profile_current reads
+precreated-profile-request.h, whose source keys remain wr_iot_ssid/wr_iot_psk,
+and calls restart_profile_current. radio-on-admission.c, radio-off-profile.c and
+radio-off-followup.c use that check. A newly generated desired profile can differ
+from those legacy credentials, so the old observer can refuse that legitimate
+generation. This is a source-derived mismatch risk; no device failure is claimed.
+
+Required implementation: retain private loaded-generation provenance through
+successful generation/OPEN handoff, including ownership and exact generation,
+BSS/profile identity and observed loaded credential evidence. Route OFF/reopen
+validation through that retained identity; do not recapture current desired data
+or replace legacy keys on save. Admission must refuse missing/foreign/stale proof,
+retain uncertain ownership and preserve old-generation shutdown after a later
+save. Define promotion/retirement at actual lifecycle boundaries before binding
+this observer. A generated-file match alone cannot certify loaded PMK.
+
+Cover desired A generated/loaded, desired B saved while A remains active, OFF of
+A, subsequent B generation, stale receipt/reused generation, PID/context copies,
+Main/Guest preservation, failed OPEN and uncertain CLOSE. Existing generation
+owners and driver admission should supply the chain; do not add a parallel global
+credential cache. Keep configuration_loaded_promotion_bound=false until source,
+target and image integration provide the required evidence.
+
+## Current integration checkpoint — 2026-11-21
+
+Hybrid Modern settings/apply resumed by the owner on2026-11-20; IoT remains
+first. Older pause/unpublished/next-step statements below are historical.
+Do not infer current absence of an implementation from those statements.
+
+Source recheck on main14ef311c finds saved-config-store.c, config-save-server.c,
+flash-save-native.c and native-flash-reader.c. The save facade registers only
+when both native readback and snapshot capabilities are verified. Native save
+uses the checked WR_NVRAM_IOCTL_SAVE_PROFILE path outside PID1; it is not an
+unconditional HTTP NVRAM write. prepare-runtime.py stages save/edit/view startup
+and reports HTTP route binding separately. Those sources do not by themselves
+prove durability, loaded-profile promotion or main-image installation.
+
+The runtime report still explicitly sets configuration_flash_bound=false and
+configuration_loaded_promotion_bound=false; package-candidate-pair.py requires
+both false. Do not flip these fields to claim completion. Next trace the actual
+edit-view HTTP → typed mailbox → RC edit owner → store/save → fresh observation
+chain and its loaded-generation handoff. Reconcile implemented pieces before
+adding another facade. Verify native writer arbitration, KEEP/REPLACE revision,
+manual/automatic save outcomes and retained old-generation shutdown identity.
+Only then change the manifest contract with source, target and image evidence.
+Optional1451 proves prepared FT TUs, not this configuration acceptance.
+No router state changes are authorized.
+
 # WR1200JS desired configuration and generation provenance
 
 Current source package, 2026-11-17. Experimental candidate only. Source/host

@@ -1,3 +1,48 @@
+## Current executable chain traced — 2026-11-21
+
+| Boundary | Current implementation | What the boundary proves |
+| --- | --- | --- |
+| HTTP view/edit | http-handler.inc, http-view-request.h, http-edit-request.h | Checks login/method/content type/CSRF; clears request body; edit reply means queue acceptance only |
+| Typed submission | control-client.c: wr_iot_rc_submit_edit | Carries revision, key action and operation through the existing mailbox |
+| Outer RC admission | control-server.c | Dispatches edit execute/progress/terminal hooks under existing operation ownership |
+| Revision and KEEP/REPLACE | config-edit-server.c: execute | Claims retained lease under service guard, resolves fields in RC, routes RAM/AUTO/EXPLICIT/runtime separately |
+| Save operation | config-save-server.c → config-save-owner.c | Retained save owner and terminal readiness; registration requires snapshot/readback capabilities |
+| Native persistence | flash-worker.c → flash-save-attempt.c → flash-save-native.c | AUTO observes nvram_manual; native commit attempted through checked ioctl; separate flash readback determines durable outcome |
+| Fresh terminal observation | config-edit-server.c: wr_iot_rc_edit_observed | Uses exact transaction identity and corresponding backend observer after completion |
+| Target linkage | compile-runtime-link.sh | Already requires edit/view registration symbols and HTTP submit symbol; rejects unresolved IoT references |
+
+This trace rules out adding another submit API or save facade as the next step:
+those paths already exist. Next review native ioctl serialization against other
+NVRAM writers and loaded-generation promotion. Trace actual prepared startup and
+capability evidence alongside the existing runtime report before changing its
+false flash/loaded acceptance fields. The public view and HTTP accepted response
+must never be treated as a flash receipt or a loaded ra2 credential receipt.
+
+## Current integration checkpoint — 2026-11-21
+
+Hybrid Modern settings/apply resumed by the owner on2026-11-20; IoT remains
+first. Older pause/unpublished/next-step statements below are historical.
+Do not infer current absence of an implementation from those statements.
+
+Source recheck on main14ef311c finds saved-config-store.c, config-save-server.c,
+flash-save-native.c and native-flash-reader.c. The save facade registers only
+when both native readback and snapshot capabilities are verified. Native save
+uses the checked WR_NVRAM_IOCTL_SAVE_PROFILE path outside PID1; it is not an
+unconditional HTTP NVRAM write. prepare-runtime.py stages save/edit/view startup
+and reports HTTP route binding separately. Those sources do not by themselves
+prove durability, loaded-profile promotion or main-image installation.
+
+The runtime report still explicitly sets configuration_flash_bound=false and
+configuration_loaded_promotion_bound=false; package-candidate-pair.py requires
+both false. Do not flip these fields to claim completion. Next trace the actual
+edit-view HTTP → typed mailbox → RC edit owner → store/save → fresh observation
+chain and its loaded-generation handoff. Reconcile implemented pieces before
+adding another facade. Verify native writer arbitration, KEEP/REPLACE revision,
+manual/automatic save outcomes and retained old-generation shutdown identity.
+Only then change the manifest contract with source, target and image evidence.
+Optional1451 proves prepared FT TUs, not this configuration acceptance.
+No router state changes are authorized.
+
 # IoT configuration editing integration draft
 
 The local candidate now includes guarded RAM/AUTO/EXPLICIT edit CGI routes and
