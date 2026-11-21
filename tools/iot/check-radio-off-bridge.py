@@ -20,6 +20,8 @@ static const char* names[]={"ra1","ra0","wds3","wds2","wds1","wds0","apcli0"};
 int wr_iot_service_guard_enter(int on){assert(on==1&&!depth);if(!guard)return 0;depth=1;return 1;}
 void wr_iot_service_guard_leave(int t){assert(t==1&&depth);depth=0;}
 int wr_iot_radio_off_observed(const struct wr_iot_physical_stop_request*r){assert(depth&&r->action==WR_STOP_RELEASE);return observed;}
+static int final_observations;
+int wr_iot_radio_recovery_down_observed(const struct wr_iot_physical_stop_request*r){assert(depth&&r->action==WR_STOP_RELEASE);final_observations++;return observed;}
 unsigned if_nametoindex(const char*n){assert(depth);if(!strcmp(n,"br0"))return 9;assert(!strcmp(n,names[selected]));if(absent){errno=ENODEV;return 0;}return selected+1;}
 static ssize_t fake_readlink(const char*p,char*b,size_t n){char expected[96];snprintf(expected,sizeof(expected),"/sys/class/net/%s/master",names[selected]);assert(!strcmp(p,expected));if(!attached){errno=ENOENT;return -1;}const char*v=foreign?"../../br-other":"../../br0";assert(strlen(v)<n);memcpy(b,v,strlen(v));return strlen(v);}
 static int fake_stat(const char*p,struct stat*s){assert(!strcmp(p,"/sys/class/net/br0/bridge"));memset(s,0,sizeof(*s));s->st_mode=S_IFDIR;return 0;}
@@ -37,11 +39,15 @@ int main(void){
  assert(wr_iot_radio_off_bridge_detach(&r,7)==WR_OFF_BRIDGE_REFUSED&&!deletes);
  for(selected=0;selected<7;selected++){
   attached=1;int prior=deletes;assert(!wr_iot_radio_off_bridge_observed(&r,selected)&&deletes==prior&&attached);
+  assert(!wr_iot_radio_off_bridge_final_observed(&r,selected)&&deletes==prior&&attached&&final_observations);
   assert(wr_iot_radio_off_bridge_detach(&r,selected)==WR_OFF_BRIDGE_DETACHED&&!depth&&!attached);
   int before=deletes;assert(wr_iot_radio_off_bridge_observed(&r,selected)&&deletes==before);
   assert(wr_iot_radio_off_bridge_detach(&r,selected)==WR_OFF_BRIDGE_DETACHED&&deletes==before);
   absent=1;assert(wr_iot_radio_off_bridge_detach(&r,selected)==(selected==1?WR_OFF_BRIDGE_REFUSED:WR_OFF_BRIDGE_DETACHED));absent=0;
  }
+ selected=0;attached=0;int prior=deletes;
+ assert(wr_iot_radio_off_bridge_final_observed(&r,selected)&&deletes==prior);
+ observed=0;assert(!wr_iot_radio_off_bridge_final_observed(&r,selected));observed=1;
  selected=0;attached=1;int before=deletes;
  foreign=1;assert(wr_iot_radio_off_bridge_detach(&r,0)==WR_OFF_BRIDGE_REFUSED&&deletes==before);foreign=0;
  up=1;assert(wr_iot_radio_off_bridge_detach(&r,0)==WR_OFF_BRIDGE_REFUSED&&deletes==before);up=0;

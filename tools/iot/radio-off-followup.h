@@ -8,10 +8,29 @@ enum wr_iot_off_followup_phase {WR_OFF_FOLLOWUP_IDLE,WR_OFF_FOLLOWUP_PROFILE_BEG
 /* Stable-address private owner; profile baseline contains credentials.
  * NETWORK_PENDING is unfinished, never a completed OFF result. */
 struct wr_iot_off_followup {pid_t owner;int busy,state_attempted,auth_attempted;unsigned bridge_slot,bridge_verify,postwan_slot;const struct wr_iot_radio_off_owner *off;enum wr_iot_off_followup_phase phase;struct wr_iot_radio_off_policy policy;struct wr_iot_physical_stop_request released;struct wr_iot_off_profile profile;struct wr_iot_off_wan wan;struct wr_iot_iapp_child child;struct wr_iot_terminal_iapp iapp;struct wr_iot_radio_stop_fence finish_fence;int finish_guard;struct wr_iot_radio_off_owner *finish_off;
+ int (*finish_prepare)(const struct wr_iot_off_followup *,void *);
+ void (*finish_publish)(const struct wr_iot_off_followup *,void *);
+ void *finish_context;int finish_published;
+
 #if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
  struct wr_iot_restart_profile_receipt profile_receipt;
 #endif
 };
+/* Bind once at the final stable address. Preflight can refuse; publication is
+ * infallible metadata transfer during successful cleanup, before guard release
+ * and signal replay. Callback must not free or wipe this live fence owner. */
+static inline int wr_iot_off_followup_bind_publisher(struct wr_iot_off_followup *s,
+ int (*prepare)(const struct wr_iot_off_followup *,void *),
+ void (*publish)(const struct wr_iot_off_followup *,void *),void *context)
+{
+ if(!s||s->owner!=getpid()||s->busy||!prepare||!publish||s->finish_published||
+    (s->phase!=WR_OFF_FOLLOWUP_FINAL_PENDING&&s->phase!=WR_OFF_FOLLOWUP_FINALIZING))return 0;
+ if(s->finish_prepare||s->finish_publish)return s->finish_prepare==prepare&&
+  s->finish_publish==publish&&s->finish_context==context;
+ if(s->phase!=WR_OFF_FOLLOWUP_FINAL_PENDING||s->finish_context||s->finish_off||
+    s->finish_guard||s->finish_fence.owner||s->finish_fence.level)return 0;
+ s->finish_prepare=prepare;s->finish_publish=publish;s->finish_context=context;return 1;
+}
 int wr_iot_off_followup_begin(struct wr_iot_off_followup *,const struct wr_iot_radio_off_owner *);
 /* Advances one phase, returns current phase; never acknowledges/clears OFF. */
 /* Read-only final preflight under caller-owned guard. Does not retire baseline. */

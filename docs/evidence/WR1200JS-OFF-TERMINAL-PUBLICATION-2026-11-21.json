@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "date": "2026-11-21",
+  "base_revision": "3304214ea45813cf098484bd012b3da5f9fe36a5",
+  "scope": "Complete physical OFF terminal retry, atomic RC receipt publication and next-ON visibility barrier",
+  "implementation": [
+    "Finalizer retries repeat exact owner/profile/physical DOWN and seven read-only bridge observations under the retained fence. Pending normal shutdown is permitted only in this finalizing observation scope.",
+    "Final pending routed shutdown uses the routed fence admission, preserving its original request. No generation, bridge detach, WAN or IAPP operation is replayed.",
+    "Publisher prepare can refuse an occupied RC receipt slot; successful cleanup copies only nonsecret file/physical metadata before guard release and signal replay.",
+    "Receipt getters remain hidden until the spent OFF owner is retired, preventing new ON admission from starving behind that owner.",
+    "Inert DONE retirement compares exact physical identity and publication binding without fresh file IO. Reload0 file continuity and fresh DOWN/reload1 generation remain separate next-ON gates.",
+    "Candidate/runtime/package validators require typed terminal-publication and retry-observation flags; production/image/device flags are unchanged."
+  ],
+  "local_host": {
+    "focused_preliminary_checks": 8,
+    "preliminary_seconds": 75.91,
+    "preliminary_peak_kib": 164708,
+    "final_checks": [
+      "check-radio-off-profile.py",
+      "check-radio-off-followup.py",
+      "check-radio-off-iapp.py",
+      "check-radio-off-finish.py",
+      "check-radio-off-bridge.py",
+      "check-radio-off-observe.py",
+      "check-rc-radio-off-composition.py",
+      "check-radio-off-entry-runtime.py",
+      "check-package-candidate-pair.py",
+      "check-config-edit-suite.py"
+    ],
+    "final_seconds": 197.02,
+    "final_peak_kib": 91380,
+    "exit": 0,
+    "compiler_lanes": 1,
+    "source_preparation_restart_and_mutation_checks_seconds": 34.87,
+    "source_preparation_restart_and_mutation_peak_kib": 91680,
+    "final_manifest_source_preparation_seconds": 22.48,
+    "final_manifest_source_preparation_peak_kib": 59272,
+    "mutation": "Omitting only retained final preflight triggers SIGABRT at real file-drift retry with successful unmask; stderr boundary/assertion verified and child core disabled. Expected negative failure, test harness exits0.",
+    "cases": [
+      "prepared0/1 normal/publisher refusal/failed unmask",
+      "real file drift holds live baseline and guard",
+      "real SIGTERM and routed request publication before replay",
+      "occupied destination refused; wrong physical tuple holds retirement",
+      "post-publication file-proof loss does not strand inert retirement",
+      "next-ON receipt hidden until old root retirement; rollback/file guards unchanged",
+      "typed manifest missing/false/truthy nonboolean values refused"
+    ]
+  },
+  "local_target": {
+    "archive_sha256": "5a9254920f52954b2910ad968086135436e320bfb1360928cf96f4f0bf03870a",
+    "gcc": "10.5.0",
+    "libc": "uClibc-ng 1.0.48",
+    "linux_headers": "4.4.198",
+    "lifecycle_objects": 28,
+    "prepared_modes": [
+      0,
+      1
+    ],
+    "staging_seconds": 15.19,
+    "qemu_finalizer_scenarios": 6,
+    "qemu_seconds": 4.06,
+    "batch_seconds_including_download_extraction": 26.63,
+    "batch_peak_kib": 57504,
+    "exit": 0,
+    "sdk_driver_network_terminal_adapters": "Injected; real target libc/file IO/signal mask/replay/finalizer callbacks execute. No full SDK link or router acceptance."
+  },
+  "ci_checkpoint": {
+    "source": "3304214ea45813cf098484bd012b3da5f9fe36a5",
+    "standard1470": {
+      "run": 44942896803,
+      "conclusion": "success"
+    },
+    "abi977": {
+      "run": 44942896821,
+      "conclusion": "success"
+    },
+    "optional1471": {
+      "run": 44944175255,
+      "verification_revision": "3304214ea45813cf098484bd012b3da5f9fe36a5",
+      "last_observed_status": "in_progress"
+    },
+    "coverage": "These runs cover the prior published source, not the new atomic OFF publication stage."
+  },
+  "cleanup": {
+    "path": "/tmp/wr-off-publication-target-5w25ixi8",
+    "apparent_unique_bytes": 152317760,
+    "absent_verified": true,
+    "archives_memory_only": true,
+    "fixture_scratch": "TemporaryDirectory contexts disposed; expected mutation core disabled",
+    "unrelated_historical_private_data": "Preserved"
+  },
+  "gates": {
+    "production_promoted": false,
+    "full_target_link_verified_for_this_stage": false,
+    "final_image_verified_for_this_stage": false,
+    "physical_acceptance": false,
+    "device_operations": false
+  },
+  "next": [
+    "Publish the coherent package once; verify exact remote SHA and automatic standard/ABI runs.",
+    "After standard success queue optional for that exact revision without waiting for the earlier optional lane.",
+    "Inspect successful candidate image artifacts independently before production/image claims; continue remaining full-project gates."
+  ],
+  "source_sha256": {
+    "tools/iot/check-config-runtime-staging.py": "a473e50aa723b139427ee4a434c8dc05e6a9d48caff9a9d65a7ec2f426e73fa3",
+    "tools/iot/check-package-candidate-pair.py": "cc49f81452c06de678efdacd27ffbc19d5b22c7ecc8fec5300ff831e3d51cf2f",
+    "tools/iot/check-physical-stop-client-preparation.py": "86f88e13ed4263b30abf19cb1e73f9aa035af32b215e0a41d7353772b0d25269",
+    "tools/iot/check-radio-off-bridge.py": "6042bd0e4c53b6410227f89d338dc66c32a00332d0c0cb3cac61658cae40b90c",
+    "tools/iot/check-radio-off-finish.py": "044200ed04fc295ef831e364c74617594364b4a051fa4a98bc3d529662c2c821",
+    "tools/iot/check-radio-off-followup.py": "f70d191bc1a2f3714df484b119eda33ae433add856fade81e1ae406760bd11a9",
+    "tools/iot/check-rc-radio-off-composition.py": "707c40718ae6b82620309dbfdbc310a9aa8f0a3d9fe8510afd006548ad7123e8",
+    "tools/iot/check-runtime-source.py": "2c6734cacf6191e4b5d7c940943ed704fcf2aa08f6eb1d2576b845ac18e30891",
+    "tools/iot/compile-runtime-link.sh": "4a025ab1c7cef5c7a8be9607ffdb5c3fcfc517526cdbbd07edd692e8f238d6fd",
+    "tools/iot/package-candidate-pair.py": "26e0a7f5d10c4aab38db91910dfd2b5fb889781ea00559c266c612d331162e8f",
+    "tools/iot/prepare-runtime.py": "c08a991737ea07fedb9f4fd0cfc9b8e913787ebdc8b60e1e113656156058edb6",
+    "tools/iot/radio-off-bridge.c": "b5071603643caa75102056ee38683548dcc5d11f983895909f8acc5c0b42ac67",
+    "tools/iot/radio-off-bridge.h": "a1cbb713f9ce712537760ce0d914f1e4d18d549300262ac210a6b79b42dfd2ce",
+    "tools/iot/radio-off-followup.c": "27f2f9365509156e5ecdcc377cd5c5a872dcd6c43648cfdf3330d26e6c83f0a7",
+    "tools/iot/radio-off-followup.h": "f71442f23d60d165153b7f584ad48b18c0287558bc13674ec583bfeb19bd6fa2",
+    "tools/iot/rc-runtime.c": "36e7f706d2786266f779b8d391c0b3b778957ebac437d4dfd48829b19a39a90d"
+  }
+}

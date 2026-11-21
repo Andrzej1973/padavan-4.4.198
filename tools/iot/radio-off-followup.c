@@ -9,22 +9,27 @@
 #include "rc-shutdown-admission.h"
 #include "service-guard.h"
 #include "restart-iapp-policy.h"
-static int followup_owner(const struct wr_iot_radio_off_owner *off)
+static int followup_owner_scope(const struct wr_iot_radio_off_owner *off,int finalizing)
 {
  return off&&off->owner==getpid()&&!off->busy&&off->result==1&&off->policy_ready&&
   wr_iot_physical_stop_request_valid(&off->released)&&off->released.action==WR_STOP_RELEASE&&
-  wr_iot_rc_shutdown.radio_off_owned&&!wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending;
+  wr_iot_rc_shutdown.radio_off_owned&&wr_iot_rc_shutdown.active==finalizing&&
+  (finalizing||!wr_iot_rc_shutdown.pending);
 }
-static int followup_current(const struct wr_iot_off_followup *s)
+static int followup_owner(const struct wr_iot_radio_off_owner *off)
+{return followup_owner_scope(off,0);}
+static int followup_current_scope(const struct wr_iot_off_followup *s,int finalizing)
 {
  unsigned char before[64],after[64];
- return followup_owner(s->off)&&s->policy.reload==s->off->policy.reload&&
+ return followup_owner_scope(s->off,finalizing)&&s->policy.reload==s->off->policy.reload&&
   s->policy.stored_radio==s->off->policy.stored_radio&&
   s->policy.auth_required==s->off->policy.auth_required&&s->policy.wan==s->off->policy.wan&&
   wr_iot_physical_stop_request_encode(before,sizeof(before),&s->released)&&
   wr_iot_physical_stop_request_encode(after,sizeof(after),&s->off->released)&&
   !memcmp(before,after,sizeof(before));
 }
+static int followup_current(const struct wr_iot_off_followup *s)
+{return followup_current_scope(s,0);}
 int wr_iot_off_followup_begin(struct wr_iot_off_followup *s,const struct wr_iot_radio_off_owner *off)
 {
  int token;
@@ -124,9 +129,15 @@ enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_follow
 
 int wr_iot_off_followup_final_current(const struct wr_iot_off_followup *s)
 {
- const struct wr_iot_radio_profile_state *p;unsigned slot;
- if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_OFF_FOLLOWUP_FINAL_PENDING||
-    !followup_current(s)||s->bridge_slot!=7||s->bridge_verify!=7||s->postwan_slot!=7||
+ const struct wr_iot_radio_profile_state *p;unsigned slot;int finalizing;
+ int (*observe)(const struct wr_iot_physical_stop_request *);
+ if(!s)return 0;
+ finalizing=s->phase==WR_OFF_FOLLOWUP_FINALIZING;
+ if(finalizing&&(s->finish_off!=s->off||s->finish_guard!=1||
+    s->finish_fence.owner!=getpid()||s->finish_fence.level!=1))return 0;
+ observe=finalizing?wr_iot_radio_recovery_down_observed:wr_iot_radio_off_observed;
+ if(!s||s->owner!=getpid()||s->busy||(s->phase!=WR_OFF_FOLLOWUP_FINAL_PENDING&&!finalizing)||
+    !followup_current_scope(s,finalizing)||s->bridge_slot!=7||s->bridge_verify!=7||s->postwan_slot!=7||
     !s->state_attempted||!s->auth_attempted||!s->wan.attempted||!s->wan.returned||
     s->wan.busy||s->wan.owner!=getpid()||s->iapp.owner!=getpid()||s->iapp.busy||
     s->iapp.result!=1||s->iapp.guard||s->iapp.child||s->iapp.fence.owner||s->iapp.fence.level||
@@ -138,9 +149,10 @@ int wr_iot_off_followup_final_current(const struct wr_iot_off_followup *s)
     (s->policy.reload&&(!p->generated||!p->files.sealed))||
     (!s->policy.reload&&(p->generated||p->files.journalled))||
     !wr_iot_generated_matches(&p->files.generated[0],p->files.paths[0])||
-    !wr_iot_radio_off_observed(&s->released)||!wr_iot_off_profile_current(&s->profile))return 0;
- for(slot=0;slot<7;slot++)if(!wr_iot_radio_off_bridge_observed(&s->released,slot))return 0;
- return followup_current(s)&&wr_iot_radio_off_observed(&s->released)&&
+    !observe(&s->released)||!wr_iot_off_profile_current(&s->profile))return 0;
+ for(slot=0;slot<7;slot++)if(!(finalizing?wr_iot_radio_off_bridge_final_observed(&s->released,slot):
+  wr_iot_radio_off_bridge_observed(&s->released,slot)))return 0;
+ return followup_current_scope(s,finalizing)&&observe(&s->released)&&
   wr_iot_generated_matches(&p->files.generated[0],p->files.paths[0])&&wr_iot_radio_profile_guard();
 }
 
@@ -155,6 +167,7 @@ static void off_finish_cleanup(void *context)
  s->finish_off=NULL;s->off=NULL;
  wr_iot_rc_shutdown.radio_off_owned=0;
  s->phase=WR_OFF_FOLLOWUP_DONE;s->busy=0;
+ if(s->finish_publish){s->finish_publish(s,s->finish_context);s->finish_published=1;}
  wr_iot_service_guard_leave(s->finish_guard);s->finish_guard=0;
 }
 int wr_iot_off_followup_finish(struct wr_iot_off_followup *s,struct wr_iot_radio_off_owner *off)
@@ -182,11 +195,21 @@ int wr_iot_off_followup_finish(struct wr_iot_off_followup *s,struct wr_iot_radio
    s->profile_receipt=receipt;
   }
 #endif
-  if(!wr_iot_radio_stop_fence_begin(&s->finish_fence)){
+  if(wr_iot_rc_shutdown.normal_route_requested?
+     !wr_iot_radio_stop_fence_begin_routed_shutdown(&s->finish_fence):
+     !wr_iot_radio_stop_fence_begin(&s->finish_fence)){
    wr_iot_service_guard_leave(token);return 0;
   }
   s->finish_off=off;s->finish_guard=token;s->phase=WR_OFF_FOLLOWUP_FINALIZING;
  }
+ /* Retry under the same retained fence reobserves the full final state. No
+  * bridge detach, generation, WAN or child command is replayed here. */
+ if(!wr_iot_off_followup_final_current(s)||
+    (!!s->finish_prepare!=!!s->finish_publish)||s->finish_published||
+    (s->finish_prepare&&!s->finish_prepare(s,s->finish_context)))return 0;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(!wr_iot_restart_profile_receipt_current(&s->profile_receipt))return 0;
+#endif
  s->busy=1;
  if(!wr_iot_radio_stop_fence_end_cleanup(&s->finish_fence,off_finish_cleanup,s)){s->busy=0;return 0;}
  return s->phase==WR_OFF_FOLLOWUP_DONE;

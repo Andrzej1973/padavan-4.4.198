@@ -30,6 +30,12 @@ static unsigned bridge_observations;
 int wr_iot_radio_off_bridge_observed(const struct wr_iot_physical_stop_request*r,unsigned slot){
  assert(r->action==WR_STOP_RELEASE&&bridge_calls==7&&slot==bridge_observations%7);bridge_observations++;return 1;
 }
+int wr_iot_radio_off_bridge_final_observed(const struct wr_iot_physical_stop_request*r,unsigned slot){
+ assert(depth&&wr_iot_rc_shutdown.active&&r->action==WR_STOP_RELEASE&&slot<7);return observed;
+}
+int wr_iot_radio_recovery_down_observed(const struct wr_iot_physical_stop_request*r){
+ assert(depth&&wr_iot_rc_shutdown.active&&r->action==WR_STOP_RELEASE);return observed;
+}
 static int auth_calls;
 enum wr_iot_off_auth_result wr_iot_rc_radio_off_auth(const struct wr_iot_radio_off_policy*p,const struct wr_iot_physical_stop_request*r){assert(depth&&bridge_observations==7&&p->reload==1&&r->action==WR_STOP_RELEASE);auth_calls++;return WR_OFF_AUTH_RETURNED;}
 static int wan_calls;

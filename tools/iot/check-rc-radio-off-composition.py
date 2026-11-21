@@ -27,7 +27,28 @@ int wr_iot_rc_physical_take_off(const char*i,unsigned long long t){assert(!strcm
 ''')
 code=code.replace('int wr_iot_off_followup_begin(struct wr_iot_off_followup*s,const struct wr_iot_radio_off_owner*o){(void)s;(void)o;assert(0);return 0;}', 'static int followup_begins,followup_steps;\nint wr_iot_off_followup_begin(struct wr_iot_off_followup*s,const struct wr_iot_radio_off_owner*o){assert(o==&radio_off_owner&&o->result==1&&!physical_pending);followup_begins++;s->owner=getpid();s->released=o->released;s->phase=WR_OFF_FOLLOWUP_PROFILE_BEGIN;return 1;}')
 code=code.replace('enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup*s){(void)s;assert(0);return WR_OFF_FOLLOWUP_IDLE;}', 'enum wr_iot_off_followup_phase wr_iot_off_followup_step(struct wr_iot_off_followup*s){assert(s->owner==getpid()&&followup_begins==1);followup_steps++;s->phase=WR_OFF_FOLLOWUP_NETWORK_PENDING;return s->phase;}')
-code=code.replace('int wr_iot_off_followup_finish(struct wr_iot_off_followup*s,struct wr_iot_radio_off_owner*o){(void)s;(void)o;assert(0);return 0;}', 'static int finish_calls,finish_allowed,redispatches;\nint wr_iot_off_followup_finish(struct wr_iot_off_followup*s,struct wr_iot_radio_off_owner*o){finish_calls++;if(!finish_allowed)return 0;memset(o,0,sizeof(*o));s->phase=WR_OFF_FOLLOWUP_DONE;wr_iot_rc_shutdown.radio_off_owned=0;return 1;}')
+code=code.replace('int wr_iot_off_followup_finish(struct wr_iot_off_followup*s,struct wr_iot_radio_off_owner*o){(void)s;(void)o;assert(0);return 0;}', r'''
+static int finish_calls,finish_allowed,redispatches;
+int wr_iot_off_followup_finish(struct wr_iot_off_followup*s,struct wr_iot_radio_off_owner*o){
+ finish_calls++;if(!finish_allowed)return 0;
+ /* PREPARED_PROFILE_CAPTURE */
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ receipt_guard=1;
+#endif
+ if(!s->finish_prepare||!s->finish_publish||!s->finish_prepare(s,s->finish_context)){
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+  receipt_guard=0;
+#endif
+  return 0;
+ }
+ memset(o,0,sizeof(*o));s->phase=WR_OFF_FOLLOWUP_DONE;wr_iot_rc_shutdown.radio_off_owned=0;
+ s->finish_publish(s,s->finish_context);s->finish_published=1;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ receipt_guard=0;
+#endif
+ return 1;
+}
+''')
 code=code.replace('int wr_iot_rc_dispatch(void){assert(0);return 0;}', 'int wr_iot_rc_dispatch(void){assert(!radio_off_owner.owner&&!radio_off_followup.owner&&!wr_iot_rc_shutdown.radio_off_owned);redispatches++;return 0;}')
 code=code.replace('void wr_iot_rc_physical_step(void){physical_steps++;}', 'void wr_iot_rc_physical_step(void){physical_steps++;if(off_transport){assert(policy_reads&&policy_allowed);physical_pending=0;wr_iot_rc_shutdown.active=0;off_terminal=1;}}')
 a=' assert(wr_iot_status_endpoint_close(&endpoint));'
@@ -56,11 +77,23 @@ code=code.replace(a,r'''
 
  radio_off_followup.phase=WR_OFF_FOLLOWUP_FINAL_PENDING;
  wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(finish_calls==1&&!redispatches&&radio_off_owner.owner);
- finish_allowed=1;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
- assert(finish_calls==2&&radio_off_followup.phase==WR_OFF_FOLLOWUP_DONE&&!radio_off_owner.owner&&!redispatches);
- assert(!wr_iot_rc_radio_off_begin(&off,1));
+ finish_allowed=1;radio_off_receipt_valid=1;
+ wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(finish_calls==2&&radio_off_owner.owner&&!radio_off_followup.finish_published&&!redispatches);
+ radio_off_receipt_valid=0;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(finish_calls==3&&radio_off_followup.phase==WR_OFF_FOLLOWUP_DONE&&!radio_off_owner.owner&&!redispatches);
+ assert(radio_off_receipt_valid&&!wr_iot_rc_radio_off_receipt(&receipt));
+ assert(radio_off_followup.finish_published&&!wr_iot_rc_radio_off_begin(&off,1));
+ radio_off_receipt.epoch++;wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(radio_off_followup.owner&&!radio_off_redispatch);radio_off_receipt.epoch--;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ receipt_refuse=1;
+#endif
  wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(!radio_off_followup.owner&&radio_off_redispatch&&!redispatches);assert(!wr_iot_rc_radio_off_begin(&off,1));
  wr_iot_rc_wait(&empty,&notification,&alarm_flag);assert(redispatches==1&&!radio_off_redispatch);
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ receipt_refuse=0;
+#endif
  assert(wr_iot_rc_radio_off_receipt(&receipt)&&receipt.action==WR_STOP_RELEASE&&receipt.epoch==1&&receipt.attempt==5);
  receipt.epoch++;assert(wr_iot_rc_radio_off_receipt(&receipt)&&receipt.epoch==1);
  assert(!wr_iot_rc_radio_off_begin(&off,1));
@@ -68,7 +101,7 @@ code=code.replace(a,r'''
  assert(physical_steps==off_base+1&&policy_reads==2);notification=0;
 '''+a)
 prepared_code=('#define _GNU_SOURCE\nstatic char rollback_profile_path[128];\n#define WR_IOT_RADIO_PROFILE_PATH rollback_profile_path\n'+code).replace('int wr_iot_service_guard_dup(void){assert(0);return -1;}',
- 'static int receipt_guard;\nint wr_iot_service_guard_enter(int on){assert(on==1&&!receipt_guard);receipt_guard=1;return 1;}\nint wr_iot_service_guard_dup(void){return receipt_guard?open("/dev/null",O_RDONLY):-1;}')
+ 'static int receipt_guard,receipt_refuse;\nint wr_iot_service_guard_enter(int on){assert(on==1&&!receipt_guard);receipt_guard=1;return 1;}\nint wr_iot_service_guard_dup(void){return receipt_guard&&!receipt_refuse?open("/dev/null",O_RDONLY):-1;}')
 prepared_code=prepared_code.replace('void wr_iot_service_guard_leave(int token){(void)token;assert(0);}',
  'void wr_iot_service_guard_leave(int token){assert(token==1&&receipt_guard);receipt_guard=0;}')
 # This RC dispatcher fixture injects completed physical OFF. Its reload1
@@ -90,14 +123,13 @@ static int rollback_partial(int mode){
  assert(f&&fputs("partial generation\n",f)>=0&&!fclose(f));return -1;
 }
 int main(void){''')
-needle='s->phase=WR_OFF_FOLLOWUP_DONE;wr_iot_rc_shutdown.radio_off_owned=0;return 1;'
+needle='/* PREPARED_PROFILE_CAPTURE */'
 assert needle in prepared_code
-prepared_code=prepared_code.replace(needle, r'''snprintf(s->profile_receipt.path,sizeof(s->profile_receipt.path),"%s/profile",directory);
+prepared_code=prepared_code.replace(needle, r'''if(!s->profile_receipt.valid){snprintf(s->profile_receipt.path,sizeof(s->profile_receipt.path),"%s/profile",directory);
  strcpy(rollback_profile_path,s->profile_receipt.path);
  FILE *profile=fopen(s->profile_receipt.path,"w");assert(profile&&fputs("owned profile\n",profile)>=0&&!fclose(profile));
  assert(wr_iot_generated_capture(&s->profile_receipt.file,s->profile_receipt.path));
- s->profile_receipt.owner=getpid();s->profile_receipt.valid=1;
- s->phase=WR_OFF_FOLLOWUP_DONE;wr_iot_rc_shutdown.radio_off_owned=0;return 1;''')
+ s->profile_receipt.owner=getpid();s->profile_receipt.valid=1;}''')
 needle='receipt.epoch++;assert(wr_iot_rc_radio_off_receipt(&receipt)&&receipt.epoch==1);'
 assert needle in prepared_code
 prepared_code=prepared_code.replace(needle,needle+r'''
@@ -136,6 +168,6 @@ with tempfile.TemporaryDirectory(prefix='wr-rc-off-') as d:
   p.write_text(fixture)
   subprocess.run(['gcc','-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED='+str(prepared),'-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(here),str(p),str(here/'control-mailbox.c'),str(here/'status-endpoint.c'),str(here/'status-channel.c'),'-o',str(b)],check=True)
   subprocess.run([str(b)],check=True,timeout=15)
-print('PASS actual RC ppoll/OFF consumer prepared0/1: guarded profile receipt survives cleanup, wrong physical nonce/absent file/absent guard refused; policy and terminal ownership retained; SDK/physical/final actors injected')
+print('PASS actual RC ppoll/OFF consumer prepared0/1: occupied destination refuses publication; committed receipt hidden until root retirement, foreign physical tuple refuses, file-proof loss does not block inert retirement; next-ON file/physical guards remain separate; SDK/physical/final actors')
 
 print('PASS prepared RC rollback receipt: actual partial generation/rename restoration refreshes identity once; Main-start, wrong nonce, foreign baseline and mismatched bytes refuse; guarded retry idempotent')

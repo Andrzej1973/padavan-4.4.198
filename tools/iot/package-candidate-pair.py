@@ -64,7 +64,7 @@ def build(root,revision):
     'normal_shutdown_notification_bound','normal_shutdown_initial_active_arm_bound',
     'normal_shutdown_cold_active_arm_bound','normal_shutdown_cold_routed_handoff_bound',
     'normal_shutdown_mailbox_active_arm_bound','configuration_ram_control_bound','configuration_snapshot_verified','generation_selector_strong_binding_prepared','close_busy_pre_mutation_bound',
-    'initial_off_admission','off_reopen_admission')),
+    'radio_off_terminal_publication_linked','radio_off_finalizer_retry_observation_linked','initial_off_admission','off_reopen_admission')),
   ('restart',entry,('private_restart_hook_bound','initial_restart_hook_bound',
     'historical_radio_on_hook_bound','cold_radio_on_hook_bound','owned_radio_off_hook_bound'))):
   if manifest.get('board')!='WR1200JS' or manifest.get('production_ready') is not False:

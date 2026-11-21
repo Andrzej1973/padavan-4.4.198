@@ -1,3 +1,39 @@
+## Atomic OFF terminal publication and retained retry — 2026-11-21
+
+OFF finalization now reobserves owner/file/physical DOWN and all seven bridge
+slots on a retained-fence retry. Its new bridge observer is read-only, tolerates
+pending shutdown only in finalization, and cannot detach or authorize ON.
+An already routed request uses routed final-fence admission. No profile/WAN/
+IAPP mutation is replayed. Failed proof/unmask keeps baseline, guard and owner.
+
+RC binds an immutable preflight/publisher pair: an occupied destination refuses;
+successful cleanup transfers nonsecret physical/file receipts before guard
+release and signal replay. Getters hide that record until spent OFF-root
+retirement, preventing a new ON from starving behind it. Inert DONE retirement
+checks publication/physical identity without fresh file IO. Reload0 continuity,
+fresh DOWN and reload1 generation retain their separate next-ON gates.
+
+Eight focused checks pass75.91s peak164708KiB. Final nine OFF/receipt checks plus
+complete edit/view suite pass197.02s peak91380KiB, exit0, one compiler lane.
+Source preparation/restart/mutation checks pass34.87s peak91680KiB; final new
+manifest source assertions pass22.48s peak59272KiB. The omitted-preflight mutant
+fails exactly at file-drift retry with unmask enabled; expected child core is
+suppressed. Typed candidate flags reject missing/disabled/nonboolean claims.
+Exact source GCC10.5/uClibc1.0.48 compiles28 prepared0/1 MIPS objects in15.19s;
+six finalizer QEMU scenarios pass4.06s. Target batch26.63s peak57504KiB includes
+extraction. SDK/network adapters remain actors; full link/image/device are open.
+
+Previous published3304214e: standard1470/run44942896803 and ABI977/run44942896821
+SUCCESS. Exact-source optional1471/run44944175255 is running. It does not cover
+this new OFF stage. Publish this coherent stage once; confirm remote/new runs,
+then queue its exact-source optional after standard success. No duplicate runs,
+heartbeat, router mutation or main-image promotion. IoT remains first.
+
+Removed exact temporary target compiler tree (~145MiB apparent unique data),
+verified absent; downloaded archive remained in memory. Fixture trees disposed
+automatically; historical/private scratch and untracked work preserved.
+Evidence: docs/evidence/WR1200JS-OFF-TERMINAL-PUBLICATION-2026-11-21.json.
+
 ## Restart post-IAPP completion, retirement and target ABI — 2026-11-21
 
 Prepared physical finish now donates nonsecret backend/file metadata to its

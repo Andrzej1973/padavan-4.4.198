@@ -20,6 +20,9 @@ assert report['radio_on_disabled_backend_handoff_linked']
 assert report['completed_profile_history_linked']
 assert report['restart_finish_profile_history_linked']
 assert report['radio_off_frozen_profile_history_linked']
+assert report['radio_off_terminal_publication_linked'] and report['radio_off_finalizer_retry_observation_linked']
+assert 'wr_iot_off_followup_bind_publisher(&radio_off_followup,radio_off_publish_prepare,radio_off_publish,NULL)' in (rc/'wr-iot-rc-runtime.c').read_text()
+assert 'wr_iot_radio_off_bridge_final_observed' in (rc/'wr-iot-radio-off-followup.c').read_text()
 assert report['radio_on_parent_release_linked']
 assert report['radio_on_handoff_linked']
 assert report['radio_on_restore_linked'] and report['radio_on_aux_observer_linked'] and report['radio_on_multicast_linked']

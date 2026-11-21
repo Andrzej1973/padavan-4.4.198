@@ -1,3 +1,28 @@
+## Current OFF finalization closure — 2026-11-21
+
+The source package containing this section supersedes the historical entry-gap
+statements below. Candidate OFF entry/physical take/SDK followup already exist;
+this stage closes their terminal RC publication and failed-unmask retry.
+
+* The retained finalizer repeats full read-only DOWN/bridge/profile evidence
+  under its exact fence. Pending routed shutdown is preserved; no SDK mutation
+  is replayed. Failure retains baseline and guard.
+* A stable preflight/publisher pair commits the physical/file receipt during
+  successful cleanup, before guard release and signal replay. No late tick may
+  retroactively turn absent file proof into successful OFF completion.
+* Public receipt visibility waits for spent-root retirement. Retirement checks
+  exact physical identity, without querying a mutable profile after cleanup.
+  File continuity remains mandatory for reload0; reload1 has independent DOWN,
+  baseline capture and new-generation checks. Missing current file proof cannot
+  strand the already completed inert OFF root or permit an unproved reopen.
+* Runtime source and paired-package manifests require both typed bindings.
+  Candidate compilation, installed image and physical acceptance remain separate.
+
+Host compositions, mutation counterexample,28 MIPS objects and six real QEMU
+file/signal/finalizer scenarios pass at their documented actor boundaries.
+Evidence: ../evidence/WR1200JS-OFF-TERMINAL-PUBLICATION-2026-11-21.json.
+No device action, main-image promotion or completed release is claimed.
+
 # Physical radio OFF entry integration gap — 2026-11-15
 
 Scope: source audit of 6c786921; no device action or acceptance.

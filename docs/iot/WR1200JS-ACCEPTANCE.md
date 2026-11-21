@@ -1,3 +1,21 @@
+## Current software checkpoint and open image gates — 2026-11-21
+
+Published3304214e has successful standard1470/run44942896803 and ABI977/
+run44942896821. Optional1471/run44944175255 is running for that exact source.
+It is not evidence for later source or physical acceptance.
+
+The package containing this entry adds atomic OFF terminal publication, fresh
+retained-finalizer observation and a receipt visibility barrier until old-root
+retirement. Local checks cover the actual source at their explicit SDK/network
+actor boundaries: complete edit/view suite,28 MIPS objects and six QEMU
+file/signal/finalizer scenarios. See
+[OFF publication evidence](../evidence/WR1200JS-OFF-TERMINAL-PUBLICATION-2026-11-21.json).
+Full exact-source target link, independently inspected candidate image, main-image
+promotion and physical Main/Guest/IoT/network acceptance remain open. Mandatory
+IoT is not optional release content. Modern settings/apply resumed2026-11-20,
+IoT stays first; four final WR1200JS variants precede Mi Mini. No device mutation.
+Older image/SHA checkpoints below retain only their stated historical coverage.
+
 ## Optional1344 independent cold image PASS; extraction cleaned — 2026-11-17
 
 Run44009604392 SUCCESS exact859b; source14296276230 verified. Candidate artifact

@@ -38,6 +38,8 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-client-prepared-') as d:
   (rc/'wr-iot'/name).unlink()
  subprocess.run(['python3',str(here/'prepare-runtime.py'),str(root)],check=True)
  manifest=json.loads((root/'iot-runtime-source.json').read_text())
+ assert manifest['radio_off_terminal_publication_linked'] is True
+ assert manifest['radio_off_finalizer_retry_observation_linked'] is True
  assert manifest['generation_selector_strong_binding_prepared'] is True
  assert '__attribute__((weak)) int wr_iot_generation_profile_request' not in (rc/'ralink.c').read_text()
  init=(rc/'init.c').read_text();assert init.count('wr_iot_rc_boot_arm();')==1 and init.index('init_router();')<init.index('wr_iot_rc_boot_arm();')

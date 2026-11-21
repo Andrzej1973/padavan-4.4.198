@@ -46,7 +46,7 @@ static struct wr_iot_restart_profile_receipt radio_off_profile_receipt;
 int wr_iot_rc_radio_off_profile_current(const struct wr_iot_physical_stop_request *expected)
 {
  unsigned char before[64],after[64];
- return radio_off_receipt_valid&&
+ return radio_off_receipt_valid&&!radio_off_owner.owner&&!radio_off_followup.owner&&
   wr_iot_physical_stop_request_encode(before,sizeof(before),expected)&&
   wr_iot_physical_stop_request_encode(after,sizeof(after),&radio_off_receipt)&&
   !memcmp(before,after,sizeof(before))&&
@@ -76,7 +76,9 @@ int wr_iot_rc_radio_off_receipt(struct wr_iot_physical_stop_request *out)
 {
  if(!out)return 0;
  memset(out,0,sizeof(*out));
- if(!radio_off_receipt_valid)return 0;
+ /* Publication precedes guard release, but a new ON may consume it only
+  * after the spent OFF fence owner has been retired by its next RC window. */
+ if(!radio_off_receipt_valid||radio_off_owner.owner||radio_off_followup.owner)return 0;
  *out=radio_off_receipt;return 1;
 }
 static int radio_off_pending(void)
@@ -88,6 +90,25 @@ int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *off,int reloa
  if(!wr_iot_radio_off_begin(&radio_off_owner,off))return 0;
  wr_iot_rc_shutdown.radio_off_owned=1;radio_off_reload=reload;return 1;
 }
+static int radio_off_publish_prepare(const struct wr_iot_off_followup *s,void *context)
+{
+ (void)context;
+ if(s!=&radio_off_followup||s->owner!=getpid()||s->finish_published||
+    radio_off_receipt_valid||s->released.action!=WR_STOP_RELEASE||
+    !wr_iot_physical_stop_request_valid(&s->released))return 0;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(!wr_iot_restart_profile_receipt_current(&s->profile_receipt))return 0;
+#endif
+ return 1;
+}
+static void radio_off_publish(const struct wr_iot_off_followup *s,void *context)
+{
+ (void)context;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ radio_off_profile_receipt=s->profile_receipt;
+#endif
+ radio_off_receipt=s->released;radio_off_receipt_valid=1;
+}
 static void radio_off_continue(void)
 {
  if(radio_off_followup.phase==WR_OFF_FOLLOWUP_DONE){
@@ -96,28 +117,26 @@ static void radio_off_continue(void)
      radio_off_followup.finish_fence.level||radio_off_followup.off||radio_off_followup.finish_off||
      radio_off_followup.profile.baseline.active||radio_off_followup.profile.baseline.files.count||
      wr_iot_rc_shutdown.radio_off_owned||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending)return;
-  if(radio_off_receipt_valid||radio_off_followup.released.action!=WR_STOP_RELEASE||
+  if(radio_off_followup.released.action!=WR_STOP_RELEASE||
      !wr_iot_physical_stop_request_valid(&radio_off_followup.released))return;
-#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
   {
-   int token=wr_iot_service_guard_enter(1);if(token!=1)return;
-   if(!wr_iot_restart_profile_receipt_current(&radio_off_followup.profile_receipt)){
-    wr_iot_service_guard_leave(token);return;
-   }
-   radio_off_profile_receipt=radio_off_followup.profile_receipt;
-   radio_off_receipt=radio_off_followup.released;radio_off_receipt_valid=1;
-   wr_iot_service_guard_leave(token);
+   unsigned char before[64],after[64];
+   if(!radio_off_followup.finish_published||!radio_off_receipt_valid||
+      radio_off_followup.finish_prepare!=radio_off_publish_prepare||
+      radio_off_followup.finish_publish!=radio_off_publish||radio_off_followup.finish_context||
+      !wr_iot_physical_stop_request_encode(before,sizeof(before),&radio_off_followup.released)||
+      !wr_iot_physical_stop_request_encode(after,sizeof(after),&radio_off_receipt)||
+      memcmp(before,after,sizeof(before)))return;
   }
-#else
-  radio_off_receipt=radio_off_followup.released;radio_off_receipt_valid=1;
-#endif
   memset(&radio_off_followup,0,sizeof(radio_off_followup));radio_off_reload=0;radio_off_redispatch=1;return;
  }
  if(radio_off_owner.owner!=getpid())return;
  if(!radio_off_owner.result){(void)wr_iot_radio_off_step(&radio_off_owner,radio_off_reload);return;}
  if(radio_off_owner.result!=1)return;
  if(radio_off_followup.phase==WR_OFF_FOLLOWUP_FINAL_PENDING||radio_off_followup.phase==WR_OFF_FOLLOWUP_FINALIZING){
-  (void)wr_iot_off_followup_finish(&radio_off_followup,&radio_off_owner);return;
+  if(wr_iot_off_followup_bind_publisher(&radio_off_followup,radio_off_publish_prepare,radio_off_publish,NULL))
+   (void)wr_iot_off_followup_finish(&radio_off_followup,&radio_off_owner);
+  return;
  }
 
  if(!radio_off_followup.owner)(void)wr_iot_off_followup_begin(&radio_off_followup,&radio_off_owner);

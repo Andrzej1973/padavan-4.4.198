@@ -87,13 +87,14 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             subprocess.run(["make", "-C", str(rc), "ROOTDIR=" + str(trunk),
                             "CC="+args.compiler, "CFLAGS=-std=gnu11 -Wall -Wextra -Werror -O2 -I" + str(rc),
                             "wr-iot-" + unit + ".o"], check=True)
-        for unit in ("config-view-runtime", "config-view-channel", "config-view-endpoint", "config-edit-server", "config-server", "config-owner", "saved-config-store", "native-flash-reader", "flash-save-attempt", "flash-save-native", "flash-worker", "config-save-owner", "config-save-server", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode", "rc-backend", "radio-on-owner", "rc-runtime", "rc-physical-stop", "radio-off-owner", "radio-off-profile", "radio-off-profile-check", "restart-finish-check", "restart-resume", "restart-resume-retire", "restart-scheduler"):
+        for unit in ("config-view-runtime", "config-view-channel", "config-view-endpoint", "config-edit-server", "config-server", "config-owner", "saved-config-store", "native-flash-reader", "flash-save-attempt", "flash-save-native", "flash-worker", "config-save-owner", "config-save-server", "cold-on-generation", "radio-on-generation", "restart-generation", "restart-profile", "rc-mode", "rc-backend", "radio-on-owner", "rc-runtime", "rc-physical-stop", "radio-off-owner", "radio-off-profile", "radio-off-profile-check", "restart-finish-check", "restart-resume", "restart-resume-retire", "restart-scheduler", "radio-off-followup", "radio-off-bridge", "radio-off-observe"):
             assert ("wr-iot-" + unit + ".o") in (rc / "Makefile").read_text()
             # Changed lifecycle units also emit actual host objects. Keep the
             # compiler lane serial; these isolated trees are removed on exit.
             objects=("rc-backend", "rc-physical-stop", "radio-off-owner", "radio-off-profile",
                      "radio-off-profile-check", "radio-on-owner", "rc-runtime", "restart-finish-check",
-                     "restart-resume", "restart-resume-retire", "restart-scheduler")
+                     "restart-resume", "restart-resume-retire", "restart-scheduler",
+                     "radio-off-followup", "radio-off-bridge", "radio-off-observe")
             mode=["-c", "-o", str(rc / ("wr-iot-" + unit + ".o"))] if unit in objects else ["-fsyntax-only"]
             subprocess.run([args.compiler, "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-O2",
                             "-I" + str(rc), "-I"+str(trunk/"linux-4.4.x/include/nvram"), *mode,
@@ -102,7 +103,8 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             nm=args.compiler[:-3]+'nm' if args.compiler.endswith('gcc') else 'nm'
             for unit,symbol in (("rc-backend","wr_iot_rc_restart_profile_current"),
                                 ("restart-finish-check","wr_iot_restart_restore_completed_current"),
-                                ("restart-resume-retire","wr_iot_restart_resume_retire_for_off")):
+                                ("restart-resume-retire","wr_iot_restart_resume_retire_for_off"),
+                                ("radio-off-bridge","wr_iot_radio_off_bridge_final_observed")):
                 symbols=subprocess.check_output([nm,str(rc/("wr-iot-"+unit+".o"))],text=True)
                 assert any(line.split()[1:]==['T',symbol] for line in symbols.splitlines()), (unit,symbol)
             for unit in ("restart-resume","restart-resume-retire"):
