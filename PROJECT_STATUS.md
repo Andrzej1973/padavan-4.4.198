@@ -1,3 +1,19 @@
+## ABI971 composed INITIAL fixture corrected — 2026-11-21
+
+ABI971/run44927032442 failed in check-initial-auto-shutdown.py because the
+standalone check-parent ACTIVE refusal stub leaked through its reusable body
+into a composed parent that includes the real restart-initial-handoff.c.
+Moved that stub to standalone file emission only; composed body uses the real
+implementation. Actual INITIAL auto-shutdown composition and standalone parent
+both pass ASan/UBSan exit0 after correction. No production source changed.
+Monitor44928644101/artifact14715659632 ZIP SHA256
+87ff436bf216b9a9054fd295741ea344820927fe78c63a5aa368de77771651e0
+and CRC verified; original job136919836847 confirms the redefinition and both
+locations. Monitor excerpt was actionable, so parser unchanged. Temporary
+compiler trees removed automatically. Standard1458 and optional1456 succeeded;
+standard1459 remains active for38ccdef7. New package needs its own CI result.
+IoT loaded provenance and OFF reload0 work remain open; no router operation.
+
 ## Restart consumers use the captured generation profile — 2026-11-21
 
 Source trace found that prepared restart generation could create desired B,
