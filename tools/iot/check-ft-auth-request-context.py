@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check pinned FT ownership argument threading; execute AUTH callback fixture."""
 import argparse
+import ast
 import contextlib
 import io
 import re
@@ -35,6 +36,26 @@ assert len(wrapper_receipts) == 1
 wrapper, original_definition = wrapper_receipts[0]
 assert wrapped.replace(wrapper, original_definition, 1) == composed
 assert '\nVOID FT_FtAction(' in composed
+# Validate the target probe's exact copied local-header closure, including
+# nested includes. Vendor headers continue to resolve through native Kbuild.
+probe_tree = ast.parse((here/'check-ft-bounds-target-tu.py').read_text())
+header_sets = [
+    {element.value for element in node.iter.elts}
+    for node in ast.walk(probe_tree)
+    if isinstance(node, ast.For) and isinstance(node.iter, ast.Tuple)
+    and all(isinstance(element, ast.Constant) and isinstance(element.value, str)
+            for element in node.iter.elts)
+    and any(isinstance(call, ast.Call) and isinstance(call.func, ast.Attribute)
+            and isinstance(call.func.value, ast.Name)
+            and call.func.value.id == 'shutil' and call.func.attr == 'copyfile'
+            for call in ast.walk(node))]
+assert len(header_sets) == 1
+probe_headers = header_sets[0]
+for text in [composed, composed_header, *[(here/name).read_text()
+                                        for name in sorted(probe_headers)]]:
+    for name in re.findall(r'^\s*#include\s+"([^"\n]+)"', text, re.M):
+        if (here/name).is_file():
+            assert name in probe_headers, 'target probe missing local header: '+name
 storage_input = dict(schema)
 storage_input['include/rtmp.h'] = storage_input['include/rtmp.h'].replace(
     '\tMAC_TABLE MacTab;',

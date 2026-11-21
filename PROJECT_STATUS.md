@@ -1,3 +1,26 @@
+## Optional1442 missing target-probe header corrected locally — 2026-11-21
+
+Optional1442/run44904023629 failed for exact2fcc4f3f. Verified dispatch,
+requested and built source agree. The1439 composition error is passed; the
+next preprocessor error is missing ft-iapp-auth-owner-transfer.h in the
+isolated probe include directory. Diagnostic artifact14707427009 and
+monitor44905252923/artifact14707159336 agree on the cause and failed step.
+The monitor was useful; its parser remains unchanged.
+
+The target probe now copies that header and the local transitive dependency
+closure. The existing FT host checker checks the actual probe copy tuple
+against composed and nested local includes. Original tuple negative control
+fails on the exact missing owner-transfer header; corrected full host checker
+passes with exit0. No installed driver/image path changed. Target compilation
+of the correction remains pending;1442 produced no successful FT target TUs.
+Receipt: docs/evidence/WR1200JS-OPTIONAL1442-HEADER-CLOSURE-2026-11-21.json.
+
+Preservation recheck,1441/ABI results and this correction form one outgoing
+package. Publish once after diff/check review, verify exact remote SHA, then
+run standard and required optional for that revision without duplicates.
+No physical action authorized. Downloaded diagnostic ZIPs/log stay in memory;
+temporary host fixture trees were automatically removed.
+
 ## Standard1441 / ABI961 success; optional1442 active — 2026-11-21
 
 Standard1441/run44902143769 and ABI961/run44902041131 succeeded for exact
