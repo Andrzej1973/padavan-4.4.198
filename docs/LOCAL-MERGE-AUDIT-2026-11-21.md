@@ -241,3 +241,44 @@ head SHA independently confirmed2fcc4f3f. Both runs were active at observation;
 no success is inferred. Required optional iot/peer82 awaits standard success.
 The next publication will combine related results/fixes in one push as directed
 by the owner; no intermediate push was made for this receipt.
+
+## Merge completion verified — 2026-11-21
+
+The controlled merge/preservation goal is complete. Mergec50480744f4f91caec15e82db0cf0253343f5125
+retains parents1645182535ece301d2cdb8f0a0f0ba8811432b2b and
+c9e1e892f2c6048de709fdf12259ebdd0198a2c4. Historical remote main70964a3d
+and local service tipc9e1e892 are ancestors of verified main29566c76.
+Current connectivity/ancestry/whitespace checks pass; no unmerged entries,
+tracked modifications or extra registered worktrees. Main matched origin/main.
+
+Standard1450/run44915367873 and ABI966/run44915353811 succeeded for
+29566c76d1dd46c8fa09671004f5f02993aebd00. Optional1451/run44916964158 also
+succeeded. Its source receipt independently confirms that SHA; ZIP digests/CRC
+and all ten FT object hashes match. Five prepared TUs pass normal/hard-retry
+compilation and consumer/provider symbol checks. Receipt:
+docs/evidence/WR1200JS-OPTIONAL1451-FT-TARGET-PASS-2026-11-21.json.
+This is not installed FT integration, four final release images or physical
+acceptance. Those remain separate project requirements, not merge claims.
+
+All original48845 inventoried paths were retained; original hashed regular
+files either match baseline or reviewed committed changes.3477 baseline
+symlinks had no recorded target text, so target equality is unproven. Private
+owner/history inventories, unfinished scratch and307 classified historical
+evidence records remain local, intentionally untracked. No source archives,
+owner data or unique evidence deleted. Preservation decisions and limits:
+docs/LOCAL-MERGE-AUDIT-2026-11-21.md and private per-file disposition.
+
+Nilabsent comparison is documented in docs/NILABSENT-ARCHITECTURE-ANALYSIS.md.
+Bounded Phase1 catalog/audit extraction preserves the stable CLI and board
+admission; broader path moves require a separate Phase1A dependency review.
+See docs/REPOSITORY-PHASE1A-START-2026-11-08.md. No3.4 kernel transplant,
+Docker build replacement or bulk move. WR1200JS4.4.198 stays primary; IoT,
+Hybrid Modern, Band Steering, Zapret2, settings and four-variant requirements
+remain. Retired v39-v42 standalone workflow paths were removed by owner request;
+live donor dependencies and legacy control retained. Further work stays on main.
+
+Cleanup: verification ZIPs read in memory, temporary object/fixture trees
+removed automatically. Historical/unfinished scratch retained by explicit
+classification; no new archive or backup. Publish this final evidence-only
+package once; it does not change tested source/build inputs.
+

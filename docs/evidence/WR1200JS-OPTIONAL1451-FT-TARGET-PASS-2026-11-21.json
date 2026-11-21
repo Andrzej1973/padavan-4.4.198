@@ -1,0 +1,358 @@
+{
+  "ft_report": {
+    "status": "passed",
+    "scope": "Prepared FT RRB/ordinary-RX provenance, FT action/AUTH request-context caller pair, and scoped first-peer insertion temporary TUs only",
+    "module_installed": false,
+    "firmware_image_verified": false,
+    "runtime_verified": false,
+    "translation_units": {
+      "ft": {
+        "effective_macros": {
+          "DOT11R_FT_SUPPORT": true,
+          "CONFIG_AP_SUPPORT": true,
+          "MT7603": true,
+          "MT_MAC": true,
+          "RTMP_PCI_SUPPORT": true
+        },
+        "r1kh_hard_retry_variant": {
+          "enabled": true,
+          "object_sha256": "3070e741816385dbef4434135e698e6d4e00fff210bfeebd1a2b11032053747c",
+          "object_bytes": 164304,
+          "object_path": "ft-bounds-target-tu-objects/ft-r1kh-hard-retry.o",
+          "ft_symbols": {
+            "FT_AuthReqHandler": {
+              "ndx": "1",
+              "type": "FUNC",
+              "binding": "GLOBAL"
+            },
+            "wr_ft_mlme_enqueue_for_recv": {
+              "ndx": "UND",
+              "type": "NOTYPE",
+              "binding": "GLOBAL"
+            },
+            "wr_ft_pending_enqueue_for_recv": {
+              "ndx": "UND",
+              "type": "NOTYPE",
+              "binding": "GLOBAL"
+            },
+            "wr_ft_pending_insert": {
+              "ndx": "UND",
+              "type": "NOTYPE",
+              "binding": "GLOBAL"
+            }
+          }
+        },
+        "command_sha256": "86e91052706e2a515e660943c390791e7ce110e28c98be8ab343e20fb327843c",
+        "source_sha256": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+        "prepared_source_sha256": "4a4762629e2e0ded832eda22ab2a45e4596976295f183f9235e821473b64b9ad",
+        "object_sha256": "e6bac3ac78cb891e51d8f7509a2de0e3b547a4079b73ae92bc12a97e9c1b985f",
+        "object_bytes": 163216,
+        "object_path": "ft-bounds-target-tu-objects/ft.o",
+        "ft_symbols": {
+          "FT_AuthReqHandler": {
+            "ndx": "1",
+            "type": "FUNC",
+            "binding": "GLOBAL"
+          },
+          "wr_ft_mlme_enqueue_for_recv": {
+            "ndx": "UND",
+            "type": "NOTYPE",
+            "binding": "GLOBAL"
+          },
+          "wr_ft_pending_enqueue_for_recv": {
+            "ndx": "UND",
+            "type": "NOTYPE",
+            "binding": "GLOBAL"
+          },
+          "wr_ft_pending_insert": {
+            "ndx": "UND",
+            "type": "NOTYPE",
+            "binding": "GLOBAL"
+          }
+        }
+      },
+      "ap_auth": {
+        "effective_macros": {
+          "DOT11R_FT_SUPPORT": true,
+          "CONFIG_AP_SUPPORT": true,
+          "MT7603": true,
+          "MT_MAC": true,
+          "RTMP_PCI_SUPPORT": true
+        },
+        "r1kh_hard_retry_variant": {
+          "enabled": true,
+          "object_sha256": "be7436b52551619c96d3be8416e38a3690c8f329fab539b95a6dc53c614aa6ff",
+          "object_bytes": 63836,
+          "object_path": "ft-bounds-target-tu-objects/ap_auth-r1kh-hard-retry.o",
+          "ft_symbols": {
+            "FT_AuthReqHandler": {
+              "ndx": "UND",
+              "type": "NOTYPE",
+              "binding": "GLOBAL"
+            },
+            "wr_ft_pending_insert": {
+              "ndx": "UND",
+              "type": "NOTYPE",
+              "binding": "GLOBAL"
+            }
+          }
+        },
+        "command_sha256": "02a60a9fdc358fc17c6cbd7e77d2ec00c94d274d86f5e367e7fee235d80a1658",
+        "source_sha256": "5f4b991c83a302af2be4b4f0edb9bab5453e095ec57b2c776d3c0bc6a1d97b98",
+        "prepared_source_sha256": "df1068dbbbe73666e39f6eadb84f662ad0a8e1edf72c4a47f8dcb7b09b372a69",
+        "object_sha256": "e242f466a3e765cb83c0d78dc58701979071397d29a23fa98e7663563d702115",
+        "object_bytes": 63836,
+        "object_path": "ft-bounds-target-tu-objects/ap_auth.o",
+        "ft_symbols": {
+          "FT_AuthReqHandler": {
+            "ndx": "UND",
+            "type": "NOTYPE",
+            "binding": "GLOBAL"
+          },
+          "wr_ft_pending_insert": {
+            "ndx": "UND",
+            "type": "NOTYPE",
+            "binding": "GLOBAL"
+          }
+        }
+      },
+      "mlme": {
+        "effective_macros": {
+          "DOT11R_FT_SUPPORT": true,
+          "CONFIG_AP_SUPPORT": true,
+          "MT7603": true,
+          "MT_MAC": true,
+          "RTMP_PCI_SUPPORT": true
+        },
+        "r1kh_hard_retry_variant": {
+          "enabled": true,
+          "object_sha256": "f982be3e1a6a877f88bc2aa6619ae7a029b847f9c9e5cef1c2d1ec892708d620",
+          "object_bytes": 189432,
+          "object_path": "ft-bounds-target-tu-objects/mlme-r1kh-hard-retry.o",
+          "ft_symbols": {
+            "wr_ft_mlme_enqueue_for_recv": {
+              "ndx": "1",
+              "type": "FUNC",
+              "binding": "GLOBAL"
+            },
+            "wr_ft_pending_enqueue_for_recv": {
+              "ndx": "1",
+              "type": "FUNC",
+              "binding": "GLOBAL"
+            }
+          }
+        },
+        "command_sha256": "7174a510037cf8a8f7e4b92bcf8ecf75d2c55d783461e3f8af3fe473f6ff8aab",
+        "source_sha256": "844f609dcfaa2499041262b325bc0414867806b854e7ab22f4f5accb00b7c896",
+        "prepared_source_sha256": "77f72be726efee41ae69256117266cf138bf3465c8153d377b4a9d944446e383",
+        "object_sha256": "c0f05f5498ad86eccadbad970087a138a234596da82498a82575b47a50035154",
+        "object_bytes": 189432,
+        "object_path": "ft-bounds-target-tu-objects/mlme.o",
+        "ft_symbols": {
+          "wr_ft_mlme_enqueue_for_recv": {
+            "ndx": "1",
+            "type": "FUNC",
+            "binding": "GLOBAL"
+          },
+          "wr_ft_pending_enqueue_for_recv": {
+            "ndx": "1",
+            "type": "FUNC",
+            "binding": "GLOBAL"
+          }
+        }
+      },
+      "mgmt_entrytb": {
+        "effective_macros": {
+          "DOT11R_FT_SUPPORT": true,
+          "CONFIG_AP_SUPPORT": true,
+          "MT7603": true,
+          "MT_MAC": true,
+          "RTMP_PCI_SUPPORT": true
+        },
+        "r1kh_hard_retry_variant": {
+          "enabled": true,
+          "object_sha256": "b1cce5df939f4c4e5797068fa92979108750b6bafef4b6024fd1fdf421845816",
+          "object_bytes": 105524,
+          "object_path": "ft-bounds-target-tu-objects/mgmt_entrytb-r1kh-hard-retry.o",
+          "ft_symbols": {
+            "wr_ft_pending_insert": {
+              "ndx": "1",
+              "type": "FUNC",
+              "binding": "GLOBAL"
+            }
+          }
+        },
+        "command_sha256": "33fe3302bad82d0a315179f91c874a3cc8c977ebabdcbf2bb3d80028b86a79c2",
+        "source_sha256": "4bed0b018ae7b1abb9210ea0740345551eb7bc6aad0fda2fdba0356e6feb0b1b",
+        "prepared_source_sha256": "08372713ebc4a2102436c050401e9cc5812d5b617a88610362a33a39ca9b464e",
+        "object_sha256": "cbf8a9a90a3b73b07abd29428b1e71e4710180cf6ccc2ca19a3fa6099d03dfb1",
+        "object_bytes": 104864,
+        "object_path": "ft-bounds-target-tu-objects/mgmt_entrytb.o",
+        "ft_symbols": {
+          "wr_ft_pending_insert": {
+            "ndx": "1",
+            "type": "FUNC",
+            "binding": "GLOBAL"
+          }
+        }
+      },
+      "rtmp_init": {
+        "effective_macros": {
+          "DOT11R_FT_SUPPORT": true,
+          "CONFIG_AP_SUPPORT": true,
+          "MT7603": true,
+          "MT_MAC": true,
+          "RTMP_PCI_SUPPORT": true
+        },
+        "r1kh_hard_retry_variant": {
+          "enabled": true,
+          "object_sha256": "0da920e17c4bb77d4a4bc464b24606719e743bcb01b262e34e9e8e55694e975d",
+          "object_bytes": 181972,
+          "object_path": "ft-bounds-target-tu-objects/rtmp_init-r1kh-hard-retry.o",
+          "ft_symbols": {}
+        },
+        "command_sha256": "5dba0d68c857734dea6eb26a2cded216b1555dfd38e7f3964af086855536cb57",
+        "source_sha256": "746e2cd85133f2e8b6abf7255ca74511b4010ce1c21046f7bdefbb0b541ec323",
+        "prepared_source_sha256": "305e2e6e7b0039c7dc2de6ea335998a0bbb96ad93bd3cad23dea5549878791da",
+        "object_sha256": "7d718b579ccbeb40cd9a73a9cd913a2954173524ce6491f08a3e334765690c55",
+        "object_bytes": 181948,
+        "object_path": "ft-bounds-target-tu-objects/rtmp_init.o",
+        "ft_symbols": {}
+      }
+    },
+    "auth_caller_inventory": {
+      "ap/ap_auth.c": 1,
+      "common/ft.c": 2
+    },
+    "probe_headers": {
+      "ft-action-bounds.h": {
+        "source": "probe-helper",
+        "sha256": "c121205ab0cf2d76d468306d42aa59e2fd98d340272cab63a4dc9ecfffa9bbba"
+      },
+      "ft-ie-span.h": {
+        "source": "probe-helper",
+        "sha256": "dcc9e56a5e4f82f9544c25afb5d5059102bdbbbc9190a6ad0ebd96bd4617158f"
+      },
+      "ft-subelement-bounds.h": {
+        "source": "probe-helper",
+        "sha256": "0b27313d7812f7bcbab8f8ea09e26a82596668bfcd198356805042f0fa9d720a"
+      },
+      "ft-request-ie-admission.h": {
+        "source": "probe-helper",
+        "sha256": "ca906987b70b90bfa35eb1eca7df68d34677205550a6f7a89dce51a6a34f7bbb"
+      },
+      "ft-peer-generation.h": {
+        "source": "probe-helper",
+        "sha256": "e221e159db50ecfae9e454c7ec5a981b43406fa59794811da742f765fc3004eb"
+      },
+      "ft-pending-peer-scope.h": {
+        "source": "probe-helper",
+        "sha256": "de7c5cf7db32ffc02063b44c04b87e7a60d2c54193c3333391fa9124771f002f"
+      },
+      "ft-pending-identity.h": {
+        "source": "probe-helper",
+        "sha256": "0cd0f4c555ca93ab326a13de039edbaf7c0958955564846bb147eaf9d0930692"
+      },
+      "ft-pending-queue.h": {
+        "source": "probe-helper",
+        "sha256": "ba717841ecdda717b76deb9485976f0d649c57bf4512dfb2e4e585df2a1a739b"
+      },
+      "assoc-generation.h": {
+        "source": "probe-helper",
+        "sha256": "83144035dffc9e7eecfa8b7c0fb793a894205dfba2cc7925c15ed1329ff1578a"
+      },
+      "assoc-generation-kernel.h": {
+        "source": "probe-helper",
+        "sha256": "29d43380f94c26a0a16b5114918a3c4397d1df8360f02b5c158241e6da437e4c"
+      },
+      "peer-table-owner.h": {
+        "source": "probe-helper",
+        "sha256": "77575f6f7a6fffee56176d3c535351a6b18ea24ed842ffe512227f4380cdfeac"
+      },
+      "peer-close-executor.h": {
+        "source": "probe-helper",
+        "sha256": "58feca7c44653eac0559a31793e8c60f757279edf24546b546c0df61a2423d33"
+      },
+      "ra2-mutation-admission-kernel.h": {
+        "source": "probe-helper",
+        "sha256": "8ab0c451745fded4373293e29ef380d43382051d057f463d8b23976a8b487720"
+      },
+      "ft-auth-peer-scope.h": {
+        "source": "probe-helper",
+        "sha256": "abcd906393fbc7562d669feba72c4764718570e7755330b6a507420ac4ff78b0"
+      },
+      "ft-auth-request-context.h": {
+        "source": "probe-helper",
+        "sha256": "0c9f17b208afed36d283b09fcece34345d67e52eb4b3c204533d09a773b9bae4"
+      },
+      "ft-iapp-auth-owner-transfer.h": {
+        "source": "probe-helper",
+        "sha256": "94c65cd9fd0e52ac6b90f57173b49b985b455c538655e0ec7f71334836f680a9"
+      },
+      "driver-api-owner.h": {
+        "source": "prepared-driver",
+        "sha256": "0b093e9fd204d508f8f961371bbb2f0c7c770f79c7e491278d95521822fb214a"
+      },
+      "driver-api-wire.h": {
+        "source": "prepared-driver",
+        "sha256": "121ddcce90083db8a9e377dc8274c12c80b85558cc9a62527de72a2d004bae0a"
+      },
+      "interface-reference.h": {
+        "source": "prepared-driver",
+        "sha256": "307538acc32bb62d64d55730d77611fea783b7995ac0e7d8f0b8e32bfe932503"
+      },
+      "interface-registry.h": {
+        "source": "prepared-driver",
+        "sha256": "bb789eb32871ab1c97b98d57d29c254242fb6e9411e7acdf22afd96b4a2bb541"
+      },
+      "ra2-association-owner.h": {
+        "source": "prepared-driver",
+        "sha256": "73c2642ace3bdc03cbe80fe27a62f7cfb9ca2313f3008eb7e4a6b888f661df1a"
+      },
+      "ra2-rekey-admission.h": {
+        "source": "prepared-driver",
+        "sha256": "0e34779ae7e782daaeb05d0ee8cb0f2c5cc5b88c6dac59d48cdc94b7d3841979"
+      },
+      "radio-transition-api.h": {
+        "source": "prepared-driver",
+        "sha256": "7cb51bc18daf93617e4052b469f60540df818e46f1cb6f1d983bedacb99c8d51"
+      },
+      "radio-transition.h": {
+        "source": "prepared-driver",
+        "sha256": "7cb51bc18daf93617e4052b469f60540df818e46f1cb6f1d983bedacb99c8d51"
+      },
+      "virtual-open-claim.h": {
+        "source": "prepared-driver",
+        "sha256": "8bb2017fae17f18ef6d31e50dc577aeb9db83497b049d246b36b29b1677a913b"
+      },
+      "ft-iapp-peer-admission.h": {
+        "source": "probe-helper",
+        "sha256": "0793a347bd8787c292bda41b5e7e87bb135ab286d35786fd65374c61c19bdace"
+      },
+      "ft-iapp-pending-admission.h": {
+        "source": "probe-helper",
+        "sha256": "e969c6987232d3605883172c559d53314408ce1baf4496754e9302bb98f01cfa"
+      },
+      "ft-iapp-request-state.h": {
+        "source": "probe-helper",
+        "sha256": "6c2e1e46cc579c2ecdbb59a2178bfd13db735bd0794140d74f881c9d59ea0369"
+      },
+      "ft-iapp-response-token.h": {
+        "source": "probe-helper",
+        "sha256": "598901dd9778229564fd0095bcb53f6450eca1b5913487632d38276bfdb94d4d"
+      }
+    }
+  },
+  "source": {
+    "dispatch_revision": "29566c76d1dd46c8fa09671004f5f02993aebd00",
+    "requested_revision": "29566c76d1dd46c8fa09671004f5f02993aebd00",
+    "verified_revision": "29566c76d1dd46c8fa09671004f5f02993aebd00",
+    "runtime_verified": false
+  },
+  "run": 44916964158,
+  "conclusion": "success",
+  "artifact": 14712582224,
+  "zip_sha256": "43b2eb25e32f673b3e2e4470f04bf1d1eb03fab7db632fbac1789b4def5217ba",
+  "limits": "Temporary paired FT TUs and successful optional CI; no physical acceptance. Objects not installed by this probe.",
+  "cleanup": "ZIPs in memory only; no extraction retained."
+}
