@@ -1,11 +1,12 @@
 # Repository Phase 1 report — 2026-11-08 (reviewed 2026-11-21)
 
-Status: Phase 1 implementation and lightweight verification are recorded below.
-The detailed local inventory and Phase 1A call-site list remain outside Git
-because they enumerate untracked owner/workspace paths. Any local commit is not
-published; exact-SHA GitHub validation and full WR1200JS image checks still need
-to run after a separately authorized push. No image or device acceptance is
-claimed. Phase 1A source extraction has not started.
+Status as of 2026-11-21: Phase 1 is committed locally at
+`db0d7f02086a4e7c8b6d9e214925e340bcf87dcb`. The detailed baseline inventory
+remains outside Git because it records untracked owner/workspace paths. The
+separate Phase 1A call-site inventory remains a follow-up artifact; no Phase 1A
+source extraction has started. This commit is not published. Exact-SHA GitHub
+validation and full WR1200JS image checks require a separately authorized push.
+No image or device acceptance is claimed.
 
 ## Audit and decision
 
@@ -73,7 +74,8 @@ watch compiler comparison, although the branch list does. See the
 [exact CI evidence](evidence/REPOSITORY-PHASE1-CI-2026-11-08.json).
 It cannot cover this unpublished Phase 1 package. After authorized publication,
 require selected-board validation and full WR1200JS image checks at the exact
-new SHA. Physical acceptance remains separate and deferred by the owner.
+new SHA. No physical acceptance is claimed; runtime acceptance requires
+separate authorization and evidence.
 
 ## Residual work and Phase 1A recommendations
 
