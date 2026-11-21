@@ -1,0 +1,46 @@
+{
+  "run": 44913739953,
+  "source": "10d80c36bd968d2858228ca838035e9ab9e401e8",
+  "artifact": 14710769977,
+  "zip_sha256": "05a213deb6ff94ffbda07794fdadc1066defb63f3b70767c718f6554208648ae",
+  "error": "ap_auth ft_symbols must reference FT_AuthReqHandler as undefined",
+  "compiled_units": [
+    "ft",
+    "ap_auth",
+    "mlme",
+    "mgmt_entrytb",
+    "rtmp_init"
+  ],
+  "independent_AUTH_symbol_receipts": [
+    {
+      "unit": "ft",
+      "variant": "normal",
+      "type": "FUNC",
+      "ndx": "1"
+    },
+    {
+      "unit": "ft",
+      "variant": "-r1kh-hard-retry",
+      "type": "FUNC",
+      "ndx": "1"
+    },
+    {
+      "unit": "ap_auth",
+      "variant": "normal",
+      "type": "NOTYPE",
+      "ndx": "UND"
+    },
+    {
+      "unit": "ap_auth",
+      "variant": "-r1kh-hard-retry",
+      "type": "NOTYPE",
+      "ndx": "UND"
+    }
+  ],
+  "monitor": "44915079162 artifact14711256798 checked; correct job/step but omitted causal must-reference diagnostic. Improve smallest filter before publishing.",
+  "limits": "Five temporary TUs compile in two modes; run failed inventory validation, not accepted module/image/runtime.",
+  "cleanup": "ZIP memory only; temporary object extraction removed.",
+  "correction": "Collect FT_AuthReqHandler in normal and hard-retry target symbol tables; required consumer UND/provider FUNC contract unchanged.",
+  "host_check": "Full FT AUTH checker exit0; AST regression requires AUTH symbol in both real target inventory loops.",
+  "monitor_correction": "Narrow must reference ... as undefined filter with actual1449 fixture and duplicate-suppression check."
+}

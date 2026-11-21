@@ -118,6 +118,14 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     mutation_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'mutation-state')]
     assert 'native mutation definition changed: FT_FtAction' in subprocess.run(mutation_cmd,capture_output=True,text=True,env=mutation_env,check=True).stdout
     assert 'BUILD FAILED:' not in subprocess.run(mutation_cmd,capture_output=True,text=True,env=mutation_env,check=True).stdout
+    # Optional1449: all target objects compiled, but symbol inventory contract failed.
+    symbol_log=root/'ft-symbol-1449.log'
+    symbol_log.write_text('failed prepared FT/MLME/insertion generation MIPS TUs; driver/image unchanged\nap_auth ft_symbols must reference FT_AuthReqHandler as undefined\n##[error]Process completed with exit code 1.\n')
+    fixture.write_text(json.dumps({'workflow_runs':[row(44913739953)]}))
+    symbol_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(symbol_log))
+    symbol_cmd=[str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'symbol-state')]
+    assert 'must reference FT_AuthReqHandler as undefined' in subprocess.run(symbol_cmd,capture_output=True,text=True,env=symbol_env,check=True).stdout
+    assert 'BUILD FAILED:' not in subprocess.run(symbol_cmd,capture_output=True,text=True,env=symbol_env,check=True).stdout
     # ABI899: SystemExit validation lacks a generic error prefix.
     adapter_log=root/'adapter-drift-abi899.log'
     adapter_log.write_text('Installed disable adapter differs: initial-off\n##[error]Process completed with exit code 1.\n')

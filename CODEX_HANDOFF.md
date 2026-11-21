@@ -1,3 +1,22 @@
+## Optional1449 symbol inventory correction — 2026-11-21
+
+Standard1448 and ABI965 succeeded for10d80c36. Optional1449/run44913739953
+compiled all five prepared TUs in normal and hard-retry modes but failed its
+symbol report contract. Both symbol collection loops omitted FT_AuthReqHandler,
+which the final consumer/provider check requires. Independent readelf inspection
+of the four archived ft/ap_auth objects confirms exact global FUNC/UND contracts
+in both modes and matches report object hashes. This is not a successful full
+optional run or installed-module/image/runtime acceptance.
+
+The missing symbol is collected in both loops; contract checks remain strict.
+Full host FT checker passes; regression checks the actual two inventory tuples.
+Monitor44915079162/artifact14711256798 omitted the causal contract line; a narrow
+must-reference/undefined filter and real1449 fixture address it. Preserve exact
+run evidence in WR1200JS-OPTIONAL1449-SYMBOL-INVENTORY-2026-11-21.json.
+Related results/fixes are one publication package, then standard/optional verify
+the new source. No device actions. ZIPs/log read in memory; temporary objects,
+host fixture/compiler/cache output automatically removed.
+
 ## Optional1447 exact prepared-header provenance correction — 2026-11-21
 
 Standard1445/ABI963 succeeded for1a272b79; standard1446/ABI964 succeeded for

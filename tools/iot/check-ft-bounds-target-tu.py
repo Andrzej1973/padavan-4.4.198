@@ -235,7 +235,8 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
             if data[:6] != b'\x7fELF\x01\x01' or int.from_bytes(data[18:20], 'little') != 8:
                 raise RuntimeError('Expected ELF32 LE MIPS '+unit+' object')
             receipts = {}
-            for name in ('wr_ft_mlme_enqueue_for_recv',
+            for name in ('FT_AuthReqHandler',
+                         'wr_ft_mlme_enqueue_for_recv',
                          'wr_ft_pending_enqueue_for_recv',
                          'wr_ft_pending_insert'):
                 rows = symbol_rows(obj, name)
@@ -269,7 +270,8 @@ MAC_TABLE_ENTRY *wr_ft_pending_insert(RTMP_ADAPTER *,UCHAR *,struct wifi_dev *,
                 raise RuntimeError('Expected ELF32 LE MIPS '+unit+
                                    ' R1KH_HARD_RETRY object')
             hard_retry_receipts = {}
-            for name in ('wr_ft_mlme_enqueue_for_recv',
+            for name in ('FT_AuthReqHandler',
+                         'wr_ft_mlme_enqueue_for_recv',
                          'wr_ft_pending_enqueue_for_recv',
                          'wr_ft_pending_insert'):
                 rows = symbol_rows(hard_retry_obj, name)

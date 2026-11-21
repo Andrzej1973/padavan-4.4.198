@@ -47,6 +47,15 @@ assert validation_body.index('unsigned int wr_ft_response_claimed=0;') < validat
 # Validate the target probe's exact copied local-header closure, including
 # nested includes. Vendor headers continue to resolve through native Kbuild.
 probe_tree = ast.parse((here/'check-ft-bounds-target-tu.py').read_text())
+symbol_loops = [node for node in ast.walk(probe_tree)
+                if isinstance(node, ast.For) and isinstance(node.iter, ast.Tuple)
+                and any(isinstance(item, ast.Constant)
+                        and item.value == 'wr_ft_mlme_enqueue_for_recv'
+                        for item in node.iter.elts)]
+assert len(symbol_loops) == 2
+for loop in symbol_loops:
+    assert any(isinstance(item, ast.Constant) and item.value == 'FT_AuthReqHandler'
+               for item in loop.iter.elts), 'AUTH contract symbol omitted from target inventory'
 header_sets = [
     {element.value for element in node.iter.elts}
     for node in ast.walk(probe_tree)
