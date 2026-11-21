@@ -1,11 +1,56 @@
+## Optional1344 independent cold image PASS; extraction cleaned — 2026-11-17
+
+Run44009604392 SUCCESS exact859b; source14296276230 verified. Candidate artifact
+14297650652 download66298 exit0, audit16983 exit0. Recomputed pair contract,
+INITIAL+cold runtime flags, actual normal cold readiness and backend routed
+handoff symbols, board/HWNAT/CRC gates, embedded replacements/MIPS headers,
+module vermagic and actual-path DSO closure PASS. TRX14504172B,
+SHA256bb4a38efa77b1437c83069ea6caaace4778d3cac9e9f04438e57f67194cb4111; free partition1683220B.
+Removed exact owned optional1344-audit using terminal/no-tracked/no-active check:
+182951936 allocated bytes (du, symlinks not followed). Small source/audit/log
+and durable reports kept. No main-image promotion or runtime acceptance.
+Excludes new unapplied direct CGI ACTIVE-arm candidate and persistence work.
+Next integrate host-tested mailbox terminal route after rebind/OFF/legacy
+fixture checks; no more1344 downloads needed absent a new verification need.
+
+## Optional1342 independent candidate image PASS — 2026-11-16
+
+Run43945793832 SUCCESS; source14263754491 confirms dispatch/requested/verified
+502d497e4e0e584ee793d5cad7290aa1a03b54d7. Candidate14266685938 download69918
+exit0, independent audit11336 exit0: recomputed lifecycle pair, target automatic
+INITIAL shutdown symbols, WR board/HWNAT/CRC checks, four embedded replacement
+hashes/three MIPS files, module vermagic and actual-path RC/HTTP DSO closure.
+TRX14503332B SHA25693d16cc83dd77b2a19dde08fbaf9c600af8e3e5897d29f09b3359cd9fe98c10f;
+partition remaining1684060B. Covers502d admission fix, excludes local cold
+readiness/callbacks; candidate not main-image promoted/device accepted.
+Removed owned optional1342-audit extraction+zip197955584 allocated bytes
+(~188.8MiB),700files after terminal audit/no tracked inputs/active audit check.
+Small source JSON/audit generator/log and durable image/cleanup reports kept.
+Next bind host-proven cold parent route/handoff as coherent production package,
+permanent tests and target/manifest gates; cold scratch remains unfinished.
+
 # WR1200JS IoT acceptance ledger — 2026-11-11
 
 IoT is mandatory for the release. The current image is a development checkpoint,
 not an IoT release. Ubuntu24.04 is the default CI host after optional1028
 verification. The existing local WSL installation also runs Ubuntu24.04.5.
-Ubuntu22.04 remains an explicit CI control. Modern WebUI development remains paused.
-This ledger distinguishes implementation from acceptance and supersedes older
+Ubuntu22.04 remains an explicit CI control. The owner resumed Modern settings/apply
+work on 2026-11-20; IoT remains first, with host candidate only and target/image
+integration still open. This ledger distinguishes implementation from acceptance and supersedes older
 "currently running" snapshots only for the checkpoints explicitly listed here.
+
+## New isolated image checkpoint — optional1340
+
+Independent artifact14264323492 from run43943156148 verifies sourceace688d9:
+recomputed lifecycle pair admission, actual normal shutdown readiness/commit
+MIPS object symbols, TRX CRC/board gates, four embedded replacements and actual
+RC/HTTP dependency closure. Image14503248B SHA256
+`134efd87c4c5ec39eb8493e200bcc2c3370aae841a9bd48e65c0898519f19b9b`;
+partition remaining1684144B. Module vermagic4.4.198 verified. Full unchanged
+ROMFS comparison remains CI evidence; independent extraction covered replaced
+files and dependencies. It does not cover later502d admission fix or local
+cold-route candidate. Not main-image promotion or physical runtime acceptance.
+See `../evidence/WR1200JS-OPTIONAL1340-INDEPENDENT-IMAGE-2026-11-16.json`.
 
 ## Current source and image checkpoint — 2026-11-16
 

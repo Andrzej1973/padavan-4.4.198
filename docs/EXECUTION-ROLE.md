@@ -1,3 +1,53 @@
+## Роль прийнята — CheckMIM, 2026-11-19
+
+CheckMIM приймає роль єдиного виконавця після передачі від чату SOL,
+який повідомив про доручення власника та припинення редагування.
+Фактичний доступ до спільного checkout підтверджено локальними pwd/Git:
+`/home/andrzej/padavan-build/router-guide-work`, гілка
+`codex/wr1200js-service-webui`, HEAD
+`eda5fffbe602011f2d26b85640015e478885d2b3`.
+Наявні modified/untracked файли збережено; reset/clean/stage не виконувалися.
+
+GitHub API під час прийняття підтвердив успішне завершення всіх чотирьох
+jobs optional1424/run44548591244, зокрема isolated merged IoT compile.
+Запит workflow runs для поточного HEAD повернув порожній список;
+це не підтвердження CI для eda5fff. На момент первинного запису FT TU звіт ще не був прочитаний;
+подальша незалежна перевірка нижче/в актуальному status підтвердила passed
+лише для тимчасової TU на ead99729.
+
+Наступний пункт — перевірити артефакт optional1424 та FT association-generation/
+BSS provenance згідно з docs/iot/WR1200JS-FT-ASSOCIATION-BOUNDARY.md.
+Prepared FT composers залишаються uninstalled. Host/native, MIPS TU,
+фінальний image і device acceptance залишаються окремими рівнями доказів.
+Пріоритет IoT/ACK/ownership/PCI/DMA/IRQ; Modern залишається на паузі за AGENTS.
+Чотири фінальні варіанти WR1200JS та фізичне приймання ще не завершені.
+Дозволу на device-side дії немає. Важкі збірки лише GitHub; дублікати не запускалися.
+
+## Optional1431 FT/MLME paired TU — 2026-11-19
+
+GitHub run 44576631105 (#1431) завершився success для exact revision
+8fb2bbe6d4575e5f0c683a2087177ad8fca14bd7. Артефакт
+`iot-merged-driver-probe` (14558891245) має API та незалежно обчислений
+SHA256 `9f26fad9b19c8153d0dd181d238ea3203630a3cec4a90a6ada9457b83688da6d`;
+ZIP CRC пройшов. `ft-bounds-target-tu.json` reports `passed` для тимчасових
+підготовлених FT та MLME translation units із DOT11R_FT_SUPPORT,
+CONFIG_AP_SUPPORT, MT7603, MT_MAC і RTMP_PCI_SUPPORT. FT object має GLOBAL
+UND посилання `wr_ft_mlme_enqueue_for_recv`; MLME object визначає GLOBAL FUNC
+із цією назвою. Деталі та object hashes збережені в
+`docs/evidence/WR1200JS-OPTIONAL1431-FT-TU-2026-11-19.json`.
+Це підтверджує paired target TU та symbol contract лише для prepared source;
+`module_installed=false`, `runtime_verified=false`. Повний workflow успішний,
+але готовий модуль та пристрій цим не прийняті.
+
+Наступний відкритий крок лишається FT association-generation/BSS provenance
+та кореляція IAPP key-response completion з активним запитом. Додатково
+зафіксовано, що prepared enqueue вимагає наявного active peer stamp і може
+відкинути native RRB шлях до його пізнішої FT station insertion; ordinary RX
+FT action і далі має zero-stamp/native маршрут. Потрібно закрити обидва шляхи й
+fresh-peer semantics до будь-якої установки. Prepared FT composers лишаються
+uninstalled до замикання identity/lifetime/arbitration; Modern лишається на
+паузі, router дії не дозволені.
+
 ## 2026-11-02 Роль прийнята — Sol (gpt-6.1-sol)
 
 За прямою вказівкою власника Sol приймає роль єдиного виконавця у

@@ -46,3 +46,58 @@ existing `prepare-peer-legacy-close.py` already adds a1000-poll limit, propagate
 radio-off refusal and guards replay; `peer-close-executor.inc` serializes legacy
 and checked bodies. Verify the actual composed candidate before changing this
 path. Do not duplicate or remove its existing ownership checks.
+
+RC result gap: existing prepare-legacy-close-result.py propagates checked
+status through RTMPDrvClose, OS_ABL dispatch, VIRTUAL_IF_DOWN and immediate
+driver consumers. This alone does not provide an RC completion receipt:
+prepared stop/restart remain void calls to wif_control. Before permitting a
+post-OPEN physical restart, prove how RC observes the result of that exact
+physical teardown and prevents reload/open on a retained failure. Do not
+translate syscall return or software CLOSED into a new hardware certificate.
+
+Initial-only callback now uses a fresh double initial-idle observation for
+every invocation, including retained INITIAL_OFF after adapter replacement.
+The original public OFF result keeps its own epoch and is not rewritten.
+
+Confirmed pinned Linux boundary: `net/core/dev.c:1417-1425` calls
+`ops->ndo_stop(dev)` without testing the returned value, clears `IFF_UP` and
+returns zero. A vendor negative close result therefore cannot be assumed to
+reach RC through SIOCSIFFLAGS. Keep generic netdev behavior unchanged; design
+and validate a separate exact completion observation before post-OPEN restart.
+
+Pending task-binding choice must be resolved before driver hooks: `wif_control`
+spawns shell/ifconfig, so a record armed by a synchronous PID1 ioctl cannot
+require the same task in subsequent ndo_stop. Passing a numeric PID or accepting
+any close task is insufficient. Either a retained child must arm and execute
+its own close with references held until parent observation, or one explicit
+serialized Linux driver operation must perform arm/close/report in the same
+pinned task. Audit reentrancy, RTNL and ioctl-entry lifetime before choosing.
+Current metadata helpers cannot resolve this binding by themselves.
+
+Confirmed composed execution path: `prepare-main-physical-close-delegation.py`
+changes MainVirtualIF_close so WR_RADIO_CLOSE submits the existing main recovery
+owner/work outside ndo_stop RTNL. Therefore same-task SIOCSIFFLAGS does not
+imply same-task RTMPDrvClose/checked body execution. The physical executor
+transform currently hooks the synchronous legacy lane only and cannot serve
+this production candidate path. Installer now refuses the detected delegated
+checked-close shape before output creation. Keep the source-only legacy tests
+as limited fixtures, not physical path acceptance. Next binding must consume
+the exact retained main recovery ticket/owner at worker entry and after its
+module-reference receipt; do not weaken task matching to accept any worker.
+
+Local exact Main recovery software receipt now survives joined netdev release.
+`wr_iot_main_recovery_release_for_ticket` requires the retained Main physical
+close ticket plus Main generation/OPEN token and revalidates current registry
+and radio state. The previous ra2 CLOSE tuple cannot substitute for this Main
+identity. The physical-stop handler must bind that Main ticket when submitted;
+calling only the current-state observer is insufficient. This handler binding
+is still absent. Neither accessor certifies hardware retirement.
+
+Capture admission now also requires expected Main generation and OPEN token
+from the ARM-time kernel snapshot, rather than accepting whichever newer
+recovery owner exists at QUERY time. A larger radio serial alone is insufficient
+request correlation. The future handler must hold the existing lifetime fence
+across ARM/submission/capture and compare these saved Main values; userspace's
+ra2 generation/token cannot substitute for Main's separate registry identity.
+The source helper enforces equality, but the handler/caller snapshot remains
+unimplemented and must not be claimed integrated.

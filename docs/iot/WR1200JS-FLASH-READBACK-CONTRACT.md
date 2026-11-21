@@ -321,3 +321,32 @@ route/auth/metadata checks after actual prepare-http transformation. The current
 40-step source preflight includes this composed test. The package is still local;
 full frozen-package regressions, target/image checks and physical acceptance are
 outstanding, and configuration_flash_bound is not upgraded on host evidence.
+
+## Local draft: nonsecret configuration view
+
+`tools/iot/config-view.h` validates one complete canonical saved record and
+copies only enabled state, SSID, subnet/DHCP fields and a key-present flag.
+Its public structure has no password or canonical-record storage. Temporary
+decoded credentials and encoded bytes are wiped on every return. Invalid,
+truncated and oversized inputs preserve the destination. The focused host
+ASan/UBSan check verifies identical complete view bytes for two distinct keys.
+
+This helper has no IPC, HTTP serialization or target staging yet. Its caller
+must capture the original record under the existing configuration guard.
+It does not supply an edit token, prove a loaded profile or permit activation.
+The remaining read endpoint must bind an opaque nonsecret revision to a
+retained RC snapshot, serialize text safely, and reject stale edit submissions.
+
+## Next local draft: Classic edit key retention
+
+Classic remains the pending page, with no complete editable provisioning form.
+config-edit.h now resolves KEEP/REPLACE only against an exact private canonical
+revision captured under the caller's guard. KEEP carries zero replacement bytes;
+REPLACE requires a fully valid profile/key. Revision mismatch refuses unchanged
+output, so a concurrent update cannot silently substitute another password.
+Credentials and canonical revision strings are internal RC data, never browser
+revision tokens. A future browser token must be opaque and nonsecret, with a
+retained RC mapping; do not send the canonical record to the browser. This helper
+has no wire/caller/staging and does not solve that token/readback/form integration.
+Host C11/Werror/ASan/UBSan tests pass for retained and replaced keys, mismatch,
+invalid/empty/hidden replacement and aliased output. No NVRAM or device action.

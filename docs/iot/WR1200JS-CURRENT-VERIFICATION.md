@@ -12,7 +12,7 @@ Current published driver source is 7334562620fb6c9961a72bc5e8ce9de01920bc16.
 | Saved versus applied configuration | package-candidate-pair.py still requires configuration_flash_bound=false and configuration_loaded_promotion_bound=false. Complete owned saved/loaded integration before promotion; preserve current settings. |
 | Main image | Isolated packaging exists; production installation remains false. Do not flip readiness flags to substitute for integration. |
 | ACK and PCI/DMA/IRQ | Preserve current protections and established resource owners. Host/source/target evidence does not establish physical completion or safe device acceptance. |
-| Modern/Band Steering/Zapret2 | Modern changes remain paused by owner repository rule. Continue IoT first; retain required follow-on verification. |
+| Modern/Band Steering/Zapret2 | Owner resumed Hybrid Modern settings/apply work on 2026-11-20; IoT remains first. Modern IoT host candidate reaches native HTTP handlers and actual mailbox submission/claim; RC persistence, target/image integration and device acceptance remain open. Preserve Band Steering. |
 | Final release | Four HybridModern variants (Classic present/absent × CAKE present/absent), image/config/release gates and separately authorized device acceptance remain required before Mi Mini. |
 
 CI snapshot: standard1409,1410,1411,1415 succeeded. ABI948–950 succeeded;

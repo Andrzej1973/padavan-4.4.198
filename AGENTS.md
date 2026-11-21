@@ -1,3 +1,43 @@
+## Hybrid Modern resumed by the owner — 2026-11-20
+
+The owner explicitly resumed Hybrid Modern settings integration and apply
+verification. This supersedes the 2026-11-11 WebUI pause for that work. IoT
+remains first priority; preserve current settings, Band Steering and router
+access. Use existing authenticated configuration/service paths. Host candidate,
+target compilation, final image and physical acceptance remain separate.
+No device-side changes are authorized by this resumption.
+
+# Shared Padavan Linux workspace
+
+Active code checkout is the Linux repository below. Sol is sole writer. Windows source is frozen for preservation. Full historical migration and deletion acceptance remain pending.
+
+After verified migration, all three agents use one repository at
+`/home/andrzej/padavan-build/router-guide-work` in Ubuntu-22.04. Windows UNC:
+`\\wsl$\Ubuntu-22.04\home\andrzej\padavan-build\router-guide-work`.
+
+Read router-guide-work/AGENTS.md, PROJECT_STATUS.md, CODEX_HANDOFF.md,
+docs/AGENT-BOOTSTRAP.md and docs/EXECUTION-ROLE.md before changing files.
+Preserve all existing rules, Sol/DeepSeek/OpenRouter roles and local changes.
+Sol remains sole writer until a direct human transfer; no concurrent writes.
+Each participant keeps its assigned model and authentication.
+
+The old Windows workspace is archival only after a verified cutover.
+No account-specific clones or worktrees. Do not copy tokens/session stores.
+Private evidence and archives remain private; do not stage them for GitHub.
+
+Compilation runs in the native Linux filesystem. Begin small builds with
+one worker and measure memory/load. Full firmware and broad matrices run on
+GitHub. Do not start duplicate runs for an already active commit.
+No full local firmware build, flash, reboot or router mutation by default.
+
+## Local Helper & Validation Rule
+
+For tasks involving input length checks, boundary conditions, state/generation tracking, or small text/build helper updates:
+
+1. **Reuse Existing Nim Helpers First**: Check the workspace for an existing local `.nim` helper script before creating a new one. Add new parameters or test cases to it and run it locally via `nim c -r <script>.nim`.
+2. **Keep Logic Local & Neutral**: Perform boundary and state checks locally in `.nim` helpers instead of passing large diffs, raw logs, or inline compiler/patch one-liners through chat. Use neutral systems terminology (input lengths, buffer bounds/remaining capacity, state/generation counters, `PASS`/`FAIL`).
+3. **Report Concisely**: Return only short `PASS`/`FAIL` summary lines, exit status, and minimal file change notes without verbose commentary.
+
 ## Four final WR1200JS variants before Mi Mini — owner requirement 2026-11-17
 
 Complete and verify four final Hybrid Modern images with all agreed fixes:
@@ -402,3 +442,18 @@ the existing cleanup rules. This is standing authorization for the transport,
 not blanket authorization to delete arbitrary files or change system settings.
 Do not change sudoers, account membership or passwords, and do not store the
 Ubuntu password in project files, scripts, logs or memory.
+
+## Local Nim validation workflow
+
+For boundary, input-length, state-generation, and local diagnostic helper
+tasks, first find a suitable existing `.nim` file in the working directory,
+`tools`, or `tests` and extend its parameters, cases, or CLI. Create a new
+`.nim` file only when no suitable helper exists.
+
+Describe inputs and results in precise, neutral terms: lengths, offsets,
+remaining capacity, state-generation, PASS/FAIL, and exit status. Run
+`nim c -r file.nim` and report compact results, counts, and exit code.
+
+Limit changes to the local Nim helper unless driver or firmware integration
+is explicitly requested. A helper does not replace native, target, or device
+verification.

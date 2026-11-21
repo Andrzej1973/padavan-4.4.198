@@ -327,3 +327,206 @@ The earlier full suite PASS covers the pre-guard source hashes only. The new
 regression is registered; broad target/prepared verification for this revision
 is still required. INITIAL_OFF physical origin remains unimplemented and the
 production route remains unarmed.
+
+## Initial-idle physical provenance implemented locally — 2026-11-15
+
+`physical-initial-origin.h` captures a distinct never-opened origin from the
+actual accepted current precreated-idle probe plus an already acquired exact
+Main lifetime. Main registry generation/token must still equal that lifetime;
+observation serial must be current/retired and no active TX is allowed. Capture
+is one-shot. It does not call or fabricate CLOSE, seal the peer table or change
+old physical request validity.
+
+A read-only history predicate checks the same published ra2 registration with
+zero OPEN/CLOSE history even after Main is DOWN, when the live READY-only idle
+predicate cannot be used. A separate Main binding checks the retained lifetime
+identity. Neither function proves Main completion: the actual release checker
+and checked shutdown stages remain required, along with peer-table exclusion.
+No ARM endpoint or completion certificate is installed by this header.
+
+The fixture uses actual idle probe begin/finish and Main lifetime acquisition.
+It covers absent observation/lifetime, changed Main token before capture,
+duplicate capture,12 ra2 history/registration faults, post-DOWN origin and foreign
+Main lifetime refusal. ASan/UBSan PASS after initializing fixture device sentinels
+to satisfy GCC maybe-uninitialized analysis. Suite-registered; no MIPS/driver
+binding/runtime proof yet. Next integrate distinct Linux initial-idle ARM origin,
+query/release and real peer-table exclusion without weakening CLOSE-origin flow.
+
+## Initial origin composed with actual Main release — 2026-11-15
+
+Added transition-lock-only `wr_iot_physical_initial_main_released`: same initial
+origin/Main lifetime, unchanged never-opened ra2 history, advanced radio epoch,
+and existing exact Main lifetime release predicate. Fixture now executes actual
+Main stop ticket, preclose, recovery queue/begin, checked DOWN, native completion,
+module-pin release and netdev release state transitions. It refuses before
+netdev-reference return and with nonzero final vendor count, accepting only after
+the exact release. These state transitions use software receipt actors and are
+not physical hardware proof.
+
+Source audit corrected the earlier idea of holding a new peer-table reservation:
+`peer-close-table.inc:wr_iot_peer_close_hold` itself needs the existing table
+owner available, checks actual MacTab/tr entries empty, then starts its own serial.
+`wr_iot_peer_close_finish` produces a real closed seal after native close. Holding
+a new active owner across Main stop would block that established path. Do not
+introduce such a reservation or assign closed1 merely to satisfy initial-idle
+completion. Instead eventual distinct initial ARM must retain the existing Main
+lifetime and validate actual peer close/executor/stage outcomes with disjoint
+locks. No global table state machine changes were made.
+
+The initial origin still is not bound to a typed ARM/QUERY/RELEASE endpoint.
+Those bindings, table/executor completion and target/device acceptance remain
+required. Production route remains unarmed.
+
+## Distinct initial-origin Linux wire implemented locally — 2026-11-15
+
+`physical-initial-wire.h` defines64-byte WPIQ/WPIR requests/replies with full
+64-bit adapter epoch, ra2 generation, accepted IDLE observation serial, driver
+attempt and nonce. It reuses only existing action/status meanings. There are no
+OPEN token or CLOSE serial fields. Existing WPSQ/WPSR CLOSE-origin syntax and
+validation are unchanged. ARM requests have attempt0, ARM replies require the
+assigned nonzero attempt; later actions match it exactly. Reserved bytes must be
+zero, errors clear decoded output, and reply matching compares every identity.
+
+Host sanitizer fixture covers both protocol discriminators rejecting each other,
+request/reply separation, header/reserved corruption, all4 action/status paths,
+stale epoch/generation/idle/nonce/status rejection and cleared failures. Initial
+origin/Main-release regression also passes. This defines syntax only; no kernel
+endpoint, ARM publication, QUERY completion, RELEASE pins or RC initial dispatch
+is installed. No firmware protocol/ACK or shared queue change was made.
+
+## Initial-origin attempt bound to wire and Main ticket locally — 2026-11-15
+
+`physical-initial-record.h` joins the accepted initial origin/lifetime to a
+serialised exact task/nonce/epoch/generation/idle-serial attempt. ARM is one-shot;
+a lost reply can read the same ARMED attempt without acquiring another record.
+RUNNING requires the exact captured Main CLOSE ticket after the idle serial.
+QUERY only reads the current record; wrong task/attempt and premature RELEASE
+refuse with cleared output. The composed fixture runs actual Main close/recovery
+and reference-return transitions while reading initial wire replies.
+
+Main reference return alone deliberately leaves this record RUNNING. COMPLETE
+publication still needs real peer-table close/executor idle and checked shutdown
+stage binding, not an endpoint caller boolean. Reference pins, terminal cleanup
+and installed ARM/QUERY/RELEASE routing remain unimplemented. This metadata is
+not production adapter state yet. Both origin/record composition and wire
+sanitizer regressions PASS; no target/image/device claim.
+
+## Initial-origin checked adapter completion implemented locally — 2026-11-15
+
+`physical-initial-main-completion.inc` samples the exact initial record and
+module/task/Main-netdev pins under MacTabLock, validates immutable origin and
+actual Main lifetime/netdev-reference return under transition lock, and requires
+shutdown2/radio-off4/virtual-down2. It then rechecks exact attempt/task/pins plus
+native peer-table closed/no active/retained/poisoned/transactions and idle close
+executor under MacTabLock before publishing COMPLETE with the observed epoch.
+Locks never nest; RTNL and caller lifetime remain mandatory. Duplicate completion
+is read-only and requires the same epoch. No DOWN, allocations, puts or firmware
+operations occur in this function.
+
+The fixture compiles and executes this exact adapter fragment with actual idle
+and Main close/recovery/reference lifecycle helpers. Vendor struct/lock/pin
+boundaries are injected;8 stage/pin/table/executor/history/count/lifetime failures,
+missing table seal, missing RTNL and changed epoch refuse. Actual table begin/
+close_seal helpers produce the fixture seal, not a boolean argument. ASan/UBSan
+PASS after correcting fixture prepared transition-header selection and insertion
+position. Origin/record and wire tests also PASS.
+
+This fragment is not installed in adapter or dispatched yet. Initial-origin
+pins acquisition/publication, cancel/release reference returns and terminal
+retries still need binding. No physical RF/DMA/IRQ/device acceptance is claimed.
+
+## INITIAL_OFF ARM pin publication implemented locally — 2026-11-15
+
+`physical-initial-arm-publication.inc` validates the actual accepted idle probe,
+Main lifetime and ra2 registration under transition lock, then checks the free
+native pin slot, exact caller-acquired pending bundle, old CLOSE record idle,
+peer-table availability/no transactions and idle executor under MacTabLock.
+Only a successful initial record ARM transfers the bundle; all refusals leave
+its task/device/module fields with the caller. It never calls acquire/drop or
+puts under a lock. RTNL and retained Main lifetime protect publication across
+disjoint lock snapshots; exact vendor adapter/control/boot conditions are gates.
+
+The composed fixture executes this exact fragment plus origin and Main completion
+helpers:7 refusal gates preserve local refs, success transfers once, duplicate
+cannot allocate another record, and old CLOSE owner blocks initial publication.
+ASan/UBSan PASS. Kernel acquire/drop are not executed in this test: those existing
+native helpers require a full terminal caller composition still to be built.
+No adapter-field preparation, endpoint dispatch or device installation yet.
+
+## Native reference acquisition/unpublished unwind composed — 2026-11-15
+
+The publication fixture now executes actual `physical-stop-pins.inc` acquire and
+drop helpers rather than assigning a successful bundle. Injected kernel ref
+primitives count module/task/device references and assert no adapter lock held.
+Module-get refusal acquires nothing; a real publication refusal retains local
+references, native drop balances all3 once, and a duplicate drop refuses. A
+second acquire followed by successful publication retains all3 refs in the
+adapter slot, with empty local drop refusing. The eventual terminal detach/drop
+is intentionally still missing; this test does not free the published bundle or
+claim completed native lifetime. ASan/UBSan PASS. This supersedes the earlier
+statement that the publication fixture does not execute acquire/drop helpers.
+
+## Initial pin detach primitive and native CANCEL return locally verified
+
+`physical-initial-pins.inc` separates MacTab-locked exact bundle detachment from
+native reference drops. It requires same current task/attempt/nonce and a free
+local destination. CANCEL requires ARMED without completion epoch; RELEASE
+requires COMPLETE with an advanced completion epoch. It clears slot and record
+task before returning the detached local bundle. It does not end Main lifetime
+or publish a terminal response. Caller must first validate exact Main cancellation
+or release under the transition lock and maintain RTNL/outer lifetime.
+
+The publication fixture now detaches its actually acquired/published bundle for
+CANCEL, verifies no reference decrement inside the lock, drops module/task/netdev
+outside locks once, and refuses wrong RELEASE/stale attempt/duplicate detach.
+Native ref counters return to baseline. ASan/UBSan PASS. This is the low-level
+CANCEL pin-return path only: safe Main cancellation admission, COMPLETE RELEASE
+composition, persistent terminal retries and endpoint routing remain required.
+
+## Initial CANCEL Main preflight composed locally
+
+`wr_iot_physical_initial_cancel_current` validates exact origin/lifetime, no
+captured Main ticket, idle Main recovery without deferred/netdev owner, zero
+active TX and the same current accepted idle probe/epoch/serial. It rechecks the
+live Main registration generation/open token. Tests show CANCEL stops being
+eligible immediately after Main stop ticket admission, even before the initial
+record moves to RUNNING. Active TX/deferred recovery refuse too.
+
+The native pin publication fixture now executes this preflight under its
+transition-lock actor, then separately detaches under its MacTab actor while
+retaining outer lifetime/RTNL. Actual native drop balances references outside
+locks. Publication and actual completion fixtures PASS ASan/UBSan. A production
+terminal wrapper and durable PID-reference reply cache are still required to
+make the whole preflight/detach/drop/lifetime-end sequence an installed API.
+
+## Initial terminal PID-reference cache composed for CANCEL locally
+
+`physical-initial-terminal.inc` prepares a separate PID-reference cache using
+get_pid(task_pid(current)). It cannot reply until commit inspects exact record,
+request identity, returned pin slots and ended matching Main lifetime. No caller
+completion booleans substitute for those structures. CANCEL requires detached
+ARMED/no completion epoch; RELEASE requires detached COMPLETE/advanced epoch.
+Exact repeated reply is read-only and checks current PID-reference identity;
+cache clear drops the PID reference outside locks once.
+
+Composed CANCEL fixture executes actual native acquire, ARM publication, cancel
+preflight, exact pin detach, native3ref drop, actual lifetime end then terminal
+commit. Commit/reply refuse before references return and again before lifetime
+end. Repeated exact response performs no extra puts; foreign PID/nonce refuses,
+commit/clear occur once. Kernel ref primitives remain injected. ASan/UBSan PASS.
+RELEASE cleanup composition and an installed serialized terminal wrapper still
+need verification; this cache is not an endpoint or physical acceptance.
+
+## Checked COMPLETE to native RELEASE and PID replay composed locally
+
+`check-physical-initial-release.py` extends actual Main lifecycle/completion and
+terminal composition. Native pins_acquire obtains the test RELEASE bundle via
+injected kernel reference primitives. It refuses detach while RUNNING, then
+uses actual initial pin detach after checked COMPLETE, returns all3 references
+outside locks and ends the same actual Main lifetime. Terminal commit refuses
+both before native drop and before lifetime end. Three RELEASED replies leave
+reference counts unchanged; clearing the PID cache returns its single reference.
+ASan/UBSan PASS. This verifies helper ordering in a composed host fixture, not an
+installed serialized driver terminal wrapper, physical RF retirement or runtime.
+The next implementation must place this sequence in that wrapper, preserve
+partial cleanup state across refusal and route only after adapter preparation.

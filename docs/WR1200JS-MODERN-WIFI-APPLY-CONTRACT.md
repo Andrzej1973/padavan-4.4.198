@@ -1,7 +1,19 @@
-## Work paused by the owner — 2026-11-11
+## Hybrid Modern resumed by the owner — 2026-11-20
 
-WebUI development and activation are paused until a separate explicit owner
-instruction. Current preserved status and resumption steps are indexed in
+The owner explicitly resumed Hybrid Modern settings integration and apply
+verification. This supersedes the 2026-11-11 WebUI pause for that work. IoT
+remains first priority; preserve current settings, Band Steering and router
+access. Use existing authenticated configuration/service paths. Host candidate,
+target compilation, final image and physical acceptance remain separate.
+No device-side changes are authorized by this resumption. Modern IoT host checks
+now carry generated form submissions through native C HTTP handlers and the
+production mailbox submit/claim path. The RC dispatcher-to-saved-config path,
+firmware integration and image/device acceptance remain open.
+
+## Historical WebUI pause — 2026-11-11
+
+WebUI development and activation were paused until the owner's direct
+resumption on 2026-11-20. Current status and continuation steps are indexed in
 [WebUI preservation](webui/README.md). Dated implementation notes below retain
 their original evidence scope.
 

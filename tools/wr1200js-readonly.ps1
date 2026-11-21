@@ -15,6 +15,7 @@ param(
         'radio-ownership',
         'wifi-commands',
         'wifi-stats',
+        'wifi2-stats',
         'wifi-show',
         'iot-baseline',
         'temperature-paths',
@@ -27,6 +28,16 @@ $ErrorActionPreference = 'Stop'
 $sshExe = Join-Path $env:WINDIR 'System32\OpenSSH\ssh.exe'
 $identityFile = Join-Path $env:USERPROFILE '.ssh\id_ed25519'
 $denyBin = Join-Path $env:USERPROFILE '.sbx-denybin'
+
+# WSL-launched PowerShell can inherit PATHEXT=.CPL and omit OpenSSH from
+# PATH. Restore executable discovery for this process before checking the
+# resolved command below. Existing deny-bin and alternate-command checks apply.
+if (-not (($env:PATHEXT -split ';') -contains '.EXE')) {
+    $env:PATHEXT = $env:PATHEXT + ';.EXE'
+}
+if (-not (Get-Command ssh -ErrorAction SilentlyContinue)) {
+    $env:PATH = $env:PATH + ';' + (Split-Path -Parent $sshExe)
+}
 
 $resolvedSsh = Get-Command ssh -All -ErrorAction SilentlyContinue |
     Select-Object -First 1
@@ -91,6 +102,7 @@ done
 '@
     'wifi-commands'   = 'iwpriv rai0'
     'wifi-stats'      = 'iwpriv rai0 stat'
+    'wifi2-stats'     = 'iwpriv ra0 stat'
     'wifi-show'       = 'iwpriv rai0 show'
     'iot-baseline' = @'
 echo IOT_INTERFACE_COUNTERS
@@ -99,8 +111,12 @@ for interface in ra0 ra1 ra2; do
     echo IOT_INTERFACE:$interface
     for attribute in ifindex operstate carrier; do
         if [ -r "/sys/class/net/$interface/$attribute" ]; then
-            echo -n "$attribute="
-            cat "/sys/class/net/$interface/$attribute"
+            value=$(cat "/sys/class/net/$interface/$attribute" 2>/dev/null)
+            if [ $? -eq 0 ]; then
+                printf '%s=%s\n' "$attribute" "$value"
+            else
+                printf '%s=unavailable\n' "$attribute"
+            fi
         fi
     done
 done

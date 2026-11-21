@@ -516,6 +516,16 @@ retained ON identity. This diagnostic is explicitly incompatible with CLOSED
 and refusal decoders; it cannot clear poison, permit retry or release isolation.
 Actual endpoint/client/wire sanitizer tests pass; target/runtime pending.
 
+Physical stop contract correction (local, 2026-11-08): generated RC no longer
+performs administrative ra2-down, bridge detach or gate clearing independently
+when IoT scope exists. It delegates preparation to a strong owning-controller
+boundary. Only exact success permits physical stop/restart; failed preparation
+returns before physical operations. No weak fallback is supplied. This is an
+explicit unresolved integration dependency until the complete controller proves
+closure/recovery; it is not a working activation backend or a shipping image.
+Pinned original RC was fully prepared and actual extracted stop/restart passed
+ASan/UBSan with and without BOARD_WR1200JS. Scope-absent path is preserved.
+
 Shared filter ownership (local candidate, 2026-11-08): existing MT7603 beacon
 recovery runs through an adapter-wide try-owner with monotonic token, acquired
 and released under short BcnRingLock sections. Vendor body remains unchanged;
@@ -524,3 +534,213 @@ including a different BSS reentering. Stale token or serial exhaustion cannot
 release/reuse the owner. Actual generated wrapper sanitizer fixture covers
 reentry, early return, invalid input and non-MT7603 bypass. This does not fence
 physical reset/PCI by itself, perform a new close-flush, or prove RF/TxS retirement.
+
+Local filter lifecycle lease follow-up: admission reserves existing active_tx
+under transition lock before the filter token, with no nested beacon/transition
+locks. Failed token admission rolls lease back; exact-token completion releases
+it and wakes both wr_iot_tx_drain_wait and ticket waiters outside locks. Actual
+PM helper waits on TX-drain; PCI remove requires zero active_tx before disabling
+bus master; reset wrapper obtains radio_begin before raw reset. Generated helper
+sanitizer tests confirm pending reset cannot start until lease exit, intent
+survives exit and blocks fresh filter admission. No hardware reset/RF acceptance
+is inferred; this local change still needs target verification.
+
+
+2026-11-08 published stop-contract checkpoint: d2474f7c stages the strong
+owning-controller boundary, without a backend or weak fallback. Full generated
+RC stop/restart (not only an entry prefix) passed WR/other-board host sanitizer
+checks, including first/second refusal and all radio/reload combinations.
+512 independent gate/owner combinations include empty, zero and invalid values.
+Second refusal occurs after stop_8021x_rt, so service preservation/recovery is
+not claimed. See evidence/WR1200JS-IOT-RADIO-STOP-CONTRACT-2026-11-08.json.
+Target ABI run42482746476 remains pending acceptance; no RF/DMA/runtime proof.
+
+
+## Two concurrent work streams — owner decision 2026-11-09
+
+ACK/TxS protocol research and pre-reserved IoT implementation proceed
+independently. MCU ACK research is not a blanket gate on cold profile, isolated
+network, DHCP/DNS, firewall or WebUI development. No MCU ACK mechanism changes
+are authorized by this separation.
+
+For ordinary ra2 ON/OFF, prove the complete virtual path keeps an owned Main
+radio reference and does not call physical open/close, profile regeneration or
+channel scan. Existing dispatcher host checks cover only their extracted scope.
+A virtual-only operation does not require an invented MCU response receipt;
+if a descendant actually sends an MCU command, its own contract still applies.
+Independently, successful OFF/reopen needs the per-BSS RF/DMA/late-TxS boundary.
+No-restart evidence alone cannot release that gate. Keep isolation and refuse
+unsafe recovery while continuing the independent software integration.
+
+Next implementation sequence: loaded ra2 identity/credentials admission,
+owned virtual open/close integration, scoped bridge/firewall/DHCP transaction,
+then existing WebUI save/apply/status integration. Preserve default OFF and
+Main/Guest configuration. Each package needs exact-source target verification;
+physical acceptance remains a separate authorized stage.
+
+Immediate composition check: connect reserved RC operation dispatch to actual
+MBSS admission with separately counted physical open/close, scan and MCU
+submission hooks. Revoke Main ownership between admission and submission and
+require refusal. Zero counters prove only the tested composed path, not
+hardware TxS retirement or every security/station descendant.
+
+The initial controller/admission composition is now covered by
+`tools/iot/check-precreated-mbss-composition.c` and optional CI. It uses the
+actual activation header and staged admission include through existing host
+fixtures: valid Main admits ra2, revocation after RC readiness refuses before
+raw mutation, and unknown retirement retains recovery/isolation. This is not
+the actual production RC binding or proof of hardware restart/scan counters;
+raw IO and network mutations remain injected. Full descendant tracing remains
+required. Evidence: [composition check](evidence/WR1200JS-IOT-PRECREATED-MBSS-COMPOSITION-2026-11-09.json).
+
+### Global beacon descendant found during raw-path audit
+
+Pinned nonzero-reference virtual UP calls APMakeAllBssBeacon and
+APUpdateAllBeaconFrame. For HIF_MT, the per-BSS Make function returns early,
+but the All helper still calls AsicSetMbssMode; UpdateAll unconditionally
+advances shared DtimCount and iterates all BSS. Extracted source confirms
+that each invocation advances DTIM (2→1→0→2 for period3). This is a host
+counterexample to treating these hooks as state-free, not proof of an observed
+client outage. Existing mocked beacon-hook tests do not cover this behavior.
+See [source/DTIM evidence](evidence/WR1200JS-IOT-VIRTUAL-OPEN-BEACON-DESCENDANTS-2026-11-09.json).
+
+Before changing the dispatcher, establish which scoped beacon update and
+MBSS slot/MMIO operations are required for ra2. Preserve the ordinary TBTT
+DTIM advance and Main/Guest TIM state; do not simply delete global helpers.
+This issue is independent of MCU ACK reuse and strengthens the need for
+whole-path evidence before claiming harmless ordinary IoT toggling.
+
+Scoped-refresh review: direct APUpdateBeaconFrame(ad,2) reads current DTIM
+but has silent early returns and shares BeaconPkt with periodic preparation.
+The producer gate pins lifetime; its active counter permits multiple builders.
+Prefer evaluating deferred first beacon on the normal periodic updater after
+verified cold BSS/slot/MMIO provisioning. Do not report ACTIVE until a current
+generation's accepted submission is observed. This remains a proposed binding,
+not an applied driver fix. MBSS_Close also invokes global helpers and must be
+covered by the eventual reserved-only change. Preserve Main/Guest/other-chip
+legacy paths and the ordinary periodic DTIM/coexistence behavior.
+
+### Staged first-beacon host receipt
+
+`tools/iot/precreated-first-beacon.h` binds one pending activation to device,
+netdev/producer generation, radio epoch, open serial and monotonically increasing
+request generation. A periodic producer must capture that identity before
+building, then report checked host submission under the same receipt lock.
+Only a matching submitted receipt with revalidated ownership may complete it.
+Timeout/cancel invalidates the pending receipt; stale producers cannot satisfy
+a later request. The helper has no clock, performs no wait or driver mutation,
+and is not installed in the driver. No packet cookie or firmware protocol was
+added. First host submission is not RF acceptance or late-TxS retirement.
+
+C11 ASan/UBSan fixture is in optional CI; see
+[first-beacon receipt evidence](evidence/WR1200JS-IOT-FIRST-BEACON-RECEIPT-2026-11-09.json).
+Actual binding must preserve current admission/ticket lifetime and place the
+receipt after verified TX publication, not after VOID APUpdateBeaconFrame.
+Pinned PCI HAL maps to RtmpPCIMgmtKickOut (`include/iface/rtmp_inf_pcirbs.h:53`);
+the beacon path maps DMA, writes descriptors and advances/publishes CIDX
+(`common/cmm_data_pci.c:750–840`). Its raw return alone must not be promoted
+to hardware acceptance. Validate effective candidate refusal paths, ring
+ownership and DMA mapping checks before selecting the receipt hook.
+
+### Final composition correction and scoped UP candidate
+
+The base producer gate permits multiple pins, but final `prepare-driver-api.py`
+already makes the exact MT7603/BssidNum3/BSS2 builder exclusive and checks
+WrBeaconDmaOutstanding while retaining its pin. The final submit ABI also
+returns checked host publication status; the pristine VOID signature is not
+the final candidate contract. Earlier base-fragment concurrency/VOID warnings
+must not be read as absent protections in the final generated driver.
+
+The API generator now scopes the claimed-UP global beacon update: exact
+MT7603/HIF_MT/BssidNum3/BSS_OPEN for the reserved third device skips the extra
+APUpdateAllBeaconFrame. APMakeAllBssBeacon stays in place for existing slot/MAC
+setup; other devices/chips/operations and periodic updater remain unchanged.
+The existing reserved CLOSE path already suppresses UpdateAll. This candidate
+removes the extra global DTIM tick; it does not yet bind first submission to
+activation or prove complete Main/Guest RF preservation. Native extracted-guard
+ASan/UBSan passed; final composition/target build remains pending.
+
+### Producer capture and checked publication hooks
+
+`first-beacon-composition.py` now stages per-adapter receipt/capture storage,
+initializes it and inserts capture after exclusive ra2 producer admission.
+The publication hook runs under BcnRingLock after the checked HAL submission
+path sets BCN_TX_WRITE_TO_DMA. An inactive/unarmed receipt changes no driver
+admission behavior. New helpers refuse arm while a producer is active and
+compare the captured identity at publication. `ready` is a non-consuming wait
+condition; `finish` remains a terminal consume requiring current owner validation.
+
+No routed arm/wait/finish endpoint or production activation was enabled. Exact
+source/target integration and a bounded wait with pinned adapter/netdev/config
+lease remain required. Host publication is not RF delivery, DMA completion or
+late-TxS retirement. [Local hook evidence](evidence/WR1200JS-IOT-FIRST-BEACON-HOOKS-2026-11-09.json).
+
+### Isolated OPEN now requires a bounded publication receipt
+
+The isolated API OPEN successor waits after successful dev_open. A post-open
+owner snapshot requires the consumed task-owned request, retired exact ticket,
+matching epoch/generation, current Main/IoT owned references and vendor count.
+One budget of at most3000ms covers idle/arm plus publication; no spinlock
+spans sleep. The condition checks are non-consuming. Terminal success also
+revalidates owner and producer generation. Failure poisons only this current
+operation and retains references/recovery identity; it does not close/restart
+the radio or invoke global refresh. The ordinary mandatory owner-leave check
+still runs. Production RC/backend and device acceptance remain pending.
+
+The host fixture now covers immediate conditions, repeated/spurious no-event
+checks, late idle wake, rejected/no publication, cancellation, changed owner/
+generation and shared budget. Scheduler, jiffies, MMIO and netdev callbacks
+remain injected. [Bounded wait evidence](evidence/WR1200JS-IOT-FIRST-BEACON-WAIT-2026-11-09.json).
+This updates the earlier staged/unbound wait status for the isolated candidate
+only; it does not prove RF delivery or safe late-TxS retirement.
+
+### Publication confirmation reaches RC readback
+
+An internal receipt flag now distinguishes configured/owned OPEN from
+confirmed host publication. Reserve clears prior confirmation; terminal wait
+success marks it only after fresh locked owner/claim validation. OPEN_CURRENT
+requires the exact confirmed value1. Configuration-only receipts still allow
+checked CLOSE admission so cleanup is not blocked by missing publication.
+This changes internal metadata only, not Linux wire layout or firmware ACKs.
+
+The optional hook build exposed a real source-format defect before compilation:
+common/cmm_mac_pci.c uses a tab in its rt_config include. The composer now
+accepts exactly one anchored space/tab form and tests the real pinned file.
+Exact source/host evidence: [publication and include fix](evidence/WR1200JS-IOT-PUBLICATION-RECEIPT-AND-INCLUDE-FIX-2026-11-09.json).
+No device or target success is inferred from these checks.
+
+### RC OPEN result now verifies current publication readback
+
+After a successful OPEN syscall and descriptor close, the client now performs
+one OPEN_CURRENT query with the same original nonce/epoch/netdev generation.
+Only a valid current reply returns OPEN_COMPLETED. Missing/corrupt readback or
+readback socket/ioctl/close failure returns OPEN_UNCERTAIN; tracked callers keep
+the original attempt for recovery and never repeat OPEN automatically. This
+observation remains a snapshot, not a CLOSE lease or RF/network acceptance.
+
+The lower PCI map path was independently traced: PCI_MAP_SINGLE aliases
+RtmpDrvPciMapSingle, which normalizes Linux dma_mapping_error to0. The existing
+candidate rejects0 before ring-cell/CIDX mutation; no duplicate driver check
+was needed. [DMA source evidence](evidence/WR1200JS-IOT-DMA-MAP-NORMALIZATION-2026-11-09.json).
+[RC readback host evidence](evidence/WR1200JS-IOT-RC-PUBLICATION-READBACK-2026-11-09.json).
+
+### Exact RC target evidence and no-HostTxS alternative review
+
+ABI42680541940 for b8cd491 completed successfully. Artifact13703080712
+contains actual ELF32 little-endian MIPS RC client object11420bytes,
+SHA25633f06845655b06a27e492ad1182aa94812195ca5412e215fa294c493e6df1b2d.
+Its OPEN-submit relocation references wr_iot_driver_open_current_read,
+confirming the added readback call in the target object. This is translation-
+unit evidence with the ABI workflow's fixed toolchain, not full RC linking,
+production installation, firmware source-compiler equivalence or runtime.
+[RC ABI evidence](evidence/WR1200JS-IOT-RC-ABI-B8CD491-2026-11-09.json).
+All21 archived host packet checks passed; actual DHCP/DNS transactions, IPv6
+NDP and target runtime remain unverified. The same prepared-RC report still
+explicitly has activation_integrated=false and radio_stop_controller_bound=false.
+
+A per-BSS no-HostTxS beacon alternative was reviewed without patching. The
+long descriptor allocates PID before enabling host status; clearing the bit
+afterward strands the allocation. DMA_DONE does not make the existing beacon
+state IDLE. Removing that dependency requires a new pacing/RF boundary, so the
+short-template HostTxS0 is insufficient proof.
+[Alternative review](evidence/WR1200JS-IOT-NO-HOST-TXS-ALTERNATIVE-REVIEW-2026-11-09.json).

@@ -138,3 +138,17 @@ in the next coherent CI verification before claiming a root cause. Keep22 defaul
 Optional1018/43058250743 (22) and1019/43058278935 (24) verify exact4f80200/iot/peer82;
 dispatched only after both standard successes, with no matching optional active.
 Their target/feature results and device acceptance are still pending.
+
+## Generated library flag capture
+
+`tools/collect-curl-build-provenance.py` records bounded, selected generated
+CMakeCache/flags.make/link.txt and curl Makefile/libtool assignments, plus host
+CMake/libtool/pkg-config/autoconf version headers. It reads metadata without
+executing it, rejects symlink escapes, caps file count and sampled bytes, and
+marks truncation explicitly. The firmware workflow captures this even after a
+failed firmware step when partial files exist; a missing tree is recorded as
+missing, never as successful library verification. Artifact `curl-build-provenance`
+is diagnostic and does not replace any acceptance gate. Offline fixture checks
+selection, multiline assignments, missing input, symlink escape and byte cap.
+Next matched standard pair is needed to observe actual generated HTTP flags;
+existing optional4f80200 remains authoritative for that source's driver checks.

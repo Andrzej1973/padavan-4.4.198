@@ -8,6 +8,54 @@ entries below are historical snapshots; consult the ledger and actual CI.
 
 # WR1200JS separate IoT Wi-Fi implementation contract
 
+## Current execution focus and acceptance boundary — 2026-11-11
+
+The owner deferred Modern WebUI work and directed the executor to continue IoT
+network/driver work toward stable WR1200JS firmware. Modern remains in the
+agreed release scope; do not remove it or continue page/backend development
+while this direction is in force. Mandatory IoT release inclusion is unchanged.
+
+Current verified source checkpoint: d5bee48a89505ef954f96bcf443c8a0d241c4130.
+The reserved-ra2 periodic updater now refuses pending/unknown TxS and non-IDLE
+beacon state while retaining its exclusive producer pin. Its mapped beacon/TIM
+is preserved until a later admitted update; initial beacon creation and the
+shared DTIM tick are unchanged. This is host/source evidence, not firmware
+late-report correlation, RF retirement or physical stability proof. Diagnostic
+hooks remain opt-in and uninstalled in the normal image. See
+[iot/WR1200JS-RA2-PERIODIC-TIM-POLICY.md](iot/WR1200JS-RA2-PERIODIC-TIM-POLICY.md).
+
+ABI43006952508 for66a7ce810cf0246ae03cf21151c972fa4ca3a789 succeeded;
+actual normal/precreated MIPS fixture objects and host reports were inspected.
+Optional1006/43005464137 for requested+verifiedc4895bec3a73e263d87977a481e9c5fe2cf2c0f3
+succeeded. Its actual MIPS module, diagnostic ON/OFF modules and isolated HTTP/
+NVRAM objects were inspected independently; production installation and runtime
+remain false. Evidence files record exact artifact IDs and hashes. These older
+results do not cover the later periodic guard. Standard1007/43010067855 for
+d5bee48a is currently running; after inspecting its result queue the exact-SHA
+optional source/iot/peer82 verification unless an equivalent run already exists.
+
+The network implementation remains staged, not accepted as installed IoT:
+
+- IPv4 subnet/bridge ownership, DHCP/DNS readiness and filtering implementations
+  exist. Native namespace DHCP/DNS and packet evidence does not prove production
+  RC/controller binding or client connectivity on the router.
+- IPv6 is intentionally disabled on the owned IoT bridge and filtered closed;
+  isolated IPv6 internet service is not implemented or claimed.
+- DTB exclusion of ra2/br-iot from HNAT is image policy evidence, not a physical
+  packet-bypass test. Main Wi-Fi/HWNAT preservation remains a runtime gate.
+- OPEN must bind to the loaded key/profile identity and current driver owner;
+  independent preflight readback followed by administrative UP is insufficient.
+- QUIESCE/OFF must prove the relevant RF/DMA/TxS boundary before detaching ra2,
+  removing firewall guards or releasing resources. Administrative DOWN, CLOSED
+  configuration readback and close_stage4 are insufficient.
+- Cold third-BSS reservation, complete RC/controller/driver binding, mandatory
+  IoT final-image inclusion, persisted configuration and physical Main/Guest/IoT
+  acceptance remain unfinished. Do not call the ordinary image IoT-complete.
+
+No router access, reboot, flash or service mutation was performed. Device-side
+operations still require the owner's separate explicit authorization. Historical
+blocks below retain their original dates and are not current acceptance claims.
+
 ## Current acceptance boundary — 2026-11-08
 
 IoT remains **incomplete and not accepted for production**. Cold BSS2 reservation
