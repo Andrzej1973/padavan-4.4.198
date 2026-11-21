@@ -16,7 +16,7 @@
   "new_file_sha256": {
     "Kconfig": "de6176e33328188a0307059bb4a2ae30a4736da5e163cb4649b319f558675f89",
     "os/linux/mi_mini_factory.c": "b6d7cff08c74ef84729b5cd308fb3e28bd65d9e9380c70e2bc97b6f8cfb6d756",
-    "os/linux/mi_mini_platform.c": "74742ad1e52b255ab8519c2408c408666716d03585161b4ce7326b327a8eebed",
+    "os/linux/mi_mini_platform.c": "42b4ffa33bc10cabf54a004f060a8eaa80bd086238a618cb2108b71666067dcf",
     "rt2860v2-ap.Kconfig": "6cb81fbcbddc656090e6ab673e8769239441f828d75674c7fe08167fbf9d7ca8"
   },
   "patch_sha256": "14fb86cc9d44f1335570caafb001e67df188fa9126622fa5aa9ce57979433714",

@@ -20,6 +20,8 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v6
+      - name: Check platform resource refusal before compilation
+        run: python3 overlay/padavan-4.4/candidates/mi-mini/check-platform-resource.py
       - name: Install compiler prerequisites
         run: |
           sudo apt-get update

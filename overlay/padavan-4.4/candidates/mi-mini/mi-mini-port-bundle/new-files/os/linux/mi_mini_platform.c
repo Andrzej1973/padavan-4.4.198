@@ -3,6 +3,7 @@
 #include <linux/errno.h>
 #include <linux/init.h>
 #include <linux/io.h>
+#include <linux/ioport.h>
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
@@ -23,12 +24,16 @@ static int mi_mini_probe(struct platform_device *pdev)
 
 	if (mi_mini_owner)
 		return -EBUSY;
+	/* MT7620 WMAC aperture: checked before mapping or vendor attachment.
+	 * See MI-MINI-DT-RESOURCE-REFERENCE-2026-11-07.json. This does not
+	 * establish clock/reset/pinctrl or calibration ownership. */
+	resource = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!resource || resource->start != 0x10180000ULL ||
+	    resource->end != 0x101bffffULL)
+		return -EINVAL;
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0)
 		return irq;
-	resource = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (!resource)
-		return -EINVAL;
 	base = devm_ioremap_resource(&pdev->dev, resource);
 	if (IS_ERR(base))
 		return PTR_ERR(base);

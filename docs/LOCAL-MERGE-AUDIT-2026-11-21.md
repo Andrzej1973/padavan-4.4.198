@@ -136,3 +136,16 @@ matches for the narrow credential patterns checked and no true runtime/device
 acceptance flags. These checks are triage only: they do not clear private data
 or prove historical results. Keep the detailed per-record review local and
 continue selective source/claim review before publication.
+
+## Preserved deferred Mi Mini source package
+
+The existing dirty Mi Mini LPRD selector, platform-resource guard, matching
+manifest, resource-check helper and workflow step were reviewed as one
+preservation package. No new board implementation was added by this audit.
+All bundle file/patch SHA256 values match the manifest; the helper parses as
+Python and the workflow parses as YAML. The Mi Mini board remains disabled
+and its job retains the unconditional false gate published in6aee08b9.
+No Mi Mini compilation, fixture execution, device access or board admission
+was performed during this preservation review. The earlier source/host claims
+remain historical. Resume implementation only after the WR1200JS four-variant
+acceptance requirement is satisfied and the stage is resumed by the owner.
