@@ -1,3 +1,36 @@
+## Ordinary ACTIVE history and source-header closure — 2026-11-21
+
+Prepared mailbox ACTIVE completion now bootstraps file history only from the
+retained ACTIVE/rebind request, actual file scanner and independent backend
+observation. Saved desired credentials do not retarget it. Missing/mismatched
+history does not block safe ACTIVE/shutdown completion; later reload0 refuses
+absent proof. Terminal route rechecks ACTIVE and consumer after bootstrap.
+
+Corrected explicit runtime header staging for profile-history.h and restart-
+profile-history.h. Local staging now excludes those pre-seeded headers and
+requires real preparer output before14 lifecycle host-object compilation.
+This fixes a genuine source-preparation gap masked by the older fixture seed.
+
+Standard1466/run44935753123 failed on missing profile_history_read in prepared
+check-config-owner-backend.py; ABI974/run44935753061 failed in its inherited
+runtime-edit consumer for the same reason. Both monitor ZIP digests/CRC and
+original jobs confirm. Explicit absent-history mock added to the shared
+configuration-only fixture. Monitor actionable, no parser changes or new runs.
+Evidence: docs/evidence/WR1200JS-MAILBOX-PROFILE-HISTORY-2026-11-21.json.
+
+Full host preflight passed71 standalone fixtures plus included compositions
+exit0 in437.94s peak159508KiB; final post-bootstrap reobservation added afterward
+and checked by four final consumers/staging in57.81s peak160056KiB. Full edit/view
+suite passed123.24s peak81720KiB, including ABI's failing consumer. One compiler
+lane. No target/image/installed UI/device acceptance inferred. Publish one
+coherent correction/producer package; verify its new remote SHA/standard/ABI,
+then exact-SHA optional only after standard success. Old dedc7b68 standard is
+known failed; no duplicate rerun or optional dispatch for that failed standard.
+
+Scratch disposed automatically; periodic helper reports404751 bytes removed,
+not a total reclaimed-space claim. No local archives/core or manual cleanup;
+existing private/untracked data untouched. No router actions authorized.
+
 ## Profile lifecycle package locally verified — 2026-11-21
 
 Completed this coherent source stage: common nonsecret backend-bound file

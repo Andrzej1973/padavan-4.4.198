@@ -1,5 +1,6 @@
 /* Compose in the one RC backend translation unit after its private owners. */
 #include "profile-history.h"
+#include "restart-profile.h"
 static struct {
  struct wr_iot_profile_binding binding;
  struct wr_iot_restart_profile_receipt profile;
@@ -70,4 +71,23 @@ int wr_iot_rc_profile_history_read(struct wr_iot_profile_binding *binding,
     !profile_history_backend(&after)||!profile_history_equal(&before,&after)||
     !wr_iot_restart_profile_receipt_current(&wr_iot_rc_profile_history.profile))return 0;
  *binding=before;*profile=wr_iot_rc_profile_history.profile;return 1;
+}
+/* Ordinary mailbox ON has no generation owner to donate a receipt. Bootstrap
+ * only from its retained ACTIVE request plus the actual fixed-path scanner and
+ * independent existing driver/network observer. Saved desired keys never enter
+ * this comparison. Failure leaves history absent/stale, so reload0 refuses. */
+int wr_iot_rc_profile_history_active(void)
+{
+ struct wr_iot_profile_binding before={0},after={0};struct wr_iot_restart_profile_receipt file={0};
+ const struct wr_iot_request *request;size_t length;
+ if(!profile_history_backend(&before)||
+    (before.kind!=WR_PROFILE_BACKEND_ACTIVE&&before.kind!=WR_PROFILE_BACKEND_REBIND_ACTIVE))return 0;
+ request=before.kind==WR_PROFILE_BACKEND_ACTIVE?&backend.start.input.request:&rebind.start.input.request;
+ length=strlen(WR_IOT_RADIO_PROFILE_PATH);if(!length||length>=sizeof(file.path))return 0;
+ memcpy(file.path,WR_IOT_RADIO_PROFILE_PATH,length+1);file.owner=getpid();file.valid=1;
+ if(!wr_iot_generated_capture(&file.file,file.path)||file.file.existed!=1||file.file.metadata.st_size<=0||
+    !wr_iot_restart_profile_file_current(request)||!wr_iot_restart_profile_receipt_current(&file)||
+    !profile_history_backend(&after)||!profile_history_equal(&before,&after)||
+    !wr_iot_restart_profile_file_current(request)||!wr_iot_restart_profile_receipt_current(&file))return 0;
+ profile_history_commit(&before,&file);return 1;
 }

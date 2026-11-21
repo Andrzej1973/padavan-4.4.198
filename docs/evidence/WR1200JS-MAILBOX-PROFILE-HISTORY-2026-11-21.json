@@ -1,0 +1,115 @@
+{
+  "date": "2026-11-21",
+  "base_revision": "dedc7b68c31f15e198a41ac3df69eed7acc1750e",
+  "scope": "Ordinary mailbox ACTIVE profile-history producer and real staged-header closure, with prepared fixture consumers",
+  "implementation": [
+    "ACTIVE terminal route compares actual fixed profile against retained ACTIVE/rebind request via real scanner and existing backend observation; current saved keys are not consulted.",
+    "Absent/mismatched file history does not block safe ACTIVE/shutdown completion. Future reload0 refuses absent/stale proof; no invented provenance.",
+    "After read-only bootstrap, terminal route repeats backend and normal-shutdown-consumer checks before arming.",
+    "Explicit preparer header list includes profile-history.h and restart-profile-history.h. Staging fixture no longer pre-seeds these headers and requires actual pending output before compiling14 lifecycle host objects.",
+    "Configuration-only fixtures explicitly return absent history; native history implementations remain composed in separate owner/handoff tests. The shared fixture covers both standard and ABI consumers."
+  ],
+  "source_sha256": {
+    "tools/iot/check-config-owner-backend.py": "430938dbc62d0e3daa1fc7da0822ed96980a43eac2180ae0780f40bc40329551",
+    "tools/iot/check-config-runtime-staging.py": "5bceb29d06fef5ad4ca756be2992276c614898b5862f3ef6f1cc8bdf6bd9bdb3",
+    "tools/iot/check-radio-on-owner-desired.py": "24abb9af3e45b998784962daeb3178bc930f390b71c5d6de2c012712d6c85998",
+    "tools/iot/check-rc-quiesce.py": "d5ddc15f5ac92515b473f1153ff08e9f827841ddf97c01c9e28c3c9e27868976",
+    "tools/iot/compile-runtime-link.sh": "b2474ef791904a99b86e1cd3a70b3fde6d92c09db7fd9571bc519dda8e4084dc",
+    "tools/iot/prepare-runtime.py": "2cb347686eb3dcc19d9a94d45833025a53118cb949a4ea8e52a91b743793f4db",
+    "tools/iot/profile-history.h": "335219a339861fe9fe5015c8de57f16cbf581f3282e79f1974f10ece25e91589",
+    "tools/iot/rc-backend.c": "184adfcef90e494289123c6cb0dbdc24ffcbef8b49f2ee64966471f21a59fc1d",
+    "tools/iot/rc-profile-history.inc": "ded81f48f902d9502acafd8b7d5fefb372bfe3c8328bf6be464ef0160b71c0de"
+  },
+  "failures": [
+    {
+      "run": 44935753123,
+      "number": "standard1466",
+      "revision": "dedc7b68c31f15e198a41ac3df69eed7acc1750e",
+      "job": 136941962200,
+      "step": "Check IoT host compiler compatibility early",
+      "cause": "check-config-owner-backend.py prepared isolated backend missing wr_iot_rc_profile_history_read",
+      "monitor": 44935880808,
+      "artifact": 14719597823,
+      "zip_sha256": "0921419579dfe90d3460397ee256cfbb6c06a6dc233df0af26f4ccee783d0454",
+      "digest_and_crc_verified": true,
+      "original_log_confirmed": true
+    },
+    {
+      "run": 44935753061,
+      "number": "ABI974",
+      "job": 136941875676,
+      "step": "Verify IoT configuration edit and private view contracts",
+      "cause": "check-runtime-edit-backend.py inherits the same fixture and missing history API",
+      "monitor": 44936620179,
+      "artifact": 14720115413,
+      "zip_sha256": "a37ecd6a13d66db3e95d01976001368244a0cf6ace8d9738e2bffba2a43bca6e",
+      "digest_and_crc_verified": true,
+      "original_log_confirmed": true
+    }
+  ],
+  "monitor_assessment": "Both reports identify failed job/step, exact missing symbol and helper. Some earlier nonfatal PASS lines appear, but causal error is actionable and confirmed in original log. No parser change. ZIPs inspected in memory, not retained.",
+  "verification": {
+    "compiler_lanes": 1,
+    "source_and_history_initial_batch": {
+      "helpers": [
+        "check-radio-on-owner-desired.py --handoff-only",
+        "check-rc-quiesce.py",
+        "check-config-runtime-staging.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 64.13,
+      "peak_kib": 159532,
+      "qualification": "Before final ACTIVE reobservation and genuine header-staging refinement; these later changes verified below."
+    },
+    "full_host_preflight": {
+      "command": "python3 tools/iot/check-host-compatibility.py",
+      "exit_status": 0,
+      "elapsed_seconds": 437.94,
+      "peak_kib": 159508,
+      "coverage": "71 existing standalone fixtures plus all script compositions, including native owner8 modes, configuration consumers, actual new header staging, startup/OFF/reopen/ownership/DNS/CLOSE and WDS producer capture.",
+      "qualification": "Final additional post-bootstrap ACTIVE/route reobservation added after this full run. Final-source consumers/staging verified below. No repeat of this seven-minute preflight."
+    },
+    "final_source_batch": {
+      "helpers": [
+        "check-config-owner-backend.py",
+        "check-config-channel-composition.py",
+        "check-radio-on-owner-desired.py --handoff-only",
+        "check-config-runtime-staging.py"
+      ],
+      "exit_status": 0,
+      "elapsed_seconds": 57.81,
+      "peak_kib": 160056,
+      "helper_seconds": [
+        12.83,
+        13.14,
+        17.94,
+        13.9
+      ]
+    },
+    "final_config_edit_suite": {
+      "command": "python3 tools/iot/check-config-edit-suite.py",
+      "exit_status": 0,
+      "elapsed_seconds": 123.24,
+      "peak_kib": 81720,
+      "coverage": "Full suite including inherited runtime-edit backend, view/edit/Save/private IPC contracts, actual header staging and14 lifecycle objects, Classic ROMFS/DOM and Modern native HTTP/mailbox compositions."
+    },
+    "other": [
+      "git diff --check exit0",
+      "bash -n tools/iot/compile-runtime-link.sh exit0"
+    ],
+    "limits": "ASan/UBSan native behavior and strict host compilation use documented SDK/backend/HTTP/flash actors; not target firmware, installed production/UI or physical acceptance."
+  },
+  "open_requirements": [
+    "New exact-SHA standard/ABI and optional target evidence after publication.",
+    "Configuration loaded promotion, full production entry wiring, target full link/image artifacts and four final variants.",
+    "Independent loaded-key/driver/RF/DMA/late-TxS/MainGuest/device acceptance remains required."
+  ],
+  "publication": "One coherent commit/push after local package verification; do not rerun old known-failing standard merely to duplicate it. Queue optional for the corrected exact SHA only after standard succeeds.",
+  "scratch": {
+    "manual_deletion": false,
+    "retained_archives": false,
+    "temporary_trees": "Disposed by existing helpers after use; no top-level core found.",
+    "reported_helper_cleanup_bytes": 404751,
+    "qualification": "Exact bytes reported by periodic helper only, not total disk reclaimed by all temporary builds. Historical/private untracked material preserved."
+  }
+}

@@ -1,3 +1,23 @@
+## Ordinary mailbox ACTIVE producer — 2026-11-21
+
+Prepared ordinary mailbox ON/reopen now attempts exact file-history capture
+before terminal route publication. It scans the actual fixed file against the
+retained ACTIVE request, independently of current desired keys, and checks live
+backend binding before/after. A final ACTIVE/consumer reobservation precedes
+route arm. Failure leaves absent/stale history; safe ACTIVE/shutdown completion
+remains available while future reload0 refuses missing provenance. No loaded
+PMK or RF proof is inferred from a successful file scan.
+
+The runtime preparer now explicitly stages both new lifecycle headers. Its
+isolated test excludes their legacy pre-seed and requires actual preparer output
+before object compilation. The shared configuration-only backend actor now
+returns absent history explicitly; actual history/scanner code is covered by
+native owner/handoff fixtures. Standard1466 and ABI974 exposed this fixture
+closure gap; both original logs and useful monitor artifacts were checked.
+Complete host preflight and edit/view suites pass at their recorded source
+scopes. See WR1200JS-MAILBOX-PROFILE-HISTORY evidence. New target/image/production
+and physical gates remain open; later CI applies only to its exact revision.
+
 ## Restart completion joins the local lifecycle package — 2026-11-21
 
 Prepared restart finish now preflights an inert profile-history candidate against

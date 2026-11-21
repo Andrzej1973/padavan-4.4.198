@@ -26,6 +26,10 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
             (parent / "wr-iot").mkdir(parents=True)
             (parent / "Makefile").write_text("OBJS += wr-iot-control-mailbox.o wr-iot-control-" + role + ".o\n")
             for header in here.glob("*.h"):
+                # New lifecycle headers must be supplied by the real preparer,
+                # not accidentally satisfied by this legacy fixture seed.
+                if header.name in ("profile-history.h", "restart-profile-history.h"):
+                    continue
                 (parent / "wr-iot" / header.name).write_bytes(header.read_bytes())
             (parent / "shared-wifi").mkdir()
             (parent / "shared-wifi/validate.h").write_bytes((here.parent / "shared-wifi/validate.h").read_bytes())
@@ -66,6 +70,9 @@ with tempfile.TemporaryDirectory(prefix="wr-config-stage-") as directory:
         for path, content in scope["pending"].items():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(content)
+        for name in ("profile-history.h", "restart-profile-history.h"):
+            target=rc/"wr-iot"/name
+            assert target in scope["pending"] and target.read_bytes()==(here/name).read_bytes()
         marker = (rc / "wr-iot/config-snapshot-prepared.h").read_text()
         view_report=json.loads((root/'iot-edit-view-source.json').read_text())
         assert view_report['native_capabilities_verified'] is bool(prepared and flash)

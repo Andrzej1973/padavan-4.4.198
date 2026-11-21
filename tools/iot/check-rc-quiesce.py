@@ -51,6 +51,9 @@ body=body[:a]+r'''
 '''+body[b:]
 body=body.replace('ON and OFF published APPLIED','ON published APPLIED; private OFF completed').replace('pending SIGTERM delivered only after terminal publication','pending SIGTERM retained through OFF and routed to normal physical cleanup')
 prepared_body=body.replace('#include "rc-backend.c"','#include "rc-backend.c"\n#include "rc-profile-history.inc"')
+prepared_body=prepared_body.replace('#include "rc-profile-history.inc"',
+ 'int wr_iot_restart_profile_file_current(const struct wr_iot_request *r){(void)r;return 0;}\n#include "rc-profile-history.inc"')
+
 prepared_body=prepared_body.replace('int main(void){','int main(int argc,char **argv){assert(argc==2);')
 anchor=' struct wr_iot_rc_quiesce q={0};struct wr_iot_driver_closed_result receipt={0};'
 assert prepared_body.count(anchor)==1

@@ -228,6 +228,15 @@ history_cases=r'''
   assert(!wr_iot_rc_shutdown.radio_on_owned&&backend.phase==WR_IOT_OWNER_ACTIVE);
   g=wr_iot_service_guard_enter(1);
   assert(wr_iot_rc_profile_history_read(&binding,&file)&&binding.kind==WR_PROFILE_BACKEND_ACTIVE&&binding.created==11);
+  memset(&wr_iot_rc_profile_history,0,sizeof(wr_iot_rc_profile_history));
+  assert(!wr_iot_rc_profile_history_active()); /* Empty retained request, no guess from file. */
+  backend.start.input.request.enabled=1;
+  strcpy(backend.start.input.request.ssid,"Disabled B");strcpy(backend.start.input.request.password,"disabled-b-password");
+  assert(wr_iot_rc_profile_history_active()&&wr_iot_rc_profile_history_read(&binding,&file));
+  backend.start.input.request.password[0]='X';
+  assert(!wr_iot_rc_profile_history_active());backend.start.input.request.password[0]='d';
+  assert(wr_iot_rc_profile_history_active());
+
   binding.created++;assert(!wr_iot_rc_profile_history_remember(&binding,&file));binding.created--;
   assert(wr_iot_rc_profile_history_read(&binding,&file));
   rebind.owner=getpid();rebind.phase=WR_REBIND_OWNER_ACTIVE;

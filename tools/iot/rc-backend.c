@@ -457,6 +457,13 @@ int wr_iot_rc_backend_applied_route(const char *id,unsigned long long created)
  if(!wr_iot_rc_normal_shutdown_terminal_arm_ready())goto done;
  memcpy(result.id,id,sizeof(result.id));result.created=created;result.state=WR_IOT_RESULT_APPLIED;
  if(!wr_iot_rc_backend_observed(&result)||!wr_iot_rc_normal_shutdown_terminal_arm_ready())goto done;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ /* File provenance may be unavailable in a legacy startup. Do not prevent
+  * safe ACTIVE/shutdown completion: later reload0 must refuse missing proof.
+  * This never substitutes file identity for the ACTIVE observer above. */
+ (void)wr_iot_rc_profile_history_active();
+ if(!wr_iot_rc_backend_observed(&result)||!wr_iot_rc_normal_shutdown_terminal_arm_ready())goto done;
+#endif
  wr_iot_rc_normal_shutdown_arm_commit();ok=1;
  done:wr_iot_service_guard_leave(guard);return ok;
 }

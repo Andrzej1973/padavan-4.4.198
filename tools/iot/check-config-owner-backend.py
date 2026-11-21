@@ -15,6 +15,14 @@ units = next(ast.literal_eval(n.value) for n in ast.walk(ast.parse(source))
 body = ns["body"]
 hooks = r'''
 #include "config-owner.h"
+#include "profile-history.h"
+/* Configuration-only fixture retains injected profile/SDK boundaries. It does
+ * not compose radio generation; absent file history must not become proof. */
+int wr_iot_rc_profile_history_read(struct wr_iot_profile_binding*b,struct wr_iot_restart_profile_receipt*p){
+ assert(depth);memset(b,0,sizeof(*b));memset(p,0,sizeof(*p));return 0;
+}
+int wr_iot_rc_profile_history_active(void){assert(depth);return 0;}
+
 static char cfg_record[WR_IOT_SAVED_CONFIG_MAX];
 static int cfg_present,cfg_writes,cfg_read_error;
 int nvram_getall(char *out,int capacity,int temporary){

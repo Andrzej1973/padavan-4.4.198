@@ -17,4 +17,7 @@ int wr_iot_rc_profile_history_remember(const struct wr_iot_profile_binding *,
  const struct wr_iot_restart_profile_receipt *);
 int wr_iot_rc_profile_history_read(struct wr_iot_profile_binding *,
  struct wr_iot_restart_profile_receipt *);
+/* Guarded ordinary ACTIVE completion: compare actual generated file against
+ * retained loaded request, independently of current saved desired settings. */
+int wr_iot_rc_profile_history_active(void);
 #endif
