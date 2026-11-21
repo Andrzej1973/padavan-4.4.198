@@ -7,12 +7,12 @@
 int wr_iot_off_profile_begin(struct wr_iot_off_profile *s,const struct wr_iot_radio_off_owner *off)
 {
  int token,claimed=0;
- if(!s||!off||s->owner||s->busy||s->phase!=WR_OFF_PROFILE_IDLE||s->baseline.active||
+ if(!s||!off||s->self||s->owner||s->busy||s->phase!=WR_OFF_PROFILE_IDLE||s->baseline.active||
     off->owner!=getpid()||off->busy||off->result!=1||!off->policy_ready||
     (off->policy.reload!=0&&off->policy.reload!=1))return 0;
  s->busy=1;token=wr_iot_service_guard_enter(1);if(token!=1){s->busy=0;return 0;}
  if(wr_iot_radio_off_observed(&off->released)&&wr_iot_radio_profile_take(&s->baseline)){
-  s->owner=getpid();s->reload=off->policy.reload;s->released=off->released;
+  s->self=s;s->owner=getpid();s->reload=off->policy.reload;s->released=off->released;
   s->phase=WR_OFF_PROFILE_CAPTURED;claimed=1;
  }
  s->busy=0;wr_iot_service_guard_leave(token);return claimed;
@@ -20,7 +20,7 @@ int wr_iot_off_profile_begin(struct wr_iot_off_profile *s,const struct wr_iot_ra
 int wr_iot_off_profile_step(struct wr_iot_off_profile *s)
 {
  int token,result=0;
- if(!s||s->owner!=getpid()||s->busy)return 0;
+ if(!s||s->self!=s||s->owner!=getpid()||s->busy)return 0;
  s->busy=1;token=wr_iot_service_guard_enter(1);if(token!=1){s->busy=0;return 0;}
  if(!wr_iot_radio_off_observed(&s->released))goto done;
  if(s->phase==WR_OFF_PROFILE_CAPTURED){

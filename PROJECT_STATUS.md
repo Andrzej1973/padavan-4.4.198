@@ -1,3 +1,19 @@
+## OFF profile context copy refused — 2026-11-21
+
+Private radio-off-profile context now binds self at successful capture and
+requires the same address before step; occupied self also refuses begin.
+Existing OFF-profile and OFF-followup fixtures pass with ASan/UBSan exit0.
+Mutation control removing the step address predicate fails the copied-owner
+assertion. The desired/legacy file-observer mismatch has a separate reproducer
+and remains unresolved; this ownership correction is not its integration fix.
+Evidence: docs/evidence/WR1200JS-OFF-PROFILE-OWNER-2026-11-21.json.
+
+Audit documentation476cab19 and this narrow source correction are one outgoing
+package. Target compilation/image acceptance pending exact published SHA.
+Continue loaded-generation provenance work including INITIAL/cold/disabled
+paths; no replacement with live desired keys. No router operation. Temporary
+fixture outputs removed; preserved historical scratch not touched.
+
 ## Active project resumed: IoT configuration provenance audit — 2026-11-21
 
 The full project goal is active; earlier completion refers only to merge.

@@ -1,3 +1,25 @@
+## OFF context address ownership correction — 2026-11-21
+
+radio-off-profile.c previously checked process ownership but accepted a copied
+private context at another address. It now stores self on successful capture,
+refuses occupied self at begin and requires self==context before stepping.
+The existing helper copies the captured owner and verifies refusal before guard,
+generator or journal access, with the original context unchanged. Full original
+snapshot/rollback scenarios and desired/legacy gap reproduction pass exit0 under
+ASan/UBSan. This closes a context-copy admission gap only; it does not bind loaded
+credentials or establish RF/device acceptance. No new temporary tree is retained.
+
+## Reproduced profile-observer gap — 2026-11-21
+
+Existing check-radio-off-profile.py now creates a valid different desired
+third-BSS file while keeping legacy keys unchanged. Actual
+restart_profile_file_current accepts that exact profile; actual
+wr_iot_rc_off_profile_current refuses; a second file check still succeeds.
+Original snapshot/generation/rollback/foreign-file cases also pass, exit0 with
+ASan/UBSan. SDK/NVRAM/DOWN actors remain injected. This reproduces the source
+mismatch without treating a file as loaded-PMK evidence. The runtime correction
+remains pending. Temporary fixture/compiler output removed automatically.
+
 ## Existing retained owner candidates — 2026-11-21
 
 rc-backend.c retains backend and rebind owners at stable private addresses.

@@ -22,6 +22,10 @@ int main(int argc,char**argv){
   struct stat st;assert(!stat(profile_path,&st));
   assert(wr_iot_off_profile_begin(&s,&off)&&s.baseline.active&&!depth);
   assert(!wr_iot_off_profile_begin(&s,&off));
+  /* A copied owner must not enter the generator or touch shared journal data. */
+  struct wr_iot_off_profile copied=s;
+  assert(!wr_iot_off_profile_step(&copied)&&!generator_calls&&!depth);
+  assert(s.phase==WR_OFF_PROFILE_CAPTURED&&s.self==&s);
   observed=0;assert(!wr_iot_off_profile_step(&s)&&!generator_calls&&!depth);observed=1;
   assert(!wr_iot_off_profile_step(&s));
   assert(generator_calls==(fault!=0));
@@ -39,6 +43,19 @@ int main(int argc,char**argv){
   /* Fixture-only free of retained RAM after checking non-retirement. */
   wr_iot_bundle_release(&s.baseline.files);assert(!unlink(profile_path));
  }
+ /* A versioned desired generation can differ from unchanged legacy keys.
+  * File provenance succeeds; the current OFF observer still refuses it.
+  * This records the unbound handoff, not a loaded-PMK or device receipt. */
+ struct wr_iot_request next={.enabled=1,.ssid="IoT-next",.password="next-password"};
+ FILE *in=tmpfile(),*out=fopen(profile_path,"w");assert(in&&out);
+ assert(fputs(baseline,in)>=0);rewind(in);
+ assert(wr_iot_precreated_profile(in,out,next.ssid,next.password,0));
+ assert(!fclose(in)&&!fclose(out));
+ assert(wr_iot_restart_profile_file_current(&next));
+ assert(!strcmp(saved_ssid,"IoT")&&!strcmp(saved_password,"iot-password"));
+ assert(!wr_iot_rc_off_profile_current());
+ assert(wr_iot_restart_profile_file_current(&next));
+ assert(!unlink(profile_path));
 }
 '''
 with tempfile.TemporaryDirectory(prefix='wr-off-profile-') as d:
@@ -46,4 +63,6 @@ with tempfile.TemporaryDirectory(prefix='wr-off-profile-') as d:
  p=root/'check.c';p.write_text(body);b=root/'check'
  subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+d,'-I'+str(here),str(p),'-o',str(b)],check=True)
  subprocess.run([str(b),d],check=True,timeout=15)
-print('PASS OFF profile actual snapshot/journal: reload0 no generation/inode writes, generate once, retained verified baseline, partial restores bytes, foreign inode retained/no replay; SDK and DOWN actors injected, unbound')
+print('PASS OFF profile actual snapshot/journal: copied owner refused, reload0 no generation/inode writes, generate once, retained verified baseline, partial restores bytes, foreign inode retained/no replay; SDK and DOWN actors injected, unbound')
+
+print('PASS source-gap reproduction: new desired file valid; unchanged legacy OFF observer refuses; loaded handoff remains unbound')

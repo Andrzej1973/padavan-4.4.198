@@ -1,0 +1,17 @@
+{
+  "scope": "Private OFF profile context ownership; no loaded-profile promotion",
+  "base": "476cab19",
+  "changes": [
+    "Store self pointer only after successful baseline capture",
+    "Refuse occupied self at begin and copied-address owner before step guard/generation/journal access",
+    "Existing OFF helper reproduces desired-file vs legacy observer mismatch without changing acceptance"
+  ],
+  "checks": {
+    "off_profile": "PASS ASan/UBSan exit0",
+    "off_followup": "PASS ASan/UBSan exit0",
+    "mutation_control": "Removing step self check fails copied-owner assertion; expected negative result",
+    "original_implementation_control": "Old implementation also fails initialized self invariant; not the isolated mutation control"
+  },
+  "limits": "SDK/DOWN/NVRAM actors injected. No target compilation, final image, loaded-PMK or device acceptance. Desired/legacy profile mismatch remains unresolved.",
+  "cleanup": "Temporary fixture/compiler trees automatically removed; no source copy/archive retained."
+}
