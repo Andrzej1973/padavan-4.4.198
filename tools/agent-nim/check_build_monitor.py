@@ -103,6 +103,13 @@ with (nullcontext(sys.argv[2]) if len(sys.argv)>2 else tempfile.TemporaryDirecto
     download=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'download-state')],capture_output=True,text=True,env=download_env,check=True)
     assert '504 Gateway Time-out' in download.stdout
     assert 'download_test] Error 4' in download.stdout and 'libyaml_only] Error 2' in download.stdout
+    missing_log=root/'missing-revision-checker.log'
+    # Optional900/run42466029821: original failed step, confirmed against monitor42466114320.
+    missing_log.write_text("python3: can't open file '/home/runner/work/padavan-4.4.198/padavan-4.4.198/tools/check-libyaml-download.py': [Errno 2] No such file or directory\n##[error]Process completed with exit code 2.\n")
+    fixture.write_text(json.dumps({'workflow_runs':[row(42466029821)]}),encoding='utf-8')
+    missing_env=dict(os.environ,BUILD_MONITOR_FIXTURE_JOB_LOG=str(missing_log))
+    missing=subprocess.run([str(binary),'--fixture:'+str(fixture),'--state-dir:'+str(root/'missing-state')],capture_output=True,text=True,env=missing_env,check=True)
+    assert "can't open file" in missing.stdout and 'tools/check-libyaml-download.py' in missing.stdout
     # ABI899: SystemExit validation lacks a generic error prefix.
     adapter_log=root/'adapter-drift-abi899.log'
     adapter_log.write_text('Installed disable adapter differs: initial-off\n##[error]Process completed with exit code 1.\n')

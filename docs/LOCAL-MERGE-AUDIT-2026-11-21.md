@@ -149,3 +149,20 @@ No Mi Mini compilation, fixture execution, device access or board admission
 was performed during this preservation review. The earlier source/host claims
 remain historical. Resume implementation only after the WR1200JS four-variant
 acceptance requirement is satisfied and the stage is resumed by the owner.
+
+## Monitor patch provenance resolved
+
+The missing-file matcher is supported by real optional900/run42466029821.
+Its original failed step could not open tools/check-libyaml-download.py.
+Monitor42466114320 correctly bound that source run and step, but its surviving
+console excerpt omitted the causal Python line. Upload logs identify
+artifact13611414280; the current artifacts API returns none, so the ZIP itself
+was unavailable for comparison. This limitation is recorded explicitly in
+`docs/evidence/WR1200JS-OPTIONAL900-MONITOR-MISSING-CHECKER-2026-11-21.json`.
+
+The fixture now uses the real run/path. The patched Nim compile, empty fixture
+and full offline executable suite pass; a temporary committed-version parser
+fails exactly the new missing-file assertion. That negative-control build
+needed explicit -d:ssl outside its normal config.nims directory. All temporary
+compiler/cache/fixture output was removed. This resolves the earlier reason
+for leaving the parser patch uncommitted. No recurring automation was resumed.

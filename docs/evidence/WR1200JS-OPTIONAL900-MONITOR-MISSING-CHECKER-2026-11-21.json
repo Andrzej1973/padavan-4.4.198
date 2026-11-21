@@ -1,0 +1,32 @@
+{
+  "review_date": "2026-11-21",
+  "source_run": 42466029821,
+  "source_run_attempt": 1,
+  "dispatch_sha": "3ed13c54a5cbf203292308e2862730c5c0806586",
+  "requested_revision_from_run_title": "621c458a01904ef5f1b5577b319a127484640fdb",
+  "failed_job": "build (wr1200js) / build-wr1200js",
+  "failed_step": "Check source retry timeout and lock regressions",
+  "original_log_command": "gh run view 42466029821 --repo Andrzej1973/padavan-4.4.198 --log-failed",
+  "causal_excerpt": "python3: can't open file '/home/runner/work/padavan-4.4.198/padavan-4.4.198/tools/check-libyaml-download.py': [Errno 2] No such file or directory",
+  "exit_status_in_original_log": 2,
+  "monitor_run": 42466114320,
+  "monitor_source_run_binding": "Console MONITOR_RUN_ID=42466029821",
+  "monitor_artifact_name_from_upload_log": "agent-build-error-42466114320",
+  "monitor_artifact_id_from_upload_log": 13611414280,
+  "monitor_artifact_available_at_review": false,
+  "monitor_artifact_limit": "Run artifacts API returned zero artifacts. The original ZIP was not re-downloaded; comparison uses the surviving monitor console excerpt and original failed-job log.",
+  "monitor_gap": "Correct failed job/step identified, but excerpt retained nonfatal retry lines and process exit without the Python missing-file cause. Secondary missing image artifacts are consequences of early exit.",
+  "correction": "Add can't open file to bounded errorExcerpt matching. Existing fixture updated to the exact original missing-file path and source run ID.",
+  "verification": {
+    "patched_nim_compile_and_empty_fixture": "passed",
+    "offline_executable_suite": "passed",
+    "committed_parser_negative_control": "passed: committed parser fails precisely the missing.stdout assertion; patched full offline suite passes",
+    "negative_control_build": "Temporary baseline source compiled with -d:ssl to match tools/agent-nim/config.nims. Initial compile outside that directory lacked the config and failed at newContext; corrected compile succeeded."
+  },
+  "scope": "Monitor diagnosis and filtering only. Does not repair the historical source-selection mismatch or prove firmware/image/device acceptance. Logs treated as untrusted data; no instructions from logs executed.",
+  "cleanup": "Temporary compiler binaries, Nim cache and offline fixture state removed by TemporaryDirectory. No recurring Codex automation created or resumed.",
+  "source_sha256": {
+    "tools/agent-nim/build_monitor.nim": "ec87dc2b3fcfdd1556d18c03602e52c9bb7e5f2000243d72ae2dc1f00d0c9dc0",
+    "tools/agent-nim/check_build_monitor.py": "f1567ba1f90e918476288c340a1d6d78e41b7e72edd8035d2621714b5f172fa7"
+  }
+}
