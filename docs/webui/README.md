@@ -1,3 +1,16 @@
+## Hybrid Modern resumed by the owner — 2026-11-20
+
+The owner explicitly resumed Hybrid Modern settings integration and apply
+verification. This supersedes the 2026-11-11 WebUI pause for that work. IoT
+remains first priority; preserve current settings, Band Steering and router
+access. Use existing authenticated configuration/service paths. Host candidate,
+target compilation, final image and physical acceptance remain separate.
+No device-side changes are authorized by this resumption. Host verification now
+composes the Modern IoT form through the native HTTP handlers, production
+control-client submission and mailbox claim for RAM/auto/flash/runtime modes.
+RC execution and persisted-config commit remain separate host fixtures; the
+Modern route is still an isolated candidate and is not target/image verified.
+
 # WebUI — збережений стан і призупинення
 
 Власник призупинив усю роботу над WebUI 2026-11-11 до окремої прямої вказівки.

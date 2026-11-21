@@ -1,10 +1,11 @@
-# WebUI work paused — owner instruction 2026-11-11
+# Hybrid Modern settings/apply work resumed — owner instruction 2026-11-20
 
-All WebUI implementation and new page/design work is paused until the owner's
-separate explicit instruction. The preserved checkpoint and continuation steps
-are indexed in [WebUI preservation](../../docs/webui/README.md). The earlier
-permission to continue development in historical sections below is superseded
-by this instruction.
+The owner resumed settings integration and apply verification. IoT remains the
+first priority. Modern IoT is currently an isolated host candidate connected to
+authenticated IoT routes; target/image integration and router acceptance remain
+open. The complete checkpoint and boundaries are indexed in
+[WebUI preservation](../../docs/webui/README.md). No device-side changes are
+authorized.
 
 # Padavan Modern local preview (stage 1)
 
