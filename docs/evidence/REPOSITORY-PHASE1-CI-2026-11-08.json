@@ -1,0 +1,164 @@
+{
+  "scope": "Baseline firmware build, excludes unpublished local Phase 1 edits",
+  "run": 42476812968,
+  "url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/42476812968",
+  "sha": "08b15eb27331fb28f106fd7d9f19df16c9d1da14",
+  "overall": "failure",
+  "control": {
+    "job": 128719900626,
+    "conclusion": "success"
+  },
+  "candidate": {
+    "job": 128722752808,
+    "conclusion": "failure",
+    "first_failed_step": 28,
+    "step": "Verify and install isolated compiler candidate",
+    "exception": "tarfile.LinkOutsideDestinationError",
+    "archive_member": "./lib/bfd-plugins/liblto_plugin",
+    "outside_resolved_suffix": "padavan-4.4/libexec/gcc/mipsel-linux-uclibc/10.5.0/liblto_plugin",
+    "firmware_compilation_started": false
+  },
+  "artifacts_observed": [
+    {
+      "id": 13616615408,
+      "name": "eoip-image-checks-control",
+      "size_in_bytes": 496
+    },
+    {
+      "id": 13616590392,
+      "name": "wr1200js-wifi-capabilities-control",
+      "size_in_bytes": 396
+    },
+    {
+      "id": 13616560096,
+      "name": "privoxy-image-checks-control",
+      "size_in_bytes": 994
+    },
+    {
+      "id": 13616560084,
+      "name": "usbip-settings-image-control",
+      "size_in_bytes": 997
+    },
+    {
+      "id": 13616555133,
+      "name": "iperf3-image-checks-control",
+      "size_in_bytes": 931
+    },
+    {
+      "id": 13616510476,
+      "name": "wr1200js-iot-radio-capacity-control",
+      "size_in_bytes": 370668
+    },
+    {
+      "id": 13616410417,
+      "name": "strongswan-image-checks-control",
+      "size_in_bytes": 456
+    },
+    {
+      "id": 13616405814,
+      "name": "wan-port-topology-control",
+      "size_in_bytes": 678
+    },
+    {
+      "id": 13616390458,
+      "name": "stubby-image-checks-control",
+      "size_in_bytes": 1535
+    },
+    {
+      "id": 13616375496,
+      "name": "vpn-profile-image-control",
+      "size_in_bytes": 3067
+    },
+    {
+      "id": 13616356011,
+      "name": "wr1200js-config-checks-control",
+      "size_in_bytes": 1838
+    },
+    {
+      "id": 13616330631,
+      "name": "wan-web-image-checks-control",
+      "size_in_bytes": 689
+    },
+    {
+      "id": 13616201042,
+      "name": "rssi-image-checks-control",
+      "size_in_bytes": 641
+    },
+    {
+      "id": 13616162004,
+      "name": "wr1200js-kvr-image-control",
+      "size_in_bytes": 809
+    },
+    {
+      "id": 13616137154,
+      "name": "wr1200js-web-route-checks-control",
+      "size_in_bytes": 2410
+    },
+    {
+      "id": 13615918559,
+      "name": "wr1200js-radio-capacity-control",
+      "size_in_bytes": 2346
+    },
+    {
+      "id": 13615827906,
+      "name": "padavan-linux-4.4.198-wr1200js-control",
+      "size_in_bytes": 13074638
+    },
+    {
+      "id": 13615767975,
+      "name": "zerotier-image-checks-control",
+      "size_in_bytes": 1240
+    },
+    {
+      "id": 13615767962,
+      "name": "ssh-image-checks-control",
+      "size_in_bytes": 775
+    },
+    {
+      "id": 13615762912,
+      "name": "board-build-status-wr1200js-control",
+      "size_in_bytes": 203
+    },
+    {
+      "id": 13615757907,
+      "name": "doh-image-checks-control",
+      "size_in_bytes": 650
+    },
+    {
+      "id": 13615673128,
+      "name": "zram-image-checks-control",
+      "size_in_bytes": 256
+    },
+    {
+      "id": 13615654713,
+      "name": "settings-backup-image-checks-control",
+      "size_in_bytes": 647
+    },
+    {
+      "id": 13615634775,
+      "name": "tmp-upload-image-checks-control",
+      "size_in_bytes": 247
+    },
+    {
+      "id": 13615393831,
+      "name": "toolchain-comparison-control",
+      "size_in_bytes": 538757
+    },
+    {
+      "id": 13615124870,
+      "name": "target-busybox-audit-control",
+      "size_in_bytes": 18540
+    }
+  ],
+  "acceptance": {
+    "phase1_full_image": false,
+    "candidate_comparison": false,
+    "physical_runtime": false
+  },
+  "comparison": "skipped",
+  "monitor": {
+    "matching_run_observed": false,
+    "reason": "origin/main watched list lacks WR1200JS toolchain comparison; branch list already includes it, integration pending",
+    "evidence": "Original job traceback, not later missing EoIP/StrongSwan upload errors"
+  }
+}

@@ -1,52 +1,60 @@
 # Build system and toolchain
 
-## Supported firmware entry point
+## Active recipe and source assembly
 
-Use **Actions → Build selected router firmware**, branch **main**.
-The catalogue in `boards.json` explicitly controls admission to firmware
-builds. WR1200JS is currently admitted. Mi Mini has a config but its complete
-board port is pending; it is not a selectable working firmware target.
+[Build selected router firmware](../.github/workflows/build-multiple-boards.yml)
+uses [boards.json](../boards.json) and the stable catalogue selector. WR1200JS
+is admitted; Mi Mini and Mi-4 remain pending. Choose the intended branch
+explicitly; branch changes are not present on main until merged.
 
-The common workflow calls the WR1200JS recipe as a reusable workflow. Each
-admitted board receives an isolated build. The final download artifact holds
-the index, images, SHA256 checksums and build status. Failed or missing boards
-must not be described as successful. Check the workflow conclusion as well
-as the per-board status before treating an image as build-verified.
+The reusable [WR1200JS recipe](../.github/workflows/build-padavan-4.4-wr1200js.yml)
+assembles Linux 4.4 from vipshmily/padavan-4.4 at
+c25283e915a2a00a763774dd255b14aff997285e, donor nilabsent/padavan-ng at
+d2c5846299949c57a4e867284069900b561dd2a4 and this repository's explicit overlay
+and transformation scripts. [sources.lock.json](../sources.lock.json) records
+provenance. The local reference snapshots are not a complete build tree.
 
-## Actual Linux 4.4.198 inputs
+The Phase 1 local CI edit adds catalogue/layout/document checks before matrix
+selection and uploads repository-validation.json even on failure. It is not
+active remotely until the package is published. Image checks remain in the
+existing recipe; this structural check does not replace compilation.
 
-- Base: `vipshmily/padavan-4.4`, commit
-  `c25283e915a2a00a763774dd255b14aff997285e`.
-- Donor sources: `nilabsent/padavan-ng`, commit
-  `d2c5846299949c57a4e867284069900b561dd2a4`.
-- Toolchain archive:
-  https://github.com/vipshmily/padavan-4.4/releases/download/toolchain/mipsel-linux-uclibc.tar.xz
-- The build uses `TOOLCHAIN=mipsel-linux-uclibc` and records the downloaded
-  toolchain SHA256 in its artifact. Firmware and Mi Mini candidate workflows
-  enforce the committed expected digest from sources.lock.json before extraction.
-  The archive is also preserved and hash-verified locally; its owned Release
-  copy is still pending. The upstream K2P diagnostic uses a separate hanwckf
-  toolchain URL and is not evidence about the WR1200JS toolchain.
+## Preserved control and source-built candidate
 
-The old nilabsent uClibc-ng 1.0.58 URL in the archived `variables` file is
-historical input to the former build system. It is not used by the active
-4.4 workflow, and compatibility with this port has not been verified.
-Source provenance and preservation status live in `sources.lock.json`.
+The control compiler remains GCC 10.5/uClibc 1.0.43. Its hash-pinned archive is
+preserved in this account's build-toolchains-v1 release and reused through the
+Actions cache/API asset path. The historical foreign download URL is
+provenance, not the intended normal source. K2P diagnostics use a distinct
+preserved compiler; their images are never WR1200JS acceptance evidence.
 
-## Diagnostics
+[Toolchain recipes](../toolchains/) and [toolchain tools](../tools/toolchain/)
+produce an independent GCC 10.5/uClibc 1.0.48/Linux 4.4.198 candidate. Source
+build run 42467546674 succeeded; its publish job was skipped, so its Actions
+artifact must not be described as a published compiler release.
 
-- **Diagnostic: upstream K2P control build** checks the upstream base. Its
-  images are for K2P, not WR1200JS.
-- **Diagnostic: Mi Mini kernel candidate** checks experimental kernel code.
-  It does not produce a validated Mi Mini firmware image.
+[Compiler A/B](../.github/workflows/compare-toolchain-firmware.yml) builds
+control and candidate at one source SHA and compares requested/effective
+config hashes, image metadata, ELF inclusion, architecture/ABI, interpreter
+and dependency metadata. File hash/size changes are reported separately.
+The comparison does not establish physical stability. Promote the development
+compiler only after software results and review; the owner deferred physical
+acceptance until IoT and the new WebUI are ready.
 
-Compilation is separate from device runtime verification. Linux 4.4 boot and
-runtime on the user's hardware remain unverified.
+## Package inputs and failure diagnostics
 
-## Historical files
+[Owned dependency manifest](../configs/owned-build-dependencies.json) pins
+mbedTLS, libqrencode, PCRE2 and AmneziaWG. Their small source archives are in
+[sources/archives](../sources/archives/); the preparer verifies SHA256 and seeds
+package caches without a network fallback. This does not imply that all other
+base/donor inputs are offline or mirrored.
 
-`docs/archive/legacy-3.4/` preserves the old workflow files and `variables`
-byte for byte. They are not active GitHub Actions workflows. Their original
-relative paths belong to the historical revision and cannot be treated as a
-current build recipe. The completed history-import workflow is preserved in
-`docs/archive/migration/` and is no longer an active Actions entry point.
+On CI failure, inspect the failure-monitor report when available and verify
+its suspected cause against the original failed step/artifact. Never blindly
+rerun or modify source from a bounded monitor excerpt. Follow separate
+standard/optional lanes and exact SHA/input deduplication in [AGENTS.md](../AGENTS.md).
+Full firmware/kernel/module builds run on GitHub; local checks stay lightweight.
+
+The [architecture](REPOSITORY-ARCHITECTURE.md) and
+[board admission contract](BOARD-PROFILE-ARCHITECTURE.md) identify source,
+profile, image and runtime boundaries. Legacy 3.4 workflows under
+[the archive](archive/legacy-3.4/) are historical, not active recipes.

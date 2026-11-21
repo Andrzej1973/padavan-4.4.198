@@ -1,3 +1,34 @@
+# Repository architecture migration — Phase 1, 2026-11-08
+
+This plan concerns the existing shared checkout. The older repository-import
+plan is preserved below as historical context.
+
+1. Inventory tracked/untracked files, exact duplicates, upstream mentions and
+   path dependencies without deleting or moving donor/unfinished material.
+2. Compare current nilabsent architecture at an immutable revision with our
+   pinned Linux 4.4 assembly workflow; retain the distinct build model.
+3. Extract catalogue validation into tools/repository while retaining the
+   tools/board-catalog.py entry point and its JSON/output-file contract.
+4. Add required-file, config, existing WR1200JS DTS/layout, pending-board and
+   documentation-link checks; integrate the check into selected-board CI.
+5. Document canonical component ownership and future board admission. Keep
+   overlay/config/profile/image paths unchanged; no bulk tree migration.
+6. Run local regression and output compatibility checks. Record the existing
+   compiler A/B run separately: it cannot cover unpublished Phase 1 edits.
+7. Review this local package before any commit/push, as explicitly required
+   by the owner's attached prompt. After publication, verify the exact SHA in
+   selected-board CI and a full WR1200JS image build.
+
+Rollback before publication is a narrow restoration of the task's selector,
+workflow and documentation changes, preserving all pre-existing dirty work.
+No source/driver/partition migration or history rewrite is involved.
+Phase 1A is a recommendation only and requires a separate task. See the
+[migration report](REPOSITORY-MIGRATION-REPORT.md).
+
+---
+
+## Historical repository import plan (2026-10-03)
+
 # Padavan 4.4.198 repository migration
 
 User authorized creation of Andrzej1973/padavan-4.4.198 on 2026-10-03,

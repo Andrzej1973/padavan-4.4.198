@@ -267,6 +267,7 @@ on:
       - 'tools/stage-firmware-download.py'
       - 'boards.json'
       - 'tools/board-catalog.py'
+      - 'tools/repository/**'
       - 'tools/collect-board-downloads.py'
       - 'tools/band-steering/prepare-main-bss.py'
       - 'tools/band-steering/prepare-wps-guards.py'
@@ -311,6 +312,17 @@ jobs:
         with:
           name: verification-source
           path: verification-source.json
+      - name: Validate repository layout and board admission
+        run: |
+          python3 tools/repository/audit.py --report repository-validation.json
+          python3 tools/repository/check-audit.py
+      - name: Preserve repository validation report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: repository-validation
+          path: repository-validation.json
+          if-no-files-found: warn
       - id: boards
         env:
           BOARD_SELECTION: ${{ inputs.boards || 'wr1200js' }}

@@ -4,7 +4,11 @@
 
 ## Почати тут
 
-- [Карта репозиторію та порівняння з Nilabsent](REPOSITORY-STRUCTURE.md)
+- [Карта репозиторію](REPOSITORY-STRUCTURE.md)
+- [Архітектура і межі компонентів](REPOSITORY-ARCHITECTURE.md)
+- [Порівняння з nilabsent](NILABSENT-ARCHITECTURE-ANALYSIS.md)
+- [Архітектура профілів плат](BOARD-PROFILE-ARCHITECTURE.md)
+- [План](REPOSITORY-MIGRATION-PLAN.md) і [звіт Phase 1](REPOSITORY-MIGRATION-REPORT.md)
 - [Мета і старт агента](AGENT-BOOTSTRAP.md)
 - [Поточний виконавець та історія ролей](EXECUTION-ROLE.md)
 - [Спільні правила Sol і DeepSeek](AGENT-HANDOFF-RULES-SOL-DEEPSEEK.md)

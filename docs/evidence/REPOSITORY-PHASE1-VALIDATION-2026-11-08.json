@@ -1,0 +1,36 @@
+{
+  "errors": [],
+  "boards": [
+    {
+      "id": "wr1200js",
+      "name": "YOUHUA WR1200JS",
+      "config": "configs.build/wr1200js.config",
+      "build_enabled": true,
+      "recipe": "wr1200js",
+      "status": "image-build-verified; device-runtime-pending"
+    },
+    {
+      "id": "mi-mini",
+      "name": "Xiaomi Mi Mini",
+      "config": "configs.build/mi-mini.config",
+      "build_enabled": false,
+      "recipe": null,
+      "status": "board-port-pending; radio-object-probe-only"
+    },
+    {
+      "id": "mi-4",
+      "name": "Xiaomi Mi 4",
+      "config": "configs.build/mi-4.config",
+      "build_enabled": false,
+      "recipe": null,
+      "status": "package-profile-added; board-recipe-and-image-build-pending"
+    }
+  ],
+  "dts_review": {
+    "board_dts": "overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts",
+    "layout": "overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi",
+    "status": "Exact existing DTS/model/include and SPI16M partitions checked; includes from pinned kernel and compiled DTB still require assembled-source/image validation"
+  },
+  "scope": "local source/profile/required-path/doc-link/archive checks; no full firmware/runtime verification",
+  "passed": true
+}

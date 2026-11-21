@@ -1,51 +1,46 @@
-# Структура репозиторію
+# Repository structure
 
-## Призначення каталогів
+Canonical architecture: [REPOSITORY-ARCHITECTURE.md](REPOSITORY-ARCHITECTURE.md).
+The names below are current operational paths; Phase 1 deliberately preserves
+them because workflows/generators depend on them.
 
-- configs.build/ — профілі збірки; boards.json — каталог допустимих плат.
-- overlay/ — зміни бази, донорських компонентів і патчі.
-- tools/ — підготовка джерел, перевірки, допоміжні інструменти.
-- tools/iot/ — дослідження та кандидати IoT; наявність файлів не означає
-  включення кандидата у виробничий образ.
-- sources/ і sources.lock.json — збережені компоненти та походження джерел.
-- reference/ — матеріали для порівняння, не автоматично активні профілі.
-- .github/workflows/ — рецепти CI.
-- docs/ — індекс, контракти, докази, приймання та архів.
-- AGENTS.md, PROJECT_STATUS.md, CODEX_HANDOFF.md — правила та спільний контекст.
+```text
+boards.json                       explicit build admission
+configs.build/                    requested board configs + donor reference/
+configs/                          owned dependency manifests
+sources.lock.json                 provenance, revisions, hashes, owned copies
+sources/archives/                 exact durable source inputs, not build output
+toolchains/wr1200js/               source-build compiler recipe/config
+overlay/padavan-4.4/
+  trunk/                          active source replacements and board/DTS files
+  ports/                          explicitly integrated package ports
+  patches/                        named version-sensitive source patches
+  scripts/                        ordered base transformations and image checks
+  candidates/                     isolated experiments, not implicit production
+tools/
+  board-catalog.py                stable CI selector wrapper
+  repository/                     shared profile/path validation and audit
+  iot/, band-steering/, ...        feature-scoped generators and checks
+reference/boards/                 donor snapshots for review only
+third_party/                      vendored components with original notices
+.github/workflows/                build, comparison, ABI and diagnostics lanes
+docs/
+  README.md                       navigation
+  evidence/                       smallest durable dated verification evidence
+  runtime/                        historical device observations
+  history/, archive/              historical checkpoints and old workflows
+PROJECT_STATUS.md, CODEX_HANDOFF.md current shared-workspace coordination
+```
 
-Локальні artifacts-*/, .audit-*/ та тимчасові fixture-каталоги не є
-канонічними вихідними кодами. Їхню цінність, посилання й контрольні суми
-потрібно перевірити перед будь-яким переміщенням або видаленням.
+Generated assembled source, ROMFS, compiler trees, extracted CI artifacts and
+native fixture binaries belong in runner/temp directories, not new permanent
+source directories. Preserve uncertain/unowned local files. Phase scratch cleanup
+is narrow and does not delete backups, references or unfinished work.
 
-## Відмінність від nilabsent/padavan-ng
-
-Порівняння 2026-10-22:
-https://github.com/nilabsent/padavan-ng
-
-Nilabsent містить повне дерево trunk/, toolchain/, uboot/mips/, README,
-Dockerfile і docker-compose.yml. Його Dockerfile використовує Ubuntu 24.04.
-Наш проєкт є шаром складання Linux 4.4.198: отримує зафіксовані базові джерела
-та застосовує профілі, overlay і перетворення. Тому створення порожніх trunk/
-або копіювання Dockerfile донора не зробить збірку самодостатньою.
-
-Перший етап упорядкування: зрозумілий README, карта каталогів, індекс
-документації, CONTRIBUTING і збережений механізм почергової роботи агентів.
-Це документаційна зміна, без зміни мережевої логіки та CI.
-
-Окремий наступний етап: завершити інвентар залежностей, збереження точних
-джерел і toolchain, узгодити розміщення повного дерева та перевірити офлайн
-збірку. До цього не заявляти про самодостатній репозиторій або робочий Docker.
-Не переносити неперевірені налаштування донора у WR1200JS.
-
-## Як читати Actions
-
-- Build selected router firmware — головна точка запуску прошивкової збірки.
-- Padavan Linux 4.4.198 WR1200JS — reusable-рецепт цієї плати.
-- Band Steering driver ABI — перевірки ABI і кандидатів, не приймання пристрою.
-- Service runtime state checks — перевірки служб; назва не доводить виконання
-  на фізичному роутері.
-- Agent build failure monitor — реагує на завершений failure заданих workflow;
-  це не збірка прошивки й не доказ автоматичного виправлення агентом.
-
-Правила ролей проєкту є нашими власними. Їх не можна приписувати Nilabsent:
-у переглянутому кореневому переліку цього репозиторію AGENTS і handoff немає.
+A local baseline inventory enumerated text-file nilabsent mentions, exact
+duplicate groups, directory counts/sizes and source-path dependencies. Its raw
+untracked-path list is retained locally because it includes owner-provided and
+unfinished workspace material; it is not a repository artifact. Duplicate bytes
+in donor snapshots or dated evidence are not automatically redundant: deleting
+them can break provenance or citations.
+[Migration plan](REPOSITORY-MIGRATION-PLAN.md) explains the no-mass-move decision.
