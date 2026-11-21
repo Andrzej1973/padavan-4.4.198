@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-07",
+  "reference_repository": "openwrt/openwrt",
+  "revision": "606ee33b8a049244759de735a48e98b00ec8ad5c",
+  "files": {
+    "target/linux/ramips/dts/mt7620a_xiaomi_miwifi-mini.dts": {
+      "git_blob": "ac0e26a06e9acef4494e5fd1236e65af1ca10a31"
+    },
+    "target/linux/ramips/dts/mt7620a.dtsi": {
+      "git_blob": "e2beddcf5d02f92cb82830292d677af1a8e08914"
+    }
+  },
+  "source_observations": {
+    "wmac_reg": [
+      "0x10180000",
+      "0x40000"
+    ],
+    "wmac_interrupt_parent": "cpuintc",
+    "wmac_interrupt": 6,
+    "wmac_clock_reference": "MT7620_CLK_WMAC",
+    "factory_reg": [
+      "0x40000",
+      "0x10000"
+    ],
+    "factory_label": "factory",
+    "eeprom_offsets": [
+      "0x0",
+      "0x8000"
+    ],
+    "firmware_reg": [
+      "0x50000",
+      "0xf80000"
+    ],
+    "reserved_tail_partitions": [
+      "crash@fd0000",
+      "reserved@fe0000",
+      "Bdata@ff0000"
+    ],
+    "ethernet_portmap": "llllw"
+  },
+  "compatibility_limits": [
+    "Reference OpenWrt layout is not the accepted Padavan image layout or owner device MTD evidence.",
+    "Current candidate get_mtd_device_nm uses case-sensitive Factory, not reference factory.",
+    "Modern NVMEM/clock/LED binding include files must not be transplanted into pinned vendor4.4 unchanged.",
+    "Current mi_mini_platform candidate only acquires IRQ and MMIO; clock/reset/pinctrl/Factory lifetime still need review.",
+    "CPU interrupt6 is not a Linux global IRQ number to hardcode."
+  ],
+  "runtime_verified": false,
+  "implementation_changed": false
+}

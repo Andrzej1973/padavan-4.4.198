@@ -1,0 +1,21 @@
+{
+  "audit_date": "2026-11-07",
+  "repository": "nilabsent/padavan-ng",
+  "radio_path": "trunk/proprietary/rt_wifi/rtsoc/2.7.X.X/rt2860v2",
+  "pinned_revision": "d2c5846299949c57a4e867284069900b561dd2a4",
+  "current_revision": "c29b12da69b1593a6e8cf65cd43767fc99bb6386",
+  "pinned_tree_sha": "ee88f6d0b37bab21bbc2ec34eb7c49480e297818",
+  "current_tree_sha": "ee88f6d0b37bab21bbc2ec34eb7c49480e297818",
+  "radio_subtree_identical": true,
+  "evidence": "GitHub contents API for parent directory at both exact revisions; rt2860v2 tree SHA equality",
+  "platform_binding": {
+    "compatible": "xiaomi,mi-mini-mt7620-radio",
+    "adapter": "overlay/padavan-4.4/candidates/mi-mini/mi-mini-port-bundle/new-files/os/linux/mi_mini_platform.c:52",
+    "pinned_kernel_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+    "pinned_dts_search_matches": 0,
+    "installer_changes_dts": false,
+    "conclusion": "Linking probe/attach symbols does not instantiate a platform device. Need board DTS or reviewed equivalent registration, resources/IRQ/reset/clock/Factory bindings and target/runtime validation."
+  },
+  "scope": "Source audit only; no build, device access or driver upgrade",
+  "runtime_verified": false
+}

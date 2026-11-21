@@ -59,6 +59,16 @@ is corrected to the owner's 2026-11-20 settings/apply resumption.
 
 ## Verification and remaining work
 
+Seven historical evidence records referenced by the changed lifecycle and
+Mi Mini status documents were reviewed and selectively preserved with those
+documents. They describe source/host findings and explicitly disclaim runtime
+acceptance. Their original dates, hashes and proposed next actions remain
+historical; preservation is not a new execution of the recorded checks or
+resumption of Mi Mini work. Two host records were also compared against current
+source hashes; any changed source requires fresh checks before using their old
+PASS results for current acceptance. Private owner/workspace material remains
+outside this package.
+
 Repository/profile validation, its negative fixtures, and whitespace checking
 of the committed delta from the live service-branch SHA pass locally. These
 checks establish neither full firmware compilation nor image/device acceptance.

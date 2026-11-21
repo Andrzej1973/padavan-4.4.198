@@ -1,0 +1,48 @@
+{
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "source": "ap/ap_connect.c",
+  "source_sha256": "5499298bb20028e56401735b5c6ebc2f3716ad087851282d443fd23120b1ed85",
+  "status": "source and extracted host counterexample verified",
+  "runtime_verified": false,
+  "references": {
+    "APMakeBssBeacon": 249,
+    "HIF_MT_make_early_return": 277,
+    "APUpdateBeaconFrame": 540,
+    "beacon_offload_guard": 584,
+    "APMakeAllBssBeacon": 1763,
+    "all_bss_make_loop": 1798,
+    "AsicSetMbssMode": 1801,
+    "APUpdateAllBeaconFrame": 1813,
+    "shared_DtimCount_advance": 1822,
+    "all_bss_update_loop": 1885
+  },
+  "extracted_dtim_source": "\tif (pAd->ApCfg.DtimCount == 0)\n\t\tpAd->ApCfg.DtimCount = pAd->ApCfg.DtimPeriod - 1;\n\telse\n\t\tpAd->ApCfg.DtimCount -= 1;\n",
+  "fixture_sha256": "6d3ab5584ba931af23d585c338c576c01e6b301bc2aa82ba1015ddad74ae92fa",
+  "host_result": "PASS extracted global beacon helper advances shared DTIM on every invocation, including non-TBTT callers; not runtime proof",
+  "finding": "Nonzero-reference virtual UP avoids physical open but invokes global beacon helpers. APUpdateAllBeaconFrame advances shared DTIM and updates every BSS. Existing mock beacon hooks do not prove preservation of Main/Guest beacon state.",
+  "safe_patch_proven": false,
+  "next_evidence": "Evaluate scoped APUpdateBeaconFrame plus required MBSS MMIO/bookkeeping; prove TIM/DTIM/slot invariants before altering dispatcher. Do not blindly remove global helper calls.",
+  "scratch_bytes_removed": 23524,
+  "scoped_refresh_review": {
+    "per_bss_update": "APUpdateBeaconFrame540 reads shared DTIM892\u2013893 without decrement; VOID return and early exits614\u2013631 prevent using return as submission receipt",
+    "make_mt_path": "APMakeBssBeacon returns for HIF_MT277\u2013281; not a necessary synchronous MT frame builder",
+    "slot_effect": "GetBcnNum1741 rewrites active BcnBufIdx1753; cold reserve must establish valid slots before omitting it",
+    "mmio_effect": "AsicSetMbssMode566 uses BssidNum+MAX_MESH_NUM+MAX_APCLI_NUM577; NumOfBcns argument unused in this MT implementation",
+    "dma_submission": "common/cmm_mac_pci.c2678 MT RT28xx_UpdateBeaconToAsic selects apidx, takes BcnRingLock, calls HAL_KickOutMgmtTx and writes BCN_TX_WRITE_TO_DMA2710\u20132713; VOID result does not prove kickout accepted",
+    "close_descendant": "ap/ap_mbss.c435\u2013436 MBSS_Close also calls both global helpers after clearing BSS beacon intent432",
+    "concurrency": "beacon-producer-gate.h begin allows multiple active producers; lifetime pin is not exclusive ownership of BeaconPkt",
+    "preferred_design": "After verified cold reservation and MMIO readback, evaluate suppressing synchronous global refresh only for owned reserved ra2 and allowing existing periodic updater to build it. Require generation-bound first accepted submission before ACTIVE. This is a proposal, not proved/applied fix.",
+    "rejected_shortcut": "Do not blindly call APUpdateBeaconFrame(ad,2) synchronously: existing periodic builder may be active, and silent early return is possible."
+  },
+  "additional_pinned_source_sha256": {
+    "ap/ap_mbss.c": "402a0a3dfc95bc52347262fcd7ff18f70922a9b2d1dcb72a8c6657c0013bb616",
+    "hw_ctrl/cmm_asic_mt.c": "a2bcc245b48f709164dcc3bbe73267cb8c7c4f4abe8fc6bebdcd6de5d53e6e45",
+    "common/cmm_mac_pci.c": "76d7c82652b0e165c8d9af77295c985b99a0f4533373c96defe0ca2dbfbb1042"
+  },
+  "final_candidate_correction": {
+    "exclusive_builder_already_present": "prepare-driver-api.py gates exact BSS2 on !gate->active and checks DMA under retained pin",
+    "submit_status_already_present": "prepare-radio-queue-candidate.py changes MT submit ABI to INT32:0 host publication,-1 pre-publication rejection,-2 cancellation failure",
+    "reserved_close_already_scoped": "prepare-driver-api.py suppresses UpdateAll for exact reserved BSS2 close; keeps MakeAll",
+    "interpretation": "Earlier concurrency/VOID observations describe base/pinned fragments, not missing protections in final composition."
+  }
+}

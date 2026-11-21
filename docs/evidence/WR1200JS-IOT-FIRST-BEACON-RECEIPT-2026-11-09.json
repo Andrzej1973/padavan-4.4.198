@@ -1,0 +1,14 @@
+{
+  "scope": "Staged host receipt only; not driver producer binding, physical wait timeout implementation or RF/late-TxS retirement",
+  "status": "passed",
+  "output": "PASS first-beacon host receipt: pending without submission; identity mismatches/replay/late events/cancel/owner loss refuse; one current accepted submission consumed once. No driver hook, RF or TxS proof.",
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false,
+  "source_sha256": {
+    "precreated-first-beacon.h": "5389e84af59385db1597b4a19ed80161e34c377ec4a8fd1eea637131779fbdfa",
+    "check-precreated-first-beacon.c": "6c578c81e2b90a451e40dc0ddecc85c2d0c835ee38bedad4cdf7dd8295676cbb"
+  },
+  "scratch_binary_bytes_removed": 58040,
+  "submission_boundary": "Host descriptor/CIDX publication only; neither DMA execution nor over-air delivery. Actual lower-path binding still unimplemented."
+}

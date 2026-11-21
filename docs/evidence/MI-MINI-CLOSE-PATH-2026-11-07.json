@@ -1,0 +1,33 @@
+{
+  "revision": "d2c5846299949c57a4e867284069900b561dd2a4",
+  "repository": "nilabsent/padavan-ng",
+  "source": "trunk/proprietary/rt_wifi/rtsoc/2.7.X.X/rt2860v2/common/rtmp_init_inf.c",
+  "observations": {
+    "close_function": "RTMPDrvClose:999",
+    "dequeue_wait": "1077-1083: unbounded wait on DeQueueRunning[i] with1000us delay",
+    "mlme_halt": 1106,
+    "nettask_exit": 1109,
+    "ap_shutdown": 1139,
+    "management_exit": 1152,
+    "interrupt_disable": 1168,
+    "pci_radio_off": "1176-1193: only PCI/PCIE infType; RBUS does not execute this call",
+    "irq_release": 1204,
+    "ring_reset_or_free": "1220-1226"
+  },
+  "not_proven": [
+    "Successful DMA idle when bounded busy loop exhausts:2378-2395 has no failure return",
+    "Successful MAC idle on timeout:2401-2413 logs but continues",
+    "Propagation of failed stop to RTMPDrvClose before ring release",
+    "No future IRQ/tasklet/timer producer after joins",
+    "Bounded safe close outcome under stuck dequeue worker"
+  ],
+  "next_action": "Design Mi Mini-specific checked RBUS stop outcome and caller lifetime retention before ring free, with idle/timeout/absent-device fixtures and target macros. Do not merely add timeout then free. RBUS stop implementation does exist; prior unknown is resolved.",
+  "scope": "Bounded source review; no assertion of observed hardware failure",
+  "runtime_verified": false,
+  "resolved_call_chain": {
+    "common/mlme.c": "MlmeRadioOff -> RTMP_MLME_RADIO_OFF",
+    "include/chip/mac_pci.h:439-440": "macro -> RT28xxPciMlmeRadioOFF",
+    "macro_header_git_blob": "85a0ffd425e2933d6eff65a4dfed2b74612067f3",
+    "common/cmm_mac_pci.c:2373-2432": "RBUS branch disables Tx/Rx DMA, polls busy, disables MAC and polls status before RF clock off"
+  }
+}

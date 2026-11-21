@@ -1,0 +1,53 @@
+{
+  "scope": "Read-only alternative review, pinned vendor c25283e; no driver patch",
+  "proposal": "Disable HostTxS only for reserved ra2 long beacon descriptors, retain buffers and rely on DMA ownership. This is distinct from MCU ACK.",
+  "source_references": [
+    {
+      "file": "ap/ap_connect.c",
+      "line": 105,
+      "fact": "Long beacon descriptor uses MAC_TX_INFO, bss_idx/TxSPriv=apidx and Q_IDX_BCN"
+    },
+    {
+      "file": "mac/mt_mac.c",
+      "line": 1009,
+      "fact": "TYPE1 PID allocation precedes enabling tx_status_2_host from packet-type policy"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 316,
+      "fact": "Beacon host status policy applies to all WLAN indices"
+    },
+    {
+      "file": "common/cmm_data_pci.c",
+      "line": 2737,
+      "fact": "Beacon DMA done advances only to BCN_TX_DMA_DONE"
+    },
+    {
+      "file": "tx_rx/txs.c",
+      "line": 77,
+      "fact": "Beacon TxS handler normally advances state to IDLE"
+    },
+    {
+      "file": "ap/ap_connect.c",
+      "line": 622,
+      "fact": "Non-IDLE beacon enters recovery/refuses normal update"
+    }
+  ],
+  "findings": [
+    "Clearing HostTxS after allocation strands its reservation; a scoped design would have to skip allocation first.",
+    "Short-template HostTxS0 is a different path and does not prove long-beacon lifecycle compatibility.",
+    "Replacing DMA_DONE with IDLE changes pacing and requires separate host-buffer and RF/BSS states.",
+    "Permanent storage removes one lifetime hazard but not prior requested reports, queued RF transmissions or reset/remove obligations."
+  ],
+  "missing_evidence": [
+    "Proven initial epoch without previously requested ra2 TxS",
+    "Exact long-descriptor HostTxS behavior for E1/E2",
+    "Queue capacity/pacing with DMA-only progress",
+    "Per-BSS no-more-RF transmission boundary",
+    "Full shutdown/reset/remove lifetime contract"
+  ],
+  "decision": "No demonstrated safe host-only fix; do not modify production or mark TxS blocker fixed. Continue hardware queue/flush contract investigation.",
+  "stale_protection_preserved": true,
+  "runtime_verified": false,
+  "scratch": "Read-only analysis; no scratch generated."
+}

@@ -1,0 +1,37 @@
+{
+  "scope": "Actual reserved activation controller composed with staged MBSS admission; raw radio IO and network operations injected. Not production RC binding, hardware restart/scan/MCU counters, RF/TxS retirement or device acceptance.",
+  "status": "passed",
+  "compiler_flags": [
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined"
+  ],
+  "source_sha256": {
+    "check-precreated-mbss-composition.c": "401d607fd32db91603df367cca6f9ad97e5613462b8d9cb7bdb5ac9c3dae85a0",
+    "check-mbss-post-open.c": "373fb748c36e6092ca3e51fa9fb16e5bf04aaad38a5e24f49cf82d3cfab6dc04",
+    "check-activation.c": "df36ec07b72b72f3a1f49e484fddc146dfcfd6c904464e8904cc6588c8052033",
+    "activation.h": "25bed32171e7e1c23a74e0cf288bded7d1c745b16270245fce8f96924376c413",
+    "mbss-open-admission.inc": "60dddc29753cdbdd6a582a7c05c1ae931e0605d2177ef7cdfcfa8cceafc9c8f7",
+    "virtual-open-claim.h": "8bb2017fae17f18ef6d31e50dc577aeb9db83497b049d246b36b29b1677a913b",
+    "interface-reference.h": "2871a1b90c4a381cb9c64106beccaf9bf6cb934fc1f73a8349d9a6fd421a944a",
+    "interface-registry.h": "e90b709fe492b7f886b4278d46480a7b32a3deab5651620f6018801534a32f82",
+    "radio-transition.h": "daceea4cba598351e8ce61814f4c528478544da6112f00ae84e419441eda486e"
+  },
+  "checks": [
+    "valid Main admits ra2",
+    "Main revoked after RC readiness refuses before raw mutation",
+    "Main and Guest records retained",
+    "unproven retirement keeps recovery owner and network isolation",
+    "no legacy profile/radio-prepare/restore dispatch"
+  ],
+  "output": "PASS composed reserved controller/MBSS admission: valid Main opens ra2; revoked Main refuses before raw mutation; unknown retirement retains isolation. Raw IO/network injected; no physical restart/scan/MCU or runtime proof.",
+  "target_compiled": false,
+  "production_installed": false,
+  "runtime_verified": false,
+  "scratch_cleanup": {
+    "binary_bytes_removed": 497336,
+    "retained": "source fixture and compact JSON only"
+  }
+}
