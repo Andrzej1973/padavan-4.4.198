@@ -39,7 +39,8 @@ def validate():
  except (ValueError,KeyError) as e:errors.append(str(e));boards=[]
  for group in GROUPS:
   if not (ROOT/group).is_dir():errors.append('Missing operational directory '+group)
- errors+=links(ROOT,['docs/'+x for x in DOCS])
+ errors+=links(ROOT,['README.md','docs/README.md','docs/LOCAL-NIM-HELPER-NOTES.md',
+                     *('docs/'+x for x in DOCS)])
  for name in ['configs/owned-build-dependencies.json']:
   for item in json.loads((ROOT/name).read_text()):
    p=ROOT/'sources/archives'/item['filename']
