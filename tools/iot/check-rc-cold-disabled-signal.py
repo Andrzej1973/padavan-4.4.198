@@ -35,6 +35,7 @@ void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan){(void)plan;asse
 static struct wr_iot_activation_owner backend;
 static struct {pid_t owner;} rebind;
 static const struct wr_iot_cold_owner *wr_iot_cold_backend_parent;
+#include "check-cold-normal-consumer.h"
 #include "rc-cold-disabled-release.inc"
 static struct wr_iot_cold_owner *signal_parent;
 static int shutdowns;
@@ -85,7 +86,8 @@ int main(int argc,char**argv){
  assert(owner.admission.profile.active&&depth==1&&!backend.owner);
  fail_disabled_unmask=0;
  assert(wr_iot_cold_disabled_parent_release(&parent_release,&release)&&parent_release.released);
- assert(shutdowns==1&&!wr_iot_rc_shutdown.pending);
+ assert(!shutdowns&&!wr_iot_rc_shutdown.pending);
+ assert(wr_iot_rc_shutdown.normal_route_armed&&wr_iot_rc_shutdown.normal_route_requested==SIGTERM);
  assert(!depth&&!owner.owner&&!owner.admission.profile.files.count&&!owner.admission.fence.owner);
  assert(!disabled.owner&&!release.parent&&!release.disabled);
  assert(backend.owner==getpid()&&backend.phase==WR_IOT_OWNER_INITIAL_OFF&&!backend.start.owner&&!backend.stop.owner);

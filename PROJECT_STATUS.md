@@ -1,3 +1,27 @@
+## Cold released-root routed shutdown — 2026-11-22
+
+Base c7145bd20568c60d5dc54461a275133021e13145: standard1477/44990133432,
+ABI44990133428 and optional1478/44992695328 SUCCESS. Optional source
+artifact confirmed identical dispatch/requested/verified revision.
+
+Disabled parent release arms the normal route after successful fence
+cleanup and preserves INITIAL_OFF. Enabled and disabled released roots can
+yield before IAPP or following a resource-free LED/IAPP refusal. Exact
+backend proof remains mandatory. Live or unknown child, held fence and
+unreturned WAN retain ownership. Released roots are cleared without
+asserting successful ON. Normal shutdown remains responsible for physical
+RELEASE and one signal replay.
+
+Host composition PASS for disabled pre-IAPP, LED and confirmed IAPP
+refusals, including live/unknown/held refusal cases (23.73s, 98032KiB).
+Enabled composition PASS (43.37s, 138760KiB). Disabled terminal PASS
+(23.68s, 127000KiB). Root signal dispatch and diff checks PASS, exit0.
+Pinned GCC10.5/uClibc1.0.48 compiled36 prepared0/1 MIPS objects
+PASS30.29s peak57552KiB exit0. Fixture and compiler scratch disposed,
+188293206 apparent compiler bytes reclaimed. No full link/image/device
+evidence for this package yet. Publish the verified package once, check
+exact standard/ABI and queue exact optional after standard success.
+
 ## Released enabled-ON -> OFF handoff package — 2026-11-22
 
 This source supersedes the preparatory/gap notes below for enabled released

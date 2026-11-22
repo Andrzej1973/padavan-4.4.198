@@ -1,6 +1,7 @@
 /* Uncomposed RC-private disabled cold cleanup after rc-cold-start.inc.
  * Only IDLE/INITIAL_OFF backend with no live startup/stop/rebind is eligible. */
 #include "rc-cold-disabled-completion.h"
+#include "rc-normal-shutdown.h"
 static int wr_iot_cold_disabled_backend_idle(void)
 {
  return !wr_iot_cold_backend_parent&&!rebind.owner&&!backend.busy&&
@@ -17,6 +18,7 @@ static void wr_iot_cold_disabled_parent_cleanup(void *context)
  struct wr_iot_cold_disabled_release *r=s->release;struct wr_iot_cold_owner *p=r->parent;
  struct wr_iot_cold_admission *a=&p->admission;size_t i;int guard=a->guard;
  /* Copy only the inert nonsecret observation, never an owned controller. */
+ wr_iot_rc_normal_shutdown_arm_commit();
  backend.initial_off=r->disabled->idle;backend.owner=getpid();backend.phase=WR_IOT_OWNER_INITIAL_OFF;
  for(i=0;i<a->profile.files.count;i++)if(a->profile.files.saved[i].data)
   wr_iot_cold_disabled_wipe(a->profile.files.saved[i].data,a->profile.files.saved[i].size);
@@ -37,7 +39,8 @@ static int wr_iot_cold_disabled_parent_release(struct wr_iot_cold_disabled_paren
  struct wr_iot_cold_disabled_release *r)
 {
  if(!s||!r||s->busy||s->released||(s->release&&s->release!=r)||
-    !wr_iot_cold_disabled_backend_idle()||!wr_iot_cold_disabled_release_current(r))return 0;
+    !wr_iot_cold_disabled_backend_idle()||!wr_iot_cold_disabled_release_current(r)||
+    !wr_iot_rc_normal_shutdown_cold_arm_ready())return 0;
  s->release=r;s->busy=1;
  if(!wr_iot_radio_stop_fence_end_cleanup(&r->parent->admission.fence,wr_iot_cold_disabled_parent_cleanup,s)){
   s->busy=0;return 0;

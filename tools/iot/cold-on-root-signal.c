@@ -26,8 +26,10 @@ int wr_iot_cold_root_signal_step(struct wr_iot_cold_root *s)
   * Never start a new IAPP transaction that this slot deliberately excludes.
   * The private handoff owns all validation and retains on any uncertainty. */
  if(!wr_iot_rc_shutdown.active&&wr_iot_rc_shutdown.normal_route_requested&&
-    s->enabled==1&&(s->phase==WR_COLD_ROOT_TERMINAL_BEGIN||
-     (s->phase==WR_COLD_ROOT_TERMINAL&&!s->terminal.terminal.attempted)))
+    (s->phase==WR_COLD_ROOT_TERMINAL_BEGIN||
+     (s->phase==WR_COLD_ROOT_TERMINAL&&
+      (s->enabled?(!s->terminal.terminal.attempted||s->terminal.phase==WR_COLD_TERM_RETAINED):
+                  (!s->disabled_terminal.terminal.attempted||s->disabled_terminal.phase==WR_COLD_DISABLED_TERM_RETAINED)))))
   return wr_iot_rc_cold_root_routed_handoff(s)?-1:0;
  if(!wr_iot_rc_shutdown.pending)return 1;
  if(!wr_iot_rc_shutdown.active||

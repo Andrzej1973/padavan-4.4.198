@@ -76,8 +76,12 @@ int main(void){
  wr_iot_rc_shutdown.radio_on_owned=0;
  setup(&s);pending_fault=1;assert(!wr_iot_cold_root_signal_step(&s)&&entropy_calls==calls);
  setup(&s);s.handoff.parent=NULL;assert(!wr_iot_cold_root_signal_step(&s)&&entropy_calls==calls);
- for(int phase=0;phase<2;phase++){
-  setup(&s);s.enabled=1;s.phase=phase?WR_COLD_ROOT_TERMINAL:WR_COLD_ROOT_TERMINAL_BEGIN;
+ for(int enabled=0;enabled<2;enabled++)for(int phase=0;phase<3;phase++){
+  setup(&s);s.enabled=enabled;s.phase=phase?WR_COLD_ROOT_TERMINAL:WR_COLD_ROOT_TERMINAL_BEGIN;
+  if(phase==2){
+   if(enabled){s.terminal.phase=WR_COLD_TERM_RETAINED;s.terminal.terminal.attempted=1;}
+   else{s.disabled_terminal.phase=WR_COLD_DISABLED_TERM_RETAINED;s.disabled_terminal.terminal.attempted=1;}
+  }
   wr_iot_rc_shutdown.active=wr_iot_rc_shutdown.pending=0;
   wr_iot_rc_shutdown.normal_route_armed=1;wr_iot_rc_shutdown.normal_route_requested=SIGTERM;
   int observed=routed_calls;routed_ready=0;

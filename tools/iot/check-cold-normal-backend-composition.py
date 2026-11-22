@@ -13,7 +13,7 @@ cold_ns={'__file__':str(here/'check-rc-cold-terminal.py')}
 exec(compile(source[:source.index('\nwith tempfile.TemporaryDirectory(')],'<cold owner setup>','exec'),cold_ns)
 cold=cold_ns['body'].split('int main(int argc',1)[0]
 cold=cold.replace('#include "check-cold-normal-consumer.h"','')
-cold+='\n#include "cold-on-root.h"\n#include "rc-cold-route-handoff.inc"\n'
+cold+='\n#include "cold-on-root.h"\nstatic int wr_iot_cold_disabled_followup_current(const struct wr_iot_cold_disabled_release *r){(void)r;assert(0);return 0;}\n#include "rc-cold-route-handoff.inc"\n'
 def remove(code,name):
  m=re.search(r'(?m)^(?:static )?(?:int|void|long|unsigned int|enum \w+) '+re.escape(name)+r'\([^;{}]*\)\s*\{',code);assert m,name
  end=m.end();level=1

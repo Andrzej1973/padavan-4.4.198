@@ -35,6 +35,7 @@ void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan){assert(plan==(e
 static struct wr_iot_activation_owner backend;
 static struct {pid_t owner;} rebind;
 static const struct wr_iot_cold_owner *wr_iot_cold_backend_parent;
+#include "check-cold-normal-consumer.h"
 #include "rc-cold-disabled-release.inc"
 #include "rc-cold-disabled-followup.inc"
 #include "restart-terminal-iapp.h"
@@ -48,6 +49,14 @@ int wr_iot_iapp_child_step(struct wr_iot_iapp_child*s){if(!child_outcome)return 
 #define WR_IOT_IAPP_POLICY_PREPARED TEST_IAPP_GATE
 #include "rc-cold-disabled-terminal.inc"
 #include "rc-cold-disabled-completion.inc"
+#include "cold-on-root.h"
+static int wr_iot_cold_followup_active(const struct wr_iot_cold_release *r){(void)r;assert(0);return 0;}
+#include "rc-cold-route-handoff.inc"
+int wr_iot_rc_normal_shutdown_cold_handoff_ready(void)
+{
+ return wr_iot_rc_shutdown.normal_route_armed&&wr_iot_rc_shutdown.normal_route_requested==SIGTERM&&
+  !wr_iot_rc_shutdown.active&&!wr_iot_rc_shutdown.pending&&wr_iot_rc_shutdown.radio_on_owned==1;
+}
 int main(int argc,char**argv){
  (void)check;assert(argc==4);led_failure=argv[3][0]-'0';disabled_plan=argv[2][0]-'0';assert(disabled_plan>=0&&disabled_plan<=2);snprintf(profile_path,sizeof(profile_path),"%s/profile",argv[1]);
  struct wr_iot_cold_owner owner={0};struct wr_iot_cold_disabled disabled={0};struct wr_iot_control_request input={0};
@@ -122,6 +131,26 @@ int main(int argc,char**argv){
  if(!WR_IOT_IAPP_POLICY_PREPARED){
   for(int wait=0;wait<4;wait++)assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&!child_calls&&!wr_iot_rc_shutdown.active);
   assert(terminal_owner.phase==WR_COLD_DISABLED_TERM_IAPP_PENDING);
+  struct wr_iot_cold_root root={.owner=getpid(),.phase=WR_COLD_ROOT_TERMINAL};
+  root.disabled_release=release;
+  root.disabled_released.release=&root.disabled_release;
+  root.disabled_released.released=1;
+  root.disabled_terminal=terminal_owner;
+  root.disabled_terminal.parent_release=&root.disabled_released;
+  assert(!wr_iot_rc_cold_root_routed_handoff(&root));
+  assert(wr_iot_rc_shutdown_note(SIGTERM));
+  root.disabled_terminal.child.owner=getpid();
+  assert(!wr_iot_rc_cold_root_routed_handoff(&root)&&root.owner);
+  root.disabled_terminal.child.owner=0;
+  backend.initial_off.idle.generation++;
+  assert(!wr_iot_rc_cold_root_routed_handoff(&root)&&root.owner);
+  backend.initial_off.idle.generation--;
+  root.disabled_release.wan.returned=0;
+  assert(!wr_iot_rc_cold_root_routed_handoff(&root)&&root.owner);
+  root.disabled_release.wan.returned=1;
+  assert(wr_iot_rc_cold_root_routed_handoff(&root)&&!root.owner&&!depth&&!child_calls);
+  assert(!wr_iot_rc_shutdown.radio_on_owned&&wr_iot_rc_shutdown.normal_route_requested==SIGTERM);
+  assert(backend.phase==WR_IOT_OWNER_INITIAL_OFF&&backend.initial_off.owner==getpid());
  }else{
   assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&wr_iot_rc_shutdown.active);
   assert(!wr_iot_rc_cold_disabled_terminal_step(&terminal_owner)&&child_calls==1);

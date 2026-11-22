@@ -35,6 +35,7 @@ void wr_iot_rc_restart_wan_submit(enum wr_iot_wan_followup plan){assert(plan==(e
 static struct wr_iot_activation_owner backend;
 static struct {pid_t owner;} rebind;
 static const struct wr_iot_cold_owner *wr_iot_cold_backend_parent;
+#include "check-cold-normal-consumer.h"
 #include "rc-cold-disabled-release.inc"
 #include "rc-cold-disabled-followup.inc"
 int main(int argc,char**argv){
