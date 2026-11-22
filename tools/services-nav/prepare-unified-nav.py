@@ -13,6 +13,7 @@ CATALOG = "Advanced_Services_Catalog.asp"
 MARKER = 'id="wr_services_nav"'
 KEYS = {
     "WRServicesNav": ("Router services", "Служби маршрутизатора", "Службы маршрутизатора"),
+    "WRServicesNavCatalog": ("Service catalog", "Каталог служб", "Каталог служб"),
     "WRServicesNavDNS": ("DNS", "DNS", "DNS"),
     "WRServicesNavVPN": ("VPN", "VPN", "VPN"),
     "WRServicesNavProxy": ("Proxy", "Проксі", "Прокси"),
@@ -96,8 +97,8 @@ def page_path(www: Path, route: str) -> Path:
 
 def catalog_link() -> str:
     return (
-        f'<nav {MARKER} aria-label="<#WRServicesNav#>">'
-        f'<a class="btn btn-mini wr-service-link" href="/{CATALOG}"><#WRServicesNav#></a>'
+        f'<nav {MARKER} class="wr-service-catalog-shortcut" aria-label="<#WRServicesNav#>">'
+        f'<a class="btn btn-small btn-primary wr-service-link" href="/{CATALOG}"><#WRServicesNavCatalog#></a>'
         '</nav>'
     )
 
@@ -140,6 +141,7 @@ def inject(path: Path, nav: str) -> None:
         raise SystemExit(f"Unexpected service-page structure: {path.name}")
     css = '''
 <style>
+.wr-service-catalog-shortcut { margin:6px 0 8px; }
 .wr-service-nav { display:grid; grid-template-columns:fit-content(31%) fit-content(34%) minmax(0,1fr); align-items:start; gap:4px 8px; margin:4px 0 6px; padding:5px; }
 .wr-service-group { display:flex; width:fit-content; max-width:100%; box-sizing:border-box; min-width:0; flex-wrap:wrap; align-items:center; gap:3px 4px; padding:2px 5px; }
 .wr-service-group strong { margin-right:2px; }
