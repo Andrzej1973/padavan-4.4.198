@@ -32,6 +32,22 @@ docs/
 PROJECT_STATUS.md, CODEX_HANDOFF.md current shared-workspace coordination
 ```
 
+## Stage 2 layout decisions
+
+The reference tree bundles a buildable `trunk/`, compiler sources under
+`toolchain/` and bootloader sources under `uboot/`. This repository assembles
+Linux 4.4.198 from locked inputs and the WR1200JS overlay. Keep
+`overlay/padavan-4.4/trunk/`, `toolchains/wr1200js/` and the existing board
+catalogue as the canonical locations. A root SDK tree or Docker entry point
+would require a separate build contract. Bootloader ownership stays separate
+from firmware image assembly.
+
+The standalone IE length and slot lookup models now live in `tools/iot/`,
+alongside the checks they support. Their active navigation is in
+[Local Nim helper notes](LOCAL-NIM-HELPER-NOTES.md). CI has no direct
+references to either old root path. Historical records retain their original
+command paths.
+
 Generated assembled source, ROMFS, compiler trees, extracted CI artifacts and
 native fixture binaries belong in runner/temp directories, not new permanent
 source directories. Preserve uncertain/unowned local files. Phase scratch cleanup

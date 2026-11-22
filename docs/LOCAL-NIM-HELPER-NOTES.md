@@ -6,8 +6,8 @@ Their existing source behavior was preserved; generated binaries stay local.
 
 | Source | Purpose | Observed behavior |
 | --- | --- | --- |
-| [IE length model](../ie_length_check.nim) | Model lengths, offsets and remaining capacity | Default six-case demonstration deliberately reports one FAIL and exits1 for an unchecked oversized input |
-| [Slot lookup model](../slot_lookup_check.nim) | Compare MAC-only lookup with interface/generation predicates | First example prints PASS=false, two strict examples print PASS=true; exit0 is not an aggregate test verdict |
+| [IE length model](../tools/iot/ie_length_check.nim) | Model lengths, offsets and remaining capacity | Default six-case demonstration deliberately reports one FAIL and exits1 for an unchecked oversized input |
+| [Slot lookup model](../tools/iot/slot_lookup_check.nim) | Compare MAC-only lookup with interface/generation predicates | First example prints PASS=false, two strict examples print PASS=true; exit0 is not an aggregate test verdict |
 | [Text replacement helper](../tools/replace_text.nim) | Explicit byte-string replacement in a specified file | Temporary-file demonstration replaced the first of two matches and exited0 |
 
 All three were compiled/run with `nim c -r` using temporary output/cache paths.
