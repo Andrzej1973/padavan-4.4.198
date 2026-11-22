@@ -1,4 +1,6 @@
 from pathlib import Path
+import json
+import re
 import subprocess
 import tempfile
 here=Path(__file__).resolve().parent
@@ -29,6 +31,24 @@ body=body.replace('int wr_iot_rc_backend_applied_route(const char *id,unsigned l
  'int wr_iot_rc_backend_applied_route(const char *id,unsigned long long t){assert(id&&t&&runtime_executes==1);return runtime_terminal;}')
 body=body.replace('int wr_iot_activation_result_observed(const struct wr_iot_control_result *r){(void)r;assert(0);return 0;}',
  'int wr_iot_activation_result_observed(const struct wr_iot_control_result *r){return wr_iot_rc_edit_observed(r);}\nint wr_iot_rc_backend_observed(const struct wr_iot_control_result *r){return r&&r->state==WR_IOT_RESULT_APPLIED&&runtime_executes==1&&runtime_terminal;}')
+body += r'''
+#include <stdarg.h>
+static char reply[1024];
+static int get_login_safe(void){return 1;}
+static const char *websGetVar(FILE *stream,const char *key,const char *fallback)
+{(void)stream;(void)key;return fallback;}
+static int websWrite(FILE *stream,const char *format,...)
+{
+ int length;va_list args;(void)stream;
+ va_start(args,format);length=vsnprintf(reply,sizeof(reply),format,args);va_end(args);
+ return length;
+}
+#include "http-handler.inc"
+int wr_iot_http_is_post(void){return 1;}
+const char *wr_iot_http_content_type(void){return "application/x-www-form-urlencoded";}
+int wr_iot_http_view_read(struct wr_iot_config_view *view,char revision[33])
+{return wr_iot_rc_edit_view(30,view,revision);}
+'''
 body+=r'''
 #include "config-edit-server.h"
 #include "http-edit-request.h"
@@ -96,7 +116,13 @@ int main(int argc,char **argv)
  if(mode==14)runtime_reply=WR_IOT_RESULT_STORED_RAM;
  if(mode==15)runtime_reply=WR_IOT_RESULT_SAVED_FLASH;
  wr_iot_mailbox_init(&mailbox);
- assert(wr_iot_rc_submit_edit(&parsed.fields,parsed.revision,parsed.mode,parsed.action,request.id));
+ memcpy(wr_iot_http_csrf,csrf,sizeof(csrf));
+ assert((size_t)length<sizeof(wr_iot_http_body));
+ memcpy(wr_iot_http_body,form,(size_t)length);
+ wr_iot_http_length=(size_t)length;
+ wr_iot_http_edit_output_mode(NULL,request.edit.mode);
+ assert(sscanf(reply,"{\"accepted\":true,\"id\":\"%32[0-9a-f]",request.id)==1);
+ assert(wr_iot_control_id(request.id)&&!wr_iot_http_length&&!wr_iot_http_body[0]);
  wr_iot_saved_wipe(&parsed,sizeof(parsed));wr_iot_saved_wipe(form,sizeof(form));
  before=reaped;
  assert(wr_iot_rc_dispatch());
@@ -160,6 +186,13 @@ int main(int argc,char **argv)
   assert(!wr_iot_rc_continue());
   if(mode!=3&&mode!=5){
    assert(wr_iot_rc_status(request.id,&result));
+   length=snprintf(wr_iot_http_body,sizeof(wr_iot_http_body),"token=%s",csrf);
+   assert(length>0&&(size_t)length<sizeof(wr_iot_http_body));
+   wr_iot_http_length=(size_t)length;
+   wr_iot_http_view_output("/wr_iot_view.cgi",NULL);
+   assert(!wr_iot_http_length&&!wr_iot_http_body[0]);
+   puts(revision);
+   puts(reply);
    strcpy(m->record,"foreign");assert(!wr_iot_rc_status(request.id,&result));
   }
  }
@@ -176,12 +209,25 @@ with tempfile.TemporaryDirectory(prefix='wr-edit-route-') as directory:
  (root/'rc.h').write_text('int nvram_getall(char *,int,int);\nint nvram_set(const char *,const char *);\n')
  (root/'wr-band-settings-snapshot.h').write_bytes((shared/'settings-snapshot.h').read_bytes())
  units=('control-client','control-mailbox','control-server','config-edit-server','config-server','config-save-server','config-save-owner','config-owner','saved-config-store','flash-worker','flash-save-attempt','service-guard')
- subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie',
+ subprocess.run(['gcc','-std=gnu11','-Wall','-Wextra','-Werror','-Wno-unused-function','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie',
   '-DWR_IOT_NATIVE_FLASH_READBACK_PREPARED=1','-DWR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED=1',
   '-DWR_IOT_NATIVE_NVRAM_SPACE=61440','-DWR_IOT_NATIVE_NVRAM_HEADER_BYTES=20',
   '-DWR_IOT_EDIT_CLOCK=fixture_edit_clock','-DWR_IOT_EDIT_ENTROPY=fixture_edit_entropy',
   '-DWR_IOT_SERVICE_LOCK_PATH="'+str(root/'service.lock')+'"','-DWR_IOT_CONTROL_DIRECTORY="'+str(root/'queue')+'"',
   '-DWR_IOT_NOTIFY()=((void)0)','-I'+str(root),'-I'+str(here),str(source),
   *[str(here/(unit+'.c')) for unit in units],str(shared/'settings-snapshot.c'),'-o',str(binary)],check=True)
- for mode in range(16):subprocess.run([str(binary),str(mode)],check=True,timeout=25)
-print('PASS actual HTTP edit parser/view/lease/pin/client/queue/RC/RAM/Save/worker composition: auth/CSRF refusal, decoded fields, KEEP/REPLACE, manual RAM, flash, stale/expired rejection and unknown no-replay; native flash/SDK/clock/entropy actors, no HTTP server/device acceptance')
+ for mode in range(16):
+  run = subprocess.run([str(binary),str(mode)],check=True,timeout=25,
+                       stdout=subprocess.PIPE,text=True)
+  if mode in (0,1,2,6,7):
+   previous, response = run.stdout.splitlines()
+   view = json.loads(response)
+   revision = view.pop('revision')
+   assert re.fullmatch(r'[0-9a-f]{32}', revision) and revision != previous
+   assert view == dict(configured=True, enabled=False, key_present=True,
+                       ssid='Edited IoT', gateway='192.168.50.1',
+                       mask='255.255.255.0', first='192.168.50.20',
+                       last='192.168.50.200')
+  else:
+   assert not run.stdout
+print('PASS actual HTTP edit handler/parser/view/lease/pin/client/queue/RC/RAM/Save/worker composition: auth/CSRF refusal, decoded fields, KEEP/REPLACE, manual RAM, flash, stale/expired rejection and unknown no-replay; native flash/SDK/clock/entropy actors, no HTTP server/device acceptance')
