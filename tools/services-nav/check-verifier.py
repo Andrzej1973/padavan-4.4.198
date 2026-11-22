@@ -48,6 +48,17 @@ if module.service_excluded("WRServicesNavCron", {"watchdog_cpu"}):
 if module.catalog_link().count(f'href="/{module.CATALOG}"') != 1:
     raise SystemExit("Service-page catalog link is missing")
 
+dns_config = module.parse_config("CONFIG_FIRMWARE_INCLUDE_STUBBY=y\n")
+tabs = module.service_tabs(dns_config, "Advanced_Services_DoT.asp")
+if tabs.count('aria-current="page"') != 1:
+    raise SystemExit("Service tabs must mark exactly one current page")
+if 'href="/Advanced_Services_DoT.asp" aria-current="page"' not in tabs:
+    raise SystemExit("Stubby must be the selected tab on its own page")
+if 'Advanced_Services_DoH.asp' in tabs or 'Advanced_Services_Privoxy.asp' in tabs:
+    raise SystemExit("Disabled services must not appear as tabs")
+if module.service_tabs(dns_config, module.CATALOG):
+    raise SystemExit("The services catalog must not duplicate the settings tabs")
+
 profile_tab = '<li><a href="/vpncli.asp"><#menu5_35_1#></a></li>'
 server_tab = '<li><a href="/vpnsrv.asp"><#WRServicesNavVPNServer#></a></li>'
 if module.legacy_vpn_tab_contract_error("Advanced_zerotier.asp", profile_tab) is None:

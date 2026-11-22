@@ -42,7 +42,7 @@ def check(image, romfs, zapret2=True, classic_only=False):
               'www/Advanced_WAdvanced2g_Content.asp', 'www/Advanced_Services_Content.asp',
               *('www/' + language + '.dict' for language in ('EN', 'UK', 'RU'))]
     if zapret2:
-        paths += ['usr/sbin/nfqws2', 'usr/sbin/zapret2',
+        paths += ['www/Advanced_Services_Zapret2.asp', 'usr/sbin/nfqws2', 'usr/sbin/zapret2',
                   *('usr/share/zapret2/' + n for n in ('zapret-lib.lua', 'zapret-antidpi.lua', 'zapret-auto.lua')),
                   'usr/share/licenses/zapret2/LICENSE.txt']
     hashes = {}

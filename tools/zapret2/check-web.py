@@ -66,7 +66,7 @@ def main() -> int:
     )
 
     page_path = (
-        user / "www/n56u_ribbon_fixed/Advanced_Services_Content.asp"
+        user / "www/n56u_ribbon_fixed/Advanced_Services_Zapret2.asp"
     )
     page = require(
         page_path,
@@ -75,9 +75,9 @@ def main() -> int:
             'name="scripts.zapret2.args"',
             'id="wr_zapret2_status"',
             "function validZapret2()",
-            "validForm() && validZapret2()",
+            "found_app_zapret2() && validZapret2()",
             "window.setInterval(wrZapret2Refresh, 30000)",
-            "showhide_div('row_zapret2_strategy'",
+            "showhide_div('zapret2_settings'",
         ),
     )
     if page.count('id="zapret2_enable_on_of"') != 1:

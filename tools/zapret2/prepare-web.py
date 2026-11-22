@@ -22,7 +22,7 @@ def prepare_webui(tree: Path) -> None:
     rc_path = user / "rc/rc.c"
     rc_header_path = user / "rc/rc.h"
     web_path = user / "httpd/web_ex.c"
-    page_path = user / "www/n56u_ribbon_fixed/Advanced_Services_Content.asp"
+    page_path = user / "www/n56u_ribbon_fixed/Advanced_Services_Zapret2.asp"
 
     cflags = cflags_path.read_text(encoding="utf-8")
     anchor = (
@@ -315,33 +315,9 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
     )
     web_path.write_text(web, encoding="utf-8", newline="\n")
 
-    page = page_path.read_text(encoding="utf-8")
-    page = replace_once(
-        page,
-        "\tinit_itoggle('watchdog_cpu');\n",
-        "\tinit_itoggle('watchdog_cpu');\n"
-        "\tinit_itoggle('zapret2_enable');\n",
-        "toggle initialization",
-    )
-    unsupported = """if(!found_app_iperf3()){
-\t\tshowhide_div('row_iperf3', 0);
-\t}"""
-    supported = """if(!found_app_iperf3()){
-\t\tshowhide_div('row_iperf3', 0);
-\t}
-\tif(!found_app_zapret2()){
-\t\tshowhide_div('row_zapret2', 0);
-\t\tshowhide_div('row_zapret2_strategy', 0);
-\t\tshowhide_div('wr_zapret2_status_row', 0);
-\t}else{
-\t\twrZapret2Render(<% wr_zapret2_status(); %>);
-\t\twindow.setInterval(wrZapret2Refresh, 30000);
-\t}"""
-    page = replace_once(page, unsupported, supported, "feature visibility")
-    iperf_end = '''<input type="radio" name="iperf3_enable" id="iperf3_enable_0" class="input" value="0" <% nvram_match_x("", "iperf3_enable", "0", "checked"); %>/><#checkbox_No#>
-                                                </div>
-                                            </td>
-                                        </tr>'''
+    page = Path(__file__).with_name(page_path.name).read_text(encoding="utf-8")
+    if page_path.exists():
+        raise SystemExit("Zapret2 page already exists")
     zapret_rows = '''<tr id="row_zapret2">
                                             <th width="50%"><#WRZapret2Title#></th>
                                             <td>
@@ -371,9 +347,6 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
                                             <td><textarea id="zapret2_strategy" rows="12" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="scripts.zapret2.args" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("scripts.zapret2.args",""); %></textarea>
                                                 <p class="help-block"><#WRZapret2StrategyHelp#></p></td>
                                         </tr>'''
-    page = replace_once(
-        page, iperf_end, iperf_end + "\n" + zapret_rows, "service rows"
-    )
     script = r'''
 var wrZapret2StatusBusy = false;
 var wrZapret2Generation = 0, wrZapret2SampledAt = 0;
@@ -447,15 +420,8 @@ function wrZapret2Refresh() {
         .always(function() { wrZapret2StatusBusy = false; });
 }
 '''
-    page = replace_once(
-        page, "function applyRule(){\n", script + "\nfunction applyRule(){\n", "status script"
-    )
-    page = replace_once(
-        page,
-        "\tif(validForm()){\n",
-        "\tif(validForm() && validZapret2()){\n",
-        "apply validation",
-    )
+    page = replace_once(page, "<!-- ZAPRET2_ROWS -->", zapret_rows, "service rows")
+    page = replace_once(page, "// ZAPRET2_STATUS_SCRIPT", script, "status script")
     page_path.write_text(page, encoding="utf-8", newline="\n")
 
     translations = {
@@ -558,7 +524,7 @@ def verify_prepared(tree: Path) -> None:
         user / "rc/rc.h": "restart_zapret2",
         user / "rc/rc.c": "WR_ZAPRET2_REAPPLY",
         user / "httpd/web_ex.c": "ej_wr_zapret2_status",
-        user / "www/n56u_ribbon_fixed/Advanced_Services_Content.asp":
+        user / "www/n56u_ribbon_fixed/Advanced_Services_Zapret2.asp":
             'id="wr_zapret2_status"',
     }
     for path, marker in required.items():

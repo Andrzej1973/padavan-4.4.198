@@ -56,7 +56,7 @@ GROUPS = (
                            ("WRServicesNavEoIP", "Advanced_Services_EoIP.asp", "CONFIG_FIRMWARE_INCLUDE_EOIP"))),
     ("WRServicesNavProxy", (("WRServicesNavShadowsocks", "Shadowsocks.asp", "CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS|CONFIG_FIRMWARE_INCLUDE_SSLOCAL|CONFIG_FIRMWARE_INCLUDE_SSREDIR"),
                               ("WRServicesNavPrivoxy", "Advanced_Services_Privoxy.asp", "CONFIG_FIRMWARE_INCLUDE_PRIVOXY"),
-                              ("WRServicesNavZapret2", "Advanced_Services_Content.asp#row_zapret2", "CONFIG_FIRMWARE_INCLUDE_ZAPRET2"),
+                              ("WRServicesNavZapret2", "Advanced_Services_Zapret2.asp", "CONFIG_FIRMWARE_INCLUDE_ZAPRET2"),
                               ("WRServicesNavWPAD", "Advanced_DHCP_Content.asp#row_wpad", "CONFIG_FIRMWARE_INCLUDE_WPAD"))),
     ("WRServicesNavAccess", (("WRServicesNavHTTP", "Advanced_Services_Content.asp#row_http_proto", None),
                                ("WRServicesNavSSH", "Advanced_Services_Content.asp#row_sshd", "CONFIG_FIRMWARE_INCLUDE_DROPBEAR|CONFIG_FIRMWARE_INCLUDE_OPENSSH"),
@@ -103,6 +103,29 @@ def catalog_link() -> str:
     )
 
 
+SERVICE_TABS = (
+    ("WRServicesNavSystem", "Advanced_Services_Content.asp", None),
+    ("WRServicesNavDoH", "Advanced_Services_DoH.asp", "CONFIG_FIRMWARE_INCLUDE_DOH"),
+    ("WRServicesNavStubby", "Advanced_Services_DoT.asp", "CONFIG_FIRMWARE_INCLUDE_STUBBY"),
+    ("WRServicesNavPrivoxy", "Advanced_Services_Privoxy.asp", "CONFIG_FIRMWARE_INCLUDE_PRIVOXY"),
+    ("WRServicesNavZapret2", "Advanced_Services_Zapret2.asp", "CONFIG_FIRMWARE_INCLUDE_ZAPRET2"),
+)
+
+
+def service_tabs(config: set[str], current: str) -> str:
+    if current not in {route for _, route, _ in SERVICE_TABS}:
+        return ""
+    items = []
+    for label, route, capability in SERVICE_TABS:
+        if not enabled(config, capability):
+            continue
+        selected = route == current
+        item_class = ' class="active"' if selected else ""
+        current_page = ' aria-current="page"' if selected else ""
+        items.append(f'<li{item_class}><a href="/{route}"{current_page}><#{label}#></a></li>')
+    return '<ul class="nav nav-tabs wr-service-tabs">' + "".join(items) + '</ul>'
+
+
 def rendered_groups(www: Path, config: set[str], excluded_services: set[str] | None = None) -> str:
     excluded_services = excluded_services or set()
     chunks = []
@@ -118,10 +141,7 @@ def rendered_groups(www: Path, config: set[str], excluded_services: set[str] | N
                 if enabled(config, capability):
                     raise SystemExit(f"Enabled service route is missing: {route}")
                 continue
-            separate = label_key in {"WRServicesNavStubby", "WRServicesNavDoH", "WRServicesNavPrivoxy"}
-            new_context = ' target="_blank" rel="noopener noreferrer"' if separate else ""
-            link_class = "wr-service-link wr-service-link--new-context" if separate else "wr-service-link"
-            links.append(f'<a class="btn btn-mini {link_class}" href="/{html.escape(route, quote=True)}"{new_context}><#{label_key}#></a>')
+            links.append(f'<a class="btn btn-mini wr-service-link" href="/{html.escape(route, quote=True)}"><#{label_key}#></a>')
         if links:
             chunks.append('<div class="wr-service-group"><strong><#' + heading + '#></strong>' + "".join(links) + "</div>")
     if not chunks:
@@ -132,7 +152,7 @@ def rendered_groups(www: Path, config: set[str], excluded_services: set[str] | N
     )
 
 
-def inject(path: Path, nav: str) -> None:
+def inject(path: Path, nav: str, tabs: str = "") -> None:
     text = path.read_text(encoding="utf-8")
     if MARKER in text:
         raise SystemExit(f"Unified service navigation was already inserted: {path.name}")
@@ -146,7 +166,6 @@ def inject(path: Path, nav: str) -> None:
 .wr-service-group { display:flex; width:fit-content; max-width:100%; box-sizing:border-box; min-width:0; flex-wrap:wrap; align-items:center; gap:3px 4px; padding:2px 5px; }
 .wr-service-group strong { margin-right:2px; }
 .wr-service-link { display:inline-block; max-width:100%; box-sizing:border-box; padding:2px 5px; line-height:1.35; overflow-wrap:anywhere; }
-.wr-service-link--new-context { padding:3px 6px; font-size:12px; }
 td.wr-service-status-panel { border-radius:4px; padding:10px !important; }
 .wr-service-status-panel:not(td) { box-sizing:border-box; margin:6px 0; padding:10px; border-radius:4px; }
 .wr-service-status-panel:not(td) .help-block { margin:6px 0 0; }
@@ -208,6 +227,11 @@ td.wr-service-status-panel { border-radius:4px; padding:10px !important; }
         text = text.replace(slot, nav, 1)
     else:
         text = text.replace(anchor, anchor + "\n" + nav, 1)
+    if tabs:
+        tab_slot = '<div id="tabMenu" class="submenuBlock"></div>'
+        if text.count(tab_slot) != 1:
+            raise SystemExit(f"Classic tab menu anchor changed: {path.name}")
+        text = text.replace(tab_slot, tab_slot + "\n" + tabs, 1)
     text = text.replace("</head>", css + "</head>", 1)
     text = text.replace("</body>", script + "</body>", 1)
     path.write_text(text, encoding="utf-8", newline="\n")
@@ -308,7 +332,7 @@ def verify(www: Path, config: set[str], *, image: bool = False,
     excluded_services = excluded_services or set()
     nav = rendered_groups(www, config, excluded_services)
     pages = [CATALOG, "Advanced_Services_Content.asp", "Advanced_Services_DoT.asp",
-                 "Advanced_Services_DoH.asp", "Advanced_Services_Privoxy.asp",
+                 "Advanced_Services_DoH.asp", "Advanced_Services_Privoxy.asp", "Advanced_Services_Zapret2.asp",
                  "vpncli.asp", "vpnsrv.asp", "Advanced_zerotier.asp", "Advanced_Services_EoIP.asp",
                  "Shadowsocks.asp", "Advanced_DHCP_Content.asp"]
     if enabled(config, "CONFIG_FIRMWARE_INCLUDE_WIREGUARD"):
@@ -369,13 +393,10 @@ def verify(www: Path, config: set[str], *, image: bool = False,
             kms_link = 'href="/Advanced_Services_Content.asp#vlmcsd_enable_on_of"><#WRServicesNavKMS#></a>'
             if (kms_link in nav_html) != enabled(config, "CONFIG_FIRMWARE_INCLUDE_VLMCSD"):
                 raise SystemExit("KMS navigation does not match its build selector")
-        for link_id, route in (("WRServicesNavStubby", "Advanced_Services_DoT.asp"),
-                               ("WRServicesNavDoH", "Advanced_Services_DoH.asp"),
-                               ("WRServicesNavPrivoxy", "Advanced_Services_Privoxy.asp")):
-            anchor = f'href="/{route}" target="_blank" rel="noopener noreferrer"><#{link_id}#></a>'
-            if f'<#{link_id}#></a>' in nav_html and anchor not in nav_html:
-                raise SystemExit(f"{link_id} must open its full page separately")
-        for match in re.finditer(r'href="/([^"#]+)(?:#([^"]*))?"', text[text.index(MARKER):text.index("</nav>", text.index(MARKER))]):
+        tabs = service_tabs(config, name)
+        if tabs and text.count(tabs) != 1:
+            raise SystemExit(f"Classic service tabs differ from active build capabilities in {name}")
+        for match in re.finditer(r'href="/([^"#]+)(?:#([^"]*))?"', nav_html + tabs):
             route, fragment = match.groups()
             target = www / route
             if not target.is_file():
@@ -435,7 +456,7 @@ def main() -> None:
         raise SystemExit(f"Service catalog already exists: {catalog}")
     catalog.write_bytes(Path(__file__).with_name(CATALOG).read_bytes())
     for name in pages:
-        inject(www / name, nav if name == CATALOG else catalog_link())
+        inject(www / name, nav if name == CATALOG else catalog_link(), service_tabs(config, name))
     dictionary_root = args.source / "trunk/user/www/dict"
     translations = {
         "EN.footer": 0,
