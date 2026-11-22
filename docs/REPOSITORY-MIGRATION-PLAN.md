@@ -56,6 +56,23 @@ and Classic entry page, and excludes the CAKE module, SQM service script
 and Classic SQM page. This covers one image combination. The two
 Classic-free variants and the complete final release matrix remain open.
 
+For Classic-free packaging, distinguish rendered pages from ASP data endpoints.
+The Hybrid dashboard still reads system_status_data.asp, status_wanlink.asp and
+status_lanlink.asp. Preserve those response contracts or migrate their callers
+before removing the endpoints. Its visible links to index.asp, device-map,
+wireless, logs and SQM require corresponding Modern destinations or removal
+where the feature is excluded. Verify the default entry point and login, the
+dashboard data requests, and all visible links in the packaged ROMFS. A bulk
+ASP file removal would break the status requests along with Classic pages.
+
+The installed Modern Wi-Fi code in #1493 also references
+Advanced_Wireless_Content.asp, Advanced_Wireless2g_Content.asp and
+Advanced_WGuest2g_Content.asp. The guest settings explicitly render a Classic
+link. Preserve the Modern Wi-Fi schema and verify that each needed setting
+can be applied from Modern before excluding those fallback pages. Inspect the
+embedded HTTP provider for wr_modern.json separately from static ROMFS
+assets. The audited #1493 httpd contains the route literal, verified in a binary whose SHA-256 matches the ROMFS copy. Its response and settings apply still need execution evidence. Modern IoT uses its seven CGI routes.
+
 ---
 
 ## Historical repository import plan (2026-10-03)
