@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - README.md
+      - configs.build/README.md
       - docs/README.md
       - docs/LOCAL-NIM-HELPER-NOTES.md
       - docs/REPOSITORY-ARCHITECTURE.md
@@ -19,6 +20,7 @@ on:
     branches: [main]
     paths:
       - README.md
+      - configs.build/README.md
       - docs/README.md
       - docs/LOCAL-NIM-HELPER-NOTES.md
       - docs/REPOSITORY-ARCHITECTURE.md

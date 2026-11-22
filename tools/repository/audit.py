@@ -4,7 +4,8 @@ import argparse,collections,hashlib,json,re,subprocess,sys
 from pathlib import Path
 from board_catalog import load
 ROOT=Path(__file__).resolve().parents[2]
-NAVIGATION_DOCS = ['README.md', 'docs/README.md', 'docs/LOCAL-NIM-HELPER-NOTES.md']
+NAVIGATION_DOCS = ['README.md', 'docs/README.md', 'docs/LOCAL-NIM-HELPER-NOTES.md',
+                   'configs.build/README.md']
 DOCS=['REPOSITORY-ARCHITECTURE.md','REPOSITORY-STRUCTURE.md','NILABSENT-ARCHITECTURE-ANALYSIS.md','REPOSITORY-MIGRATION-PLAN.md','REPOSITORY-MIGRATION-REPORT.md','BUILD-SYSTEM.md','BOARD-PROFILE-ARCHITECTURE.md']
 GROUPS={'overlay':'Active overlay, package ports, isolated candidates; application is explicit','configs.build':'Requested board profiles; admission only through boards.json','configs':'Owned dependency manifests','reference':'Donor snapshots, never auto-selected as board targets','docs':'Contracts, evidence, historical records and navigation','tools':'Source transformations, checks and stable entry points','sources':'Preserved archives governed by sources.lock.json','toolchains':'Compiler source recipe profiles, no generated compiler trees','third_party':'Vendored components with their upstream notices','.github/workflows':'Build, diagnostics and publication recipes'}
 

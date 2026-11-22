@@ -15,6 +15,13 @@ Admission to builds is explicit in [boards.json](../boards.json):
 - `reference/`: original donor configs for comparison; these are not build
   targets and must not be automatically scanned into a build matrix.
 
+The requested WR1200JS firmware options live in [wr1200js.config](wr1200js.config).
+Board-specific hardware and kernel settings live in the
+[WR1200JS SDK overlay](../overlay/padavan-4.4/trunk/configs/boards/WR1200JS/).
+The runner assembles both inputs into the SDK. See the
+[repository map](../docs/REPOSITORY-STRUCTURE.md#build-entry-points) for the
+source lock and the workflow that consumes these inputs.
+
 A config file alone does not establish board support. Each new board requires
 its hardware port, build recipe and image verification before admission.
 See [build system](../docs/BUILD-SYSTEM.md).
