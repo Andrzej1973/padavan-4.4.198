@@ -9,7 +9,7 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     root=Path(scratch)
     romfs=root/'romfs'
     names=['www/modern/'+n for n in ('index.html','app.js','wifi.js','shared-wifi.js','wifi-schema.json','styles.css','favicon.svg')]
-    names+=['sbin/rc','www/wr-band-status.js','www/Advanced_WAdvanced2g_Content.asp',
+    names+=['sbin/rc','www/wr-band-status.js', 'www/index.asp','www/Advanced_WAdvanced2g_Content.asp',
             'www/Advanced_Services_Content.asp', 'www/EN.dict', 'www/UK.dict', 'www/RU.dict',
             'usr/sbin/httpd','usr/sbin/nfqws2','usr/sbin/zapret2',
             *('usr/share/zapret2/'+n for n in ('zapret-lib.lua','zapret-antidpi.lua','zapret-auto.lua')),
@@ -31,20 +31,24 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     assert report['modern_asp_reference_literals'] == {
         'www/modern/wifi.js': ['/index.asp', '/status_lanlink.asp'],
     }
-    # A valid filesystem with a required component omitted must fail closed.
-    missing=romfs/'usr/sbin/nfqws2'
-    saved_missing=missing.read_bytes()
-    missing.unlink()
-    incomplete=root/'incomplete.sqfs'
-    subprocess.run(['mksquashfs',str(romfs),str(incomplete),'-noappend','-processors','1','-no-progress'],check=True,stdout=subprocess.DEVNULL)
-    missing.write_bytes(saved_missing)
-    original_image=image.read_bytes()
-    image.write_bytes(b'fixture header'+incomplete.read_bytes())
-    try:
-        check(image,romfs)
-        raise AssertionError('missing nfqws2 accepted')
-    except FileNotFoundError:
-        pass
+    # A valid filesystem missing a required entry must fail closed.
+    original_image = image.read_bytes()
+    for index, name in enumerate(('usr/sbin/nfqws2', 'www/index.asp')):
+        missing = romfs / name
+        saved_missing = missing.read_bytes()
+        missing.unlink()
+        incomplete = root / f'incomplete-{index}.sqfs'
+        subprocess.run(['mksquashfs', str(romfs), str(incomplete), '-noappend',
+                        '-processors', '1', '-no-progress'], check=True,
+                       stdout=subprocess.DEVNULL)
+        missing.write_bytes(saved_missing)
+        image.write_bytes(b'fixture header' + incomplete.read_bytes())
+        try:
+            check(image, romfs)
+        except FileNotFoundError as error:
+            assert Path(error.filename).as_posix().endswith(name)
+        else:
+            raise AssertionError('Missing required file accepted: ' + name)
     image.write_bytes(original_image)
     saved=binary.read_bytes()
     binary.write_bytes(b'corrupt')

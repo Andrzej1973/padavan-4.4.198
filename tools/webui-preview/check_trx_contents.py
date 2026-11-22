@@ -30,7 +30,7 @@ def check(image, romfs, zapret2=True):
         'index.html', 'app.js', 'wifi.js', 'shared-wifi.js', 'wifi-schema.json', 'styles.css', 'favicon.svg')]
     # Shared RC, Classic service/steering pages and dictionaries preserve the
     # existing management paths alongside Modern in this WR1200JS image.
-    paths += ['usr/sbin/httpd', 'sbin/rc', 'www/wr-band-status.js',
+    paths += ['usr/sbin/httpd', 'sbin/rc', 'www/wr-band-status.js', 'www/index.asp',
               'www/Advanced_WAdvanced2g_Content.asp', 'www/Advanced_Services_Content.asp',
               *('www/' + language + '.dict' for language in ('EN', 'UK', 'RU'))]
     if zapret2:
