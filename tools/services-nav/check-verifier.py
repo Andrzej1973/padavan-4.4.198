@@ -50,6 +50,11 @@ if module.catalog_link().count(f'href="/{module.CATALOG}"') != 1:
 
 dns_config = module.parse_config("CONFIG_FIRMWARE_INCLUDE_STUBBY=y\n")
 tabs = module.service_tabs(dns_config, "Advanced_Services_DoT.asp")
+catalog_tab = f'<li><a href="/{module.CATALOG}"><#WRServicesNavCatalog#></a></li>'
+if not tabs.startswith('<ul class="nav nav-tabs wr-service-tabs">' + catalog_tab):
+    raise SystemExit("Catalog must replace the first service tab")
+if 'Advanced_Services_Content.asp' in tabs:
+    raise SystemExit("The duplicate System tab must not appear")
 if tabs.count('aria-current="page"') != 1:
     raise SystemExit("Service tabs must mark exactly one current page")
 if 'href="/Advanced_Services_DoT.asp" aria-current="page"' not in tabs:
@@ -110,7 +115,7 @@ with TemporaryDirectory() as scratch:
     module.inject(page, nav)
     themed = page.read_text(encoding="utf-8")
     assert 'class="well wr-service-nav"' in themed
-    assert 'class="btn btn-mini wr-service-link' in themed
+    assert 'class="btn btn-mini btn-primary wr-service-link' in themed
     assert 'alert alert-info wr-service-status-panel' in themed
     assert 'background:#' not in themed
 

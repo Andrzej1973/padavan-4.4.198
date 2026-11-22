@@ -104,7 +104,6 @@ def catalog_link() -> str:
 
 
 SERVICE_TABS = (
-    ("WRServicesNavSystem", "Advanced_Services_Content.asp", None),
     ("WRServicesNavDoH", "Advanced_Services_DoH.asp", "CONFIG_FIRMWARE_INCLUDE_DOH"),
     ("WRServicesNavStubby", "Advanced_Services_DoT.asp", "CONFIG_FIRMWARE_INCLUDE_STUBBY"),
     ("WRServicesNavPrivoxy", "Advanced_Services_Privoxy.asp", "CONFIG_FIRMWARE_INCLUDE_PRIVOXY"),
@@ -113,10 +112,10 @@ SERVICE_TABS = (
 
 
 def service_tabs(config: set[str], current: str) -> str:
-    if current not in {route for _, route, _ in SERVICE_TABS}:
+    if current != "Advanced_Services_Content.asp" and current not in {route for _, route, _ in SERVICE_TABS}:
         return ""
     items = []
-    for label, route, capability in SERVICE_TABS:
+    for label, route, capability in (("WRServicesNavCatalog", CATALOG, None), *SERVICE_TABS):
         if not enabled(config, capability):
             continue
         selected = route == current
@@ -141,7 +140,7 @@ def rendered_groups(www: Path, config: set[str], excluded_services: set[str] | N
                 if enabled(config, capability):
                     raise SystemExit(f"Enabled service route is missing: {route}")
                 continue
-            links.append(f'<a class="btn btn-mini wr-service-link" href="/{html.escape(route, quote=True)}"><#{label_key}#></a>')
+            links.append(f'<a class="btn btn-mini btn-primary wr-service-link" href="/{html.escape(route, quote=True)}"><#{label_key}#></a>')
         if links:
             chunks.append('<div class="wr-service-group"><strong><#' + heading + '#></strong>' + "".join(links) + "</div>")
     if not chunks:
@@ -154,7 +153,7 @@ def rendered_groups(www: Path, config: set[str], excluded_services: set[str] | N
 
 def inject(path: Path, nav: str, tabs: str = "") -> None:
     text = path.read_text(encoding="utf-8")
-    if MARKER in text:
+    if MARKER in text or 'class="nav nav-tabs wr-service-tabs"' in text:
         raise SystemExit(f"Unified service navigation was already inserted: {path.name}")
     anchor = '<div id="TopBanner"></div>'
     if text.count(anchor) != 1 or text.count("</head>") != 1 or text.count("</body>") != 1:
@@ -225,7 +224,7 @@ td.wr-service-status-panel { border-radius:4px; padding:10px !important; }
         if text.count(slot) != 1:
             raise SystemExit("Classic service catalog slot is missing")
         text = text.replace(slot, nav, 1)
-    else:
+    elif not tabs:
         text = text.replace(anchor, anchor + "\n" + nav, 1)
     if tabs:
         tab_slot = '<div id="tabMenu" class="submenuBlock"></div>'
@@ -343,19 +342,25 @@ def verify(www: Path, config: set[str], *, image: bool = False,
                 raise SystemExit("Classic service catalog is missing")
             continue
         text = (www / name).read_text(encoding="utf-8")
-        if MARKER not in text or 'aria-label="<#WRServicesNav#>"' not in text:
-            raise SystemExit(f"Unified navigation absent from {name}")
-        marker_at = text.index(MARKER)
-        nav_begin = text.rfind("<nav ", 0, marker_at)
-        if nav_begin < 0 or "<" in text[nav_begin + len("<nav "):marker_at]:
-            raise SystemExit(f"Unified navigation opening tag is invalid in {name}")
-        nav_end = text.index("</nav>", nav_begin)
-        nav_html = text[nav_begin:nav_end + len("</nav>")]
-        expected_nav = nav if name == CATALOG else catalog_link()
-        if nav_html != expected_nav:
-            raise SystemExit(
-                f"Service navigation in {name} does not exactly match active build capabilities"
-            )
+        tabs = service_tabs(config, name)
+        nav_html = ""
+        if tabs:
+            if MARKER in text or text.count(tabs) != 1:
+                raise SystemExit(f"Expected one service tab row and no top shortcut in {name}")
+        else:
+            if MARKER not in text or 'aria-label="<#WRServicesNav#>"' not in text:
+                raise SystemExit(f"Unified navigation absent from {name}")
+            marker_at = text.index(MARKER)
+            nav_begin = text.rfind("<nav ", 0, marker_at)
+            if nav_begin < 0 or "<" in text[nav_begin + len("<nav "):marker_at]:
+                raise SystemExit(f"Unified navigation opening tag is invalid in {name}")
+            nav_end = text.index("</nav>", nav_begin)
+            nav_html = text[nav_begin:nav_end + len("</nav>")]
+            expected_nav = nav if name == CATALOG else catalog_link()
+            if nav_html != expected_nav:
+                raise SystemExit(
+                    f"Service navigation in {name} does not exactly match active build capabilities"
+                )
         if status_panel_contract_error(text):
             raise SystemExit(f"Service status blue-panel grouping or styles absent from {name}")
         if enabled(config, "CONFIG_FIRMWARE_INCLUDE_WIREGUARD") and name in {
@@ -393,9 +398,6 @@ def verify(www: Path, config: set[str], *, image: bool = False,
             kms_link = 'href="/Advanced_Services_Content.asp#vlmcsd_enable_on_of"><#WRServicesNavKMS#></a>'
             if (kms_link in nav_html) != enabled(config, "CONFIG_FIRMWARE_INCLUDE_VLMCSD"):
                 raise SystemExit("KMS navigation does not match its build selector")
-        tabs = service_tabs(config, name)
-        if tabs and text.count(tabs) != 1:
-            raise SystemExit(f"Classic service tabs differ from active build capabilities in {name}")
         for match in re.finditer(r'href="/([^"#]+)(?:#([^"]*))?"', nav_html + tabs):
             route, fragment = match.groups()
             target = www / route
