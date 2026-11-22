@@ -24,6 +24,9 @@ on:
         description: Compile isolated experimental candidates after firmware verification
         type: boolean
         default: false
+      sqm_profile:
+        type: string
+        default: profile
       candidate_scope:
         description: Select IoT only or the full isolated candidate suite
         type: string
@@ -131,6 +134,20 @@ jobs:
           if [ -f tools/check-sqm-config-policy.py ]; then
             python3 -B tools/check-sqm-config-policy.py
           fi
+
+      - name: Select WR1200JS SQM configuration
+        env:
+          SQM_PROFILE: ${{ inputs.sqm_profile }}
+        run: |
+          case "$SQM_PROFILE" in
+            profile) ;;
+            excluded)
+              test "$(grep -c '^CONFIG_FIRMWARE_INCLUDE_SQM=[yn]$' configs.build/wr1200js.config)" -eq 1
+              sed -i 's/^CONFIG_FIRMWARE_INCLUDE_SQM=[yn]$/CONFIG_FIRMWARE_INCLUDE_SQM=n/' configs.build/wr1200js.config
+              grep -qx 'CONFIG_FIRMWARE_INCLUDE_SQM=n' configs.build/wr1200js.config
+              ;;
+            *) exit 1 ;;
+          esac
 
       - name: Check model setup guide coverage before firmware compilation
         run: |
@@ -1023,7 +1040,9 @@ jobs:
               python3 ../tools/verify-cake-image.py . --report ../cake-image-checks.json
             fi
           else
-            # An older or explicitly SQM-excluded profile must not leak the module.
+            # An SQM-excluded profile must omit the module, service and Classic control.
+            test ! -e trunk/romfs/usr/lib/sqm/run.sh
+            test ! -e trunk/romfs/www/Advanced_SQM.asp
             ! grep -Eq '^CONFIG_NET_SCH_CAKE=(y|m)$' trunk/linux-4.4.x/.config
             test -z "$(find trunk/romfs/lib/modules -name sch_cake.ko -print -quit)"
           fi
