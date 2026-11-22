@@ -1,3 +1,18 @@
+## Exact peer82 image checkpoint — 2026-11-22
+
+Standard #1484, Band Steering ABI and Optional #1485 succeeded for source
+a084c7692795ddb61fd0f2c71324bf1ad1a68a34. The isolated peer82 image is
+14,573,403 bytes. Independent inspection verified both CRCs, selected embedded
+MIPS components, three Modern IoT asset hashes and the seven client CGI route
+strings in the embedded HTTP binary. See the
+[peer82 image audit](../evidence/WR1200JS-OPTIONAL1485-INDEPENDENT-IMAGE.json).
+
+The image gate above covers isolated packaging. Production installation,
+physical ON/OFF/recovery/reopen, Main/Guest continuity, network isolation and
+persistence after reboot remain open. Device acceptance requires separate
+owner authorization. This checkpoint covers one isolated candidate and does
+not establish acceptance of the four final release variants.
+
 ## Cold released-root handoff and exact candidate CI — 2026-11-22
 
 The 397ef765 cold released-root shutdown follow-up is included in exact current
