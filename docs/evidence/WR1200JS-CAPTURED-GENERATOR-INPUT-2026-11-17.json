@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-17",
+  "scope": "Local initial-generation captured credentials to synchronous profile writer",
+  "source_sha256": {
+    "tools/iot/generation-profile.h": "c4b28fab0212131e27c945239252f253bbd57f3a33971d6adf40ca4dba530036",
+    "tools/iot/cold-on-generation.c": "17058bb9b570865c515a17903513834c8b79e57fdad868c1bc9d9736b01f9760",
+    "tools/iot/restart-profile.c": "659d6cd10f1347b906fc62e42beb3f11147abd0d23eeb27ea75e44ec437252db",
+    "tools/iot/prepare-rc.py": "b4005b8f8ec7a86650de474e40f44e55f4e30fc63428d77909325e2c22c6c387",
+    "tools/iot/prepare-profile-check.py": "34d50a8aea3ed9857841f43479d1def0570b723b9d6f5c729d107780b2c21f9e",
+    "tools/iot/check-cold-config-revision.py": "245130909cbe3f5eef65784027a5aa5873699a84eff2ed082347fe14bdd541e3",
+    "tools/iot/check-generation-profile-staging.py": "740bc0345b3b13067baaa587a394e6e29c41ca085144a337729f1120d4c26242"
+  },
+  "verification": [
+    "Actual cold generation/store/snapshot/file journal composition with new SSID and provisioned OFF passed",
+    "Actual producer weak default plus strong cold implementation linked and exercised",
+    "Literal producer cold/field fragments via actual ABI extractor original/coordinated passed",
+    "Legacy restart scanner and cold generation passed",
+    "Staged config and early headers passed",
+    "PASS retained generated-file proof survives desired SSID/key/error after modeled Main start; changed file refused; no driver-loaded PMK claim"
+  ],
+  "external_actors": [
+    "native syscalls",
+    "service guard boundary",
+    "DOWN/SDK generator adapter"
+  ],
+  "limitations": [
+    "rc-mode still selects legacy request",
+    "Loaded driver provenance transfer not implemented",
+    "Post-RELEASE path not integrated",
+    "No new MIPS/image/device result"
+  ],
+  "live_preflight": {
+    "session": 57405,
+    "log": ".scratch/config-transport-20261117/generator-input-preflight.log",
+    "state": "terminal PASS71, no running process observed"
+  }
+}
