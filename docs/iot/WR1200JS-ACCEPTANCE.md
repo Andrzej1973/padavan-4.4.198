@@ -1,3 +1,16 @@
+## Cold released-root handoff and exact candidate CI — 2026-11-22
+
+The 397ef765 cold released-root shutdown follow-up is included in exact current
+HEAD `d1611e57731aa5e97efa11ef7f36a59349935a86`: Standard #1481/run44996588464,
+ABI #983/run44996588456 and Optional #1482/run45001178610 succeeded. Optional
+compiled the isolated merged IoT MT7603 candidate. This closes the narrower
+cold released-root routing source gap recorded below; it does not establish
+production installation, full OFF/reopen safety, target image promotion or
+physical runtime acceptance. Local host regressions for config edit/save,
+ra2 no-host submit, power-save retention and software OFF pass at this source
+checkpoint. Late-TxS/MCU lifetime, production RC/driver binding, exact release
+image gates and device acceptance remain open. No device operation was made.
+
 ## Released enabled-ON tail -> OFF source checkpoint — 2026-11-22
 
 The containing source package admits checked resource-free enabled-ON tails

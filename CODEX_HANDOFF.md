@@ -1,3 +1,29 @@
+## IoT candidate and local regression checkpoint — 2026-11-22
+
+Exact base HEAD `d1611e57731aa5e97efa11ef7f36a59349935a86` is `main` and
+matches `origin/main`. Standard #1481 / run44996588464 and Band Steering ABI
+#983 / run44996588456 succeeded for that SHA. Optional #1482 / run45001178610
+also succeeded and compiled the isolated merged IoT MT7603 candidate. The
+Standard image and isolated candidate are not production IoT acceptance.
+
+Local host PASS: `check-config-edit-route.py`, `check-save-route.py`,
+`check-ra2-beacon-no-host-submit.py`, `check-ra2-ps-retain.py`, and
+`check-ra2-software-off.py`. The source-only no-host bundle test was corrected
+from a stale 24-path expectation to 30 paths to match its current generator;
+the rerun passed with unchanged input hashes. Exact pinned vendor archive SHA256
+`d209008e97e3a50b6b02054578546df17c5e90f87116a793b739f94e18bf5008` was read
+in place; the test's temporary candidate was removed. These are source/host
+checks with injected hardware, SDK and network actors, not device evidence.
+
+The current candidate preparer still reports `production_ready=false`,
+`runtime_verified=false`, `radio_off_entry_bound=false`,
+`radio_on_entry_bound=false`, `cold_on_entry_bound=false`, and
+`physical_stop_rc_orchestration=false`. Next work remains production RC/driver
+binding while preserving ACK, ownership, Main/Guest and late-TxS gates, then
+exact target/image and separately authorized physical acceptance. No router
+operation was performed. This source/test checkpoint is one logical package;
+production implementation remains active work.
+
 ## Cold released-root routed shutdown — 2026-11-22
 
 Base c7145bd20568c60d5dc54461a275133021e13145: standard1477/44990133432,
