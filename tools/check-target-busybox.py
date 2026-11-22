@@ -152,7 +152,7 @@ if zapret2_enabled:
         '--lua-init="@$LUA_DIR/zapret-antidpi.lua"',
         '--lua-init="@$LUA_DIR/zapret-auto.lua"',
     )) and '-j LOG' not in zapret2_service
-    zapret2_page_path=root/'www/Advanced_Services_Content.asp'
+    zapret2_page_path=root/'www/Advanced_Services_Zapret2.asp'
     zapret2_page=(zapret2_page_path.read_text(encoding='utf-8')
                   if zapret2_page_path.is_file() else '')
     zapret2_web_markers=(
