@@ -101,6 +101,11 @@ for name,digest in classic['sha256'].items():
  if path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest:
   raise SystemExit('Classic payload changed before image verification: '+name)
 modern=json.loads((root/'isolated-modern-iot.json').read_text())
+pair=json.loads((root/'paired-image-inputs.json').read_text())
+if modern['sha256']!={name:record['sha256'] for name,record in pair['modern_files'].items()}:
+ raise SystemExit('Modern IoT ROMFS assets differ from exact source pair')
+if modern['httpd_sha256']!=pair['files']['usr/sbin/httpd']['sha256']:
+ raise SystemExit('Modern IoT httpd differs from exact source pair')
 if modern['httpd_sha256']!=hashlib.sha256((romfs/'usr/sbin/httpd').read_bytes()).hexdigest():
  raise SystemExit('Modern IoT httpd changed before image verification')
 for name,digest in modern['sha256'].items():

@@ -11,9 +11,17 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
   p=root/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
  def report(n,r):put(n,json.dumps(r).encode())
  for target,source in files.items():put(source,b'#!/bin/sh\n' if target.endswith('.sh') else elf(1 if target.startswith('driver:') else 2))
+ httpd=elf(2)+b'modern/modern-iot.js\0'
+ put('runtime-link/httpd',httpd)
+ modern={'board':'WR1200JS','candidate_only':True,'uses_existing_iot_protocol':True,'sha256':{}}
+ for name in ('index.html','wifi.js','modern-iot.js'):
+  data=name.encode()
+  put('runtime-link/modern/'+name,data)
+  modern['sha256']['trunk/user/www/modern/'+name]=hashlib.sha256(data).hexdigest()
+ report('runtime-link/modern-iot-candidate.json',modern)
  report('ra2-no-host-module/target-result.json',{'target_module_linked':True,'module_sha256':hashlib.sha256(elf(1)).hexdigest(),'production_installed':False,'runtime_verified':False})
  for role in ('rc','httpd'):
-  report('runtime-link/'+role+'-dependency-closure.json',{'dependency_closure_verified':True,'errors':[],'production_installed':False,'elf_files':{'candidate:usr/sbin/'+role:{'sha256':hashlib.sha256(elf(2)).hexdigest()}}})
+  report('runtime-link/'+role+'-dependency-closure.json',{'dependency_closure_verified':True,'errors':[],'production_installed':False,'elf_files':{'candidate:usr/sbin/'+role:{'sha256':hashlib.sha256(httpd if role=='httpd' else elf(2)).hexdigest()}}})
  report('runtime-link/iot-iapp-policy-source.json',{'board':'WR1200JS','iapp_compile_gate_enabled':True,'production_ready':False})
  symbol='wr_iot_generation_profile_request'
  put('runtime-link/generation-selector-store-symbols.txt',('0000 T '+symbol+'\n').encode())
@@ -38,7 +46,8 @@ with tempfile.TemporaryDirectory(prefix='wr-pair-check-') as d:
  report('runtime-link/iot-edit-view-source.json',edit)
  put('ra2-no-host-module/kernel.config',b'# CONFIG_PM is not set\n')
  r=build(root,'a'*40);assert not r['trx_inclusion_verified'] and 'sbin/rc' in r['files'] and r['lifecycle_manifest_contract_verified']
- mutations=[('runtime-link/rc',elf(1)),('ra2-no-host-module/kernel.config',b'CONFIG_PM=y\n'),('runtime-link/httpd',b'bad ELF'),('runtime-link/iot-iapp-policy-source.json',b'{}'),('ra2-no-host-module/target-result.json',b'{}'),('ra2-no-host-module/source-manifest.json',b'{}')]
+ assert len(r['modern_files'])==3 and 'runtime-link/modern-iot-candidate.json' in r['input_sha256']
+ mutations=[('runtime-link/modern/modern-iot.js',b'changed'),('runtime-link/modern-iot-candidate.json',b'{}'),('runtime-link/rc',elf(1)),('ra2-no-host-module/kernel.config',b'CONFIG_PM=y\n'),('runtime-link/httpd',b'bad ELF'),('runtime-link/iot-iapp-policy-source.json',b'{}'),('ra2-no-host-module/target-result.json',b'{}'),('ra2-no-host-module/source-manifest.json',b'{}')]
  for field in api:
   for value in (None,False,1,'true',21.0,'21',20):
    wrong=dict(api)
