@@ -1,0 +1,28 @@
+{
+  "scope": "generated initialization fragment executed with actual packed signal declaration; not whole producer",
+  "command": "python3 tools/iot/check-ft-kdp-signal-init.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "checks": [
+    "allocation NULL check precedes initialization",
+    "whole signal initialized before native case switch",
+    "all256 event IDs on nonzero-filled allocation",
+    "all non-Sig bytes zero",
+    "typed guard host regression passes"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-event-span-composition.py": "08b28c0b6d672825233692c6fea6e070931f59d218128b4e6860f523559d006b",
+    "tools/iot/check-ft-kdp-signal-init.py": "fc8fb5e1a248f0c9e70ad60fd2e684d411033bc52d4a05e1ecbe4df14b233145"
+  },
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "remaining": [
+    "whole native producer with queue/socket actors",
+    "wire-length and consumer contract",
+    "lifetime integration",
+    "target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

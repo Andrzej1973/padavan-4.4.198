@@ -1,0 +1,33 @@
+{
+  "scope": "generated cache API host execution using pinned native entry type",
+  "command": "python3 tools/iot/check-ft-cache-api-lifetime.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "checks": [
+    "snapshot/store/delete native cache locking requires held cache lease",
+    "cold/draining/post-destroy refusal before native cache lock",
+    "allocation failure balances lease",
+    "close injected during admitted store blocks destroy until API return",
+    "wrong or repeated composition refused",
+    "existing native-type snapshot and atomic-store fixture reexecuted"
+  ],
+  "sha256": {
+    "tools/iot/ft-cache-api-lifetime-composition.py": "a840423359f96bb7bb2ee9f543681ad82f547ab81e15c160e3e7dd6995045ec4",
+    "tools/iot/check-ft-cache-api-lifetime.py": "0458cb372f927dda74b76c2f0a32c8c32b6b6ef9c50089ef0a715d07ac5896e6",
+    "tools/iot/ft-cache-lifetime.h": "a1142f6a4d5e302e08900af7039b172023051dc0f9c9d0a6f2ddea3de32dad47",
+    "tools/iot/ft-r1kh-snapshot-composition.py": "51d23c0f19722d397f6f31528ce47493a28558d29d4ea3492e47a2d81f4815d1"
+  },
+  "dependencies_not_yet_bound": [
+    "adapter-owned dedicated lifetime lock initialization before publication and release after callback quiescence",
+    "cache lifetime storage and fresh-adapter initialization",
+    "native maintenance admission",
+    "native init/release and AP stop failure propagation",
+    "target TU composition and compilation"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "device_verified": false
+}

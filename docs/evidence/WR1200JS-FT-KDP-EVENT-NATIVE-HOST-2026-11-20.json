@@ -1,0 +1,32 @@
+{
+  "scope": "prepared native EventGet executed with actual pinned queue macros and list helpers; lock scheduling injected",
+  "command": "python3 tools/iot/check-ft-kdp-event-native.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "variants": [
+    "queue",
+    "FT_KDP_FUNC_SOCK_COMM",
+    "FT_KDP_EMPTY"
+  ],
+  "checks": [
+    "uninitialized output NULL",
+    "empty and NULL output refusal",
+    "exact detached pointer identity",
+    "another dequeue between size check and remove safely returns NULL",
+    "socket/empty leave queue untouched"
+  ],
+  "sha256": {
+    "fixture": "7fe6327ae75332e39fe939541b7e6de0c2a102a389d32017452934c7de59a0c1",
+    "composition": "ab3a57377e11c5e1dab57028fcd9fa955ce62b2458c0365cc1614af48307b276",
+    "native_header": "95465f2a5f52e84a9663de511a5df9d47edcbbfd386dabb60863bd2d5ab67d9b",
+    "native_list": "a2893dc8514c5de32990999aaa9b92918d186dd28343081e5944bd20e107c01b"
+  },
+  "remaining": [
+    "KDP control-block/lock lifetime admission",
+    "event payload allocation-length provenance",
+    "target compilation",
+    "image/device verification"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

@@ -1,0 +1,27 @@
+{
+  "scope": "combined generated checked writer and actual pinned F/RtmpPasswordHash; system HMAC-SHA1 primitive",
+  "exit_code": 0,
+  "checks": [
+    "40 publication bytes match independent PBKDF2",
+    "remaining native key storage unchanged",
+    "short input preserves native default policy",
+    "63-byte success",
+    "64-byte hash refusal preserves all old key bytes",
+    "lease release on success/refusal"
+  ],
+  "sha256": {
+    "tools/iot/check-ft-kdp-key-real-hash.py": "74f90de74d9a57dc72e724b88a49bc0f13f91b9e22703c489e687498aab3a6d6",
+    "tools/iot/ft-kdp-key-writer-composition.py": "432b59154e4f1de72ffcb1571ec3f6053f4dc5621f57cb26a9dfa77761956763"
+  },
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "remaining": [
+    "vendor HMAC implementation",
+    "native AP/KDP lifetime binding",
+    "target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

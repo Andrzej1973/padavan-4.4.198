@@ -1,0 +1,23 @@
+{
+  "scope": "pinned driver C/header identifier reference coverage with prepared source overlays; not compiler/linker validation",
+  "result": "PASS",
+  "exit_code": 0,
+  "checks": [
+    "obsolete void crypto prototypes removed",
+    "checked prototypes paired with native implementations/callers",
+    "every native .c/.h checked for legacy identifiers",
+    "injected external function-pointer reference rejected",
+    "cache/KDP predecessor composition passes"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-package-composition.py": "12c8a47f073c33fe2f10e522f8cac59a4805ed52d7d4c1fc7c3816ab23ca91ff",
+    "tools/iot/check-ft-kdp-package.py": "a22dbb7812225a0df5c425a84ca8a79f2f730ebd0e8d08d8056b74c45d3df79f"
+  },
+  "limitations": [
+    "macro-generated identifiers and non-C/header build inputs not covered",
+    "conditional target compilation and linking remain required",
+    "other KDP APIs/release and AP lifetime open"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

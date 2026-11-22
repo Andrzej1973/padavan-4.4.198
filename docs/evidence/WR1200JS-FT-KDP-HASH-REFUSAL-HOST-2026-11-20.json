@@ -1,0 +1,24 @@
+{
+  "scope": "native hash return contract source audit plus injected hash-failure execution",
+  "exit_code": 0,
+  "source_fact": "RtmpPasswordHash in pinned common/cmm_wpa.c rejects strlen(password)>63; native KDP writer selects supplied key for KeyLen<=64 and ignored return",
+  "change": "both native/default hash calls checked; failure wipes material and refuses before key publication",
+  "checks": [
+    "hash failure leaves native key bytes unchanged",
+    "lease and input buffer balanced on failure",
+    "ioctl EAGAIN",
+    "native/empty ASan/UBSan and package composition"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-key-writer-composition.py": "432b59154e4f1de72ffcb1571ec3f6053f4dc5621f57cb26a9dfa77761956763",
+    "tools/iot/check-ft-kdp-key-writer.py": "40da0552ba20b159bf3f0a90920b920bd099ecabfd89790ea512b429f2c94d5f"
+  },
+  "remaining": [
+    "actual hash execution",
+    "caller length versus NUL-terminated input consistency",
+    "KDP/AP ownership",
+    "target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

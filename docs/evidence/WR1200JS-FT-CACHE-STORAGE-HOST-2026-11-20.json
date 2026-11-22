@@ -1,0 +1,40 @@
+{
+  "scope": "prepared fresh-adapter storage placement and generated initialization fragment execution",
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-cache-storage.py <pinned-c25283e/mt76x3>",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tools/iot/check-ft-cache-maintenance-lifetime.py <pinned-c25283e/mt76x3>",
+      "exit_code": 0
+    },
+    {
+      "command": "nim c -r --out:/tmp/ft_pending_identity_check tools/iot/ft_pending_identity_check.nim",
+      "exit_code": 0
+    }
+  ],
+  "coverage": [
+    "placement after RscLockMemList initialization before OS_Cookie publication",
+    "direct and OS_ABL lock allocation",
+    "OS_ABL failure leaves initialized false and cache owner poisoned/closed",
+    "API/maintenance refuse before lifetime lock use when initialized false",
+    "missing predecessor, duplicate and placement drift refusal"
+  ],
+  "sha256": {
+    "tools/iot/ft-cache-storage-composition.py": "9bb4c5dfa06eb644b23e131d52f8eb0d95cd1d4091e0bec5fef5a226428509e4",
+    "tools/iot/check-ft-cache-storage.py": "21e9108c6433a5d61a0f432678aa622b37de23fe91d8ccd2eceecbff821ef40a",
+    "tools/iot/ft-cache-api-lifetime-composition.py": "e7bf800ed8e28b68625f15cdf077e8e17dde0ca6a6ff41708b9d091237b91816",
+    "tools/iot/check-ft-cache-api-lifetime.py": "8f51d8ff7d7c527951f69cf37a63bcebed77ac1d3e2abee94dc3ec4bb6b5aa10",
+    "tools/iot/check-ft-cache-maintenance-lifetime.py": "78c4536d98c2a7f3270181ac2a071d03d76d65245ff7e8d83332670c1300247d"
+  },
+  "not_proven": [
+    "whole native adapter allocation execution",
+    "effective target OS_ABL macro branch",
+    "final lock release and adapter callback quiescence",
+    "native FT init/release and AP teardown failure propagation"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "device_verified": false
+}

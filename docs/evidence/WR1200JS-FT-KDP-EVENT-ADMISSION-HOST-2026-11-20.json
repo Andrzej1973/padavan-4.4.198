@@ -1,0 +1,28 @@
+{
+  "scope": "prepared EventGet lifetime wrapper with pinned native queue macros/list helpers",
+  "command": "python3 tools/iot/check-ft-kdp-event-native.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "variants": [
+    "queue",
+    "socket",
+    "empty"
+  ],
+  "checks": [
+    "cold/uninitialized/closed refusal with NULL output",
+    "every native KDP lock acquisition requires one lease",
+    "close injected between size and dequeue refuses destroy until return",
+    "lease balances after early/native/feature return"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-event-output-composition.py": "80f7d16c6fe033aa0a378065f88febbe6e832b615d088e5d99779b2371d4884e",
+    "tools/iot/check-ft-kdp-event-native.py": "c3a2fcbbf3ba1c8cb6f40b3d453f84551b386ea1df290e22774142c77b5cfc1e"
+  },
+  "remaining": [
+    "KDP release and all other users must share admission",
+    "detached event allocation-length provenance",
+    "target/image/device acceptance"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

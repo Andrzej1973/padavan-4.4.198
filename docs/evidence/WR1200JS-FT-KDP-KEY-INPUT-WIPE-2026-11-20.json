@@ -1,0 +1,21 @@
+{
+  "scope": "generated ioctl cleanup fragment executed after checked key-set branch; copy-fault site source checked",
+  "exit_code": 0,
+  "checks": [
+    "volatile clear length+1 bytes before normal free",
+    "same clear composed before copy_from_user failure free",
+    "other grouped ioctl modes unchanged",
+    "native/empty ASan/UBSan writer fixtures",
+    "package and actual-owner chain composition"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-key-writer-composition.py": "a54e9f50738ed953a052279597f50e34def67628b7a448901f5c2cce881a809f",
+    "tools/iot/check-ft-kdp-key-writer.py": "238fb99a735a5ab790ae1c36da48ba0752afe4c51049d40cacd07bf5093fe01b"
+  },
+  "remaining": [
+    "whole outer ioctl/copy fault execution",
+    "actual hash and target compile",
+    "KDP/AP lifetime integration"
+  ],
+  "producer_installed": false
+}

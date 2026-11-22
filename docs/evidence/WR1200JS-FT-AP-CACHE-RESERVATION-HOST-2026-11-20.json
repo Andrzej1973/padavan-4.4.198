@@ -1,0 +1,23 @@
+{
+  "scope": "actual prepared AP owner and cache state helpers composed under external shared lock",
+  "exit_code": 0,
+  "checks": [
+    "busy cache closes ingress and retains AP identity for retry",
+    "holder return allows exact operation reservation",
+    "ticket persisted across AP yield/checkpoint",
+    "foreign identity refuses",
+    "FREEING cannot be re-reserved"
+  ],
+  "sha256": {
+    "tools/iot/ft-ap-cache-reservation.h": "309348b330d94a7f3bdee41236461baaa072f0084b79c1f13267dee9d5233d64",
+    "tools/iot/check-ft-ap-cache-reservation.c": "57af5d2134ceafde0b31b5a444529689d98f5512bd63fb7f5c7eabf18177d415"
+  },
+  "remaining": [
+    "actual adapter storage/shared lock binding",
+    "operation identity provenance from AP callers",
+    "native phases/FT_R1KH_KEEP",
+    "KDP retirement and target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

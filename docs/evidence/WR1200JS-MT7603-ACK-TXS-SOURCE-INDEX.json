@@ -1,0 +1,1148 @@
+{
+  "vendor_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "prefix": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/",
+  "files": {
+    "mcu/andes_mt.c": {
+      "sha256": "680db15bb22ad5bf48283fd3e415a0ada0e4f1f054a401f32b9d2a3c9c60baee",
+      "references": [
+        {
+          "line": 27,
+          "text": "while ((msg = AndesDequeueCmdMsg(ctl, &ctl->txq_sdio)) != NULL) {"
+        },
+        {
+          "line": 32,
+          "text": "AndesFreeCmdMsg(msg);"
+        },
+        {
+          "line": 74,
+          "text": "AndesQueueTailCmdMsg(&ctl->txq_sdio, msg, msg->state);"
+        },
+        {
+          "line": 123,
+          "text": "AndesQueueTailCmdMsg(&ctl->ackq, msg, wait_cmd_out_and_ack);"
+        },
+        {
+          "line": 125,
+          "text": "AndesQueueTailCmdMsg(&ctl->kickq, msg, wait_cmd_out);"
+        },
+        {
+          "line": 130,
+          "text": "AndesQueueTailCmdMsg(&ctl->tx_doneq, msg, tx_kickout_fail);"
+        },
+        {
+          "line": 165,
+          "text": "INT32 AndesMTPciKickOutCmdMsg(PRTMP_ADAPTER pAd, struct cmd_msg *msg)"
+        },
+        {
+          "line": 242,
+          "text": "AndesQueueTailCmdMsg(&ctl->ackq, msg, wait_ack);"
+        },
+        {
+          "line": 244,
+          "text": "AndesQueueTailCmdMsg(&ctl->tx_doneq, msg, tx_done);"
+        },
+        {
+          "line": 259,
+          "text": "VOID AndesMTFillCmdHeader(struct cmd_msg *msg, PNDIS_PACKET net_pkt)"
+        },
+        {
+          "line": 324,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, INIT_CMD_ACCESS_REG, CMD_SET, EXT_CMD_NA, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 334,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 367,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, INIT_CMD_ACCESS_REG, CMD_QUERY, EXT_CMD_NA, TRUE, 0,"
+        },
+        {
+          "line": 377,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 796,
+          "text": "INT32 CmdSecKeyReq(RTMP_ADAPTER *ad, UINT8 AddRemove, UINT8 Keytype, UINT8 *pAddr, UINT8 Alg, UINT8 KeyID, UINT8 KeyLen, UINT8 WlanIdx, UINT8 *KeyMaterial)"
+        },
+        {
+          "line": 810,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_SEC_ADDREMOVE_KEY, FALSE, 0, FALSE, TRUE, sizeof(struct _EVENT_SEC_ADDREMOVE_STRUC_T), NULL, CmdSecKeyRsp);"
+        },
+        {
+          "line": 824,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 846,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_AP_PWR_SAVING_CAPABILITY, TRUE, 0, TRUE, TRUE, sizeof(struct _CMD_AP_PS_RETRIEVE_T), NULL, CmdPsRetrieveRsp);"
+        },
+        {
+          "line": 854,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 880,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_PS_RETRIEVE_START, TRUE, 0, TRUE, TRUE, sizeof(struct _EXT_CMD_AP_PWS_START_T), NULL, CmdPsRetrieveStartRsp);"
+        },
+        {
+          "line": 888,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 913,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_QUERY, EXT_CMD_PWR_SAVING, TRUE, 0, TRUE, TRUE, sizeof(struct _CMD_AP_PS_CLEAR_STRUC_T), NULL, CmdPsClearRsp);"
+        },
+        {
+          "line": 922,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 941,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, MT_RESTART_DL_REQ, CMD_NA, EXT_CMD_NA, TRUE, 0, TRUE, TRUE, 0, NULL, CmdReStartDLRsp);"
+        },
+        {
+          "line": 943,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 986,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, MT_PATCH_START_REQ, CMD_NA, EXT_CMD_NA, TRUE, 0, TRUE, TRUE, 0, NULL, CmdAddrellLenRsp);"
+        },
+        {
+          "line": 988,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, MT_TARGET_ADDRESS_LEN_REQ, CMD_NA, EXT_CMD_NA, TRUE, 0, TRUE, TRUE, 0, NULL, CmdAddrellLenRsp);"
+        },
+        {
+          "line": 1002,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 1021,
+          "text": "AndesInitCmdMsg(msg, 0xC000, MT_FW_SCATTER, CMD_NA, EXT_CMD_NA, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 1025,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 1093,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, MT_PATCH_FINISH_REQ, CMD_NA, EXT_CMD_NA, TRUE, 0, TRUE, TRUE, 0, NULL, CmdPatchFinishRsp);"
+        },
+        {
+          "line": 1095,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 1118,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, MT_FW_START_REQ, CMD_NA, EXT_CMD_NA, TRUE, 0, TRUE, TRUE, 0, NULL, CmdStartDLRsp);"
+        },
+        {
+          "line": 1129,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 1163,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, CMD_CH_PRIVILEGE, CMD_SET, EXT_CMD_NA, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 1213,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 1250,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_MULTIPLE_REG_ACCESS,"
+        },
+        {
+          "line": 1264,
+          "text": "Ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1301,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_MULTIPLE_REG_ACCESS,"
+        },
+        {
+          "line": 1315,
+          "text": "Ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1361,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_QUERY, EXT_CMD_MULTIPLE_REG_ACCESS,"
+        },
+        {
+          "line": 1375,
+          "text": "Ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1419,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_QUERY, EXT_CMD_MULTIPLE_REG_ACCESS,"
+        },
+        {
+          "line": 1432,
+          "text": "Ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1456,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, CMD_ACCESS_REG, CMD_SET, EXT_CMD_NA, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 1465,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 1498,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, CMD_ACCESS_REG, CMD_QUERY, EXT_CMD_NA, TRUE, 0,"
+        },
+        {
+          "line": 1507,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1533,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_RF_REG_ACCESS, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 1543,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1576,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_QUERY, EXT_CMD_RF_REG_ACCESS, TRUE, 0,"
+        },
+        {
+          "line": 1586,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1691,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_RF_TEST, TRUE, 0,"
+        },
+        {
+          "line": 1704,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1727,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_RF_TEST, TRUE, 0,"
+        },
+        {
+          "line": 1743,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1751,
+          "text": "INT32 CmdRadioOnOffCtrl(RTMP_ADAPTER *pAd, UINT8 On)"
+        },
+        {
+          "line": 1767,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_RADIO_ON_OFF_CTRL, TRUE, 0,"
+        },
+        {
+          "line": 1781,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1811,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_WIFI_RX_DISABLE, TRUE, 0,"
+        },
+        {
+          "line": 1820,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 1843,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_NOA_OFFLOAD_CTRL,"
+        },
+        {
+          "line": 1853,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 1930,
+          "text": "INT32 CmdChannelSwitch(RTMP_ADAPTER *pAd, UINT8 control_chl, UINT8 central_chl,"
+        },
+        {
+          "line": 1967,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_CHANNEL_SWITCH, TRUE, 0,"
+        },
+        {
+          "line": 1989,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 2011,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_QUERY, EXT_CMD_FLUSH_FRAME_WCID,"
+        },
+        {
+          "line": 2019,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 2060,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_QUERY, EXT_CMD_NIC_CAPABILITY, TRUE, 0,"
+        },
+        {
+          "line": 2063,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 2086,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_QUERY, EXT_CMD_FW_LOG_2_HOST,"
+        },
+        {
+          "line": 2096,
+          "text": "Ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 2164,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_THERMAL_PROTECT, TRUE, 0, TRUE, TRUE, 8, NULL, EventExtCmdResult);"
+        },
+        {
+          "line": 2179,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        },
+        {
+          "line": 2206,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_BCN_UPDATE, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 2210,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 2220,
+          "text": "static NDIS_STATUS AndesMTLoadFwMethod1(RTMP_ADAPTER *ad)"
+        },
+        {
+          "line": 2644,
+          "text": "Ret = AndesMTLoadFwMethod1(pAd);"
+        },
+        {
+          "line": 2892,
+          "text": "static VOID AndesMTRxProcessEvent(RTMP_ADAPTER *pAd, struct cmd_msg *rx_msg)"
+        },
+        {
+          "line": 2971,
+          "text": "AndesFreeCmdMsg(msg);"
+        },
+        {
+          "line": 3015,
+          "text": "AndesMTRxProcessEvent(pAd, msg);"
+        },
+        {
+          "line": 3022,
+          "text": "AndesFreeCmdMsg(msg);"
+        },
+        {
+          "line": 3367,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_EFUSE_BUFFER_MODE, TRUE, 0,TRUE, TRUE, 8, NULL, CmdEfuseBufferModeRsp);"
+        },
+        {
+          "line": 3388,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 3396,
+          "text": "VOID CmdSetTxPowerCtrl(RTMP_ADAPTER *pAd, UINT8 central_chl)"
+        },
+        {
+          "line": 3414,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_SET_TX_POWER_CTRL, TRUE, 0,"
+        },
+        {
+          "line": 3573,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 3601,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_GET_THEMAL_SENSOR, TRUE, 0, TRUE, TRUE, 8, NULL, HQA_GetThermalValue_CB);"
+        },
+        {
+          "line": 3604,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_GET_THEMAL_SENSOR, TRUE, 0, TRUE, TRUE, 8, NULL, CmdThemalSensorRsp);"
+        },
+        {
+          "line": 3609,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 3639,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_LED_CTRL, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 3667,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 3700,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_LED_CTRL, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 3737,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 3829,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_PWR_MGT_BIT_WIFI, TRUE, 0,TRUE, TRUE, 8, NULL, CmdExtPmMgtBitRsp);"
+        },
+        {
+          "line": 3833,
+          "text": "Ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 3862,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_PM_STATE_CTRL, TRUE, 0,TRUE, TRUE, 8, NULL, CmdExtPmStateCtrlRsp);"
+        },
+        {
+          "line": 3866,
+          "text": "Ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 3888,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_EDCA_SET, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 3893,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 3903,
+          "text": "INT32 CmdSlotTimeSet(RTMP_ADAPTER *pAd, UINT8 SlotTime,UINT8 SifsTime,UINT8 RifsTime,UINT16 EifsTime)"
+        },
+        {
+          "line": 3920,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_SLOT_TIME_SET, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 3930,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 3954,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_CONFIG_INTERNAL_SETTING, FALSE, 0, FALSE, FALSE, 0, NULL, NULL);"
+        },
+        {
+          "line": 3961,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 4053,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_PACKET_FILTER, TRUE, 0,"
+        },
+        {
+          "line": 4094,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 4107,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_WAKEUP_OPTION, TRUE, 0,"
+        },
+        {
+          "line": 4125,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 4139,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_PACKET_FILTER, TRUE, 0,"
+        },
+        {
+          "line": 4148,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 4178,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_PACKET_FILTER, TRUE, 0,"
+        },
+        {
+          "line": 4187,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 4200,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_PACKET_FILTER, TRUE, 0,"
+        },
+        {
+          "line": 4209,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 4257,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_WAKEUP_OPTION, TRUE, 0,"
+        },
+        {
+          "line": 4275,
+          "text": "ret = AndesSendCmdMsg(pAd, msg);"
+        },
+        {
+          "line": 4306,
+          "text": "AndesInitCmdMsg(msg, P1_Q0, EXT_CID, CMD_SET, EXT_CMD_ID_AC_QUEUE_CONTROL, FALSE, 0,"
+        },
+        {
+          "line": 4315,
+          "text": "ret = AndesSendCmdMsg(ad, msg);"
+        }
+      ]
+    },
+    "mcu/andes_core.c": {
+      "sha256": "63bad3b746c781cf98dd99f1f0446ff23816dd0f3dbc5e8e9df66dea74a16017",
+      "references": [
+        {
+          "line": 67,
+          "text": "VOID AndesInitCmdMsg(struct cmd_msg *msg, UINT16 pq_id, UINT8 cmd_type, UINT8 set_query, UINT8 ExtCmdType, BOOLEAN need_wait, UINT16 timeout, BOOLEAN need_retransmit, BOOLEAN need_rsp, UINT16 rsp_payload_len, char *rsp_payload, MSG_RSP_HANDLER rsp_handler)"
+        },
+        {
+          "line": 104,
+          "text": "VOID AndesFreeCmdMsg(struct cmd_msg *msg)"
+        },
+        {
+          "line": 134,
+          "text": "VOID AndesForceFreeCmdMsg(struct cmd_msg *msg)"
+        },
+        {
+          "line": 222,
+          "text": "static inline UCHAR AndesGetCmdMsgSeq(RTMP_ADAPTER *ad)"
+        },
+        {
+          "line": 246,
+          "text": "static VOID _AndesQueueTailCmdMsg(DL_LIST *list, struct cmd_msg *msg,"
+        },
+        {
+          "line": 254,
+          "text": "VOID AndesQueueTailCmdMsg(DL_LIST *list, struct cmd_msg *msg,"
+        },
+        {
+          "line": 265,
+          "text": "_AndesQueueTailCmdMsg(list, msg, state);"
+        },
+        {
+          "line": 349,
+          "text": "static struct cmd_msg *_AndesDequeueCmdMsg(DL_LIST *list)"
+        },
+        {
+          "line": 361,
+          "text": "struct cmd_msg *AndesDequeueCmdMsg(struct MCU_CTRL *ctl, DL_LIST *list)"
+        },
+        {
+          "line": 370,
+          "text": "msg = _AndesDequeueCmdMsg(list);"
+        },
+        {
+          "line": 389,
+          "text": "AndesQueueTailCmdMsg(&ctl->tx_doneq, msg, tx_done);"
+        },
+        {
+          "line": 413,
+          "text": "AndesQueueTailCmdMsg(&ctl->tx_doneq, msg, tx_done);"
+        },
+        {
+          "line": 426,
+          "text": "VOID AndesRxProcessCmdMsg(RTMP_ADAPTER *ad, struct cmd_msg *rx_msg)"
+        },
+        {
+          "line": 433,
+          "text": "/*rx_hw_hdr_len = */parse_rx_packet_type(ad, &RxBlk, rx_msg->net_pkt);"
+        },
+        {
+          "line": 447,
+          "text": "VOID AndesCmdMsgBh(unsigned long param)"
+        },
+        {
+          "line": 453,
+          "text": "while ((msg = AndesDequeueCmdMsg(ctl, &ctl->rx_doneq))) {"
+        },
+        {
+          "line": 456,
+          "text": "AndesRxProcessCmdMsg(ad, msg);"
+        },
+        {
+          "line": 457,
+          "text": "AndesFreeCmdMsg(msg);"
+        },
+        {
+          "line": 460,
+          "text": "AndesFreeCmdMsg(msg);"
+        },
+        {
+          "line": 464,
+          "text": "AndesFreeCmdMsg(msg);"
+        },
+        {
+          "line": 469,
+          "text": "while ((msg = AndesDequeueCmdMsg(ctl, &ctl->tx_doneq))) {"
+        },
+        {
+          "line": 474,
+          "text": "AndesFreeCmdMsg(msg);"
+        },
+        {
+          "line": 478,
+          "text": "AndesFreeCmdMsg(msg);"
+        },
+        {
+          "line": 523,
+          "text": "AndesFreeCmdMsg(msg);"
+        },
+        {
+          "line": 531,
+          "text": "static VOID AndesCtrlPciInit(RTMP_ADAPTER *ad)"
+        },
+        {
+          "line": 538,
+          "text": "RTMP_OS_TASKLET_INIT(ad, &ctl->cmd_msg_task, AndesCmdMsgBh, (unsigned long)ad);"
+        },
+        {
+          "line": 540,
+          "text": "tasklet_init(&ctl->cmd_msg_task, AndesCmdMsgBh, (unsigned long)ad);"
+        },
+        {
+          "line": 575,
+          "text": "RTMP_OS_TASKLET_INIT(pAd, &ctl->cmd_msg_task, AndesCmdMsgBh, (unsigned long)pAd);"
+        },
+        {
+          "line": 607,
+          "text": "AndesCtrlPciInit(pAd);"
+        },
+        {
+          "line": 626,
+          "text": "static VOID AndesCtrlPciExit(RTMP_ADAPTER *ad)"
+        },
+        {
+          "line": 692,
+          "text": "AndesCtrlPciExit(pAd);"
+        },
+        {
+          "line": 707,
+          "text": "static INT32 AndesDequeueAndKickOutCmdMsgs(RTMP_ADAPTER *ad)"
+        },
+        {
+          "line": 714,
+          "text": "while ((msg = AndesDequeueCmdMsg(ctl, &ctl->txq)) != NULL) {"
+        },
+        {
+          "line": 719,
+          "text": "AndesForceFreeCmdMsg(msg);"
+        },
+        {
+          "line": 727,
+          "text": "msg->seq = AndesGetCmdMsgSeq(ad);"
+        },
+        {
+          "line": 749,
+          "text": "AndesForceFreeCmdMsg(msg);"
+        },
+        {
+          "line": 764,
+          "text": "long expire = timeout ? RTMPMsecsToJiffies(timeout) : RTMPMsecsToJiffies(CMD_MSG_TIMEOUT);"
+        },
+        {
+          "line": 772,
+          "text": "static INT32 AndesWaitForCompleteTimeout(struct cmd_msg *msg, long timeout)"
+        },
+        {
+          "line": 775,
+          "text": "long expire = timeout ? RTMPMsecsToJiffies(timeout) : RTMPMsecsToJiffies(CMD_MSG_TIMEOUT);"
+        },
+        {
+          "line": 783,
+          "text": "INT32 AndesSendCmdMsg(PRTMP_ADAPTER ad, struct cmd_msg *msg)"
+        },
+        {
+          "line": 793,
+          "text": "AndesForceFreeCmdMsg(msg);"
+        },
+        {
+          "line": 808,
+          "text": "AndesForceFreeCmdMsg(msg);"
+        },
+        {
+          "line": 813,
+          "text": "AndesQueueTailCmdMsg(&ctl->txq, msg, tx_start);"
+        },
+        {
+          "line": 816,
+          "text": "AndesDequeueAndKickOutCmdMsgs(ad);"
+        },
+        {
+          "line": 821,
+          "text": "if (!AndesWaitForCompleteTimeout(msg, msg->timeout)) {"
+        },
+        {
+          "line": 823,
+          "text": "DBGPRINT(RT_DEBUG_ERROR, (\"command (%x), ext_cmd_type (%x), timeout(%dms)\\n\", msg->cmd_type, msg->ext_cmd_type, CMD_MSG_TIMEOUT));"
+        },
+        {
+          "line": 882,
+          "text": "AndesQueueTailCmdMsg(&ctl->tx_doneq, msg, state);"
+        },
+        {
+          "line": 885,
+          "text": "AndesFreeCmdMsg(msg);"
+        }
+      ]
+    },
+    "include/mcu/andes_core.h": {
+      "sha256": "f9aa7763c035f01a12b493f8004ac99c28a94829ba9f79fc1ad50e0f2ba78d82",
+      "references": [
+        {
+          "line": 155,
+          "text": "#define CMD_MSG_TIMEOUT 3000"
+        },
+        {
+          "line": 243,
+          "text": "INT32 AndesSendCmdMsg(struct _RTMP_ADAPTER *pAd, struct cmd_msg *msg);"
+        },
+        {
+          "line": 245,
+          "text": "VOID AndesCmdMsgBh(unsigned long param);"
+        },
+        {
+          "line": 252,
+          "text": "VOID AndesInitCmdMsg(struct cmd_msg *msg, UINT16 pq_id, UINT8 cmd_type,"
+        },
+        {
+          "line": 259,
+          "text": "VOID AndesFreeCmdMsg(struct cmd_msg *msg);"
+        },
+        {
+          "line": 260,
+          "text": "VOID AndesQueueTailCmdMsg(DL_LIST *list, struct cmd_msg *msg,"
+        },
+        {
+          "line": 265,
+          "text": "struct cmd_msg *AndesDequeueCmdMsg(struct MCU_CTRL *ctl, DL_LIST *list);"
+        }
+      ]
+    },
+    "include/mcu/andes_mt.h": {
+      "sha256": "818bd8d6010a5cafdd4e3927f8505a346f4628b8bb61b949e9d3c8d87aa00fe2",
+      "references": [
+        {
+          "line": 888,
+          "text": "VOID AndesMTFillCmdHeader(struct cmd_msg *msg, PNDIS_PACKET net_pkt);"
+        },
+        {
+          "line": 894,
+          "text": "INT32 AndesMTPciKickOutCmdMsg(struct _RTMP_ADAPTER *pAd, struct cmd_msg *msg);"
+        },
+        {
+          "line": 917,
+          "text": "INT32 CmdRadioOnOffCtrl(struct _RTMP_ADAPTER *pAd, UINT8 On);"
+        },
+        {
+          "line": 919,
+          "text": "INT32 CmdChannelSwitch(struct _RTMP_ADAPTER *pAd, UINT8 control_chl, UINT8 central_chl,"
+        },
+        {
+          "line": 930,
+          "text": "INT32 CmdSecKeyReq(struct _RTMP_ADAPTER *pAd, UINT8 AddRemove, UINT8 Keytype, UINT8 *pAddr, UINT8 Alg, UINT8 KeyID, UINT8 KeyLen, UINT8 WlanIdx, UINT8 *KeyMaterial);"
+        },
+        {
+          "line": 942,
+          "text": "VOID CmdSetTxPowerCtrl(struct _RTMP_ADAPTER *pAd, UINT8 central_chl);"
+        },
+        {
+          "line": 965,
+          "text": "INT32 CmdSlotTimeSet(struct _RTMP_ADAPTER *pAd, UINT8 SlotTime,UINT8 SifsTime,UINT8 RifsTime,UINT16 EifsTime);"
+        }
+      ]
+    },
+    "chips/mt7603.c": {
+      "sha256": "97febaaa4efad09884e6e5daf832da9b57a3a6118d9235458f1aa53648379996",
+      "references": [
+        {
+          "line": 55,
+          "text": "static void mt7603_switch_channel(RTMP_ADAPTER *pAd, UCHAR channel, BOOLEAN scan)"
+        },
+        {
+          "line": 61,
+          "text": "CmdChannelSwitch(pAd, channel, channel, BW_20,"
+        },
+        {
+          "line": 64,
+          "text": "CmdSetTxPowerCtrl(pAd, channel);"
+        },
+        {
+          "line": 68,
+          "text": "CmdChannelSwitch(pAd, pAd->CommonCfg.Channel, channel, pAd->CommonCfg.BBPCurrentBW,"
+        },
+        {
+          "line": 71,
+          "text": "CmdSetTxPowerCtrl(pAd, channel);"
+        },
+        {
+          "line": 1049,
+          "text": ".ChipSwitchChannel = mt7603_switch_channel,"
+        }
+      ]
+    },
+    "common/cmm_data.c": {
+      "sha256": "8453ace194ac21304a4a4021c51c5caf2f4fb2c00db2fab87216ba5070123a03",
+      "references": [
+        {
+          "line": 499,
+          "text": "UINT32 parse_rx_packet_type(RTMP_ADAPTER *ad, RX_BLK *rx_blk, VOID *rx_packet)"
+        },
+        {
+          "line": 611,
+          "text": "ParseTxSPacket(ad, txs_d4->pid, txs_d0->txsfm, ptr);"
+        },
+        {
+          "line": 660,
+          "text": "DBGPRINT(RT_DEBUG_INFO | DBG_FUNC_PS, (\"parse_rx_packet_type wlan_idx=%d,%d,%d,0x%x\\n\", txd_1->wlan_idx,hdr_info,padding,tr_entry->EntryType));"
+        },
+        {
+          "line": 739,
+          "text": "DBGPRINT(RT_DEBUG_INFO | DBG_FUNC_PS, (\"parse_rx_packet_type  not token txd_1->wlan_idx: %x, rx_packet addr: %x rx_wcid: %x\\n\",txd_1->wlan_idx,(u32)rx_packet,RTMP_GET_PACKET_WCID(rx_packet)));"
+        },
+        {
+          "line": 2048,
+          "text": "MacTableDeleteEntry(pAd, pMacEntry->Aid, pMacEntry->Addr);"
+        }
+      ]
+    },
+    "common/cmm_data_pci.c": {
+      "sha256": "cce10c0bdc7ee3c8b0caaa24afb5a8207f9c497656de4830a27c022664796459",
+      "references": [
+        {
+          "line": 1227,
+          "text": "BOOLEAN\tRTMPHandleTxRingDmaDoneInterrupt("
+        },
+        {
+          "line": 1526,
+          "text": "VOID RTMPHandleRxCoherentInterrupt(RTMP_ADAPTER *pAd)"
+        },
+        {
+          "line": 1534,
+          "text": "DBGPRINT(RT_DEBUG_TRACE, (\"==> RTMPHandleRxCoherentInterrupt \\n\"));"
+        },
+        {
+          "line": 1555,
+          "text": "DBGPRINT(RT_DEBUG_TRACE, (\"<== RTMPHandleRxCoherentInterrupt \\n\"));"
+        },
+        {
+          "line": 1688,
+          "text": "PNDIS_PACKET GetPacketFromRxRing("
+        },
+        {
+          "line": 1836,
+          "text": "rx_hw_hdr_len = parse_rx_packet_type(pAd, pRxBlk, pRxPacket);"
+        },
+        {
+          "line": 2568,
+          "text": "pRxPacket = GetPacketFromRxRing(pAd, pRxBlk, &bReschedule, &RxPending, 1);"
+        },
+        {
+          "line": 2602,
+          "text": "VOID RTMPHandleTxRing8DmaDoneInterrupt(RTMP_ADAPTER *pAd)"
+        }
+      ]
+    },
+    "common/mt_ps.c": {
+      "sha256": "890b6e9c3cb152a716ede44de280f871f2e6d6781f8b86a26d102c87b4323ed5",
+      "references": []
+    },
+    "ap/ap.c": {
+      "sha256": "307783d34cbec74860ba6bb770b88e84eb88ef3da633b1d973fd7538b4a60aad",
+      "references": [
+        {
+          "line": 833,
+          "text": "AsicSwitchChannel(pAd, pAd->hw_cfg.cent_ch, FALSE);"
+        },
+        {
+          "line": 1637,
+          "text": "VOID APCleanupPsQueue(RTMP_ADAPTER *pAd, QUEUE_HEADER *pQueue)"
+        },
+        {
+          "line": 2037,
+          "text": "MacTableDeleteEntry(pAd, pEntry->wcid, pEntry->Addr);"
+        },
+        {
+          "line": 2042,
+          "text": "MacTableDeleteEntry(pAd, pEntry->wcid, pEntry->Addr);"
+        },
+        {
+          "line": 2422,
+          "text": "MacTableDeleteEntry(pAd, pEntry->wcid, pEntry->Addr);"
+        },
+        {
+          "line": 2427,
+          "text": "MacTableDeleteEntry(pAd, pEntry->wcid, pEntry->Addr);"
+        },
+        {
+          "line": 2489,
+          "text": "MacTableDeleteEntry(pAd, pEntry->wcid, pEntry->Addr);"
+        },
+        {
+          "line": 2494,
+          "text": "MacTableDeleteEntry(pAd, pEntry->wcid, pEntry->Addr);"
+        },
+        {
+          "line": 2877,
+          "text": "APCleanupPsQueue(pAd, &pMacTable->McastPsQueue);"
+        },
+        {
+          "line": 3438,
+          "text": "MacTableDeleteEntry(pAd, pEntry->wcid, pEntry->Addr);"
+        }
+      ]
+    },
+    "ap/ap_mbss.c": {
+      "sha256": "402a0a3dfc95bc52347262fcd7ff18f70922a9b2d1dcb72a8c6657c0013bb616",
+      "references": [
+        {
+          "line": 22,
+          "text": "1. Call RT28xx_MBSS_Init() in init function and"
+        },
+        {
+          "line": 23,
+          "text": "call RT28xx_MBSS_Remove() in close function"
+        },
+        {
+          "line": 227,
+          "text": "INT32 RT28xx_MBSS_IdxGet(RTMP_ADAPTER *pAd, PNET_DEV pDev)"
+        },
+        {
+          "line": 255,
+          "text": "BssId = RT28xx_MBSS_IdxGet(pAd, pDev);"
+        },
+        {
+          "line": 301,
+          "text": "BssId = RT28xx_MBSS_IdxGet(pAd, pDev);"
+        },
+        {
+          "line": 359,
+          "text": "BssId = RT28xx_MBSS_IdxGet(pAd, pDev);"
+        },
+        {
+          "line": 416,
+          "text": "BssId = RT28xx_MBSS_IdxGet(pAd, pDev);"
+        }
+      ]
+    },
+    "ap/ap_mbss_inf.c": {
+      "sha256": "491f0cfd0f9db90edadc06081cfa5e1eaec74a2b702df9ac6ef3b87b7bc13ae8",
+      "references": [
+        {
+          "line": 22,
+          "text": "1. Call RT28xx_MBSS_Init() in init function and"
+        },
+        {
+          "line": 23,
+          "text": "call RT28xx_MBSS_Remove() in close function"
+        },
+        {
+          "line": 74,
+          "text": "VOID RT28xx_MBSS_Init(VOID *pAd, PNET_DEV pDevMain)"
+        },
+        {
+          "line": 79,
+          "text": "netDevHook.open = MBSS_VirtualIF_Open;\t/* device opem hook point */"
+        },
+        {
+          "line": 80,
+          "text": "netDevHook.stop = MBSS_VirtualIF_Close;\t/* device close hook point */"
+        },
+        {
+          "line": 107,
+          "text": "VOID RT28xx_MBSS_Remove(VOID *pAd)"
+        },
+        {
+          "line": 132,
+          "text": "INT MBSS_VirtualIF_Open(PNET_DEV pDev)"
+        },
+        {
+          "line": 176,
+          "text": "INT MBSS_VirtualIF_Close(PNET_DEV pDev)"
+        }
+      ]
+    },
+    "ap/ap_autoChSel.c": {
+      "sha256": "866c3b8c4102f28622f97bf0bbec863fd753a82514c988a853c5ddb739a10960",
+      "references": [
+        {
+          "line": 1510,
+          "text": "UCHAR APAutoSelectChannel(RTMP_ADAPTER *pAd, ChannelSel_Alg Alg)"
+        },
+        {
+          "line": 1541,
+          "text": "AsicSwitchChannel(pAd, pAd->ChannelList[i].Channel, TRUE);"
+        }
+      ]
+    },
+    "common/rtmp_init_inf.c": {
+      "sha256": "fcf2b2d6da578b3709a5575c92a1ad3f7bdf5cf85684fa4313ba2fcdf137fe94",
+      "references": [
+        {
+          "line": 912,
+          "text": "/*RTMPHandleRxDoneInterrupt(pAd);*/"
+        }
+      ]
+    },
+    "hw_ctrl/cmm_asic_mt.c": {
+      "sha256": "a2bcc245b48f709164dcc3bbe73267cb8c7c4f4abe8fc6bebdcd6de5d53e6e45",
+      "references": [
+        {
+          "line": 420,
+          "text": "VOID AsicSwitchChannel(RTMP_ADAPTER *pAd, UCHAR Channel, BOOLEAN bScan)"
+        },
+        {
+          "line": 474,
+          "text": "When this function is called, it's always after AsicSwitchChannel()."
+        },
+        {
+          "line": 1886,
+          "text": "CmdSlotTimeSet(pAd,SlotTime,SifsTime,RIFS_TIME,EIFS_TIME);"
+        },
+        {
+          "line": 4660,
+          "text": "pRxPacket = GetPacketFromRxRing(pAd, pRxBlk, &bReschedule, &RxPending, 0);"
+        },
+        {
+          "line": 4873,
+          "text": "AsicSwitchChannel(pAd, ch, bScan);"
+        },
+        {
+          "line": 5958,
+          "text": "CmdRadioOnOffCtrl(pAd, WIFI_RADIO_ON);"
+        },
+        {
+          "line": 6121,
+          "text": "CmdRadioOnOffCtrl(pAd, WIFI_RADIO_OFF);"
+        }
+      ]
+    },
+    "tx_rx/txs.c": {
+      "sha256": "58f963297852e7a864be13a7b9b7ea5ffd2a394a36309e736eef6691acee0524",
+      "references": [
+        {
+          "line": 77,
+          "text": "INT32 BcnTxSHandler(RTMP_ADAPTER *pAd, CHAR *Data, UINT32 Priv)"
+        },
+        {
+          "line": 311,
+          "text": "for (Index = 0; Index < TXS_STATUS_NUM; Index++)"
+        },
+        {
+          "line": 316,
+          "text": "AddTxSTypePerPktType(pAd, FC_TYPE_MGMT, SUBTYPE_BEACON, TXS_FORMAT0, BcnTxSHandler);"
+        },
+        {
+          "line": 675,
+          "text": "INT32 ParseTxSPacket(RTMP_ADAPTER *pAd, UINT32 Pid, UINT8 Format, CHAR *Data)"
+        },
+        {
+          "line": 691,
+          "text": "RemoveTxSStatus(pAd, Pid, &Type, &PktPid, &PktType, &PktSubType, &TxRate, &Priv);"
+        },
+        {
+          "line": 774,
+          "text": "UINT8 AddTxSStatus(RTMP_ADAPTER *pAd, UINT8 Type, UINT8 PktPid, UINT8 PktType,"
+        },
+        {
+          "line": 798,
+          "text": "INT32 RemoveTxSStatus(RTMP_ADAPTER *pAd, UINT8 TxSPid, UINT8 *Type, UINT8 *PktPid,"
+        }
+      ]
+    },
+    "mac/mt_mac.c": {
+      "sha256": "0503f18843b3ddc5206b6f2565c7a57aedbe7e64f7591f0dc5d6aa5be1355576",
+      "references": [
+        {
+          "line": 973,
+          "text": "txd_5->pid = AddTxSStatus(pAd, TXS_TYPE0, info->PID, 0, 0,"
+        },
+        {
+          "line": 1009,
+          "text": "txd_5->pid = AddTxSStatus(pAd, TXS_TYPE1, 0,"
+        },
+        {
+          "line": 1291,
+          "text": "txd_5->pid = AddTxSStatus(pAd, TXS_TYPE0, pTxBlk->Pid, 0, 0,"
+        },
+        {
+          "line": 1326,
+          "text": "txd_5->pid = AddTxSStatus(pAd, TXS_TYPE1, 0,"
+        }
+      ]
+    },
+    "include/mac/mac_mt/mt_mac.h": {
+      "sha256": "32835ba6b46e2bd3995986e1a48114242a755d128ab8bfc10238f5fdf4ce7002",
+      "references": [
+        {
+          "line": 1576,
+          "text": "#define TXS_STATUS_NUM 256"
+        },
+        {
+          "line": 1593,
+          "text": "TXS_STATUS TxSStatus[TXS_STATUS_NUM];"
+        },
+        {
+          "line": 1622,
+          "text": "INT32 ParseTxSPacket(struct _RTMP_ADAPTER *pAd, UINT32 Pid, UINT8 Format, CHAR *Data);"
+        },
+        {
+          "line": 1623,
+          "text": "INT32 BcnTxSHandler(struct _RTMP_ADAPTER *pAd, CHAR *Data, UINT32 Priv);"
+        },
+        {
+          "line": 1640,
+          "text": "UINT8 AddTxSStatus(struct _RTMP_ADAPTER *pAd, UINT8 Type, UINT8 PktPid, UINT8 PktType,"
+        },
+        {
+          "line": 1642,
+          "text": "INT32 RemoveTxSStatus(struct _RTMP_ADAPTER *pAd, UINT8 TxSPid, UINT8 *Type, UINT8 *PktPid,"
+        }
+      ]
+    },
+    "os/linux/rt_pci_rbus.c": {
+      "sha256": "9aab4654fd350177a940698fd57a841a4e1c39ba754117416c2416dfa0b37de3",
+      "references": []
+    },
+    "os/linux/rt_rbus_pci_drv.c": {
+      "sha256": "378057b9a76f88693c2431a27d286d031499ea478bc98781efa1686b61e2b01b",
+      "references": [
+        {
+          "line": 21,
+          "text": "__IMEM void rx_done_tasklet(unsigned long data);"
+        },
+        {
+          "line": 23,
+          "text": "static void rx_done_tasklet(unsigned long data);"
+        },
+        {
+          "line": 27,
+          "text": "static void rx1_done_tasklet(unsigned long data);"
+        },
+        {
+          "line": 61,
+          "text": "RTMP_OS_TASKLET_INIT(pAd, &pObj->rx_done_task, rx_done_tasklet, (unsigned long)pAd);"
+        },
+        {
+          "line": 64,
+          "text": "RTMP_OS_TASKLET_INIT(pAd, &pObj->rx1_done_task, rx1_done_tasklet, (unsigned long)pAd);"
+        },
+        {
+          "line": 337,
+          "text": "__IMEM void rx_done_tasklet(unsigned long data)"
+        },
+        {
+          "line": 339,
+          "text": "static void rx_done_tasklet(unsigned long data)"
+        },
+        {
+          "line": 423,
+          "text": "static void rx1_done_tasklet(unsigned long data)"
+        },
+        {
+          "line": 575,
+          "text": "RTMPHandleBcnDmaDoneInterrupt(pAd);"
+        },
+        {
+          "line": 1299,
+          "text": "VOID RTMPHandleInterrupt(VOID *pAdSrc)"
+        }
+      ]
+    }
+  },
+  "scope": "Fresh pinned-source reference/hash inventory, not preprocessed reachability or runtime proof"
+}

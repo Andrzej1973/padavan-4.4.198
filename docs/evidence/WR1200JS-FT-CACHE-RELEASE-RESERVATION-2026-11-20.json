@@ -1,0 +1,24 @@
+{
+  "scope": "prepared split native cache release under external whole-AP lifecycle serialization",
+  "exit_code": 0,
+  "checks": [
+    "held lease refuses reservation without native free",
+    "successful reservation blocks reopen/new reservation",
+    "wrong/stale ticket refuses before native free",
+    "exact ticket executes native destroy once in sequential test",
+    "direct/OS_ABL ASan/UBSan regressions",
+    "real owner source-map composition"
+  ],
+  "sha256": {
+    "tools/iot/ft-cache-native-lifecycle-composition.py": "4d6d155539c1ab66c8ee43e8119bd5b505cd212aeed24ed013bcb7b65a421a9d",
+    "tools/iot/check-ft-cache-native-lifecycle.py": "d70e3adb530491ed158b121b10517d97c040d9b0533cfe1d06afe6e7a0a557ef"
+  },
+  "external_required_contract": "AP lifecycle is serialized for the whole reservation-to-destroy interval; tickets are linear, never copied or executed concurrently",
+  "remaining": [
+    "bind actual AP serialization and pre-side-effect reservation",
+    "KDP users/release and FT_R1KH_KEEP",
+    "target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

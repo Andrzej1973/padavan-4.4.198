@@ -1,0 +1,29 @@
+{
+  "scope": "actual ioctl output fragment with substituted EventGet allocation/copy actors; native EventGet initialization source-composed only",
+  "command": "python3 tools/iot/check-ft-kdp-event-output.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "checks": [
+    "deterministic NULL output before feature guards",
+    "detached event released once on short/exact/large output buffer",
+    "copy failure releases event and returns EFAULT",
+    "absent event sets output length zero",
+    "duplicate/drift refused"
+  ],
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-event-output-composition.py": "ab3a57377e11c5e1dab57028fcd9fa955ce62b2458c0365cc1614af48307b276",
+    "tools/iot/check-ft-kdp-event-output.py": "e81f10d4491f01112c2babe7eae0ebe6fa2aa0c23750ffe3443b209f50d8e625"
+  },
+  "remaining": [
+    "native queue extraction and concurrent KDP teardown lifetime",
+    "actual native EventGet macro variants execution",
+    "event length versus allocated payload validation",
+    "target/image/device verification"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

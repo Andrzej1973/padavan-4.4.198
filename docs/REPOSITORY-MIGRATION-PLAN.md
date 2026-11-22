@@ -36,7 +36,9 @@ Phase 1A is a recommendation only and requires a separate task. See the
 The existing Linux 4.4.198 build assembles the pinned SDK and overlay during
 CI. The source lock, board profiles, compiler and overlay paths remain the
 inputs to that build. The reference repository's root SDK, Docker and
-bootloader layout would change those responsibilities.
+bootloader layout would change those responsibilities. Current firmware scope
+is Classic-only with IoT managed through Classic; Hybrid Modern packaging is
+not a target of this restructuring.
 
 [Standard WR1200JS build for the restructure revision](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/45014362085)
 passed for e350803655ab3fb28b1633a4010f47c1663d0596. Board selection,
@@ -46,25 +48,29 @@ identifier and a 13,128,272-byte TRX with SHA-256
 6f6574efca74989cb37d60ed3a4e5a276157a5ae2bb1cdf34edd3d80834149fd.
 SquashFS at offset 1,982,224 contains rc, httpd, Classic index.asp, nfqws2
 and mt76x3_ap.ko. The module reports Linux 4.4.198 and MIPS32_R2 vermagic.
-This verifies the Standard build path after the reorganization. IoT and
-Hybrid Modern feature acceptance is tracked separately.
+This verifies the Standard build path after the reorganization. IoT feature
+acceptance is tracked separately. Hybrid Modern is not part of current firmware
+delivery.
 
-The [Optional #1493 image audit](evidence/WR1200JS-OPTIONAL1493-INDEPENDENT-IMAGE.json)
-also verifies the isolated WR1200JS profile with Classic and without SQM.
+The historical [Optional #1493 image audit](evidence/WR1200JS-OPTIONAL1493-INDEPENDENT-IMAGE.json)
+also verified an isolated WR1200JS profile with Classic and without SQM.
 Its effective source was 2d50b896. ROMFS contains the Modern IoT client
 and Classic entry page, and excludes the CAKE module, SQM service script
-and Classic SQM page. This covers one image combination. The two
-Classic-free variants and the complete final release matrix remain open.
+and Classic SQM page. This covers one historical image combination, not
+acceptance of the current release profiles.
 
-### Current owner decision — keep Classic
+### Current owner decision — Classic-only firmware UI
 
-Keep Classic alongside Hybrid Modern in current WR1200JS images, including
-the profile with SQM excluded. Verify that the Classic entry page and the
-existing settings routes survive each packaging change. CAKE inclusion is
-selected independently. The two variants without Classic are deferred pending
-a new owner decision.
+Classic is the sole WR1200JS firmware UI and must remain in both active release
+profiles. IoT is required in both profiles and is managed through Classic.
+The profiles are Classic with CAKE/SQM (factory OFF) and Classic without
+CAKE/SQM. Hybrid Modern and Classic-free variants are outside current scope.
 
-### Deferred Classic-free dependency notes
+### Archived Classic-free dependency analysis
+
+The following analysis explains risks in previously proposed Classic-free
+packaging. It is historical reference only; no Classic-free packaging work is
+authorized by the current scope.
 
 For Classic-free packaging, distinguish rendered pages from ASP data endpoints.
 The Hybrid dashboard still reads system_status_data.asp, status_wanlink.asp and

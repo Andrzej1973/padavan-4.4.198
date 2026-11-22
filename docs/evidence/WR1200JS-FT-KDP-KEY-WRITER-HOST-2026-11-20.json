@@ -1,0 +1,27 @@
+{
+  "scope": "generated native key writer execution; deterministic password-hash actor",
+  "exit_code": 0,
+  "checks": [
+    "checked writer holds lease over hash and publication",
+    "close during hash prevents destroy",
+    "native default and supplied password selection retained",
+    "40-byte native publication under KdpLock; remaining100-byte destination untouched",
+    "temporary material volatile wipe source-composed",
+    "closed/missing state and empty feature refuse",
+    "ioctl caller EAGAIN and paired header declarations source-checked",
+    "actual-owner package composition passes"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-key-writer-composition.py": "7a899aac226a08b7d8579f92739171de340361df008217631fb7860a646c0f05",
+    "tools/iot/check-ft-kdp-key-writer.py": "980e6bac85971ac28be26dff3e10c8719851bf71a771d0549cc01a5d674c3aa7",
+    "tools/iot/ft-kdp-package-composition.py": "05f2bb0d3996628ce5ade6b0dfe4413a1a3069e56aaa0cecdafbc5182bafd125"
+  },
+  "remaining": [
+    "actual password hash execution",
+    "whole ioctl caller execution",
+    "remaining KDP users/AP release",
+    "target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

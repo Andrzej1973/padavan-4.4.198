@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-16",
+  "run": 43943156148,
+  "artifact": 14264323492,
+  "source_revision": "ace688d9ece095f4039079831ca6b311e1740c47",
+  "verification_source": {
+    "dispatch_revision": "ace688d9ece095f4039079831ca6b311e1740c47",
+    "requested_revision": "ace688d9ece095f4039079831ca6b311e1740c47",
+    "verified_revision": "ace688d9ece095f4039079831ca6b311e1740c47",
+    "runtime_verified": false
+  },
+  "status": "INDEPENDENT_CANDIDATE_IMAGE_AND_LIFECYCLE_PAIR_PASS",
+  "image_sha256": "134efd87c4c5ec39eb8493e200bcc2c3370aae841a9bd48e65c0898519f19b9b",
+  "image_bytes": 14503248,
+  "remaining_partition_bytes": 1684144,
+  "header_payload_crc_verified": true,
+  "squashfs_offset": 1981680,
+  "lifecycle_pair_recomputed": true,
+  "automatic_initial_shutdown_target_symbols": true,
+  "embedded_replacements": {
+    "sbin/rc": {
+      "bytes": 1015752,
+      "sha256": "21d3ee981df4fe2979437d8250f23bed16d3addc8b71c2e3843203fd6015f089",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 399332,
+      "sha256": "4d6b54cd3e2cefc223dc1edece9883952f44bb62cc88f9167c1c299eb0bf7240",
+      "elf": "ELF32 LE MIPS"
+    },
+    "usr/bin/iappd.sh": {
+      "bytes": 1567,
+      "sha256": "020f6b714bc6c174681b2ce040a9d57ba7d9943679591f00a8b8b17ea29a62fa"
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "bytes": 6300076,
+      "sha256": "5f0b2f76cd3b7cb20ca1ad7c5b2a81af8c3c44757eb8a7b8c0f4245bb5ce17ea",
+      "elf": "ELF32 LE MIPS"
+    }
+  },
+  "dependency_closure": {
+    "runtime_verified": false,
+    "production_installed": false,
+    "dependency_closure_verified": true,
+    "elf_files": {
+      "candidate:sbin/rc": {
+        "sha256": "21d3ee981df4fe2979437d8250f23bed16d3addc8b71c2e3843203fd6015f089",
+        "needed": [
+          "libiw.so.30",
+          "libshared.so",
+          "libdisk.so",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libiw.so.30": {
+        "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+        "needed": [
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libuClibc-1.0.48.so": {
+        "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+        "needed": [
+          "ld-uClibc.so.1"
+        ]
+      },
+      "image:lib/ld-uClibc-1.0.48.so": {
+        "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+        "needed": []
+      },
+      "image:lib/libshared.so": {
+        "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+        "needed": []
+      },
+      "image:lib/libdisk.so": {
+        "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+        "needed": []
+      },
+      "candidate:usr/sbin/httpd": {
+        "sha256": "4d6b54cd3e2cefc223dc1edece9883952f44bb62cc88f9167c1c299eb0bf7240",
+        "needed": [
+          "libshared.so",
+          "libiw.so.30",
+          "libdisk.so",
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libssl.so.3": {
+        "sha256": "3cb01582ae199b37e864e0470a2418d9c0023805e6fa11ecf6e0a3dfdcaaa938",
+        "needed": [
+          "libcrypto.so.3",
+          "libc.so.0"
+        ]
+      },
+      "image:lib/libcrypto.so.3": {
+        "sha256": "bc77c9ef24cdcf760997ad6d98c573fdda1d0a31896fcb602fef51ab2e23b5ac",
+        "needed": [
+          "libc.so.0"
+        ]
+      }
+    },
+    "errors": []
+  },
+  "board_checks": {
+    "uimage_magic": true,
+    "product_id": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "size_range": true,
+    "iot_hwnat_dtb": true
+  },
+  "module_vermagic_4_4_198": true,
+  "limits": [
+    "Selected embedded replacements and dependencies independently extracted; full unchanged-ROMFS proof remains CI scope",
+    "Does not cover later502d admission race or local cold readiness/candidate",
+    "Candidate not main-image promoted or device accepted"
+  ],
+  "runtime_verified": false,
+  "production_promoted": false,
+  "audit_script_sha256": "fcb196d769ff8bc4aacac58b953f652b25d4cfe0bcb4e79f609e4c9588add3d2",
+  "audit_log_sha256": "6d615c1c14f871da64ea929fa4b3b07fa632dfbcb75723ce27b4fe83df28a2af",
+  "artifact_report_sha256": {
+    "paired-image-inputs.json": "abad3bea6949d09ec2e05bed2c99a7fc0eca361e713e5c55906f22cc3eae98e5",
+    "isolated-image-verification.json": "c606f635c8919987cae9b2d7cf398a16b843be081495f22a1d33840012be1147",
+    "isolated-romfs-stage.json": "b7e88a2badbf56083abd92c0d0d070dba48e916afe2bd787ebd73e0671f35c0e",
+    "runtime-link/iot-runtime-source.json": "e89c29de9d668e83580fa9cb71ab4920a7e1b778f174f896348e5989f19e3a00",
+    "runtime-link/rc-normal-shutdown-symbols.txt": "f330ad35c6ca1e106c9eba40957a77e91791052d0c6b4d95dbb98a35354b4a84",
+    "independent-closure.json": "2ec84a3ab3d3619871390658cfe8332076662f507aebe2b5908a655fdb8ed2fd",
+    "independent-board.json": "fc794b29de3234fb9048dc1349d4cde6352b1cbd64fe36dae5d7b208ee0035d2"
+  }
+}

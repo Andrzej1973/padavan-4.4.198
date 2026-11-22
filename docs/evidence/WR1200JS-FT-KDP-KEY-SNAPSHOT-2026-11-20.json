@@ -1,0 +1,25 @@
+{
+  "scope": "prepared native crypto snapshot execution and source-composed writer lock; AES substituted",
+  "exit_code": 0,
+  "checks": [
+    "copy16 native key bytes under KdpLock",
+    "AES outside lock uses separate owned snapshot",
+    "injected live key change does not alter AES input snapshot",
+    "volatile key wipe immediately after AES",
+    "writer publication under same KdpLock source-composed",
+    "direct/empty host crypto and actual owner source-map regressions"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-crypto-composition.py": "6867cc70859e76ade9770cb781d6fe35d68073f75bd0741ba116184bf9d2dcd2",
+    "tools/iot/ft-kdp-package-composition.py": "2f3c0fc36003fe93d78a8cacba923c538c7c78c37f3e7dd6ab9ebc6c81c050e8",
+    "tools/iot/check-ft-kdp-crypto.py": "b4d38027026883a81f8cba06c032d4cd57444dfa3093ef266d5f99e2f8e515a2"
+  },
+  "remaining": [
+    "writer whole-operation lifetime admission",
+    "native password hash/writer execution",
+    "effective target compile and concurrency",
+    "full KDP/AP lifecycle"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

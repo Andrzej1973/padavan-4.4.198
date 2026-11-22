@@ -1,0 +1,23 @@
+{
+  "scope": "prepared durable AP operation record host execution; native phases not bound",
+  "exit_code": 0,
+  "checks": [
+    "exact device/operation/generation/BSS/whole-adapter identity",
+    "competing executor refusal",
+    "ticket and phase preserved on yield",
+    "resume at checkpoints0-3",
+    "completion requires final phase"
+  ],
+  "sha256": {
+    "tools/iot/ft-ap-stop-owner.h": "63b60bf90ea5193f1a1633e2f6e24a0c16737c975c9aa6ff608f40069bdd99ef",
+    "tools/iot/check-ft-ap-stop-owner.c": "f414fd48291723efe4827f4f26159f38edc1549d48b06851a5dd6105d69f4ddc"
+  },
+  "external_contracts": [
+    "caller supplies verified unique operation serial and pinned device generation",
+    "all state under adapter lifetime lock",
+    "cache ticket validated when binding",
+    "native phase receipts and AP side effects still require composition"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

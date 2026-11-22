@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-16",
+  "source_revision": "859b9769266f8811038192b341a932dccac316f8",
+  "status": "CLASSIC_PERSISTENCE_AND_MAIN_IMAGE_INTEGRATION_GAPS_CONFIRMED",
+  "findings": [
+    {
+      "path": "tools/iot/request-stage.c",
+      "fact": "Authenticated request staging writes only runtime _t keys using nvram_set_temp; request OFF clears temporary state."
+    },
+    {
+      "path": "tools/iot/start-commit.c",
+      "fact": "Commit verifies current request/network/filter/OPEN identity, commits DNS and suspends RAM snapshot; it does not save persistent requested credentials/enable."
+    },
+    {
+      "path": "tools/iot/request-snapshot.c",
+      "fact": "Owned rollback snapshot contains nine runtime _t keys, not persistent saved IoT profile."
+    },
+    {
+      "path": "tools/iot/precreated-profile-request.h",
+      "fact": "Cold reservation reads saved wr_iot_enable/ssid/psk. Factory fallback is CSPRNG boot-profile-only and explicitly prohibits runtime ON from it."
+    },
+    {
+      "path": "tools/iot/rc-boot.c",
+      "fact": "Reboot activation reads saved requested configuration; runtime request success alone does not prove those values persist."
+    },
+    {
+      "path": "tools/iot/prepare-classic-navigation.py",
+      "fact": "Classic only installs a pending page; authenticated Apply and activation are marked false."
+    },
+    {
+      "path": ".github/workflows/build-padavan-4.4-wr1200js.yml",
+      "fact": "Standard firmware step explicitly refuses RC wr-iot directory before make; paired runtime is isolated optional output."
+    }
+  ],
+  "decision": [
+    "Do not activate Classic submit UI or main-image promotion before owned saved-configuration path is implemented",
+    "Reuse existing configuration and RC ownership; no direct HTTP NVRAM setter or duplicate writer",
+    "Distinguish queue acceptance, applied runtime state, saved configuration, flash save and observed restart state",
+    "Credential provisioning must respect loaded-profile identity; ordinary IoT ON/OFF must not restart or scan physical Wi-Fi"
+  ],
+  "scope_limits": [
+    "Source audit of named committed modules; not proof that no external/native SDK writer exists",
+    "No firmware protocol, runtime state, radio configuration or device changed",
+    "No new Classic page or Modern development performed"
+  ],
+  "source_sha256": {
+    "tools/iot/request-stage.c": "0332f87247d898e7a08f80ac6b8adf47ee8f12d7a14086017005d247f9c86681",
+    "tools/iot/start-commit.c": "2f88808264756acb81303216b8fbf83825f269e2fc9ae650c0471ce3be00f9a6",
+    "tools/iot/request-snapshot.c": "6b92f72636287086abe577fe69fe9d32f89fa4dce96dfc2e71eeeb21fe61c6a4",
+    "tools/iot/precreated-profile-request.h": "4ab208df072097931941763c0a9cf050c58c4cdd8dcae317d8f50d099a4997e9",
+    "tools/iot/http-handler.inc": "a1a25bac16679bbe24ed6c5830c62f28cbe81490ba20e7f45457ea6eabc4c447",
+    "tools/iot/rc-boot.c": "f02a36b862cf1d81aaaba612f5b31659a2e7ae2b1482761dfd760cc962ba3c8d",
+    "tools/iot/prepare-classic-navigation.py": "b35afe54b430a40da93fad1afa039b6bc047c451f3c84bce94cd4a96a6029f6c",
+    ".github/workflows/build-padavan-4.4-wr1200js.yml": "5fb84594604ff5b9f2646db12027f23732637329e3892e7e9b2e4c1fe2edfd7c"
+  },
+  "runtime_verified": false
+}

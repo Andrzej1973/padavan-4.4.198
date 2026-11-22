@@ -1,0 +1,36 @@
+{
+  "scope": "actual snapshot/cache API/storage and KDP source-map composition",
+  "prepared_owner_input": true,
+  "owner_schema_standin": false,
+  "exit_code": 0,
+  "prepared_sha256": {
+    "include/rtmp.h": "87ef30b857c485e02875e1b32de61a13dca4b5186e15eb7c6aeab5fe037e41de",
+    "include/mlme.h": "9f741fbcdefdba7704bdf2d1c962fabb846de57c133a8ada128e1683e5956680",
+    "mgmt/mgmt_entrytb.c": "2591d660f748fce8a2ba122c9f4851776592c1c1c591287632d28797e2c0620e",
+    "ap/ap_repeater.c": "7afa15bfedd6aed05952a2b4a7665b04b4d2ba8a5d50a0c803e31e2cc1b1e0e7",
+    "ap/ap_assoc.c": "597cb393944168315bdadac692ed784431ea202d212324157c2055c361d33606",
+    "common/mlme.c": "e1103a693fc4465a73e54a0a14734276b53c4fc08da890b760758c4a5ae18a7f",
+    "common/cmm_wpa.c": "02e8ab7d8cfdcb2221d2531b3d99133a080fcdb52966e6785fb4ee12d273f169",
+    "include/assoc-generation.h": "83144035dffc9e7eecfa8b7c0fb793a894205dfba2cc7925c15ed1329ff1578a",
+    "include/assoc-generation-kernel.h": "29d43380f94c26a0a16b5114918a3c4397d1df8360f02b5c158241e6da437e4c",
+    "common/rtmp_init.c": "83d5738680ac52f4d9d4e456bf1d9aebb9a85ee9d48d55758fafa3533035bbe1",
+    "include/ft-pending-identity.h": "0cd0f4c555ca93ab326a13de039edbaf7c0958955564846bb147eaf9d0930692",
+    "include/ft-iapp-request-state.h": "ab05e4f07568f7db1e72d0f99269d392cd51e5e2445f5a9f5fb953ec3a7f9a55",
+    "include/ft-iapp-response-token.h": "432a59edfb147ae32eb996a8f444eb92b31e7c20cb07d9389ce4e0254ac6e0a4",
+    "include/ft-cache-lifetime.h": "a1142f6a4d5e302e08900af7039b172023051dc0f9c9d0a6f2ddea3de32dad47",
+    "include/peer-table-owner.h": "e1700ff1576b60796d7909a4a3628d0d6ca7418b9fd6e300b6da3cd1538fed38",
+    "common/ft.c": "ecedfa904268c672233d1e80342cd951c47c8befcc7a3aab53aa1d57ef61d790",
+    "include/ft.h": "9013d9dc5bc57b88e0c4b768a97d8b676bf9bc613cd0673bd2ed72f965577877",
+    "ap/ap_ftkd.c": "77441de1bb9df83a67ea60f8f9ce8deeab2f46b32f933628179d55011a5665f4",
+    "ap/ap_cfg.c": "b1fbea3551990970ff51ec56d3a42aff4e14709b7e8d322a96884bcf71af75ad",
+    "include/ft-kdp-event-span.h": "d594da8e37403bbc0b36271e11cda8d19a873e9e1275f78e077382522d03ad68"
+  },
+  "producer_installed": false,
+  "target_compiled": false,
+  "remaining": [
+    "actual association-owner predecessor",
+    "KDP full-operation admission/release",
+    "native AP lifecycle and target compile",
+    "image/device"
+  ]
+}

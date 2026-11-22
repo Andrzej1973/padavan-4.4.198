@@ -4,6 +4,10 @@ Canonical architecture: [REPOSITORY-ARCHITECTURE.md](REPOSITORY-ARCHITECTURE.md)
 The names below are current operational paths; Phase 1 deliberately preserves
 them because workflows/generators depend on them.
 
+Current WR1200JS delivery scope: Classic-only firmware UI, Classic retained in
+both CAKE/SQM profiles, and IoT required in each profile. Hybrid Modern and
+Classic-free image variants are not current targets.
+
 ```text
 boards.json                       explicit build admission
 configs.build/                    requested board configs + donor reference/

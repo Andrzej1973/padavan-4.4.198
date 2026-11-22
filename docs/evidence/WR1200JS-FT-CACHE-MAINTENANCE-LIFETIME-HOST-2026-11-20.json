@@ -1,0 +1,30 @@
+{
+  "scope": "pinned native maintenance body executed with stubbed station/MLME/event side effects",
+  "command": "python3 tools/iot/check-ft-cache-maintenance-lifetime.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "checks": [
+    "native function body byte-preserved after rename",
+    "cold/draining/post-destroy callback refusal",
+    "native Ready early return releases lease",
+    "native live expiry and cache count/list removal",
+    "close injected during station lookup cannot acquire destroy until callback returns",
+    "missing predecessor and repeated native function refused"
+  ],
+  "source_sha256": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+  "helper_sha256": {
+    "tools/iot/ft-cache-api-lifetime-composition.py": "0710372662e132d83b031475a556e14e86727e9416c9734cb785fa66413c4e8f",
+    "tools/iot/check-ft-cache-maintenance-lifetime.py": "b0052b7366fece1d083bf0425b21bdc64631a5c013bfb4be9d86d3002bb6ead4"
+  },
+  "limitations": [
+    "deterministic interleaving, not threaded native driver execution",
+    "station lookup/enqueue under cache lock unchanged; reverse lock ordering and association identity remain open",
+    "native init/destroy, adapter lock initialization and AP failure propagation unbound"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "device_verified": false
+}

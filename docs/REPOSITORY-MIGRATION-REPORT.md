@@ -1,5 +1,11 @@
 # Repository Phase 1 report — 2026-11-08 (reviewed 2026-11-21)
 
+Current-scope note (2026-11-22): the Stage 2 structure changes below remain
+valid, but references to Hybrid Modern delivery and the four-variant release
+matrix are historical. The active WR1200JS UI scope is Classic-only, with IoT
+required in both Classic release profiles. This report is a dated audit, not a
+current firmware acceptance record.
+
 Status as of 2026-11-21: Phase 1 was committed at
 `db0d7f02086a4e7c8b6d9e214925e340bcf87dcb`. The detailed baseline inventory
 remains outside Git because it records untracked owner/workspace paths. The

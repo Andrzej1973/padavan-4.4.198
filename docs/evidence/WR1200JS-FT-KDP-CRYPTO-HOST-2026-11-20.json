@@ -1,0 +1,35 @@
+{
+  "scope": "prepared checked native crypto bodies and actual ioctl case fragment; AES primitive substituted",
+  "command": "python3 tools/iot/check-ft-kdp-crypto.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "variants": [
+    "native feature",
+    "FT_KDP_EMPTY"
+  ],
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "checks": [
+    "successful output copy retains native flow",
+    "closed admission, missing control block and uninitialized KDP refuse without user copy",
+    "allocation failure and zero/oversized output cleanup",
+    "close during crypto cannot destroy before lease release",
+    "nested switch refusal propagates through outer ioctl cleanup without use after free",
+    "allocation/free balance"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-crypto-composition.py": "f801ae17499d013ff4d43828a5660ce8b743d0113358e02ab5105ad3b6b08f0b",
+    "tools/iot/check-ft-kdp-crypto.py": "4cafd507dbd006fd16277759a57ab6198ed4e99e3e439f7358f541a290f6378d"
+  },
+  "open": [
+    "all KDP users and release must share admission",
+    "CryptKey writer serialization",
+    "cross-TU declarations and full native caller compilation",
+    "AP teardown refusal propagation",
+    "real AES execution and target/image/device verification"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

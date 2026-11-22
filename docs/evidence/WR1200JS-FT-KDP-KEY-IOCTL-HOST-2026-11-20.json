@@ -1,0 +1,24 @@
+{
+  "scope": "actual prepared key-set switch branch executed through checked writer; allocation/copy and password hash actors",
+  "exit_code": 0,
+  "variants": [
+    "native",
+    "FT_KDP_EMPTY"
+  ],
+  "checks": [
+    "caller NUL termination",
+    "checked refusal yields EAGAIN",
+    "caller buffer allocation/free balance",
+    "close during hash preserves lease until return",
+    "native/default selection and publication regression"
+  ],
+  "fixture_sha256": "1b95fcfeec137c55858fd1728d9a19fa3c2de87fbca4103b4fc1523e22d48c0d",
+  "remaining": [
+    "whole outer ioctl dispatch and copy_from_user faults",
+    "actual hash",
+    "KDP/AP lifetime integration",
+    "target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

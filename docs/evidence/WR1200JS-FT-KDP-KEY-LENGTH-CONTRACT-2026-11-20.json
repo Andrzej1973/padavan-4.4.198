@@ -1,0 +1,22 @@
+{
+  "scope": "checked writer input contract with actual hash/PBKDF2 fixture",
+  "exit_code": 0,
+  "checks": [
+    "embedded NUL before supplied length rejected",
+    "missing NUL at exact supplied length rejected",
+    "malformed input leaves key storage and lease count unchanged",
+    "existing default/63-byte/64-byte hash behavior passes",
+    "package composition passes"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-key-writer-composition.py": "b3898d3b551bdea068026f01c02df30b081529f0000bb5dc606aa1385865a222",
+    "tools/iot/check-ft-kdp-key-real-hash.py": "33d42bae2bbccc34293545fe5ed7e849f9756e9d7ec46ee932a02502cfe52a80"
+  },
+  "external_contract": "caller provides readable owned length+1 allocation; wrapper does not infer pointer capacity",
+  "remaining": [
+    "whole native ioctl",
+    "KDP/AP lifetime and target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

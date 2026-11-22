@@ -1,0 +1,22 @@
+{
+  "scope": "prepared native C/header reference closure, not linker verification",
+  "exit_code": 0,
+  "checks": [
+    "checked writer declaration/definition/caller paired",
+    "legacy CryptKeySet identifiers refused across source overlays",
+    "injected function pointers for encrypt/decrypt/key-set all rejected",
+    "key writer native/empty ASan/UBSan regression passes"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-package-composition.py": "617d35481958b64db2176f31a0f1909e14a552afd83bf0e06b7b540f04f1cd0a",
+    "tools/iot/check-ft-kdp-package.py": "eab0b37f5ad3d6b25a6ecf8c6204be444b7b153a55ce8b26971505d96a7e3d07"
+  },
+  "remaining": [
+    "macro-generated references",
+    "whole ioctl execution",
+    "other KDP callers and AP release",
+    "target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

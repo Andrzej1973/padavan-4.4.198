@@ -1,0 +1,34 @@
+{
+  "scope": "generated typed preflight executed using extracted native packed declarations and constants; host ABI only",
+  "command": "python3 tools/iot/check-ft-kdp-event-typed.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "vendor_type_sizes": [
+    8,
+    14,
+    167
+  ],
+  "checks": [
+    "all input lengths0-1024",
+    "present and NULL payload",
+    "PeerIP zero/nonzero behavior",
+    "source guards before allocation/typed reads"
+  ],
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "sha256": {
+    "tools/iot/check-ft-kdp-event-typed.py": "9a23d865f4a6247239a335b25f7066ab7b39e094e9f0ad96c0e918ad23909f16",
+    "tools/iot/ft-kdp-event-span-composition.py": "79bf0159f3e6b131b31381a034a15de4405c3336ed5786962b4e88a084c7fac3"
+  },
+  "remaining": [
+    "whole native EventInform execution",
+    "actual pointer allocation capacity",
+    "ACTION pCB provenance",
+    "target ABI compilation",
+    "lifetime integration"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

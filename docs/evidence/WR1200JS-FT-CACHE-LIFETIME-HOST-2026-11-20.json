@@ -1,0 +1,31 @@
+{
+  "scope": "prepared helper host execution; not native lifecycle binding",
+  "result": "PASS",
+  "exit_code": 0,
+  "compiler": "cc -std=c99 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-cache-lifetime.c -o /tmp/check-ft-cache-lifetime",
+  "coverage": [
+    "exclusive native initialization publication",
+    "close blocks late ingress before existing 0-8 holders return",
+    "wrong-owner and duplicate release refusal for linear scopes",
+    "destroy unavailable until all holders return",
+    "exact init/destroy serial and reopen ordering",
+    "serial/counter overflow and uncertain init/destroy retain exclusion"
+  ],
+  "sha256": {
+    "tools/iot/ft-cache-lifetime.h": "a1142f6a4d5e302e08900af7039b172023051dc0f9c9d0a6f2ddea3de32dad47",
+    "tools/iot/check-ft-cache-lifetime.c": "99cad3dec92b7f755917069feb45de0a5b7e21889ef0b3516c3bc2ebf256f756",
+    "tools/iot/peer-table-owner.h": "e1700ff1576b60796d7909a4a3628d0d6ca7418b9fd6e300b6da3cd1538fed38"
+  },
+  "external_contracts": [
+    "same adapter lifetime lock serializes every transition and outlives cache lock",
+    "adapter allocation separately retained",
+    "leases are linear noncopyable objects",
+    "native init/destroy and drain wait outside lifetime lock",
+    "every cache user must acquire before touching native cache lock",
+    "caller must propagate drain refusal rather than continuing AP teardown"
+  ],
+  "producer_installed": false,
+  "native_functions_executed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

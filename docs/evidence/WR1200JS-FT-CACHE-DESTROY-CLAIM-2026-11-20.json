@@ -1,0 +1,26 @@
+{
+  "scope": "prepared reserved-destroy single-executor claim; deterministic interleavings, not threaded driver execution",
+  "result": "PASS",
+  "exit_code": 0,
+  "checks": [
+    "DESTROYING to FREEING under lifetime lock",
+    "exact serial claim only once",
+    "duplicate release injected from native free-lock actor refuses before recursive destroy",
+    "wrong serial and new ingress/reopen refused",
+    "direct and OS_ABL ASan/UBSan",
+    "actual owner cache/KDP map composition"
+  ],
+  "sha256": {
+    "tools/iot/ft-cache-lifetime.h": "3cf8ea344c974e4a540f8bc5a5e4c55e211daf0532d703fd9cd0e1d34a88e257",
+    "tools/iot/ft-cache-native-lifecycle-composition.py": "d8e0510651963fb7ff66308a967856096123a7052536b14573517b6ccc0837c1",
+    "tools/iot/check-ft-cache-lifetime.c": "db00b92ef7f2e6e47897a0cc5d884637416825f75827d432ffd8496a5baece77",
+    "tools/iot/check-ft-cache-native-lifecycle.py": "978188bfb95454e085a605003d210ced8d32ae6408328bf151193fb27aba4e96"
+  },
+  "remaining": [
+    "AP operation ownership and reservation propagation",
+    "all KDP user/release admission",
+    "target/image/device verification"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

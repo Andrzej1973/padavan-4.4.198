@@ -1,0 +1,19 @@
+{
+  "scope": "full source-map composition with synthetic cache-storage prerequisite; no full-TU compile",
+  "exit_code": 0,
+  "prepared_sha256": {
+    "include/rtmp.h": "8b514f31c2c41abe2573c67fc66894c99b530bdea98c9ee43c9db6ccdeff60e6",
+    "ap/ap_ftkd.c": "fa3fdfd76c12a0314c87945b880a2f8660e50626a67da49667d05d49139a6aa9",
+    "ap/ap_cfg.c": "f1cf1f58c6c8a46470f936f5c4f90caef7ea42a88d7e58fcdcb1c05fd70112aa",
+    "include/ft.h": "d8a236397e67f15619fe71d48b7494a3c04c8f89d320ed60fdd6ecc850cda29a",
+    "include/ft-kdp-event-span.h": "d594da8e37403bbc0b36271e11cda8d19a873e9e1275f78e077382522d03ad68"
+  },
+  "producer_installed": false,
+  "target_compiled": false,
+  "remaining": [
+    "full cache storage/API predecessor chain",
+    "all KDP callers/release and AP arbitration",
+    "target compilation",
+    "image/device verification"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "scope": "checked native cache init/destroy clones host execution; legacy FT_Init/Release not redirected",
+  "command": "python3 tools/iot/check-ft-cache-native-lifecycle.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "variants": [
+    "direct",
+    "OS_ABL_FUNC_SUPPORT"
+  ],
+  "checks": [
+    "native init/free execute outside lifetime lock",
+    "native init publishes only after Ready",
+    "held lease closes ingress but refuses native destroy",
+    "release retry after holder return drains/free native entries",
+    "double init/release refusal and clean cache reopen",
+    "OS_ABL cache-lock allocation failure leaves Ready false and retains poisoned exclusive owner"
+  ],
+  "sha256": {
+    "tools/iot/ft-cache-native-lifecycle-composition.py": "ef6c91f52f1b50e4ec8d2e83dba5d9907fd680ba95cdc18de7c31cc014d6f761",
+    "tools/iot/check-ft-cache-native-lifecycle.py": "f3161f4c7321274ec27a4fc0a904fc0d740bf9a41e9cbb7e5dc1cb0c4779a3e4",
+    "tools/iot/ft-cache-lifetime.h": "a1142f6a4d5e302e08900af7039b172023051dc0f9c9d0a6f2ddea3de32dad47"
+  },
+  "limitations": [
+    "lock and allocation primitives are host stubs",
+    "native KDP/RIC lifecycle and FT_R1KH_KEEP arbitration not bound",
+    "legacy cache lifecycle calls remain bypasses until complete caller conversion",
+    "AP teardown must propagate FALSE before KDP/RIC or other teardown",
+    "target and adapter release quiescence unverified"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "device_verified": false
+}

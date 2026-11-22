@@ -1,0 +1,85 @@
+{
+  "date": "2026-11-17",
+  "status": "PINNED_NATIVE_CONFIGURATION_API_SOURCE_VERIFIED",
+  "repository": "vipshmily/padavan-4.4",
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "facts": [
+    {
+      "source": "trunk/user/httpd/web_ex.c:90",
+      "fact": "nvram_commit_safe returns without flash commit only when nvram_manual==1; otherwise calls nvram_commit and discards its return status."
+    },
+    {
+      "source": "trunk/user/httpd/web_ex.c:946",
+      "fact": "Native validated Apply calls nvram_set for each changed variable, marks nvram_modified; asus_nvram_commit later calls the native safe commit helper."
+    },
+    {
+      "source": "trunk/user/shared/nvram_linux.c:160",
+      "fact": "Each setter is one SET ioctl with is_temp; no userspace multi-key transaction exposed in this header."
+    },
+    {
+      "source": "trunk/user/shared/nvram_linux.c:236",
+      "fact": "nvram_commit returns COMMIT ioctl status; the ordinary HTTP safe wrapper has no positive save acknowledgment."
+    },
+    {
+      "source": "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c:198",
+      "fact": "SET holds nvram_lock around tuple update/compaction retry; a sequence of setters does not hold one lock across all fields."
+    },
+    {
+      "source": "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c:301",
+      "fact": "COMMIT snapshots non-temp state under nvram_lock, releases it, then acquires nvram_sem for flash comparison/write; do not infer whole Apply+commit atomicity."
+    },
+    {
+      "source": "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c:382",
+      "fact": "User SET length capped at NVRAM_MAX_VALUE_LEN-1; header declares4096."
+    },
+    {
+      "source": "trunk/user/shared/bin_sem_asus.c:127",
+      "fact": "Stock file_lock uses blocking F_SETLKW; not a ready-made nonblocking PID1 transaction owner."
+    }
+  ],
+  "integration_requirements": [
+    "Preserve nvram_manual1 explicit-save semantics",
+    "Do not add an independent asynchronous flash-commit caller based only on runtime APPLIED",
+    "Do not expose direct CGI writes to active profile while it is needed for safe OFF",
+    "Keep requested/saved configuration separate from loaded radio identity and observed runtime state",
+    "Existing native API has no multi-key all-or-none setter; choose owned recoverable save boundary before enabling Classic Apply",
+    "Legacy configured values and factory OFF provisioning require explicit migration/provisioning behavior",
+    "Ordinary ON/OFF must remain virtual with no physical radio restart/scan"
+  ],
+  "limits": [
+    "Source contracts only; no device persistence/power-loss acceptance",
+    "No NVRAM/kernel/firmware protocol changes made",
+    "Scratch holds pinned source data, not executed vendor binaries"
+  ],
+  "sources": {
+    "trunk/user/httpd/web_ex.c": {
+      "sha256": "3b3c01010b6c6a6ad6cfd2c19c9b9e3e395dd04699bcbcfe45d84a6b133c1a0d",
+      "url": "https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/user/httpd/web_ex.c"
+    },
+    "trunk/user/httpd/variables.c": {
+      "sha256": "efa9820d29a887139d903d0163ad6fd370db16a851f77f829eac63bba1c96556",
+      "url": "https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/user/httpd/variables.c"
+    },
+    "trunk/user/shared/nvram_linux.c": {
+      "sha256": "f7475bfa58604d0f73f1f3bb31e0108c10e0c822452651e7e53c82b59cab0c4f",
+      "url": "https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/user/shared/nvram_linux.c"
+    },
+    "trunk/user/shared/nvram_linux.h": {
+      "sha256": "7b7a6e307968b8e03d2cd13795a019b1585be266acb4643a0f8b74d2aa884e2a",
+      "url": "https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/user/shared/nvram_linux.h"
+    },
+    "trunk/user/shared/bin_sem_asus.c": {
+      "sha256": "0f9626d3b604a0f69e5dd88a81bbef5c813a5a4adf189fb2f1f05a4c4e83a5e3",
+      "url": "https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/user/shared/bin_sem_asus.c"
+    },
+    "trunk/linux-4.4.x/drivers/nvram/nvram_linux.c": {
+      "sha256": "eb8ec04cf2c454dc9bc469f7f89a2540724bcb2cda2d76e310e1e29ab7c20487",
+      "url": "https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/linux-4.4.x/drivers/nvram/nvram_linux.c"
+    },
+    "trunk/linux-4.4.x/drivers/nvram/nvram.c": {
+      "sha256": "b9cf4ea7898824ce0b89ae49d023fb661b8f08c18acab654037dd0f213fc8840",
+      "url": "https://github.com/vipshmily/padavan-4.4/blob/c25283e915a2a00a763774dd255b14aff997285e/trunk/linux-4.4.x/drivers/nvram/nvram.c"
+    }
+  },
+  "runtime_verified": false
+}

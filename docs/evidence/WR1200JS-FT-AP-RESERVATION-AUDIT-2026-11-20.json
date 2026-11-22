@@ -1,0 +1,51 @@
+{
+  "scope": "actual reproduced peer-retirement AP source; no mutation/execution",
+  "source_sha256": "d08fdb07a2c42effcde899e4fa0c01c654709c78b3c05f9e06792644b73b7d76",
+  "functions": [
+    {
+      "function": "APStop",
+      "line": 1327,
+      "returns": [
+        {
+          "line": 1370,
+          "statement": "return FALSE;"
+        },
+        {
+          "line": 1483,
+          "statement": "return TRUE;"
+        }
+      ],
+      "reset_before_ft_release": true
+    },
+    {
+      "function": "APStopBssOnly",
+      "line": 1486,
+      "returns": [
+        {
+          "line": 1499,
+          "statement": "return FALSE;"
+        },
+        {
+          "line": 1548,
+          "statement": "return FALSE;"
+        },
+        {
+          "line": 1648,
+          "statement": "return TRUE;"
+        }
+      ],
+      "reset_before_ft_release": true
+    }
+  ],
+  "constraints": [
+    "AP interrupt disable precedes fallible MacTableReset/ResetWdev; these are already partial-stop paths",
+    "A local-only FT ticket reserved at entry is lost on reset FALSE and cannot be reacquired while cache is DESTROYING",
+    "Reservation must be stored in an adapter-owned AP operation with exact operation/BSS identity and resume state, or rolled back only when absence of side effects is proved",
+    "Retry must reuse original ticket and skip completed teardown phases; a fresh local ticket or cold-success shortcut is insufficient",
+    "FT_R1KH_KEEP requires retained-cache and releasing-cache operations to have distinct outcomes",
+    "All KDP entrants/release must share lifetime before installing this reservation"
+  ],
+  "next_required": "Bind durable AP operation identity/resume before redirecting FT_Release; inspect existing close executor ownership as the carrier",
+  "producer_installed": false,
+  "target_compiled": false
+}

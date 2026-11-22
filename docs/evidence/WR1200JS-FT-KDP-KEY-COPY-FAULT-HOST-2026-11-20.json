@@ -1,0 +1,19 @@
+{
+  "scope": "actual prepared copy-fault cleanup fragment, injected dirty partial-copy allocation",
+  "command": "python3 tools/iot/check-ft-kdp-key-writer.py <pinned-c25283e/mt76x3>",
+  "exit_code": 0,
+  "checks": [
+    "length0-65 full length+1 buffer cleared before free",
+    "EFAULT retained",
+    "allocation/free balance",
+    "native/empty ASan/UBSan variants"
+  ],
+  "fixture_sha256": "c5031f1fdb50b3a9214295a7967c400bade6f646576ebaaeda9ee35de8784443",
+  "remaining": [
+    "outer ioctl dispatcher and actual copy_from_user",
+    "real hash",
+    "KDP/AP ownership and target/image/device"
+  ],
+  "producer_installed": false,
+  "target_compiled": false
+}

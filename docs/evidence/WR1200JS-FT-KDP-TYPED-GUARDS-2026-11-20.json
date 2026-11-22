@@ -1,0 +1,23 @@
+{
+  "scope": "source composition and placement only",
+  "exit_code": 0,
+  "checks": [
+    "association sizeof minimum",
+    "reassociation sizeof minimum",
+    "KEY_REQ sizeof minimum when PeerIP zero and typed payload used",
+    "all three before allocation and typed reads",
+    "duplicate composition rejected"
+  ],
+  "sha256": {
+    "tools/iot/ft-kdp-event-span-composition.py": "79bf0159f3e6b131b31381a034a15de4405c3336ed5786962b4e88a084c7fac3",
+    "tools/iot/check-ft-kdp-event-typed.py": "112fabf545bbbba312fbc5de9209dafef2982180d227831d378458a979bf7d51"
+  },
+  "unverified": [
+    "native producer execution",
+    "target type compilation",
+    "ACTION pCB capacity provenance",
+    "caller allocation capacity",
+    "KDP lifetime"
+  ],
+  "producer_installed": false
+}
