@@ -1,3 +1,32 @@
+## ON retained-release proof — verified local package, 2026-11-22
+
+HEAD/origin f835fa31: standard1473/run44947566059 and ABI/run44947566037
+SUCCESS. No equivalent optional was active; exact f835fa31 optional1474/
+run44988009137 dispatched with ubuntu24/source/iot/peer82 and is running.
+It does not cover the local changes below.
+
+Enabled ON release retry previously checked structural/file receipt identity,
+but omitted complete ACTIVE/auth/WAN/Guest/service reobservation after failed
+signal-mask restoration. Local correction reuses full read-only preflight on
+every retained RELEASING retry. Read-only rebind observation accepts that phase;
+mutating step remains HANDOFF-only. No lifecycle action is replayed.
+Actual failed-unmask test now rejects auth/WAN/ACTIVE/service drift with unmask
+available, retains baseline/receipt/guard, and refuses mutating rebind progress.
+Direct ASan/UBSan check PASS9.32s peak99332KiB. Seven related ON consumers PASS
+121.65s peak164884KiB exit0, including all eight desired-config modes, disabled
+and shutdown consumers. Staging now compiles changed handoff/release units as
+objects too:32 across prepared0/1 PASS20.82s peak59592KiB exit0.
+Pinned GCC10.5/uClibc1.0.48 compiles32 MIPS objects PASS23.99s peak62316KiB,
+including download/extraction. Full edit/view suite plus release regression
+PASS150.64s peak101308KiB exit0. No full SDK link/image/device claim.
+Removed compiler tree188293206 apparent bytes; archive memory-only. Fixture
+contexts disposed, historical/private scratch preserved. Windows gh transport
+failed before download once; direct Linux HTTPS with exact pinned SHA succeeded.
+Evidence: docs/evidence/WR1200JS-ON-RELEASE-RETRY-2026-11-22.json.
+Next: publish this coherent verified package once, confirm exact remote/new CI,
+queue its exact optional after standard success. Continue source-to-production
+entry and configuration promotion; no main-image or physical acceptance.
+
 ## OFF receipt consumer CI correction and optional1471 image — 2026-11-21
 
 Published ae0288d6 standard1472/run44945937042 failed its early host step.

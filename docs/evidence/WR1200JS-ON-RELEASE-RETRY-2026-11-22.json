@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-22",
+  "base_revision": "f835fa31c2a542f0eeda6bb6347694520c07ad71",
+  "scope": "Retained enabled ON parent release repeats full final read-only proof after failed signal-mask restore",
+  "implementation": [
+    "RELEASING retry retains structural/receipt checks and invokes complete ACTIVE/profile/Main/Guest/auth/WAN/service preflight.",
+    "Read-only rebind observer accepts RELEASING; mutating advance remains HANDOFF-only.",
+    "No profile generation, backend advance, bridge attach, WAN or child action is replayed."
+  ],
+  "local_host": {
+    "direct_release": {
+      "seconds": 9.32,
+      "peak_kib": 99332,
+      "exit": 0
+    },
+    "seven_related_consumers": {
+      "seconds": 121.65,
+      "peak_kib": 164884,
+      "exit": 0
+    },
+    "staging32_objects": {
+      "seconds": 20.82,
+      "peak_kib": 59592,
+      "exit": 0
+    },
+    "full_edit_view_suite": {
+      "includes": "complete edit/view including Modern native handlers plus direct release regression",
+      "seconds": 150.64,
+      "peak_kib": 101308,
+      "exit": 0
+    }
+  },
+  "local_target": {
+    "objects": 32,
+    "modes": [
+      0,
+      1
+    ],
+    "gcc": "10.5.0",
+    "libc": "uClibc-ng1.0.48",
+    "archive_sha256": "5a9254920f52954b2910ad968086135436e320bfb1360928cf96f4f0bf03870a",
+    "seconds_including_download_extraction": 23.99,
+    "peak_kib": 62316,
+    "exit": 0,
+    "scope": "Isolated actual staged objects; no full SDK link or final image/runtime acceptance"
+  },
+  "cleanup": {
+    "target_tree": "/tmp/wr-on-release-target-u6cl2udj",
+    "removed_apparent_bytes": 188293206,
+    "absence_verified": true,
+    "archive_memory_only": true,
+    "fixture_contexts": "TemporaryDirectory",
+    "historical_private_scratch": "preserved"
+  },
+  "ci_checkpoint": {
+    "revision": "f835fa31c2a542f0eeda6bb6347694520c07ad71",
+    "standard1473": 44947566059,
+    "standard_conclusion": "success",
+    "abi": 44947566037,
+    "abi_conclusion": "success",
+    "optional1474": 44988009137,
+    "optional_last_status": "in_progress",
+    "coverage": "Prior source only, excludes local retained ON correction"
+  },
+  "gates": {
+    "production_promoted": false,
+    "full_target_link_verified": false,
+    "final_image_verified": false,
+    "physical_runtime_verified": false
+  },
+  "source_sha256": {
+    "tools/iot/check-config-runtime-staging.py": "0d4479b1aa540c8b6f80ee4137d7e7ff8f21090466554e59da536c5123bc3fb8",
+    "tools/iot/check-radio-on-release.py": "2aaa1a95f8de5bb7d2554c7b0ba015301a0dc5377f5195220639a86127ad0daf",
+    "tools/iot/radio-on-handoff.c": "002640fa6eadc1afd50bbbf95f4573f839525aa0b003d01acd30614455bb0d92",
+    "tools/iot/radio-on-handoff.h": "1dc965232d7e3b8b9deb9ba5803fd848ff78905eaab6819f2165d33c0af85110",
+    "tools/iot/radio-on-release-runtime.h": "6d05c856bbec01308a9479a466ef4730a2911d5f89cfe53f5aff08c727a32ee1",
+    "tools/iot/radio-on-release.h": "4ad321b205ee9dbdcf6c92ce8aca1daf3716317601156be698428e85ef71b358"
+  }
+}

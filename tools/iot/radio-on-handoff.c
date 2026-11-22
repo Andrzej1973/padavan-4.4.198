@@ -36,7 +36,8 @@ static int on_rebind_observe(struct wr_iot_on_restore *s,int advance)
 {
  static const char hex[]="0123456789abcdef";
  struct wr_iot_control_request r={0};unsigned i;int ok=0;
- if(!s||s->owner!=getpid()||s->busy||s->phase!=WR_ON_RESTORE_HANDOFF||!s->handoff_created||
+ if(!s||s->owner!=getpid()||s->busy||
+    (s->phase!=WR_ON_RESTORE_HANDOFF&&(advance||s->phase!=WR_ON_RESTORE_RELEASING))||!s->handoff_created||
     !wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||!on_parent_chain(s)||
     !wr_iot_on_generation_origin_current(&s->generation)||!wr_iot_on_aux_down_current())return 0;
  s->busy=1;

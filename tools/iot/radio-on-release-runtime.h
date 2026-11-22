@@ -60,7 +60,8 @@ int wr_iot_rc_radio_on_release(struct wr_iot_on_restore *s)
      !wr_iot_physical_stop_request_encode(expected,sizeof(expected),&a->released)||
      !wr_iot_physical_stop_request_encode(current,sizeof(current),&radio_off_receipt)||
      memcmp(expected,current,sizeof(current))||!wr_iot_rc_shutdown.active||
-     !wr_iot_restart_profile_receipt_current(&s->profile_receipt))return 0;
+     !wr_iot_restart_profile_receipt_current(&s->profile_receipt)||
+     !wr_iot_on_release_current(s))return 0;
  }else{
   if(s->phase!=WR_ON_RESTORE_HANDOFF||radio_on_releasing||!radio_off_receipt_valid)return 0;
   if(!s->wan.owner&&!wr_iot_wan_followup_capture(&s->wan,1))return 0;

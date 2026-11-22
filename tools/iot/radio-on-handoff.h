@@ -8,6 +8,7 @@ int wr_iot_on_restore_handoff(struct wr_iot_on_restore *,const struct wr_iot_con
 /* Advance only retained backend identity; success needs exact ACTIVE proof,
  * never APPLIED status alone. No guard/baseline/receipt retirement here. */
 int wr_iot_on_rebind_step(struct wr_iot_on_restore *);
-/* Read-only variant for final preflight, never advances backend mutations. */
+/* Read-only variant for HANDOFF and retained RELEASING final preflight;
+ * never advances backend mutations. Step remains HANDOFF-only. */
 int wr_iot_on_rebind_current(struct wr_iot_on_restore *);
 #endif

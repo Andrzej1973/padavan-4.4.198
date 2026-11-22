@@ -61,6 +61,15 @@ int main(int argc,char**argv){
   struct sigaction sa={0};sa.sa_handler=shutdown_handler;sigemptyset(&sa.sa_mask);assert(!sigaction(SIGTERM,&sa,NULL));
   if(fault){
    fail_unmask=1;assert(!wr_iot_rc_radio_on_release(&restore)&&restore.phase==WR_ON_RESTORE_RELEASING&&a.profile.active&&radio_off_receipt_valid&&depth==1);
+   /* Retained release must repeat the full read-only proof. No successful
+    * unmask may consume stale ACTIVE/auth/WAN/service state. */
+   fail_unmask=0;
+   auth_current=0;assert(!wr_iot_rc_radio_on_release(&restore));auth_current=1;
+   wan_current=0;assert(!wr_iot_rc_radio_on_release(&restore));wan_current=1;
+   active=0;assert(!wr_iot_rc_radio_on_release(&restore));active=1;
+   restore.services.attempted=6;assert(!wr_iot_rc_radio_on_release(&restore));restore.services.attempted=7;
+   assert(a.profile.active&&radio_off_receipt_valid&&depth==1&&!continues);
+   assert(!wr_iot_on_rebind_step(&restore)&&!continues);
    assert(!raise(SIGTERM)&&!shutdowns);fail_unmask=0;
   }
   assert(wr_iot_rc_radio_on_release(&restore)&&restore.phase==WR_ON_RESTORE_RELEASED&&!radio_on_releasing);
