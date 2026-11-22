@@ -19,6 +19,15 @@ newer upstream revision does not silently update active source.
 | CI/CD | no .github/workflows at inspected revision (API404) | Our Actions queues/checks are our implementation, not attributed upstream |
 | Bootloader | uboot retained in upstream | Not imported/rebuilt/changed for this phase |
 
+## Container workflow
+
+At the inspected revision, Compose builds the image from the repository
+directory and opens an interactive service. The Dockerfile then clones the
+configured upstream branch into /opt/padavan-ng. It does not consume our
+working tree, board catalogue or source lock. Copying this container setup
+would build a separate checkout. The existing Actions pipeline remains the
+build entry point for the WR1200JS overlay and pinned Linux 4.4.198 inputs.
+
 The sample uses GCC7/Linux3.4 and a custom libc source selected by trunk/libc.
 Directly copying it would change ABI assumptions. Our source generator already
 follows the same bootstrap/configure/ct-ng architecture with the4.4-compatible
