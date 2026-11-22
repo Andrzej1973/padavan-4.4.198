@@ -320,7 +320,7 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
         page,
         "\tinit_itoggle('watchdog_cpu');\n",
         "\tinit_itoggle('watchdog_cpu');\n"
-        "\tinit_itoggle('zapret2_enable', change_zapret2_enabled);\n",
+        "\tinit_itoggle('zapret2_enable');\n",
         "toggle initialization",
     )
     unsupported = """if(!found_app_iperf3()){
@@ -334,7 +334,6 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
 \t\tshowhide_div('row_zapret2_strategy', 0);
 \t\tshowhide_div('wr_zapret2_status_row', 0);
 \t}else{
-\t\tchange_zapret2_enabled();
 \t\twrZapret2Render(<% wr_zapret2_status(); %>);
 \t\twindow.setInterval(wrZapret2Refresh, 30000);
 \t}"""
@@ -367,9 +366,9 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
                                                 <#WRZapret2RulesLabel#>: <span id="wr_zapret2_rules_detail">—</span>;
                                                 <#WRZapret2StrategyLabel#>: <span id="wr_zapret2_strategy_detail">—</span></p></td>
                                         </tr>
-                                        <tr id="row_zapret2_strategy" style="display:none">
-                                            <th><#WRZapret2StrategyTitle#></th>
-                                            <td><textarea rows="8" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="scripts.zapret2.args" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("scripts.zapret2.args",""); %></textarea>
+                                        <tr id="row_zapret2_strategy">
+                                            <th><label for="zapret2_strategy"><#WRZapret2StrategyTitle#></label></th>
+                                            <td><textarea id="zapret2_strategy" rows="12" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="scripts.zapret2.args" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("scripts.zapret2.args",""); %></textarea>
                                                 <p class="help-block"><#WRZapret2StrategyHelp#></p></td>
                                         </tr>'''
     page = replace_once(
@@ -378,10 +377,6 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
     script = r'''
 var wrZapret2StatusBusy = false;
 var wrZapret2Generation = 0, wrZapret2SampledAt = 0;
-function change_zapret2_enabled() {
-    var checked = document.form.zapret2_enable && document.form.zapret2_enable[0].checked;
-    showhide_div('row_zapret2_strategy', checked ? 1 : 0);
-}
 function validZapret2() {
     if (!found_app_zapret2() || !document.form.zapret2_enable[0].checked) return true;
     var strategy = document.form['scripts.zapret2.args'];

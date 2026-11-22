@@ -334,7 +334,7 @@ async function loadJSONToSelect(fileName, select) {
                                         </tr>
 
                                         <tr>
-                                            <th colspan="2" style="background-color: #E3E3E3;"><#Service_Stubby_Resolvers_Header#></th>
+                                            <th colspan="2"><#Service_Stubby_Resolvers_Header#></th>
                                         </tr>
                                         <tr>
                                             <th><#Service_Stubby_Resolver_IP#>:</th>

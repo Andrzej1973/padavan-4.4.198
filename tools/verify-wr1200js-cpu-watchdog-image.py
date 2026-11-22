@@ -11,14 +11,15 @@ page_path = root / "www/Advanced_Services_Content.asp"
 page = page_path.read_text(encoding="utf-8")
 if 'id="watchdog_cpu_on_of"' in page or "init_itoggle('watchdog_cpu')" in page:
     raise SystemExit("Unsupported WR1200JS CPU watchdog control remains in the image")
-nav_start = page.find('id="wr_services_nav"')
+catalog = (root / "www/Advanced_Services_Catalog.asp").read_text(encoding="utf-8")
+nav_start = catalog.find('id="wr_services_nav"')
 if nav_start < 0:
     raise SystemExit("Unified services navigation is missing")
-nav_begin = page.rfind("<nav ", 0, nav_start)
-nav_end = page.find("</nav>", nav_begin)
+nav_begin = catalog.rfind("<nav ", 0, nav_start)
+nav_end = catalog.find("</nav>", nav_begin)
 if nav_begin < 0 or nav_end < 0:
     raise SystemExit("Cannot identify the unified services navigation")
-nav = page[nav_begin:nav_end + len("</nav>")]
+nav = catalog[nav_begin:nav_end + len("</nav>")]
 if "WRServicesNavWatchdog" in nav or "watchdog_cpu_on_of" in nav:
     raise SystemExit("Unsupported CPU watchdog is still linked in the image navigation")
 

@@ -254,7 +254,8 @@
                         if (!box) {
                             box = document.createElement('div');
                             box.id = 'wr_vpn_qr_host';
-                            box.style.cssText = 'display:none;position:fixed;top:8%;left:50%;transform:translateX(-50%);z-index:9999;background:#fff;border:1px solid #999;padding:16px;max-width:92%;max-height:84%;overflow:auto;';
+                            box.className = 'well';
+                            box.style.cssText = 'display:none;position:fixed;top:8%;left:50%;transform:translateX(-50%);z-index:9999;padding:16px;max-width:92%;max-height:84%;overflow:auto;';
                             document.body.appendChild(box);
                         }
                         return box;

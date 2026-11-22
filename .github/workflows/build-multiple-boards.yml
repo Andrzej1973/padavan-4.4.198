@@ -33,7 +33,7 @@ on:
         description: WR1200JS SQM inclusion
         type: choice
         options: [profile, excluded]
-        default: profile
+        default: excluded
       candidate_scope:
         description: Which isolated candidates to compile when checks are enabled
         type: choice
@@ -325,7 +325,7 @@ jobs:
       verification_revision: ${{ needs.select.outputs.revision }}
       toolchain_variant: ${{ inputs.toolchain_variant || 'source' }}
       run_candidate_checks: ${{ inputs.run_candidate_checks || false }}
-      sqm_profile: ${{ inputs.sqm_profile || 'profile' }}
+      sqm_profile: ${{ inputs.sqm_profile || 'excluded' }}
       candidate_scope: ${{ inputs.candidate_scope || 'iot' }}
       iot_candidate_variant: ${{ inputs.iot_candidate_variant || 'legacy' }}
   downloads:

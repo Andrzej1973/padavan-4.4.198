@@ -143,3 +143,74 @@ reference count that does not match the registry. The RC scheduler fixture
 holds fresh mailbox dispatch while normal shutdown is pending and resumes
 dispatch after that condition clears. These are host checks. Target image
 and router acceptance remain pending.
+
+### Authorized forced reboot
+
+Before the attempt, at 17:59:23 uptime was 2h37m and ra0 had zero RX/TX.
+BusyBox had no reboot applet. The owner-authorized SysRq reboot was issued
+after sync. At 18:06:51 uptime was six minutes, confirming a new boot.
+ra0 had received 778 packets and transmitted 208 but was again down.
+The new log records Band Steering failure at 18:01:12, an HNAT drop on
+ra0 at 18:01:23, bridge port disabled at 18:01:24, and retained MT7603
+recovery at 18:01:25. This establishes post-boot interface activity before
+the recurring failure. Client association and end-to-end traffic were
+not independently verified.
+
+### Source correlation and CI checkpoint
+
+The installed build emitted the baseline Main recovery warning without
+state details. At b3f161eb the reaper warning includes phase, source,
+attempts and failed_submissions, and the package verifier requires that
+diagnostic string in the driver. A retained-owner warning alone cannot
+distinguish an exhausted retry budget from another unscheduled state.
+It also does not identify the earlier cause of the Band Steering failure.
+
+GitHub Actions job inspection confirmed that Standard #1500 finished its
+WR1200JS build, firmware ZIP and downloads jobs. The test image is artifact
+14762007881. Optional #1501 was still compiling its WR1200JS job at this
+checkpoint. The diagnostic image must be taken from the isolated candidate
+artifact once published. No new device changes were made for this check.
+
+### Standard #1500 rollback image identity
+
+Run 45041001824 selected exact revision
+b3f161eb515e0cde403abcf1e989b54323f2a08a. Downloaded test artifact
+14762007881 matched the GitHub ZIP digest. Independent TRX measurement:
+WR1200JS_4.4.198.9-1500_b3f161eb.trx, 13094535 bytes, SHA256
+1d77f4d919fb4f474d046363a3e299f7f26af30e4e28019994df583e87503436.
+The packaged profile enables SQM, Zapret2 and Band Steering, and declares
+sqm_enable=0 as the factory default. This is the Standard rollback
+candidate with SQM. The isolated diagnostic no-SQM candidate remains
+in progress under #1501. The independent check covered ZIP and TRX
+identity. ROMFS exclusion checks and physical acceptance remain open.
+
+### Standard #1500 independent ROMFS inspection
+
+The verified TRX contains one valid SquashFS at byte offset 1982272 with
+1657 entries below its root. The full path listing includes Classic
+www/index.asp, the MT7603 driver, sch_cake.ko and SQM UI/runtime files.
+No IoT, Modern, Hybrid or isolated-candidate path matched the listing.
+Extracted www/state.js, www/index.asp and sbin/rc had none of the checked
+IoT text markers (wr_iot, Advanced_IoT, br-iot, IoT). This check covers
+file names and the three extracted files. It does not exercise radio
+behavior or exclude an unmarked path in the driver. Temporary files were
+removed. Optional #1501 was in its isolated MT7603 compile step.
+
+The extracted Standard #1500 mt76x3_ap.ko is an ELF of 1848672 bytes,
+SHA256 7db00d6d72ccae0807dd7abf5553d1e8ee8a50a84a7b25264852ffcf36a79596.
+It has neither the live retained-owner log string nor the checked wr_iot
+markers. The fallback comparison therefore changes the driver as well as
+the RC/IoT stack. A successful fallback radio test would not identify which
+of those changes removes the failure.
+
+### Optional #1501 diagnostic TRX
+
+Run 45041031701 completed successfully. The isolated candidate is in
+artifact 14762455848, distinct from the generic test archive.
+WR1200JS-IoT-CANDIDATE-b3f161eb.trx contains 14512395 bytes and SHA256
+ebf4f33ab2c261a8a0cc0ee1ae1d1be61f28b3b7c8adc123cb75e79f72d3cefc.
+CI reports the exact source b3f161eb515e0cde403abcf1e989b54323f2a08a.
+Independent SquashFS inspection found 1636 entries, Classic entry and
+IoT assets, and no named CAKE/SQM, Modern or Hybrid assets. The extracted
+RC, HTTP daemon, IAPP script and MT7603 module matched all four hashes
+in the pair manifest. Physical runtime and production promotion remain open.

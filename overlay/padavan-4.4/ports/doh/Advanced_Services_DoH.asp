@@ -137,7 +137,7 @@ function done_validating(action) { refreshpage(); }
 
                                     <table width="100%" cellpadding="4" cellspacing="0" class="table" id="tbl_anon" style="display:none">
                                         <tr>
-                                            <th colspan="2" style="background-color: #E3E3E3;"><#Service_DoH_Title#></th>
+                                            <th colspan="2"><#Service_DoH_Title#></th>
                                         </tr>
 
                                         <tr id="row_doh">

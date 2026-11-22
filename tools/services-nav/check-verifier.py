@@ -45,10 +45,8 @@ if not module.service_excluded("WRServicesNavWatchdog", {"watchdog_cpu"}):
 if module.service_excluded("WRServicesNavCron", {"watchdog_cpu"}):
     raise SystemExit("CPU watchdog exclusion suppressed an unrelated service")
 
-if module.add_back_link(
-    '<nav id="wr_services_nav"><div class="wr-service-group">links</div></nav>'
-).count('href="/Advanced_Services_Content.asp"') != 1:
-    raise SystemExit("Service-page return link is missing from the expected navigation")
+if module.catalog_link().count(f'href="/{module.CATALOG}"') != 1:
+    raise SystemExit("Service-page catalog link is missing")
 
 profile_tab = '<li><a href="/vpncli.asp"><#menu5_35_1#></a></li>'
 server_tab = '<li><a href="/vpnsrv.asp"><#WRServicesNavVPNServer#></a></li>'

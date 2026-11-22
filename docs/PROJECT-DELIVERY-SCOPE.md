@@ -1,3 +1,11 @@
+## WR1200JS recovery build without CAKE/SQM or IoT — 2026-11-22
+
+The owner requested a Classic-only recovery image without CAKE/SQM or
+the isolated IoT payload. Use the Standard WR1200JS lane with SQM
+excluded. The Classic service catalog links to the existing forms grouped
+by function. The SQM-enabled build profile and isolated IoT development
+remain available for later work. Hardware acceptance is still required.
+
 ## WR1200JS Classic-only WebUI — owner decision 2026-11-22
 
 Classic is the sole firmware WebUI. This supersedes the Hybrid Modern and
@@ -5,6 +13,9 @@ Classic-free image requirements below. The WR1200JS release profiles are
 Classic with CAKE/SQM (factory OFF) and Classic without CAKE/SQM. IoT remains
 mandatory and is managed through Classic. Firmware preparation and the
 isolated IoT image lane omit Modern and Hybrid dashboard assets.
+
+The current router candidate is Classic without CAKE/SQM. Keep Classic with
+CAKE/SQM available as an optional build profile, with factory settings OFF.
 
 ## WR1200JS preflash candidate — owner clarification 2026-11-22
 

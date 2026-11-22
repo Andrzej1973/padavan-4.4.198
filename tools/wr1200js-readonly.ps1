@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory = $true, Position = 0)]
     [ValidateSet(
         'identity',
+        'reboot-capability',
         'diagnostic-inventory',
         'uptime',
         'mtd',
@@ -64,6 +65,7 @@ if (-not (Test-Path -LiteralPath $identityFile -PathType Leaf)) {
 }
 
 $remoteCommands = @{
+    'reboot-capability' = 'busybox zcat /proc/config.gz | grep MAGIC_SYSRQ; ls -l /proc/sysrq-trigger /sbin/reboot; if [ -w /proc/sysrq-trigger ]; then echo sysrq_trigger=writable; fi'
     'diagnostic-inventory' = @'
 printf 'KERNEL\n'; uname -r
 printf 'FIRMWARE\n'; for key in firmver buildno extendno; do printf '%s=' "$key"; printf '%s\n' "$(nvram get "$key")"; done

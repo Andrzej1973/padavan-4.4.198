@@ -111,7 +111,7 @@ function privoxySaveFailed() {
 
                                     <table width="100%" cellpadding="4" cellspacing="0" class="table" id="tbl_anon" style="display:none">
                                         <tr>
-                                            <th colspan="2" style="background-color: #E3E3E3;">Privoxy</th>
+                                            <th colspan="2">Privoxy</th>
                                         </tr>
 
                                         <tr id="row_privoxy">

@@ -9,6 +9,7 @@ import html
 from pathlib import Path
 import re
 
+CATALOG = "Advanced_Services_Catalog.asp"
 MARKER = 'id="wr_services_nav"'
 KEYS = {
     "WRServicesNav": ("Router services", "Служби маршрутизатора", "Службы маршрутизатора"),
@@ -93,12 +94,11 @@ def page_path(www: Path, route: str) -> Path:
     return www / route.split("#", 1)[0]
 
 
-def add_back_link(nav: str) -> str:
+def catalog_link() -> str:
     return (
-        nav.rsplit("</div>", 1)[0]
-        + '<a class="btn btn-mini btn-primary wr-service-link wr-service-link--back" '
-        'href="/Advanced_Services_Content.asp"><#WRServicesNavBack#></a>'
-        '</div></nav>'
+        f'<nav {MARKER} aria-label="<#WRServicesNav#>">'
+        f'<a class="btn btn-mini wr-service-link" href="/{CATALOG}"><#WRServicesNav#></a>'
+        '</nav>'
     )
 
 
@@ -199,9 +199,13 @@ td.wr-service-status-panel { border-radius:4px; padding:10px !important; }
 })();
 </script>
 '''
-    if path.name != "Advanced_Services_Content.asp":
-        nav = add_back_link(nav)
-    text = text.replace(anchor, anchor + "\n" + nav, 1)
+    if path.name == CATALOG:
+        slot = '<div id="wr_service_catalog"></div>'
+        if text.count(slot) != 1:
+            raise SystemExit("Classic service catalog slot is missing")
+        text = text.replace(slot, nav, 1)
+    else:
+        text = text.replace(anchor, anchor + "\n" + nav, 1)
     text = text.replace("</head>", css + "</head>", 1)
     text = text.replace("</body>", script + "</body>", 1)
     path.write_text(text, encoding="utf-8", newline="\n")
@@ -301,7 +305,7 @@ def verify(www: Path, config: set[str], *, image: bool = False,
            excluded_services: set[str] | None = None) -> None:
     excluded_services = excluded_services or set()
     nav = rendered_groups(www, config, excluded_services)
-    pages = ["Advanced_Services_Content.asp", "Advanced_Services_DoT.asp",
+    pages = [CATALOG, "Advanced_Services_Content.asp", "Advanced_Services_DoT.asp",
                  "Advanced_Services_DoH.asp", "Advanced_Services_Privoxy.asp",
                  "vpncli.asp", "vpnsrv.asp", "Advanced_zerotier.asp", "Advanced_Services_EoIP.asp",
                  "Shadowsocks.asp", "Advanced_DHCP_Content.asp"]
@@ -309,6 +313,8 @@ def verify(www: Path, config: set[str], *, image: bool = False,
         pages.append("Advanced_wireguard.asp")
     for name in pages:
         if not (www / name).is_file():
+            if name == CATALOG:
+                raise SystemExit("Classic service catalog is missing")
             continue
         text = (www / name).read_text(encoding="utf-8")
         if MARKER not in text or 'aria-label="<#WRServicesNav#>"' not in text:
@@ -319,20 +325,11 @@ def verify(www: Path, config: set[str], *, image: bool = False,
             raise SystemExit(f"Unified navigation opening tag is invalid in {name}")
         nav_end = text.index("</nav>", nav_begin)
         nav_html = text[nav_begin:nav_end + len("</nav>")]
-        expected_nav = nav if name == "Advanced_Services_Content.asp" else add_back_link(nav)
+        expected_nav = nav if name == CATALOG else catalog_link()
         if nav_html != expected_nav:
             raise SystemExit(
                 f"Service navigation in {name} does not exactly match active build capabilities"
             )
-        if name != "Advanced_Services_Content.asp":
-            back = ('<a class="btn btn-mini btn-primary wr-service-link wr-service-link--back" '
-                    'href="/Advanced_Services_Content.asp"><#WRServicesNavBack#></a>')
-            if back not in nav_html:
-                raise SystemExit(f"Same-tab return-to-services link is invalid in {name}")
-        if name == "Advanced_DHCP_Content.asp":
-            expected = 'href="/Advanced_DHCP_Content.asp#row_wpad"><#WRServicesNavWPAD#></a>'
-            if expected not in text[text.index(MARKER):text.index("</nav>", text.index(MARKER))]:
-                raise SystemExit("WPAD / PAC navigation must target the actual DHCP editor row")
         if status_panel_contract_error(text):
             raise SystemExit(f"Service status blue-panel grouping or styles absent from {name}")
         if enabled(config, "CONFIG_FIRMWARE_INCLUDE_WIREGUARD") and name in {
@@ -345,9 +342,14 @@ def verify(www: Path, config: set[str], *, image: bool = False,
             legacy_links = ("stubby_settings_link", "privoxy_settings_link", "doh_settings_link")
             if any(link_id in text for link_id in legacy_links):
                 raise SystemExit("Legacy DNS/Privoxy links remain outside the unified navigation")
+        if name == CATALOG:
             if "grid-template-columns:fit-content(31%) fit-content(34%) minmax(0,1fr)" not in text:
                 raise SystemExit("Unified service navigation is missing its two-row desktop grid")
-        if name == "Advanced_Services_Content.asp":
+        if name == CATALOG:
+            if enabled(config, "CONFIG_FIRMWARE_INCLUDE_WPAD"):
+                expected = 'href="/Advanced_DHCP_Content.asp#row_wpad"><#WRServicesNavWPAD#></a>'
+                if expected not in nav_html:
+                    raise SystemExit("WPAD / PAC navigation must target the actual DHCP editor row")
             expected_service_routes = [
                 ("WRServicesNavCron", "Advanced_Services_Content.asp#crond_enable_on_of"),
                 ("WRServicesNavDiscovery", "Advanced_Services_Content.asp#lltd_enable_on_of"),
@@ -416,7 +418,7 @@ def main() -> None:
         return
     nav = rendered_groups(www, config, set(args.exclude_service))
     prepare_legacy_vpn_tabs(www, config)
-    pages = ["Advanced_Services_Content.asp"]
+    pages = [CATALOG, "Advanced_Services_Content.asp"]
     for _, entries in GROUPS:
         for _, route, capability in entries:
             if not enabled(config, capability):
@@ -426,8 +428,12 @@ def main() -> None:
                 pages.append(name)
     if enabled(config, "CONFIG_FIRMWARE_INCLUDE_WIREGUARD") and (www / "Advanced_wireguard.asp").is_file():
         pages.append("Advanced_wireguard.asp")
+    catalog = www / CATALOG
+    if catalog.exists():
+        raise SystemExit(f"Service catalog already exists: {catalog}")
+    catalog.write_bytes(Path(__file__).with_name(CATALOG).read_bytes())
     for name in pages:
-        inject(www / name, nav)
+        inject(www / name, nav if name == CATALOG else catalog_link())
     dictionary_root = args.source / "trunk/user/www/dict"
     translations = {
         "EN.footer": 0,
