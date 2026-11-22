@@ -32,6 +32,16 @@ docs/
 PROJECT_STATUS.md, CODEX_HANDOFF.md current shared-workspace coordination
 ```
 
+## Build entry points
+
+| Step | Entry point |
+| --- | --- |
+| Resolve the source revision and select a supported board | [Build selected router firmware](../.github/workflows/build-multiple-boards.yml) |
+| Build WR1200JS from the selected revision and publish checks and artifacts | [WR1200JS reusable workflow](../.github/workflows/build-padavan-4.4-wr1200js.yml) |
+| Inspect the requested profile | [WR1200JS build configuration](../configs.build/wr1200js.config) |
+| Trace pinned source inputs and the compiler | [Source lock](../sources.lock.json) and [build system](BUILD-SYSTEM.md) |
+| Inspect the overlay applied to the SDK | [Padavan 4.4 overlay](../overlay/padavan-4.4/) |
+
 ## Stage 2 layout decisions
 
 The reference tree bundles a buildable `trunk/`, compiler sources under
