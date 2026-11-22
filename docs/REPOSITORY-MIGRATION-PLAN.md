@@ -25,6 +25,25 @@ No source/driver/partition migration or history rewrite is involved.
 Phase 1A is a recommendation only and requires a separate task. See the
 [migration report](REPOSITORY-MIGRATION-REPORT.md).
 
+## Stage 2 — WR1200JS layout and verification
+
+| Change | Published evidence |
+| --- | --- |
+| Move the standalone IE length and slot lookup models from the root into tools/iot/ | 45cbd61a, Git R100 on both files, both Nim syntax checks passed |
+| Map the workflow, source lock, board profile and overlay entry points | 6901b8ca, local links resolved |
+| Make active local documentation links checkable in a light workflow | e3508036, [navigation CI passed](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/45014362142) |
+
+The existing Linux 4.4.198 build assembles the pinned SDK and overlay during
+CI. The source lock, board profiles, compiler and overlay paths remain the
+inputs to that build. The reference repository's root SDK, Docker and
+bootloader layout would change those responsibilities.
+
+[Standard WR1200JS build for the restructure revision](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/45014362085)
+passed for e350803655ab3fb28b1633a4010f47c1663d0596. Board selection,
+WR1200JS compilation, firmware ZIP and download aggregation all succeeded.
+This verifies the Standard build path after the reorganization. IoT and
+Hybrid Modern feature acceptance is tracked separately.
+
 ---
 
 ## Historical repository import plan (2026-10-03)
