@@ -20,9 +20,19 @@ static int normal_clock(clockid_t clock,struct timespec *out){
  assert(clock==CLOCK_MONOTONIC);if(time_unavailable)return -1;
  out->tv_sec=23;out->tv_nsec=0;return 0;
 }
+#include <syslog.h>
+static unsigned int shutdown_reports;
+static void capture_shutdown_log(int priority,const char *message,...){
+ if(priority==LOG_NOTICE){assert(strstr(message,"RC shutdown deferred"));return;}
+ assert(priority==LOG_ERR);
+ assert(!strcmp(message,"MT7603 RC shutdown retained: physical radio OFF failed"));
+ shutdown_reports++;
+}
+#define syslog capture_shutdown_log
 #define clock_gettime normal_clock
 #include "rc-normal-shutdown.c"
 #undef clock_gettime
+#undef syslog
 static void notification_test_signal(int sig){
  if(wr_iot_rc_shutdown_note(sig))return;
  assert(sig==SIGTERM&&!physical.owner&&!depth&&!normal_shutdown.owner&&normal_shutdown.spent);
@@ -77,9 +87,9 @@ failure=code[:code.index(' entropy_fail=0;assert(!wr_iot_rc_normal_shutdown_step
  assert(!wr_iot_rc_normal_shutdown_step()&&normal_shutdown.claimed&&physical.finishing==-1);
  guard_fail=0;
  assert(!wr_iot_rc_normal_shutdown_step()&&!wr_iot_rc_shutdown.active&&!physical.fence.owner);
- assert(!wr_iot_rc_normal_shutdown_step()&&normal_shutdown.retained);
+ assert(!wr_iot_rc_normal_shutdown_step()&&normal_shutdown.retained&&shutdown_reports==1);
  assert(wr_iot_rc_shutdown.normal_route_requested==SIGTERM&&!shutdowns&&!calls&&!downs&&!depth);
- assert(!wr_iot_rc_normal_shutdown_step()&&normal_shutdown.retained);
+ assert(!wr_iot_rc_normal_shutdown_step()&&normal_shutdown.retained&&shutdown_reports==1);
 }
 '''
 pending_transaction=code[:code.index(' assert(wr_iot_rc_shutdown_route_arm());')]+r'''

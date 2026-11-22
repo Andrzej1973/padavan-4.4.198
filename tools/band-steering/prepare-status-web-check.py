@@ -46,7 +46,9 @@ int main(void) {
  check("{\"serial\":7,\"observation\":1,\"apply\":5}",0);
  check("{\"serial\":7,\"observation\":1,\"apply\":5}",1);
  race=1; check("{\"serial\":0,\"observation\":0,\"apply\":0}",0);
- race=0; serial_value=-1; state_value=3; apply_value=6;
+ race=0; state_value=2; apply_value=6;
+ check("{\"serial\":7,\"observation\":0,\"apply\":6}",0);
+ serial_value=-1; state_value=3; apply_value=7;
  check("{\"serial\":0,\"observation\":0,\"apply\":0}",0);
  serial_value=8; state_value=2; apply_value=2;
  check("{\"serial\":8,\"observation\":2,\"apply\":2}",0);

@@ -19,11 +19,11 @@ assert (rc/'wr-iot/radio-entry-result.h').read_bytes()==(Path(__file__).resolve(
 assert (rc/'wr-iot/restart-entry.h').read_bytes()==(Path(__file__).resolve().parent/'restart-entry.h').read_bytes()
 assert 'return wr_iot_cold_on_entry(radio_on,reload);' in (rc/'wr-iot-restart-entry.c').read_text()
 assert body.index('wr_iot_radio_off_entry(')<body.index('wr_iot_radio_on_entry(')<body.index('wr_iot_initial_restart_entry(')<body.index('wr_iot_restart_entry(')<body.index('wr_iot_radio_stop_fence_begin(')
-assert 'if(wr_iot_radio_on_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;' in body
-assert 'if(wr_iot_restart_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;' in body
+assert 'entry_result=wr_iot_radio_on_entry(radio_on,need_reload_conf);' in body
+assert 'entry_result=wr_iot_restart_entry(radio_on,need_reload_conf);' in body
 assert (rc/'Makefile').read_text().count('wr-iot-restart-entry.o')==1
 print('PASS private restart entry manifest hashes/hook-before-fence/object; source only')
 
-assert 'if(wr_iot_initial_restart_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;' in body
+assert 'entry_result=wr_iot_initial_restart_entry(radio_on,need_reload_conf);' in body
 assert (rc/'Makefile').read_text().count('wr-iot-initial-restart-entry.o')==1
 assert (rc/'wr-iot/initial-restart-entry.h').read_bytes()==(Path(__file__).resolve().parent/'initial-restart-entry.h').read_bytes()

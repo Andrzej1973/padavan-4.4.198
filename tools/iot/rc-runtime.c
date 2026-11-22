@@ -221,7 +221,10 @@ void wr_iot_rc_wait(const sigset_t *wait_mask,const volatile int *notification,
   else if(wr_iot_radio_on_pending()){
    if(wr_iot_radio_on_step()==1&&wr_iot_radio_on_retire())radio_off_redispatch=1;
   }
-  else if(radio_off_redispatch){radio_off_redispatch=0;(void)wr_iot_rc_dispatch();}
+  /* Drain existing owners before reboot, but leave fresh mailbox work queued. */
+  else if(radio_off_redispatch&&!wr_iot_rc_normal_shutdown_pending()){
+   radio_off_redispatch=0;(void)wr_iot_rc_dispatch();
+  }
   else if(wr_iot_rc_physical_pending())wr_iot_rc_physical_step();
   else if(wr_iot_restart_scheduler_pending()){
    if(wr_iot_restart_scheduler_step()!=0&&wr_iot_restart_scheduler_retire())radio_off_redispatch=1;

@@ -30,7 +30,7 @@ expression=r'''
  const assert=(v,m)=>{if(!v)throw new Error(m)},id=n=>document.getElementById('iot-'+n);
  for(let i=0;i<50&&!document.getElementById('wr-classic-iot-menu');i++)await new Promise(r=>setTimeout(r,50));
  assert(document.getElementById('wr-classic-iot-menu'),'navigation mounted');
- assert(document.getElementById('wifi_iot_b')&&document.getElementById('wifi_iot_b_g'),'Main/Guest IoT shortcuts');
+ assert(document.getElementById('wifi_iot_b')&&!document.getElementById('wifi_iot_b_g'),'IoT shortcut only in Main');
  assert(document.getElementById('wifi5_b')&&document.getElementById('wifi5_b_g'),'original shortcuts retained');
  assert(id('save').disabled&&!id('refresh').disabled&&calls.length===0,'no automatic read/write');
  function load(configured=true){

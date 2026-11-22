@@ -3,10 +3,11 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 #define WDEV_NUM_MAX 1
 #define HZ 100
-#define RT_DEBUG_ERROR 1
+#define KERN_WARNING ""
 typedef void VOID;
 typedef unsigned long ULONG;
 typedef int INT;
@@ -34,7 +35,13 @@ static int module_refs,close_begin_failure,preclose_failure;
 #define RTMP_IRQ_LOCK(lock,flags) ((void)(lock),(flags)=0,assert(!locked),locked=1)
 #define RTMP_IRQ_UNLOCK(lock,flags) ((void)(lock),(void)(flags),assert(locked),locked=0)
 #define VIRTUAL_IF_NUM(ad) ((ad)->VirtualIfCnt)
-#define DBGPRINT(level,args) ((void)(level))
+static char recovery_log[256];
+#define printk capture_recovery_log
+static void capture_recovery_log(const char *format, unsigned int phase, unsigned int source,
+ unsigned int attempts, unsigned int failed_submissions)
+{
+ snprintf(recovery_log,sizeof(recovery_log),format,phase,source,attempts,failed_submissions);
+}
 #define CONFIG_AP_SUPPORT 1
 #define RT_MOD_INC_USE_COUNT() (++module_refs)
 #define RT_MOD_DEC_USE_COUNT() (--module_refs)
@@ -74,10 +81,18 @@ static int schedule_delayed_work(struct delayed_work *work,unsigned long delay){
  if(!allow_reaper)return 0;
  work->pending=1;return 1;
 }
-static int cancel_work_sync(struct work_struct *work){
- int pending;
- assert(!locked&&work);joined++;pending=work->pending;work->pending=0;
- return pending;
+static RTMP_ADAPTER *fixture_adapter;
+static unsigned int callbacks_run;
+static int flush_work(struct work_struct *work){
+ assert(!locked&&work);joined++;
+ if (!work->pending) return 0;
+ work->pending=0;
+ if (fixture_adapter->wr_iot_main_recovery.phase==WR_MAIN_OWNER_QUEUED) {
+  callbacks_run++;
+  assert(wr_iot_main_recovery_rtnl_unavailable(
+   &fixture_adapter->wr_iot_main_recovery));
+ }
+ return 1;
 }
 
 #include "main-recovery-reaper.inc"
@@ -189,6 +204,7 @@ int main(void){
  struct wr_iot_radio_ticket ticket;
  struct wr_iot_interface_ref *record;
  unsigned long generation=setup(&ad,&dev);
+ fixture_adapter=&ad;
  assert(wr_iot_main_verify_recovery_submit(&ad,&dev,generation,NULL));
  assert(!locked&&dev.held==1&&held_count==1&&put_count==0);
  assert(scheduled==1&&reaper_scheduled==1&&
@@ -209,11 +225,11 @@ int main(void){
 
  generation=setup(&ad,&dev);
  assert(wr_iot_main_verify_recovery_submit(&ad,&dev,generation,NULL));
- /* Reaper fires before main callback: cancel reports pending work. */
+ /* Reaper fires before main callback: pending work must execute. */
  wr_iot_main_recovery_reap_work_fn(&ad.wr_iot_main_recovery_reap_work.work);
  assert(joined==1&&scheduled==2&&
         ad.wr_iot_main_recovery.phase==WR_MAIN_OWNER_QUEUED&&
-        ad.wr_iot_main_recovery.attempts==0&&dev.held==1);
+        callbacks_run==1&&ad.wr_iot_main_recovery.attempts==1&&dev.held==1);
 
  generation=setup(&ad,&dev);allow_schedule=0;
  assert(wr_iot_main_verify_recovery_submit(&ad,&dev,generation,NULL));
@@ -222,6 +238,22 @@ int main(void){
  wr_iot_main_recovery_reap_work_fn(&ad.wr_iot_main_recovery_reap_work.work);
  assert(joined==1&&ad.wr_iot_main_recovery.phase==WR_MAIN_OWNER_RETAINED&&
         dev.held==1);
+ generation=setup(&ad,&dev);
+ assert(wr_iot_main_verify_recovery_submit(&ad,&dev,generation,NULL));
+ allow_reaper=0;
+ recovery_log[0]=0;
+ wr_iot_main_recovery_reap_work_fn(&ad.wr_iot_main_recovery_reap_work.work);
+ assert(strstr(recovery_log,"retained owner: phase="));
+ assert(strstr(recovery_log,"attempts=1 failed_submissions=0"));
+ generation=setup(&ad,&dev);
+ assert(wr_iot_main_verify_recovery_submit(&ad,&dev,generation,NULL));
+ recovery_log[0]=0;
+ for (unsigned int i=0;i<WR_IOT_MAIN_RECOVERY_MAX_ATTEMPTS;i++)
+  wr_iot_main_recovery_reap_work_fn(&ad.wr_iot_main_recovery_reap_work.work);
+ assert(ad.wr_iot_main_recovery.attempts==WR_IOT_MAIN_RECOVERY_MAX_ATTEMPTS);
+ assert(ad.wr_iot_main_recovery.phase==WR_MAIN_OWNER_RETAINED && dev.held==1);
+ assert(scheduled==WR_IOT_MAIN_RECOVERY_MAX_ATTEMPTS);
+ assert(strstr(recovery_log,"attempts=3 failed_submissions=0"));
  generation=setup(&ad,&dev);ad.wr_iot_transition.retiring=1;
  assert(!wr_iot_main_verify_recovery_submit(&ad,&dev,generation,NULL));
  assert(dev.held==0&&held_count==1&&put_count==1&&scheduled==0);

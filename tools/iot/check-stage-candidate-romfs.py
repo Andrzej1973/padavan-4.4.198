@@ -28,7 +28,7 @@ source=source[:position]+r'''
  report=stage(baseline,results,pair,'a'*40,kernel,root/'output')
  assert report['isolated_romfs_staged'] and report['baseline_unchanged'] and not report['trx_built']
  assert snapshot(baseline)==before and os.readlink(root/'output/init')=='sbin/rc'
- assert (root/'output/sbin/rc').read_bytes()==elf(2)
+ assert (root/'output/sbin/rc').read_bytes()==rc
  assert (root/'output/etc/defaults').read_bytes()==b'saved defaults preserved'
  for fault in range(4):
   output=root/('refused-'+str(fault));restore=None
@@ -48,6 +48,18 @@ source=source[:position]+r'''
    restore.unlink()
    if fault==1:restore.parent.rmdir()
    else:restore.write_bytes(paths['sbin/rc']);restore.chmod(0o755)
+ for name in ('modern','hybrid'):
+  retired=baseline/'www'/name
+  retired.symlink_to('index.asp')
+  output=root/('refused-'+name)
+  try:
+   stage(baseline,results,pair,'a'*40,kernel,output)
+  except ValueError as error:
+   assert 'retired WebUI in baseline: www/'+name in str(error)
+  else:
+   raise AssertionError('Retired WebUI accepted: '+name)
+  assert not output.exists() and retired.is_symlink()
+  retired.unlink()
  assert snapshot(baseline)==before
 print('PASS isolated ROMFS staging: exact pair, discovered unique module path, modes/multicall links/unrelated settings preserved; kernel mismatch, duplicate module, alias and wrong source refuse before output; synthetic target inputs only')
 '''

@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <string.h>
 #include <unistd.h>
+#include <syslog.h>
 #include "rc-normal-shutdown.h"
 #include "rc-shutdown-admission.h"
 #include "rc-physical-stop.h"
@@ -10,7 +11,7 @@
 static struct {
  pid_t owner;
  struct wr_iot_control_request off;
- int generated,claimed,retained,spent;
+ int generated,claimed,retained,spent,reported_wait;
 } normal_shutdown;
 static pid_t notification_owner;
 /* INITIAL finish preflight, PID1 process context under active admission.
@@ -109,7 +110,15 @@ int wr_iot_rc_normal_shutdown_step(void)
  if(!normal_shutdown.claimed){
   /* Existing owners must drain, not be replaced by this controller. */
   if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
-     (wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_radio_on_off_ready())||wr_iot_rc_shutdown.radio_off_owned)return 0;
+     (wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_radio_on_off_ready())||wr_iot_rc_shutdown.radio_off_owned){
+   if(!normal_shutdown.reported_wait){
+    normal_shutdown.reported_wait=1;
+    syslog(LOG_NOTICE,"MT7603 RC shutdown deferred: active=%d pending=%d on_owned=%d off_owned=%d",
+           (int)wr_iot_rc_shutdown.active,(int)wr_iot_rc_shutdown.pending,
+           (int)wr_iot_rc_shutdown.radio_on_owned,(int)wr_iot_rc_shutdown.radio_off_owned);
+   }
+   return 0;
+  }
   if(!normal_shutdown.generated){
    now=wr_iot_control_now();if(!now)return 0;
    if(wr_iot_precreated_entropy(NULL,bytes,sizeof(bytes))!=(int)sizeof(bytes))goto wipe;
@@ -130,7 +139,9 @@ int wr_iot_rc_normal_shutdown_step(void)
   wr_iot_rc_physical_step();return 0;
  }
  if(wr_iot_rc_physical_off_failed(normal_shutdown.off.id,normal_shutdown.off.created)){
-  normal_shutdown.retained=1;return 0;
+  normal_shutdown.retained=1;
+  syslog(LOG_ERR,"MT7603 RC shutdown retained: physical radio OFF failed");
+  return 0;
  }
  return wr_iot_rc_physical_shutdown_release_cleanup(normal_shutdown.off.id,
   normal_shutdown.off.created,normal_shutdown_retire,NULL);

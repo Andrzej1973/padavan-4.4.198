@@ -40,7 +40,7 @@ int main(void){
  wr_iot_main_recovery_work_fn(&ad.wr_iot_main_recovery_work);
  assert(try_calls==1&&executed==0&&!spin_held&&!rtnl_held);
  assert(ad.wr_iot_main_recovery.phase==WR_MAIN_OWNER_RETAINED);
- assert(ad.wr_iot_main_recovery.attempts==0&&ad.wr_iot_main_recovery.deferred_owners);
+ assert(ad.wr_iot_main_recovery.attempts==1&&ad.wr_iot_main_recovery.deferred_owners);
  /* The producer can queue while its ndo_open still owns RTNL. If the
   * callback races ahead, it cannot self-resubmit the same work item.
   * Only an external owner with a completed join may requeue it. */

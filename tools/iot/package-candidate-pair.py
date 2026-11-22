@@ -6,6 +6,24 @@ selector_verify=runpy.run_path(str(Path(__file__).with_name('verify-generation-s
 FILES={'sbin/rc':'runtime-link/rc','usr/sbin/httpd':'runtime-link/httpd',
        'usr/bin/iappd.sh':'runtime-link/iappd-candidate.sh',
        'driver:mt76x3_ap':'ra2-no-host-module/mt76x3_ap-ra2-no-host.ko'}
+RESTART_DIAGNOSTICS={
+ 'sbin/rc': (
+  b'MT7603 RC recovery retirement: restart=%s',
+  b'MT7603 RC shutdown deferred: active=%d pending=%d on_owned=%d off_owned=%d',
+  b'MT7603 RC shutdown retained: physical radio OFF failed',
+  *(b'2.4 GHz request path='+path+b' on=%d reload=%d result=%s'
+    for path in (b'off',b'on',b'initial',b'restart')),
+ ),
+ 'driver:mt76x3_ap': (b'MT7603 main recovery reaper stopped with retained owner: phase=%u source=%u attempts=%u failed_submissions=%u\n',),
+}
+CLASSIC_IOT_ROUTES=('token','view','result','edit_ram','edit_auto','edit_save','edit_runtime')
+
+def classic_iot_routes(httpd):
+ for route in CLASSIC_IOT_ROUTES:
+  if ('wr_iot_'+route+'.cgi').encode()+b'\0' not in httpd:
+   raise ValueError('Classic IoT CGI missing in paired httpd: '+route)
+ return list(CLASSIC_IOT_ROUTES)
+
 def build(root,revision):
  if not re.fullmatch('[0-9a-f]{40}',revision):raise ValueError('Exact source SHA required')
  def read(name):
@@ -23,21 +41,11 @@ def build(root,revision):
     raise ValueError('Not ELF32 LE MIPS '+source)
    expected=1 if target=='driver:mt76x3_ap' else 2
    if struct.unpack('<H',blob[16:18])[0]!=expected:raise ValueError('Wrong ELF type '+source)
+  for marker in RESTART_DIAGNOSTICS.get(target,()):
+   if marker+b'\0' not in blob:
+    raise ValueError('Missing restart diagnostics in '+target+': '+marker.decode())
   files[target]={'source':source,'bytes':len(blob),'sha256':hashlib.sha256(blob).hexdigest()}
- modern_report='runtime-link/modern-iot-candidate.json'
- modern=report(modern_report)
- if modern.get('board')!='WR1200JS' or modern.get('candidate_only') is not True or modern.get('uses_existing_iot_protocol') is not True:
-  raise ValueError('Expected isolated Modern IoT source binding')
- if b'modern/modern-iot.js\0' not in read(FILES['usr/sbin/httpd']):
-  raise ValueError('Missing linked Modern IoT route')
- modern_files={}
- for name in ('index.html','wifi.js','modern-iot.js'):
-  source='runtime-link/modern/'+name
-  payload=read(source)
-  digest=hashlib.sha256(payload).hexdigest()
-  if not payload or digest!=modern.get('sha256',{}).get('trunk/user/www/modern/'+name):
-   raise ValueError('Modern IoT candidate asset mismatch: '+name)
-  modern_files['www/modern/'+name]={'source':source,'bytes':len(payload),'sha256':digest}
+ routes=classic_iot_routes(read(FILES['usr/sbin/httpd']))
  module=report('ra2-no-host-module/target-result.json')
  driver_source=report('ra2-no-host-module/source-manifest.json')
  api=driver_source.get('linux_open_api',{})
@@ -89,8 +97,9 @@ def build(root,revision):
  if 'CONFIG_PM=y' in kernel:raise ValueError('Unverified PCI suspend binding: CONFIG_PM=y')
  inputs=['ra2-no-host-module/kernel.config','ra2-no-host-module/source-manifest.json',
          'runtime-link/iot-runtime-source.json','runtime-link/iot-restart-entry-source.json',
-         'runtime-link/iot-iapp-policy-source.json','runtime-link/iot-edit-view-source.json','runtime-link/generation-selector-link.json',modern_report]
- return {'board':'WR1200JS','source_revision':revision,'files':files,'modern_files':modern_files,
+         'runtime-link/iot-iapp-policy-source.json','runtime-link/iot-edit-view-source.json','runtime-link/generation-selector-link.json']
+ return {'board':'WR1200JS','source_revision':revision,'files':files,'classic_iot_routes':routes,
+         'restart_diagnostic_binaries':list(RESTART_DIAGNOSTICS),
          'input_sha256':{n:hashlib.sha256(read(n)).hexdigest() for n in inputs},
          'module_romfs_destination_verified':False,'target_pair_hashes_verified':True,'lifecycle_manifest_contract_verified':True,'production_installed':False,
          'trx_inclusion_verified':False,'physical_runtime_verified':False}

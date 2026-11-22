@@ -55,7 +55,7 @@ int main(void){
  assert(wr_iot_main_recovery_schedule_result(&owner,1));
  assert(!wr_iot_main_recovery_schedule_result(&owner,1));
  assert(wr_iot_main_recovery_rtnl_unavailable(&owner));
- assert(owner.phase==WR_MAIN_OWNER_RETAINED&&owner.attempts==0&&
+ assert(owner.phase==WR_MAIN_OWNER_RETAINED&&owner.attempts==1&&
         owner.deferred_owners==1&&!owner.module_pin_released);
  assert(!wr_iot_main_recovery_begin(&owner));
  assert(!wr_iot_main_recovery_requeue(&owner,2,0));
@@ -63,6 +63,20 @@ int main(void){
  assert(wr_iot_main_recovery_schedule_result(&owner,1));
  assert(wr_iot_main_recovery_begin(&owner));
  assert(!wr_iot_main_recovery_rtnl_unavailable(&owner));
+ assert(wr_iot_main_recovery_action(&owner,&refs[0],&radio,refs,2,2)==
+        WR_MAIN_RECOVERY_NONE);
+ assert(wr_iot_main_recovery_action(&owner,&refs[0],&radio,refs,2,1)==
+        WR_MAIN_RECOVERY_BEGIN_CLOSE);
+ /* A published auxiliary port can be down at Linux level while the driver
+  * still has an in-progress CLOSE or an unmatched vendor reference. */
+ set_owned(&refs[1],&guest_dev,WR_REF_FAMILY_MBSS,5,11);
+ assert(wr_iot_main_recovery_action(&owner,&refs[0],&radio,refs,2,2)==
+        WR_MAIN_RECOVERY_BEGIN_CLOSE);
+ assert(wr_iot_ref_begin_close(&refs[1],&guest_dev,5,11));
+ assert(wr_iot_main_recovery_action(&owner,&refs[0],&radio,refs,2,2)==
+        WR_MAIN_RECOVERY_NONE);
+ wr_iot_ref_init(&refs[1],&guest_dev,5);refs[1].published=1;
+ refs[1].family=WR_REF_FAMILY_MBSS;
  assert(wr_iot_main_recovery_action(&owner,&refs[0],&radio,refs,2,2)==
         WR_MAIN_RECOVERY_NONE);
  assert(wr_iot_main_recovery_action(&owner,&refs[0],&radio,refs,2,1)==

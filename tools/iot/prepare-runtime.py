@@ -58,7 +58,7 @@ alarm='\t\tif (sig_alrm_received) {\n\t\t\tsig_alrm_received = 0;\n#if defined (
 alarm_new='\n'.join(('#if defined(BOARD_WR1200JS)','\t\tif (sig_alrm_received && wr_iot_rc_normal_notification_begin()) {','#else','\t\tif (sig_alrm_received) {','#endif','\t\t\tsig_alrm_received = 0;','#if defined (USE_USB_SUPPORT) || defined (USE_STORAGE)','\t\t\ton_deferred_hotplug_dev();','#endif','#if defined(BOARD_WR1200JS)','\t\t\twr_iot_rc_normal_notification_end();','#endif','\t\t}'))
 init=once(init,alarm,alarm_new)
 init=once(init,'#include "wr-iot/rc-runtime.h"','#include "wr-iot/rc-runtime.h"\n#include "wr-iot/rc-boot.h"\n#include "wr-iot/rc-normal-shutdown.h"\n#include "wr-iot/restart-iapp-policy.h"')
-save_startup = '\tinit_router();\n#if defined(BOARD_WR1200JS)\n\t(void)wr_iot_rc_save_backend_install();\n\t(void)wr_iot_rc_edit_backend_install();\n\t(void)wr_iot_rc_view_runtime_install();\n#endif\n#if defined(BOARD_WR1200JS) && WR_IOT_IAPP_POLICY_PREPARED\n\twr_iot_rc_boot_arm();\n#endif'
+save_startup = '\tinit_router();\n#if defined(BOARD_WR1200JS)\n\t(void)wr_iot_rc_save_backend_install();\n\tif (!wr_iot_rc_edit_backend_install())\n\t\tlogmessage("IoT", "Settings backend registration failed");\n\telse if (!wr_iot_rc_view_runtime_install())\n\t\tlogmessage("IoT", "Settings read endpoint registration failed");\n#endif\n#if defined(BOARD_WR1200JS) && WR_IOT_IAPP_POLICY_PREPARED\n\twr_iot_rc_boot_arm();\n#endif'
 init=once(init,'\tinit_router();',save_startup)
 init=once(init,'#include "wr-iot/rc-runtime.h"','#include "wr-iot/rc-runtime.h"\n#include "wr-iot/config-save-server.h"\n#include "wr-iot/config-edit-server.h"\n#include "wr-iot/config-view-runtime.h"')
 pending[rc/'init.c']=init.encode()

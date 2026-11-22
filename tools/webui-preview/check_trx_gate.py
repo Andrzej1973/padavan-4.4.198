@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise final-content gate with actual SquashFS fixtures, not firmware builds."""
 import tempfile
+import shutil
 import subprocess
 from pathlib import Path
 from check_trx_contents import check
@@ -70,4 +71,35 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
         raise AssertionError('missing filesystem accepted')
     except ValueError as error:
         assert 'Expected one' in str(error)
+    (romfs/'www/state.js').write_text('Classic banner')
+    try:
+        image.write_bytes(original_image)
+        check(image, romfs, classic_only=True)
+    except ValueError as error:
+        assert 'contains Modern or Hybrid assets' in str(error)
+    else:
+        raise AssertionError('Modern assets accepted in Classic-only image')
+    shutil.rmtree(romfs/'www/modern')
+    binary.chmod(0o755)
+    classic = root/'classic.sqfs'
+    subprocess.run(['mksquashfs', str(romfs), str(classic), '-noappend',
+                    '-processors', '1', '-no-progress'], check=True,
+                   stdout=subprocess.DEVNULL)
+    image.write_bytes(b'fixture header' + classic.read_bytes())
+    classic_report = check(image, romfs, classic_only=True)
+    assert classic_report['classic_only_verified']
+    assert 'www/state.js' in classic_report['files_sha256']
+    # httpd route registration uses paths without the leading slash.
+    binary.write_bytes(b'modern/index.html\0')
+    leaked = root/'leaked-route.sqfs'
+    subprocess.run(['mksquashfs', str(romfs), str(leaked), '-noappend',
+                    '-processors', '1', '-no-progress'], check=True,
+                   stdout=subprocess.DEVNULL)
+    image.write_bytes(b'fixture header' + leaked.read_bytes())
+    try:
+        check(image, romfs, classic_only=True)
+    except ValueError as error:
+        assert 'contains a Modern/Hybrid route: usr/sbin/httpd' in str(error)
+    else:
+        raise AssertionError('Modern route accepted in Classic-only image')
 print('PASS final-content gate real SquashFS fixtures: offset/content/mode/missing filesystem; scratch removed')

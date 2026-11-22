@@ -61,6 +61,13 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
     "$candidate/recovery/later/corrected" \
     "$candidate/recovery/later/v24c-composition.json" "$candidate/full-driver"
   python3 tools/iot/prepare-peer-retirement-chain.py "$candidate/full-driver" "$candidate/peer"
+  # Keep the actual pre-merge tree. The later prepared-source snapshot contains
+  # merged IoT files and cannot be reused as the Band Steering/RSSI input.
+  tar -czf "$results/premerge-band-steering-rssi.tar.gz" -C "$driver" .
+  (
+    cd "$results"
+    sha256sum premerge-band-steering-rssi.tar.gz > premerge-band-steering-rssi.sha256
+  )
   python3 tools/iot/assemble-peer-prepared-candidate.py "$pristine" "$driver" \
     "$candidate/peer/peer-chain.json" "$candidate/full-driver-overlay.json" "$merged"
   python3 tools/iot/prepare-terminal-command-lock-lifetime.py \
@@ -98,6 +105,10 @@ if [ "$IOT_CANDIDATE_VARIANT" = peer82 ]; then
   python3 tools/iot/check-status-channel.py
   python3 tools/iot/check-status-endpoint.py
   python3 tools/iot/check-rc-runtime.py
+  python3 -B tools/iot/check-rc-scheduler-composition.py
+  python3 -B tools/iot/check-rc-normal-shutdown.py
+  python3 -B tools/iot/check-restart-scheduler.py
+  python3 -B tools/iot/check-restart-entry-source.py
   python3 tools/iot/check-radio-stop-fence.py
   python3 tools/iot/check-initial-off-composition.py
   python3 tools/iot/check-initial-off-owner-composition.py

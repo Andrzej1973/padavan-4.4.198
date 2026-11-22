@@ -21,6 +21,7 @@ KEYS = {
     "WRServicesNavBack": ("← Services", "← Служби", "← Службы"),
     "WRServicesNavStubby": ("Stubby / DNS-over-TLS", "Stubby / DNS-over-TLS", "Stubby / DNS-over-TLS"),
     "WRServicesNavDoH": ("DNS-over-HTTPS", "DNS-over-HTTPS", "DNS-over-HTTPS"),
+    "WRServicesNavVPNServer": ("VPN server", "VPN-сервер", "VPN-сервер"),
     "WRServicesNavWireGuard": ("WireGuard / AmneziaWG profiles", "Профілі WireGuard / AmneziaWG", "Профили WireGuard / AmneziaWG"),
     "WRServicesNavZeroTier": ("ZeroTier", "ZeroTier", "ZeroTier"),
     "WRServicesNavEoIP": ("EoIP", "EoIP", "EoIP"),
@@ -47,12 +48,13 @@ VPN_TAB_LABELS = {
 GROUPS = (
     ("WRServicesNavDNS", (("WRServicesNavStubby", "Advanced_Services_DoT.asp", "CONFIG_FIRMWARE_INCLUDE_STUBBY"),
                            ("WRServicesNavDoH", "Advanced_Services_DoH.asp", "CONFIG_FIRMWARE_INCLUDE_DOH"))),
-    ("WRServicesNavVPN", (("WRServicesNavWireGuard", "vpncli.asp", "CONFIG_FIRMWARE_INCLUDE_WIREGUARD"),
+    ("WRServicesNavVPN", (("WRServicesNavVPNServer", "vpnsrv.asp", "CONFIG_FIRMWARE_INCLUDE_WIREGUARD"),
+                           ("WRServicesNavWireGuard", "vpncli.asp", "CONFIG_FIRMWARE_INCLUDE_WIREGUARD"),
                            ("WRServicesNavZeroTier", "Advanced_zerotier.asp", "CONFIG_FIRMWARE_INCLUDE_ZEROTIER"),
                            ("WRServicesNavEoIP", "Advanced_Services_EoIP.asp", "CONFIG_FIRMWARE_INCLUDE_EOIP"))),
     ("WRServicesNavProxy", (("WRServicesNavShadowsocks", "Shadowsocks.asp", "CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS|CONFIG_FIRMWARE_INCLUDE_SSLOCAL|CONFIG_FIRMWARE_INCLUDE_SSREDIR"),
                               ("WRServicesNavPrivoxy", "Advanced_Services_Privoxy.asp", "CONFIG_FIRMWARE_INCLUDE_PRIVOXY"),
-                              ("WRServicesNavZapret2", "Advanced_Services_Content.asp#zapret2_enable_on_of", "CONFIG_FIRMWARE_INCLUDE_ZAPRET2"),
+                              ("WRServicesNavZapret2", "Advanced_Services_Content.asp#row_zapret2", "CONFIG_FIRMWARE_INCLUDE_ZAPRET2"),
                               ("WRServicesNavWPAD", "Advanced_DHCP_Content.asp#row_wpad", "CONFIG_FIRMWARE_INCLUDE_WPAD"))),
     ("WRServicesNavAccess", (("WRServicesNavHTTP", "Advanced_Services_Content.asp#row_http_proto", None),
                                ("WRServicesNavSSH", "Advanced_Services_Content.asp#row_sshd", "CONFIG_FIRMWARE_INCLUDE_DROPBEAR|CONFIG_FIRMWARE_INCLUDE_OPENSSH"),
@@ -94,7 +96,7 @@ def page_path(www: Path, route: str) -> Path:
 def add_back_link(nav: str) -> str:
     return (
         nav.rsplit("</div>", 1)[0]
-        + '<a class="wr-service-link wr-service-link--back" '
+        + '<a class="btn btn-mini btn-primary wr-service-link wr-service-link--back" '
         'href="/Advanced_Services_Content.asp"><#WRServicesNavBack#></a>'
         '</div></nav>'
     )
@@ -118,13 +120,13 @@ def rendered_groups(www: Path, config: set[str], excluded_services: set[str] | N
             separate = label_key in {"WRServicesNavStubby", "WRServicesNavDoH", "WRServicesNavPrivoxy"}
             new_context = ' target="_blank" rel="noopener noreferrer"' if separate else ""
             link_class = "wr-service-link wr-service-link--new-context" if separate else "wr-service-link"
-            links.append(f'<a class="{link_class}" href="/{html.escape(route, quote=True)}"{new_context}><#{label_key}#></a>')
+            links.append(f'<a class="btn btn-mini {link_class}" href="/{html.escape(route, quote=True)}"{new_context}><#{label_key}#></a>')
         if links:
             chunks.append('<div class="wr-service-group"><strong><#' + heading + '#></strong>' + "".join(links) + "</div>")
     if not chunks:
         raise SystemExit("No supported services were found for the unified navigation")
     return (
-        f'<nav {MARKER} aria-label="<#WRServicesNav#>" class="wr-service-nav">'
+        f'<nav {MARKER} aria-label="<#WRServicesNav#>" class="well wr-service-nav">'
         + "".join(chunks) + "</nav>"
     )
 
@@ -138,18 +140,16 @@ def inject(path: Path, nav: str) -> None:
         raise SystemExit(f"Unexpected service-page structure: {path.name}")
     css = '''
 <style>
-.wr-service-nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px 10px; margin:6px 0 8px; padding:8px; background:#f4f4f4; border:1px solid #ddd; }
-.wr-service-group { display:flex; min-width:0; flex-wrap:wrap; align-items:center; gap:5px; padding:3px 6px; border-right:1px solid #ccc; }
-.wr-service-group strong { color:#555; margin-right:3px; }
-.wr-service-link { display:inline-block; padding:4px 7px; border:1px solid #ccc; border-radius:3px; background:#fff; white-space:nowrap; }
+.wr-service-nav { display:grid; grid-template-columns:fit-content(31%) fit-content(34%) minmax(0,1fr); align-items:start; gap:4px 8px; margin:4px 0 6px; padding:5px; }
+.wr-service-group { display:flex; width:fit-content; max-width:100%; box-sizing:border-box; min-width:0; flex-wrap:wrap; align-items:center; gap:3px 4px; padding:2px 5px; }
+.wr-service-group strong { margin-right:2px; }
+.wr-service-link { display:inline-block; max-width:100%; box-sizing:border-box; padding:2px 5px; line-height:1.35; overflow-wrap:anywhere; }
 .wr-service-link--new-context { padding:3px 6px; font-size:12px; }
-.wr-service-link--back { color:#fff; background:#0878c9; border-color:#0878c9; }
-.wr-service-link[aria-current="page"] { color:#fff; background:#0878c9; border-color:#0878c9; }
-td.wr-service-status-panel { background:#d9edf7 !important; border:1px solid #bce8f1 !important; border-radius:4px; padding:10px !important; }
-.wr-service-status-panel:not(td) { box-sizing:border-box; margin:6px 0; padding:10px; color:#31708f; background:#d9edf7; border:1px solid #bce8f1; border-radius:4px; }
-.wr-service-status-panel:not(td) .help-block { margin:6px 0 0; color:#31708f; }
+td.wr-service-status-panel { border-radius:4px; padding:10px !important; }
+.wr-service-status-panel:not(td) { box-sizing:border-box; margin:6px 0; padding:10px; border-radius:4px; }
+.wr-service-status-panel:not(td) .help-block { margin:6px 0 0; }
 @media (max-width: 760px) { .wr-service-nav { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media (max-width: 520px) { .wr-service-nav { grid-template-columns:minmax(0,1fr); } .wr-service-group { border-right:0; } }
+@media (max-width: 520px) { .wr-service-nav { grid-template-columns:minmax(0,1fr); } }
 </style>
 '''
     script = '''
@@ -160,6 +160,7 @@ td.wr-service-status-panel { background:#d9edf7 !important; border:1px solid #bc
   for (var i = 0; i < links.length; i++) {
     if (links[i].pathname + links[i].hash === here) {
       links[i].setAttribute('aria-current', 'page');
+      if ((' ' + links[i].className + ' ').indexOf(' btn-primary ') < 0) links[i].className += ' btn-primary';
       break;
     }
   }
@@ -167,7 +168,7 @@ td.wr-service-status-panel { background:#d9edf7 !important; border:1px solid #bc
   for (var j = 0; j < statuses.length; j++) {
     var node = statuses[j], cell = node.parentNode;
     while (cell && cell.tagName && cell.tagName.toLowerCase() !== 'td') cell = cell.parentNode;
-    if (cell) cell.className += (cell.className ? ' ' : '') + 'wr-service-status-panel';
+    if (cell) cell.className += (cell.className ? ' ' : '') + 'alert alert-info wr-service-status-panel';
     else {
       var ancestor = node.parentNode, alreadyGrouped = false;
       while (ancestor && ancestor.tagName) {
@@ -176,7 +177,7 @@ td.wr-service-status-panel { background:#d9edf7 !important; border:1px solid #bc
       }
       if (alreadyGrouped) continue;
       var parent = node.parentNode, panel = document.createElement('div');
-      panel.className = 'wr-service-status-panel';
+      panel.className = 'alert alert-info wr-service-status-panel';
       parent.insertBefore(panel, node);
       panel.appendChild(node);
       var next = panel.nextSibling;
@@ -214,6 +215,7 @@ def prepare_legacy_vpn_tabs(www: Path, config: set[str]) -> None:
         return
     old = '<a href="Advanced_wireguard.asp"><#menu5_35_1#></a>'
     new = '<a href="/vpncli.asp"><#menu5_35_1#></a>'
+    server_tab = '<li><a href="/vpnsrv.asp"><#WRServicesNavVPNServer#></a></li>'
     for path in (zerotier, legacy):
         if not path.is_file():
             continue
@@ -226,6 +228,9 @@ def prepare_legacy_vpn_tabs(www: Path, config: set[str]) -> None:
             text, count = active_tab.subn(r'<li>\1', text, count=1)
             if count != 1:
                 raise SystemExit("Legacy WireGuard active-tab anchor changed")
+        text, count = re.subn(re.escape(new) + r"\s*</li>", lambda match: match[0] + server_tab, text, count=1)
+        if count != 1:
+            raise SystemExit(f"VPN server tab anchor changed in {path.name}")
         path.write_text(text, encoding="utf-8", newline="\n")
 
 
@@ -237,6 +242,8 @@ def legacy_vpn_tab_contract_error(name: str, text: str) -> str | None:
         return "legacy tab still targets the single-protocol form"
     if expected not in text:
         return "protocol-selecting profile link is missing"
+    if '<a href="/vpnsrv.asp"><#WRServicesNavVPNServer#></a>' not in text:
+        return "VPN server tab is missing"
     if name == "Advanced_wireguard.asp" and re.search(
         r'<li class="active">\s*' + re.escape(expected), text
     ):
@@ -296,7 +303,7 @@ def verify(www: Path, config: set[str], *, image: bool = False,
     nav = rendered_groups(www, config, excluded_services)
     pages = ["Advanced_Services_Content.asp", "Advanced_Services_DoT.asp",
                  "Advanced_Services_DoH.asp", "Advanced_Services_Privoxy.asp",
-                 "vpncli.asp", "Advanced_zerotier.asp", "Advanced_Services_EoIP.asp",
+                 "vpncli.asp", "vpnsrv.asp", "Advanced_zerotier.asp", "Advanced_Services_EoIP.asp",
                  "Shadowsocks.asp", "Advanced_DHCP_Content.asp"]
     if enabled(config, "CONFIG_FIRMWARE_INCLUDE_WIREGUARD"):
         pages.append("Advanced_wireguard.asp")
@@ -318,7 +325,7 @@ def verify(www: Path, config: set[str], *, image: bool = False,
                 f"Service navigation in {name} does not exactly match active build capabilities"
             )
         if name != "Advanced_Services_Content.asp":
-            back = ('<a class="wr-service-link wr-service-link--back" '
+            back = ('<a class="btn btn-mini btn-primary wr-service-link wr-service-link--back" '
                     'href="/Advanced_Services_Content.asp"><#WRServicesNavBack#></a>')
             if back not in nav_html:
                 raise SystemExit(f"Same-tab return-to-services link is invalid in {name}")
@@ -338,7 +345,7 @@ def verify(www: Path, config: set[str], *, image: bool = False,
             legacy_links = ("stubby_settings_link", "privoxy_settings_link", "doh_settings_link")
             if any(link_id in text for link_id in legacy_links):
                 raise SystemExit("Legacy DNS/Privoxy links remain outside the unified navigation")
-            if "grid-template-columns:repeat(3,minmax(0,1fr))" not in text:
+            if "grid-template-columns:fit-content(31%) fit-content(34%) minmax(0,1fr)" not in text:
                 raise SystemExit("Unified service navigation is missing its two-row desktop grid")
         if name == "Advanced_Services_Content.asp":
             expected_service_routes = [

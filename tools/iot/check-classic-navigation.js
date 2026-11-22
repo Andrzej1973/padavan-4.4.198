@@ -9,7 +9,7 @@ const pairs = ['Wireless', 'WGuest', 'WMode', 'ACL', 'WSecurity', 'WAdvanced']
 function check(path, expected, readyState = 'complete') {
     const ids = Object.create(null);
     function element(tag) {
-        return {tag, children: [], attributes: {}, className: '',
+        return {tag, children: [], attributes: {}, className: '', style: {},
             appendChild(n) { n.parentNode = this; this.children.push(n); return n; },
             insertBefore(n, before) { n.parentNode = this; this.children.splice(this.children.indexOf(before), 0, n); },
             setAttribute(k, v) { this.attributes[k] = v; },
@@ -18,9 +18,21 @@ function check(path, expected, readyState = 'complete') {
     const host = element('div'), tab = element('div'), banner = element('div');
     tab.id = 'tabMenu'; host.appendChild(tab);
     const button = element('input'); button.id = 'wifi5_b'; button.className = 'btn btn-mini btn-info';
+    const main2 = element('input'); main2.id = 'wifi2_b';
+    main2.getBoundingClientRect = () => ({left: 10});
+    banner.appendChild(main2);
     banner.appendChild(button);
+    const appendBanner = banner.appendChild;
+    banner.appendChild = function (n) {
+        if (n.id === 'wifi_iot_b') n.getBoundingClientRect = () => ({right: 144});
+        return appendBanner.call(this, n);
+    };
     const guest = element('div'), guestButton = element('input');
     guestButton.id = 'wifi5_b_g'; guestButton.className = 'btn btn-mini';
+    const guest2 = element('input'); guest2.id = 'wifi2_b_g';
+    guest2.getBoundingClientRect = () => ({right: 60});
+    guestButton.getBoundingClientRect = () => ({left: 64});
+    guest.appendChild(guest2);
     guest.appendChild(guestButton);
     const sidebar = element('div'); sidebar.id = 'subMenu';
     const scheduled = [], listeners = {};
@@ -47,8 +59,6 @@ function check(path, expected, readyState = 'complete') {
         assert.strictEqual(links.filter(a => a.attributes['aria-current'] === 'page')[0].attributes.href, '/' + path);
     } else assert(!list);
     assert.strictEqual(ids.wifi_iot_b.attributes.href, '/Advanced_IoT_Content.asp');
-    assert.strictEqual(ids.wifi_iot_b_g.attributes.href, '/Advanced_IoT_Content.asp');
-    assert.strictEqual(ids.wifi_iot_b_g.className, 'btn btn-mini' + (path === 'Advanced_IoT_Content.asp' ? ' btn-info' : ''));
     assert.strictEqual(ids['wr-classic-iot-menu'].attributes.href, '/Advanced_IoT_Content.asp');
     assert.strictEqual(button.className, 'btn btn-mini btn-info');
     assert.strictEqual(guestButton.className, 'btn btn-mini');
@@ -57,7 +67,9 @@ function check(path, expected, readyState = 'complete') {
     while (scheduled.length) scheduled.shift()();
     assert.strictEqual(host.children.length, before);
     assert.strictEqual(banner.children.filter(n => n.id === 'wifi_iot_b').length, 1);
-    assert.strictEqual(guest.children.filter(n => n.id === 'wifi_iot_b_g').length, 1);
+    assert.strictEqual(guest.children.length, 2);
+    assert.strictEqual(guest2.style.width, '65px');
+    assert.strictEqual(guestButton.style.width, '65px');
 }
 for (const pair of pairs) for (const path of pair)
     check(path, ['/' + pair[0], '/' + pair[1], '/Advanced_IoT_Content.asp']);

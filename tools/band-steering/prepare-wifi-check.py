@@ -79,6 +79,7 @@ int main(void)
  count=0;write_failed=0;interface_failed=1;
  assert(wr_band_apply_wifi_settings(1,1,1,&r)==-1 && r.state==WR_APPLY_START_ERROR);
  assert(calls[count-1]==2 && r.off_confirmed);
+ assert(strstr(diagnostic,"2.4 GHz Main is down at restart verification (ra0)"));
  count=0;interface_failed=0;
  assert(!wr_band_apply_wifi_settings(0,0,0,&r) && r.off_confirmed);
  assert(count==5 && calls[0]==2 && calls[1]==3 && calls[2]==4 && calls[3]==5 && calls[4]==2);

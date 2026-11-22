@@ -32,8 +32,6 @@ python3 -B tools/iot/check-classic-config-romfs.py
 python3 -B tools/iot/stage-classic-config-romfs.py "$probe/romfs" \
   "$results/runtime-link/iot-edit-view-source.json" \
   --report "$results/isolated-classic-config.json"
-python3 -B tools/webui-preview/stage-modern-iot-romfs.py "$probe/romfs" "$results/runtime-link" \
-  --report "$results/isolated-modern-iot.json"
 # Use the real SDK destinations, rather than the earlier temporary RC probe path.
 python3 tools/band-steering/verify-package-closure.py "$probe/romfs" "$probe/romfs" \
   --binary sbin/rc --binary usr/sbin/httpd --readelf "${cross}readelf" \
@@ -100,21 +98,18 @@ for name,digest in classic['sha256'].items():
  path=romfs/name
  if path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest:
   raise SystemExit('Classic payload changed before image verification: '+name)
-modern=json.loads((root/'isolated-modern-iot.json').read_text())
+for name in ('www/modern','www/hybrid'):
+ if (romfs/name).exists() or (romfs/name).is_symlink():
+  raise SystemExit('Classic-only candidate contains retired WebUI: '+name)
+httpd=(romfs/'usr/sbin/httpd').read_bytes()
 pair=json.loads((root/'paired-image-inputs.json').read_text())
-if modern['sha256']!={name:record['sha256'] for name,record in pair['modern_files'].items()}:
- raise SystemExit('Modern IoT ROMFS assets differ from exact source pair')
-if modern['httpd_sha256']!=pair['files']['usr/sbin/httpd']['sha256']:
- raise SystemExit('Modern IoT httpd differs from exact source pair')
-if modern['httpd_sha256']!=hashlib.sha256((romfs/'usr/sbin/httpd').read_bytes()).hexdigest():
- raise SystemExit('Modern IoT httpd changed before image verification')
-for name,digest in modern['sha256'].items():
- path=romfs/name
- if path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest:
-  raise SystemExit('Modern IoT payload changed before image verification: '+name)
-modern['trx_verified']=True
-modern['image_sha256']=content['image_sha256']
-(root/'isolated-modern-iot.json').write_text(json.dumps(modern,indent=2)+'\n')
+classic['httpd_sha256']=hashlib.sha256(httpd).hexdigest()
+if classic['httpd_sha256']!=pair['files']['usr/sbin/httpd']['sha256']:
+ raise SystemExit('Classic IoT httpd changed after pairing')
+classic['http_routes_verified']=pair['classic_iot_routes']
+if any(marker in httpd for marker in
+       (b'wr_modern.json', b'modern/index.html', b'hybrid/index.html')):
+ raise SystemExit('Classic-only candidate httpd contains retired WebUI routes')
 classic['trx_verified']=True
 classic['image_sha256']=content['image_sha256']
 (root/'isolated-classic-config.json').write_text(json.dumps(classic,indent=2)+'\n')

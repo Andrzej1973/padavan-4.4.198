@@ -51,7 +51,18 @@
             band5.parentNode.appendChild(link);
         }
         addIotShortcut('wifi5_b', 'wifi_iot_b');
-        addIotShortcut('wifi5_b_g', 'wifi_iot_b_g');
+        var main2 = document.getElementById('wifi2_b');
+        var mainIot = document.getElementById('wifi_iot_b');
+        var guest2 = document.getElementById('wifi2_b_g');
+        var guest5 = document.getElementById('wifi5_b_g');
+        if (main2 && mainIot && guest2 && guest5) {
+            var mainWidth = mainIot.getBoundingClientRect().right - main2.getBoundingClientRect().left;
+            var gap = guest5.getBoundingClientRect().left - guest2.getBoundingClientRect().right;
+            if (gap >= 0 && mainWidth > gap) {
+                guest2.style.boxSizing = guest5.style.boxSizing = 'border-box';
+                guest2.style.width = guest5.style.width = (mainWidth - gap) / 2 + 'px';
+            }
+        }
         var sidebar = document.getElementById('subMenu');
         if (sidebar && !document.getElementById('wr-classic-iot-menu')) {
             var menuLink = document.createElement('a'), icon = document.createElement('i');

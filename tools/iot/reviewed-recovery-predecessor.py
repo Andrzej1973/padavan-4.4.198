@@ -13,4 +13,12 @@ def reviewed_predecessor(data,name):
  baseline=Path(__file__).with_name('main-recovery-join-baseline.inc').read_bytes()
  if hashlib.sha256(baseline).hexdigest()!='5e24b03bc41930ea848f57991f95bd3918d472a6dc66c3906f382d71486c8c94':
   raise ValueError('changed reviewed main recovery join baseline')
+ data=data[:start]+baseline+data[end:]
+ marker=b'VOID wr_iot_main_recovery_reap_work_fn('
+ if data.count(marker)!=1:return data
+ start=data.index(marker);end=data.index(b'\n}',start)+2
+ if hashlib.sha256(data[start:end]).hexdigest()!='94920f104135ea2650db70e639156549e21321100249c13b12abe6397cfa8126':return data
+ baseline=Path(__file__).with_name('main-recovery-reaper-baseline.inc').read_bytes()
+ if hashlib.sha256(baseline).hexdigest()!='14e51f936ce1484f139df0dce061edf031a2b1a9d1c6268bb1c9ca41dcb9598a':
+  raise ValueError('changed reviewed main recovery reaper baseline')
  return data[:start]+baseline+data[end:]

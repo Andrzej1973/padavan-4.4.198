@@ -207,6 +207,8 @@ static inline int wr_iot_main_recovery_rtnl_unavailable(
  if(!owner||owner->phase!=WR_MAIN_OWNER_QUEUED||
     !owner->schedule_recorded||!owner->deferred_owners||
     owner->completed||owner->stop_requested)return 0;
+ /* A worker that cannot acquire RTNL still consumes one retry. */
+ if(owner->attempts!=~0U)owner->attempts++;
  owner->phase=WR_MAIN_OWNER_RETAINED;return 1;
 }
 /* The external reaper may cancel a queued item before its callback starts.

@@ -1,12 +1,16 @@
 #include "lifecycle.h"
 #include <assert.h>
 #include <stdio.h>
-struct fixture { int calls[12], count, fail, off_calls, cleanup_fail; };
+struct fixture { int calls[12], count, fail, off_calls, cleanup_fail, pending; };
 static int step(struct fixture *f, int id) { f->calls[f->count++] = id; return f->fail == id ? -1 : 0; }
 static int validate(void *p) { return step(p, 1); }
 static int off(void *p) { struct fixture *f=p; ++f->off_calls; return step(f, 2) || (f->off_calls>1 && f->cleanup_fail); }
 static int profiles(void *p, int enabled) { assert(enabled==0 || enabled==1); return step(p, 3); }
-static int radios(void *p) { return step(p, 4); }
+static int radios(void *p) {
+    struct fixture *f=p;
+    int result=step(f, 4);
+    return result ? result : f->pending ? WR_RADIOS_PENDING : WR_RADIOS_READY;
+}
 static int start(void *p) { return step(p, 5); }
 int main(void) {
     struct wr_band_lifecycle_ops ops={validate,off,profiles,radios,start};
@@ -31,6 +35,15 @@ int main(void) {
     f=(struct fixture){0}; f.fail=4; f.cleanup_fail=1;
     assert(wr_band_lifecycle_apply(&ops,&f,0,&r)==-1 && !r.off_confirmed);
     assert(r.state==WR_APPLY_START_ERROR && f.calls[f.count-1]==2);
+    for (int ready=0;ready<=1;++ready) {
+        f=(struct fixture){.pending=1};
+        assert(wr_band_lifecycle_apply(&ops,&f,1,&r)==1);
+        assert(r.state==WR_APPLY_WAITING_RADIOS && !r.off_confirmed && f.count==4);
+        assert(wr_band_lifecycle_complete(&ops,&f,1,ready,&r)==(ready ? 0 : -1));
+        assert(r.state==(ready ? WR_APPLY_RUNNING : WR_APPLY_START_ERROR));
+        assert(r.off_confirmed==!ready && f.count==5 && f.calls[4]==(ready ? 5 : 2));
+        assert(wr_band_lifecycle_complete(&ops,&f,1,ready,&r)==-1 && f.count==5);
+    }
     puts("PASS lifecycle ordering and failure cleanup with mocked operations; rc/device integration pending");
     return 0;
 }

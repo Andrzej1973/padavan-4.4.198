@@ -34,6 +34,9 @@ def stage(baseline,results,manifest,revision,kernel_config,output):
  if kernel_config.is_symlink() or kernel_config.read_bytes()!=candidate_config:
   raise ValueError('Baseline and candidate kernel configs differ; coherent kernel build required')
  before=snapshot(baseline)
+ for name in ('www/modern','www/hybrid'):
+  if name in before:
+   raise ValueError('Classic-only staging refuses retired WebUI in baseline: '+name)
  modules=[n for n,r in before.items() if n.startswith('lib/modules/') and n.endswith('/mt76x3_ap.ko')]
  if len(modules)!=1 or before[modules[0]]['type']!='file':raise ValueError('Require one regular baseline MT7603 module')
  replacements={modules[0] if n=='driver:mt76x3_ap' else n:r for n,r in expected['files'].items()}

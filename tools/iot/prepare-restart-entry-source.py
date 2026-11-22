@@ -32,12 +32,33 @@ if header.exists() or unit.exists() or (rc/'wr-iot/initial-restart-entry.h').exi
 includes='#if defined(BOARD_WR1200JS)\n#include "wr-iot/restart-entry.h"\n#include "wr-iot/initial-restart-entry.h"\n#include "wr-iot/restart-iapp-policy.h"\n#endif\n'
 body='''
 #if defined(BOARD_WR1200JS) && WR_IOT_IAPP_POLICY_PREPARED
+ enum wr_iot_radio_entry_result entry_result;
  /* WR_IOT_PRIVATE_RESTART_ENTRY: before the legacy physical-call fence.
   * Claimed intent never falls through to combined SDK stop/reopen. */
- if(wr_iot_radio_off_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
- if(wr_iot_radio_on_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
- if(wr_iot_initial_restart_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
- if(wr_iot_restart_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;
+ entry_result=wr_iot_radio_off_entry(radio_on,need_reload_conf);
+ if(entry_result!=WR_RADIO_ENTRY_NATIVE){
+  logmessage("MT7603", "2.4 GHz request path=off on=%d reload=%d result=%s",
+             radio_on,need_reload_conf,entry_result==WR_RADIO_ENTRY_OWNED?"accepted":"refused");
+  return;
+ }
+ entry_result=wr_iot_radio_on_entry(radio_on,need_reload_conf);
+ if(entry_result!=WR_RADIO_ENTRY_NATIVE){
+  logmessage("MT7603", "2.4 GHz request path=on on=%d reload=%d result=%s",
+             radio_on,need_reload_conf,entry_result==WR_RADIO_ENTRY_OWNED?"accepted":"refused");
+  return;
+ }
+ entry_result=wr_iot_initial_restart_entry(radio_on,need_reload_conf);
+ if(entry_result!=WR_RADIO_ENTRY_NATIVE){
+  logmessage("MT7603", "2.4 GHz request path=initial on=%d reload=%d result=%s",
+             radio_on,need_reload_conf,entry_result==WR_RADIO_ENTRY_OWNED?"accepted":"refused");
+  return;
+ }
+ entry_result=wr_iot_restart_entry(radio_on,need_reload_conf);
+ if(entry_result!=WR_RADIO_ENTRY_NATIVE){
+  logmessage("MT7603", "2.4 GHz request path=restart on=%d reload=%d result=%s",
+             radio_on,need_reload_conf,entry_result==WR_RADIO_ENTRY_OWNED?"accepted":"refused");
+  return;
+ }
 #endif
 '''
 net=net.replace(signature,includes+signature+body,1)

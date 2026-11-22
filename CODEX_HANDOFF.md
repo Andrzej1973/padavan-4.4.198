@@ -1,3 +1,77 @@
+## WR1200JS Classic-only WebUI — owner decision 2026-11-22
+
+Classic is the sole firmware WebUI. This supersedes the Hybrid Modern and
+Classic-free image requirements below. The WR1200JS release profiles are
+Classic with CAKE/SQM (factory OFF) and Classic without CAKE/SQM. IoT remains
+mandatory and is managed through Classic. Firmware preparation and the
+isolated IoT image lane omit Modern and Hybrid dashboard assets.
+
+## Verified matched peer82 SQM comparison — 2026-11-22
+
+Optional #1499 / 45023349774 completed successfully. Its isolated candidate
+artifact 14755233111 records exact built source
+7b8fbc06974258fb49482df976ddac133bdedb7b (dispatch 4b31ee6b).
+The downloaded TRX independently hashes to
+567f72892e8b2600b5907c12db555fe4fd62820a5a1c1c385be58a00d5cce8fd
+at 14,547,723 bytes. CI verified header/payload CRCs and all 1,652 ROMFS
+entries. Independent SquashFS listing found Modern IoT, Band Steering and
+Zapret2 binaries/assets, with no named CAKE or SQM files. Effective build
+configuration excludes CONFIG_FIRMWARE_INCLUDE_SQM and CONFIG_NET_SCH_CAKE.
+Source toolchain archive SHA256 is
+5a9254920f52954b2910ad968086135436e320bfb1360928cf96f4f0bf03870a.
+The matched #1494 baseline-SQM image at the same candidate revision is
+14,573,387 bytes, a difference of 25,664 bytes with SQM excluded.
+The run's generic firmware/test artifacts are a separate 13,089,652-byte
+image and do not contain the Modern IoT controller. Use the isolated
+artifact for this comparison. Production promotion and physical acceptance
+remain open. No router operation.
+
+## Verified optional IoT candidates #1493 and #1494 — 2026-11-22
+
+Both peer82 runs succeeded. The verification-source artifacts distinguish
+dispatch from built revision. #1493 / 45018933370 built 2d50b896 with SQM
+excluded (dispatch 7b8fbc06). #1494 / 45019962254 built 7b8fbc06 with
+baseline SQM. Both include Classic and Modern IoT.
+
+TRX bytes and SHA-256 recomputed from the downloaded artifacts in memory:
+- #1493 / artifact 14754180312: 14547695 bytes,
+  5016d61798cc58647c3c4d0c657da33bf1a83b3319049e28ede6fccd5301790f.
+- #1494 / artifact 14753538936: 14573387 bytes,
+  54625720d6346cc4fc6f5e835fd707581782ef529b04e1db38858edb72a1b797.
+
+The CI reports match both image hashes and record complete extracted-ROMFS
+checks (1652 and 1676 entries respectively). Both report identical hashes
+for the three Modern IoT assets. The builds differ in revision as well as
+SQM selection; their sizes do not establish matched-build CAKE savings.
+Artifacts were processed in memory; no scratch files retained. Production
+installation, control coverage without Classic and device acceptance remain
+open. No router operations.
+
+## WR1200JS candidate and SQM matrix checkpoint — 2026-11-22
+
+main 7b8fbc06974258fb49482df976ddac133bdedb7b binds the Modern IoT payload
+to the exact peer82 pair and verifies the hashes against ROMFS/TRX evidence.
+Host package, ROMFS, and synthetic extracted TRX checks passed. ABI
+45015259301 and Standard #1492 / 45015259446 succeeded for this SHA.
+Exact peer82 with the baseline SQM profile was dispatched as 45019962254
+after checking for duplicates. Excluded-profile run #1493 remains separate
+and requests 2d50b896 despite its dispatch HEAD being 7b8fbc06.
+
+2d50b8960ee82df5440c47f821dfbb0cce4d1738 fixed the SQM-excluded Hybrid
+dashboard regression found in optional #1487 / 45013228829 (first causal
+error: missing Advanced_SQM.asp in the firmware step). Host actual copy
+recipe passed with SQM included, excluded, and normalized excluded.
+Standard #1491 / 45015161289 and service checks 45015161072 succeeded.
+Exact-SHA optional peer82 with sqm_profile=excluded was dispatched as
+45018933370. This verifies the excluded profile with Classic present.
+
+The independent a084c769 image receipt in docs/iot/WR1200JS-ACCEPTANCE.md
+applies only to that isolated candidate. The initial runtime preparer
+reports early-stage bindings. The later restart-entry preparer binds the
+candidate hooks and the image checker verifies the packaged pair. The
+standard build's actual production integration and separate physical
+acceptance remain open. No router operations.
+
 ## IoT candidate and local regression checkpoint — 2026-11-22
 
 Exact base HEAD `d1611e57731aa5e97efa11ef7f36a59349935a86` is `main` and

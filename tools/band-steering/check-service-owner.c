@@ -1,15 +1,16 @@
 #include "service-owner.h"
 #include "child-owner.h"
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
 static int stop_result, retain_pid, quiesce_result, start_result;
 static int stops, quiesces, starts;
-static int writes, initialized, validations;
+static int writes, initialized, validations, radio_result;
 static int validate(void *p) { assert(p == &writes); ++validations; return 0; }
 static int profiles(void *p, int enabled)
 { assert(p == &writes && (enabled == 0 || enabled == 1)); assert(!writes && !initialized); ++writes; return 0; }
 static int radios(void *p)
-{ assert(p == &writes && writes == 1); ++initialized; return 0; }
+{ assert(p == &writes && writes == 1); ++initialized; return radio_result; }
 int wr_band_child_stop(pid_t *pid, unsigned timeout)
 {
     assert(*pid == 42 && timeout == 5000); ++stops;
@@ -62,6 +63,25 @@ int main(void)
         assert(validations == 1 && writes == 1 && initialized == 1);
         assert(wr_band_service_apply(&owner,"ra0","rai0",0,&writes,0,&result) == -1);
         assert(result.state == WR_APPLY_REJECTED && !result.off_confirmed);
+    }
+    for (int ready = 0; ready <= 1; ++ready) {
+        struct wr_band_lifecycle_ops ops = {validate, 0, profiles, radios, 0};
+        struct wr_band_apply_result result, other;
+        int previous_starts = starts;
+        owner.pid = 0;
+        writes = initialized = 0;
+        radio_result = WR_RADIOS_PENDING;
+        assert(wr_band_service_apply(&owner,"ra0","rai0",&ops,&writes,1,&result)==1);
+        assert(result.state==WR_APPLY_WAITING_RADIOS && starts==previous_starts);
+        assert(wr_band_service_apply(&owner,"ra0","rai0",&ops,&writes,0,&other)==-1);
+        assert(errno==EBUSY && other.state==WR_APPLY_REJECTED);
+        assert(wr_band_service_complete(&owner,"ra0","rai0",ready,&other)==-1);
+        assert(wr_band_service_complete(&owner,"ra0","rai0",ready,&result)==(ready?0:-1));
+        assert(result.state==(ready?WR_APPLY_RUNNING:WR_APPLY_START_ERROR));
+        assert(result.off_confirmed==!ready && starts==previous_starts+ready);
+        assert(writes==1 && initialized==1);
+        assert(wr_band_service_complete(&owner,"ra0","rai0",ready,&result)==-1);
+        assert(starts==previous_starts+ready);
     }
     puts("PASS service ownership ordering/PID retention with mocked child operations; device behavior unverified");
     return 0;

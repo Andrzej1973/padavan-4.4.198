@@ -666,27 +666,6 @@ jobs:
             python3 tools/prepare-wifi-qr-ui.py padavan-4.4
           fi
 
-      - name: Prepare read-only Modern WebUI with reserved IoT section
-        run: |
-          node tools/webui-preview/check_wifi.js
-          node tools/webui-preview/check_wifi_production.js
-          # Optional verification may pin an ancestor before this client existed.
-          if [ -f tools/webui-preview/check_guest_client.js ]; then
-            node tools/webui-preview/check_guest_client.js
-          fi
-          node tools/webui-preview/check_classic_navigation.js
-          python3 tools/webui-preview/check_installer.py
-          python3 tools/webui-preview/check_json.py
-          python3 tools/webui-preview/check_trx_gate.py
-          python3 tools/webui-preview/prepare-production.py padavan-4.4
-          python3 tools/webui-preview/check-production.py padavan-4.4
-          node tools/hybrid-dashboard/check-dashboard.js
-          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_SQM=y' configs.build/wr1200js.config; then
-            python3 tools/hybrid-dashboard/prepare.py padavan-4.4
-          else
-            python3 tools/hybrid-dashboard/prepare.py padavan-4.4 --without-sqm
-          fi
-
       - name: Prepare guarded firmware upload tmpfs action
         run: |
           python3 tools/tmp-upload/check-tmp-upload-preparation.py padavan-4.4
@@ -949,8 +928,6 @@ jobs:
             grep -aq 'wr_vpn_profile_observation' trunk/romfs/usr/sbin/httpd
             python3 ../tools/vpn-profiles/prepare-storage-permissions.py . --verify-image
             python3 ../tools/prepare-service-toggle-colors.py . --verify-image
-            python3 ../tools/webui-preview/check_image.py . --report ../modern-image-check.json
-            python3 ../tools/hybrid-dashboard/check-image.py .
             grep -q '/wifi-qrcode-renderer.js' trunk/romfs/www/vpnsrv.asp
             ! grep -q '/qrcode.min.js' trunk/romfs/www/vpnsrv.asp
             grep -q 'wrVPNQrPayload' trunk/romfs/www/vpnsrv.asp
@@ -1291,35 +1268,6 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Compile isolated NVRAM commit ordering candidate
-        if: inputs.run_candidate_checks
-        run: |
-          if test -f tools/webui-preview/ci_compile_nvram_candidate.py; then
-            python3 tools/webui-preview/ci_compile_nvram_candidate.py padavan-4.4 --output modern-nvram-candidate
-          fi
-
-      - name: Preserve isolated NVRAM candidate diagnostics
-        if: always() && inputs.run_candidate_checks
-        uses: actions/upload-artifact@v7
-        with:
-          name: modern-nvram-candidate${{ inputs.artifact_suffix }}
-          path: modern-nvram-candidate/
-          if-no-files-found: ignore
-          retention-days: 14
-
-      - name: Compile isolated Modern credential HTTP candidate
-        if: inputs.run_candidate_checks
-        run: python3 tools/webui-preview/ci_compile_http_candidate.py padavan-4.4 --output modern-http-candidate
-
-      - name: Preserve isolated Modern HTTP candidate diagnostics
-        if: always() && inputs.run_candidate_checks
-        uses: actions/upload-artifact@v7
-        with:
-          name: modern-http-candidate${{ inputs.artifact_suffix }}
-          path: modern-http-candidate/
-          if-no-files-found: warn
-          retention-days: 14
-
       - name: Verify WR1200JS image upload structure
         run: |
           images=(padavan-4.4/trunk/images/WR1200JS_*.trx)
@@ -1333,7 +1281,8 @@ jobs:
           python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py \
             "$image" \
             --report firmware-image-checks.json
-          content_options=()
+          python3 -B tools/webui-preview/check_trx_gate.py
+          content_options=(--classic-only)
           if ! grep -qx 'CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y' padavan-4.4/trunk/.config; then
             content_options+=(--without-zapret2)
           fi
@@ -1720,7 +1669,6 @@ jobs:
             unsupported-firmware-options.txt
             firmware-requested.config
             firmware-image-checks.json
-            modern-image-check.json
             final-content-check.json
             firmware-config-checks.json
             SETUP_WR1200JS.md
@@ -1825,7 +1773,7 @@ jobs:
           set -euo pipefail
           scratch="$(mktemp -d "$RUNNER_TEMP/mbss-regressions.XXXXXX")"
           trap 'find "$scratch" -depth -delete' EXIT
-          for fixture in mbss-close-recovery-owner mbss-reaper-gate mbss-poll-lifetime mbss-poll-caller; do
+          for fixture in main-recovery-reaper main-open-recovery-owner mbss-close-recovery-owner mbss-reaper-gate mbss-poll-lifetime mbss-poll-caller; do
             gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
               -fno-pie -no-pie -Itools/iot "tools/iot/check-$fixture.c" \
               -o "$scratch/check-$fixture"

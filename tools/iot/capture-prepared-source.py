@@ -11,6 +11,7 @@ snapshot = pathlib.Path(sys.argv[3])
 selected = {
     'mac/mt_mac.c', 'tx_rx/txs.c', 'common/cmm_data_pci.c',
     'ap/ap_connect.c', 'ap/ap_mbss.c', 'hw_ctrl/cmm_asic_mt.c',
+    'os/linux/rt_main_dev.c',
     'include/wr-iot-beacon-producer-kernel.h',
     'include/ra2-software-off.h', 'include/beacon-filter-owner-kernel.h',
     'common/mlme.c', 'common/cmm_wpa.c', 'ap/ap_wpa.c',

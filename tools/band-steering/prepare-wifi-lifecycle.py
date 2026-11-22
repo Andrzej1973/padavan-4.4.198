@@ -111,8 +111,14 @@ static int wr_wifi_initialize(void *p)
      * guest isolation, WAN, LED and iappd actions of both restart routines. */
     restart_wifi_rt(c->radio2g, 0);
     restart_wifi_wl(c->radio5g, 0);
-    if (c->radio2g && !is_interface_up(IFNAME_2G_MAIN)) return -1;
-    if (c->radio5g && !is_interface_up(IFNAME_5G_MAIN)) return -1;
+    if (c->radio2g && !is_interface_up(IFNAME_2G_MAIN)) {
+        logmessage("Band Steering", "2.4 GHz Main is down at restart verification (%s)", IFNAME_2G_MAIN);
+        return -1;
+    }
+    if (c->radio5g && !is_interface_up(IFNAME_5G_MAIN)) {
+        logmessage("Band Steering", "5 GHz Main is down at restart verification (%s)", IFNAME_5G_MAIN);
+        return -1;
+    }
     return 0;
 }
 /* rc caller must serialize settings across the whole call and provide actual

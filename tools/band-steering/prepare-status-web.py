@@ -26,7 +26,9 @@ static int ej_wr_band_observation(int eid, webs_t wp, int argc, char **argv)
  }
  if (serial < 0) serial = 0;
  if (state < 0 || state > 2) state = 0;
- if (apply < 0 || apply > 5) apply = 0;
+ /* A prior observation must not look current while the radios restart. */
+ if (apply == 6) state = 0;
+ if (apply < 0 || apply > 6) apply = 0;
  if (argc == 1 && !strcmp(argv[0], "refresh"))
   notify_rc("observe_wr_band_steering");
  return websWrite(wp, "{\"serial\":%d,\"observation\":%d,\"apply\":%d}",

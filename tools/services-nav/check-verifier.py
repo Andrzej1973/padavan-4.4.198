@@ -51,14 +51,17 @@ if module.add_back_link(
     raise SystemExit("Service-page return link is missing from the expected navigation")
 
 profile_tab = '<li><a href="/vpncli.asp"><#menu5_35_1#></a></li>'
-if module.legacy_vpn_tab_contract_error("Advanced_zerotier.asp", profile_tab):
+server_tab = '<li><a href="/vpnsrv.asp"><#WRServicesNavVPNServer#></a></li>'
+if module.legacy_vpn_tab_contract_error("Advanced_zerotier.asp", profile_tab) is None:
+    raise SystemExit("Verifier accepted absent VPN server navigation")
+if module.legacy_vpn_tab_contract_error("Advanced_zerotier.asp", profile_tab + server_tab):
     raise SystemExit("Verifier rejected the protocol-selecting WireGuard/AmneziaWG link")
 if module.legacy_vpn_tab_contract_error(
     "Advanced_zerotier.asp", '<a href="Advanced_wireguard.asp"><#menu5_35_1#></a>'
 ) is None:
     raise SystemExit("Verifier accepted the retired single-protocol VPN destination")
 if module.legacy_vpn_tab_contract_error(
-    "Advanced_wireguard.asp", '<li class="active">' + profile_tab.removeprefix("<li>")
+    "Advanced_wireguard.asp", '<li class="active">' + profile_tab.removeprefix("<li>") + server_tab
 ) is None:
     raise SystemExit("Verifier accepted a selected tab that opens the retired legacy form")
 
@@ -86,5 +89,20 @@ for language, expected in module.VPN_TAB_LABELS.items():
         raise SystemExit(f"Preparation failed to normalize duplicate {language} VPN labels")
     if module.legacy_vpn_label_contract_error("\n".join(cleaned), language):
         raise SystemExit(f"Prepared {language} VPN labels do not meet the image contract")
+
+from tempfile import TemporaryDirectory
+
+with TemporaryDirectory() as scratch:
+    page = Path(scratch) / "Advanced_Services_Content.asp"
+    page.write_text('<html><head></head><body><div id="TopBanner"></div></body></html>', encoding="utf-8")
+    for name in ("vpncli.asp", "vpnsrv.asp"):
+        (page.parent / name).touch()
+    nav = module.rendered_groups(page.parent, set())
+    module.inject(page, nav)
+    themed = page.read_text(encoding="utf-8")
+    assert 'class="well wr-service-nav"' in themed
+    assert 'class="btn btn-mini wr-service-link' in themed
+    assert 'alert alert-info wr-service-status-panel' in themed
+    assert 'background:#' not in themed
 
 print("PASS service panels, board-specific exclusions, active capability parsing, return links and VPN profile route")

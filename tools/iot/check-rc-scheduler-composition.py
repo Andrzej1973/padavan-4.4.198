@@ -40,6 +40,13 @@ code=replace_once(code,' normal_pending=1;notification=1;',r'''
  wr_iot_rc_wait(&empty,&notification,&alarm_flag);
  assert(dispatches==2&&!radio_off_redispatch);
 
+ radio_off_redispatch=1;normal_pending=1;
+ wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(normal_steps==1&&dispatches==2&&radio_off_redispatch);
+ normal_pending=0;
+ wr_iot_rc_wait(&empty,&notification,&alarm_flag);
+ assert(dispatches==3&&!radio_off_redispatch);
+ normal_steps=0;
  normal_pending=1;notification=1;
 ''')
 with tempfile.TemporaryDirectory(prefix='wr-rc-scheduler-compose-') as d:

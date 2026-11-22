@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory = $true, Position = 0)]
     [ValidateSet(
         'identity',
+        'diagnostic-inventory',
         'uptime',
         'mtd',
         'pci',
@@ -16,6 +17,10 @@ param(
         'wifi-commands',
         'wifi-stats',
         'wifi2-stats',
+        'wifi2-start-log',
+        'wifi2-state',
+        'wifi2-bridges',
+        'wifi2-build-fingerprint',
         'wifi-show',
         'iot-baseline',
         'temperature-paths',
@@ -59,6 +64,29 @@ if (-not (Test-Path -LiteralPath $identityFile -PathType Leaf)) {
 }
 
 $remoteCommands = @{
+    'diagnostic-inventory' = @'
+printf 'KERNEL\n'; uname -r
+printf 'FIRMWARE\n'; for key in firmver buildno extendno; do printf '%s=' "$key"; printf '%s\n' "$(nvram get "$key")"; done
+printf 'TOOLS\n'
+for tool in busybox dmesg logread syslogd klogd ifconfig ip iw iwconfig iwpriv ethtool brctl ss netstat ping traceroute tcpdump iperf3 nslookup dig curl wget wg iptables ip6tables ipset conntrack lsmod modinfo lspci hexdump od sha256sum; do
+    found=no
+    for dir in /bin /sbin /usr/bin /usr/sbin; do
+        if [ -x "$dir/$tool" ]; then found="$dir/$tool"; break; fi
+    done
+    printf '%s=%s\n' "$tool" "$found"
+done
+printf 'BUSYBOX_SELECTED_APPLETS\n'
+busybox --list | grep -E '^(dmesg|logread|hexdump|od|netstat|ip|nslookup|sha256sum|traceroute)$'
+printf 'DATA\n'
+for node in /tmp/syslog.log /proc/net/dev /proc/interrupts /proc/meminfo /proc/config.gz /proc/net/nf_conntrack /sys/kernel/debug /sys/class/thermal; do
+    if [ -r "$node" ]; then printf '%s=readable\n' "$node"; else printf '%s=unavailable\n' "$node"; fi
+done
+printf 'KERNEL_LOG\n'; if dmesg >/dev/null 2>&1; then echo dmesg=readable; else echo dmesg=unavailable; fi
+printf 'DIAGNOSTIC_MOUNTS\n'; grep -E ' (debugfs|tracefs) ' /proc/mounts
+printf 'KERNEL_PRINTK\n'; cat /proc/sys/kernel/printk
+printf 'KERNEL_CONFIG\n'
+busybox zcat /proc/config.gz | grep -E '^(CONFIG_|# CONFIG_)(IKCONFIG(_PROC)?|DEBUG_FS|DYNAMIC_DEBUG|FTRACE|FUNCTION_TRACER|TRACING|KPROBES|KALLSYMS|KALLSYMS_ALL|PROC_FS|PACKET|NETFILTER_XT_TARGET_TRACE|NF_CONNTRACK_PROCFS|THERMAL)(=| is not set)'
+'@
     identity          = 'uname -a'
     uptime            = 'uptime'
     mtd               = 'cat /proc/mtd'
@@ -103,6 +131,10 @@ done
     'wifi-commands'   = 'iwpriv rai0'
     'wifi-stats'      = 'iwpriv rai0 stat'
     'wifi2-stats'     = 'iwpriv ra0 stat'
+    'wifi2-start-log' = "grep -aEi 'Band Steering|MT7603|ra2|ra0|RTMP.*(fail|error)|MCU.*(fail|timeout)' /tmp/syslog.log | tail -n 100"
+    'wifi2-state'     = 'for key in rt_radio_x mlme_radio_rt rt_guest_enable wr_bs_enable wr_bs_apply_state wr_bs_off_confirmed; do echo $key=$(nvram get $key); done'
+    'wifi2-build-fingerprint' = 'busybox sha256sum /sbin/rc /usr/sbin/httpd; for file in /lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko /www/classic-iot-config.js /www/modern/modern-iot.js; do if [ -r "$file" ]; then busybox sha256sum "$file"; fi; done'
+    'wifi2-bridges'   = 'for port in /sys/class/net/*/brif/ra0 /sys/class/net/*/brif/ra1 /sys/class/net/*/brif/ra2; do if [ -e "$port" ]; then printf "%s\n" "$port"; fi; done; /usr/sbin/brctl show'
     'wifi-show'       = 'iwpriv rai0 show'
     'iot-baseline' = @'
 echo IOT_INTERFACE_COUNTERS

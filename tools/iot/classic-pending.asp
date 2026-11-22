@@ -17,7 +17,11 @@ function initial() { show_banner(1); show_menu(5,0,0); show_footer(); }
 </head>
 <body onload="initial();">
 <div class="wrapper">
-<div id="TopBanner"></div>
+<div class="container-fluid"><div class="row-fluid">
+<div class="span3"><div id="logo"></div></div><div class="span9"><div id="TopBanner"></div></div>
+</div></div>
+<div id="Loading" class="popup_bg"></div>
+<form name="form"><input type="hidden" name="current_page" value="Advanced_IoT_Content.asp"></form>
 <div class="container-fluid"><div class="row-fluid">
 <div class="span3"><div class="well sidebar-nav side_nav" style="padding:0">
 <ul id="mainMenu" class="clearfix"></ul>

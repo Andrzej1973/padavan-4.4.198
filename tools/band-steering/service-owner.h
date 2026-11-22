@@ -4,11 +4,19 @@
 #include "lifecycle.h"
 /* rc owns one instance and serializes all lifecycle calls. Preserve this
  * instance, including a failed child's PID, until verified observation. */
-struct wr_band_service_owner { pid_t pid; };
+struct wr_band_service_owner {
+    pid_t pid;
+    struct wr_band_apply_result *pending_result;
+    int pending_enabled;
+};
 int wr_band_service_quiesce(struct wr_band_service_owner *, const char *, const char *);
 int wr_band_service_start(struct wr_band_service_owner *, const char *, const char *);
 /* Caller serializes settings and provides paired profile/radio callbacks.
  * Process ownership, OFF proof and ACTIVE proof use the actual child helpers. */
 int wr_band_service_apply(struct wr_band_service_owner *, const char *, const char *,
     const struct wr_band_lifecycle_ops *, void *, int, struct wr_band_apply_result *);
+/* A pending apply owns its result until completion. The caller retains that
+ * result and the same radio names and serializes against other radio changes. */
+int wr_band_service_complete(struct wr_band_service_owner *, const char *, const char *,
+    int radios_ready, struct wr_band_apply_result *);
 #endif

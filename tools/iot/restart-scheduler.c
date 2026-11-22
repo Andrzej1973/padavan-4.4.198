@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <string.h>
 #include <time.h>
+#include <syslog.h>
 #include "precreated-entropy.h"
 #include "restart-scheduler.h"
 #include "restart-resume.h"
@@ -92,7 +93,14 @@ int wr_iot_restart_scheduler_shutdown(const char *id,unsigned long long created)
  return wr_iot_restart_resume_shutdown(&resume,&off);
 }
 int wr_iot_restart_scheduler_retire(void)
-{return wr_iot_restart_resume_retire(&resume);}
+{
+ enum wr_iot_restart_resume_phase phase=resume.phase;
+ if(!wr_iot_restart_resume_retire(&resume))return 0;
+ if(phase==WR_RESUME_DONE||phase==WR_RESUME_CANCELLED)
+  syslog(LOG_NOTICE,"MT7603 RC recovery retirement: restart=%s",
+         phase==WR_RESUME_DONE?"completed":"cancelled");
+ return 1;
+}
 
 int wr_iot_restart_scheduler_prepare(int off_admission)
 {

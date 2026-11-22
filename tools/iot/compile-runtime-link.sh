@@ -21,10 +21,6 @@ for stage in rc http control; do
   python3 "tools/iot/prepare-$stage.py" "$probe"
 done
 python3 tools/iot/prepare-runtime.py "$probe" --native-trunk "$trunk"
-# Compile the authenticated asset route against the exact installed Modern shell.
-mkdir -p "$probe/trunk/user/www/modern"
-cp "$trunk/romfs/www/modern/"{index.html,wifi.js} "$probe/trunk/user/www/modern/"
-python3 tools/webui-preview/prepare-modern-iot.py "$probe"
 python3 -B tools/iot/prepare-runtime-link-map.py "$probe/trunk/user/rc/Makefile" "$results/rc-link-map.txt"
 python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["configuration_snapshot_verified"] is True and r["configuration_ram_control_bound"] is True and r["configuration_flash_readback_verified"] is True' "$probe/iot-runtime-source.json"
 python3 tools/iot/prepare-iappd-policy-source.py "$probe"
@@ -106,10 +102,6 @@ cp "$probe/iot-iapp-policy-source.json" "$results/"
 cp "$probe/iot-restart-entry-source.json" "$results/"
 cp "$probe/trunk/user/ralinkiappd/iappd.sh" "$results/iappd-candidate.sh"
 # Keep the prepared payload with the binary that serves it.
-grep -aqF 'modern/modern-iot.js' "$results/httpd"
-mkdir "$results/modern"
-cp "$probe/trunk/user/www/modern/"{index.html,wifi.js,modern-iot.js} "$results/modern/"
-cp "$probe/modern-iot-candidate.json" "$results/"
 sha256sum "$results/rc" "$results/httpd" > "$results/candidate.sha256"
 sha256sum -c "$results/baseline.sha256"
 printf '%s\n' 'PASS experimental RC/HTTP target link and dependency closure; no image installation or physical acceptance'

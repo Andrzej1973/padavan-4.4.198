@@ -40,9 +40,9 @@ assert view_report['edit_startup_attempt_prepared'] and view_report['view_startu
 assert view_report['native_capabilities_verified']==bool(report['configuration_snapshot_verified'] and report['configuration_flash_readback_verified'])
 assert view_report['http_bound'] and not view_report['target_verified'] and not view_report['runtime_verified']
 assert view_report['http_view_bound'] and view_report['http_edit_bound']
-assert startup.count('(void)wr_iot_rc_edit_backend_install();')==1
-assert startup.count('(void)wr_iot_rc_view_runtime_install();')==1
-assert startup.index('wr_iot_rc_save_backend_install();')<startup.index('wr_iot_rc_edit_backend_install();')<startup.index('wr_iot_rc_view_runtime_install();')<startup.index('wr_iot_rc_boot_arm();')
+assert startup.count('if (!wr_iot_rc_edit_backend_install())')==1
+assert startup.count('else if (!wr_iot_rc_view_runtime_install())')==1
+assert startup.index('wr_iot_rc_save_backend_install();')<startup.index('if (!wr_iot_rc_edit_backend_install())')<startup.index('else if (!wr_iot_rc_view_runtime_install())')<startup.index('wr_iot_rc_boot_arm();')
 assert not report['configuration_loaded_promotion_bound']
 flash_marker=(rc/'wr-iot/native-flash-prepared.h').read_text()
 assert flash_marker==('#ifndef WR_IOT_NATIVE_FLASH_READBACK_PREPARED\n#define WR_IOT_NATIVE_FLASH_READBACK_PREPARED '+str(int(report['configuration_flash_readback_verified']))+'\n#endif\n')

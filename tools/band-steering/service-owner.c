@@ -1,6 +1,7 @@
 #include "service-owner.h"
 #include "child-owner.h"
 #include <errno.h>
+#include <stddef.h>
 
 int wr_band_service_quiesce(struct wr_band_service_owner *owner,
                             const char *radio2g, const char *radio5g)
@@ -63,11 +64,47 @@ int wr_band_service_apply(struct wr_band_service_owner *owner,
 {
     struct apply_context context = {owner, radio2g, radio5g, radio_ops, radio_context};
     struct wr_band_lifecycle_ops ops = {validate, quiesce, profiles, radios, start};
+    int status;
+    if (owner && owner->pending_result) {
+        if (result && result != owner->pending_result) {
+            result->state = WR_APPLY_REJECTED;
+            result->off_confirmed = 0;
+        }
+        errno = EBUSY;
+        return -1;
+    }
     if (!owner || !radio2g || !radio5g || !radio_ops ||
         !radio_ops->write_both_profiles || !radio_ops->initialize_both_radios ||
         (enabled && !radio_ops->validate_snapshot)) {
         if (result) { result->state = WR_APPLY_REJECTED; result->off_confirmed = 0; }
         errno = EINVAL; return -1;
     }
-    return wr_band_lifecycle_apply(&ops, &context, enabled, result);
+    status = wr_band_lifecycle_apply(&ops, &context, enabled, result);
+    if (status == 1) {
+        owner->pending_result = result;
+        owner->pending_enabled = enabled;
+    }
+    return status;
+}
+
+int wr_band_service_complete(struct wr_band_service_owner *owner,
+    const char *radio2g, const char *radio5g, int radios_ready,
+    struct wr_band_apply_result *result)
+{
+    struct apply_context context = {owner, radio2g, radio5g, NULL, NULL};
+    const struct wr_band_lifecycle_ops ops = {
+        .quiesce_verified = quiesce,
+        .start_verified = start,
+    };
+    int status;
+    if (!owner || !radio2g || !radio5g || !result ||
+        owner->pending_result != result || (radios_ready != 0 && radios_ready != 1)) {
+        errno = EINVAL;
+        return -1;
+    }
+    status = wr_band_lifecycle_complete(&ops, &context, owner->pending_enabled,
+                                        radios_ready, result);
+    owner->pending_result = NULL;
+    owner->pending_enabled = 0;
+    return status;
 }

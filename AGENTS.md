@@ -1,5 +1,11 @@
 # AGENTS.md — Padavan Project Rules
 
+## Чинне рішення власника — 2026-11-22
+
+Classic є єдиним WebUI для WR1200JS. Це рішення замінює попередні вимоги
+щодо Hybrid Modern та чотирьох варіантів. Потрібні два образи Classic:
+із CAKE/SQM (заводський OFF) і без CAKE/SQM. IoT обов’язковий в обох.
+
 ## 1. Робоче середовище
 - Єдиний активний репозиторій: `/home/andrzej/padavan-build/router-guide-work` у WSL `Ubuntu-22.04`.
 - Sol — єдиний writer. Інші агенти працюють послідовно, лише після передачі повноважень.

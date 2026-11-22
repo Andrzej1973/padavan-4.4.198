@@ -13,6 +13,7 @@
     }
     function request(url, data, done) {
         root.jQuery.ajax({url: url, type: 'POST', data: data, dataType: 'json', timeout: 4000,
+            contentType: 'application/x-www-form-urlencoded',
             success: function (reply) { done(null, reply); },
             error: function () { done(new Error('request_failed')); }});
     }
@@ -21,16 +22,25 @@
         revision = ''; expires = 0; runtimeProfile = null; lock(true); message('Читання налаштувань…');
         root.jQuery.ajax({url: '/wr_iot_token.cgi', dataType: 'json', cache: false, timeout: 4000,
             success: function (reply) {
-                if (!reply || !/^[0-9a-f]{32}$/.test(reply.token)) { finish(); return; }
+                if (!reply || !/^[0-9a-f]{32}$/.test(reply.token)) {
+                    finish('Не вдалося отримати дозвіл на читання IoT.'); return;
+                }
                 token = reply.token;
                 request('/wr_iot_view.cgi', {token: token}, function (error, view) {
-                    if (error || !view || !/^[0-9a-f]{32}$/.test(view.revision) ||
+                    if (error) { finish('Не вдалося отримати відповідь на запит читання IoT.'); return; }
+                    if (view && view.error === 'invalid_request') {
+                        finish('Сервер відхилив запит читання IoT.'); return;
+                    }
+                    if (view && view.error === 'unavailable_or_busy') {
+                        finish('Служба налаштувань IoT зайнята або недоступна.'); return;
+                    }
+                    if (!view || !/^[0-9a-f]{32}$/.test(view.revision) ||
                         typeof view.configured !== 'boolean' || typeof view.enabled !== 'boolean' ||
                         typeof view.key_present !== 'boolean' || view.configured !== view.key_present ||
                         ['ssid', 'gateway', 'mask', 'first', 'last'].some(function (key) {
                             return typeof view[key] !== 'string' || view[key].length > (key === 'ssid' ? 32 : 15);
                         }) || (!view.configured && (view.enabled || ['ssid', 'gateway', 'mask', 'first', 'last'].some(function (key) { return view[key] !== ''; })))) {
-                        finish(); return;
+                        finish('Сервер повернув некоректні дані IoT.'); return;
                     }
                     revision = view.revision;
                     capturedAt = Date.now(); expires = capturedAt + 110000;
@@ -45,8 +55,8 @@
                     updateKey(); lock(false);
                     message('Прочитано бажані налаштування. Це не підтвердження роботи Wi-Fi.');
                 });
-            }, error: finish});
-        function finish() { lock(false); message('Налаштування недоступні. Повторіть читання.'); }
+            }, error: function () { finish('Не вдалося отримати відповідь на запит дозволу IoT.'); }});
+        function finish(reason) { lock(false); message(reason + ' Повторіть читання.'); }
     }
     function updateKey() {
         var keep = element('iot-action').value === 'keep';

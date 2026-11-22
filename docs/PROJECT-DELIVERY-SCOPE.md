@@ -1,3 +1,20 @@
+## WR1200JS Classic-only WebUI — owner decision 2026-11-22
+
+Classic is the sole firmware WebUI. This supersedes the Hybrid Modern and
+Classic-free image requirements below. The WR1200JS release profiles are
+Classic with CAKE/SQM (factory OFF) and Classic without CAKE/SQM. IoT remains
+mandatory and is managed through Classic. Firmware preparation and the
+isolated IoT image lane omit Modern and Hybrid dashboard assets.
+
+## WR1200JS preflash candidate — owner clarification 2026-11-22
+
+Prepare Hybrid Modern + Classic without CAKE/SQM. IoT ra2 is mandatory and
+included by default in the firmware profile. Build inclusion is separate
+from runtime activation: preserve saved IoT settings and do not silently
+enable an unconfigured network. Before flashing, compare current read-only
+router observations with the exact TRX and record unresolved runtime issues
+and recovery readiness. Physical mutation requires the owner's separate approval.
+
 ## Four final WR1200JS variants before Mi Mini — owner requirement 2026-11-17
 
 Complete and verify four final Hybrid Modern images with all agreed fixes:
