@@ -1,41 +1,14 @@
-## WR1200JS Classic-only WebUI — owner decision 2026-11-22
+## Чинний WR1200JS scope — рішення власника 2026-11-22
 
-Classic is the sole firmware WebUI. This supersedes the Hybrid Modern and
-Classic-free image requirements below. The WR1200JS release profiles are
-Classic with CAKE/SQM (factory OFF) and Classic without CAKE/SQM. IoT remains
-mandatory and is managed through Classic. Firmware preparation and the
-isolated IoT image lane omit Modern and Hybrid dashboard assets.
+Classic є єдиним WebUI WR1200JS і залишається в обох релізних профілях:
+Classic із CAKE/SQM (заводський OFF) та Classic без CAKE/SQM. IoT обов'язковий
+в обох профілях і керується через Classic. Hybrid Modern та Classic-free
+профілі не входять до поточного firmware scope. Recovery-образ без ізольованого
+IoT payload не є завершеним релізним профілем.
 
-## Four final WR1200JS variants before Mi Mini — owner requirement 2026-11-17
-
-Complete and verify four final Hybrid Modern images with all agreed fixes:
-
-| Variant | Hybrid Modern | Classic | CAKE/SQM |
-| --- | --- | --- | --- |
-| 1 | Included | Included | Included, factory OFF |
-| 2 | Included | Omitted | Included, factory OFF |
-| 3 | Included | Included | Omitted |
-| 4 | Included | Omitted | Omitted |
-
-Mandatory IoT, Band Steering, Zapret2, settings compatibility and router access
-remain requirements in all four. Included CAKE must support explicit enable/
-disable from the available WebUI, including the variant without Classic.
-CAKE-free images must omit the implementation and expose no working-looking
-CAKE control. Existing saved settings must be preserved across variants;
-CAKE factory OFF must not silently overwrite an owner's saved enabled choice.
-
-This supersedes the earlier two-image delivery matrix and mandatory CAKE in
-every final image. Keep CAKE included/default OFF in the current development
-baseline until explicit final variant selection is implemented. It does not
-resume paused Modern development or authorize router changes.
-
-Verify each image independently: exact revision/toolchain/configuration,
-TRX size and SHA256, ROMFS, feature inclusion/absence, complete WebUI controls,
-release gates and separately authorized physical acceptance. Compare Classic
-size at fixed CAKE selection and CAKE size at fixed Classic selection using
-matched builds. CI standard/optional lanes remain separate from release variants.
-**Only after WR1200JS acceptance, including this four-variant delivery, proceed
-to Mi Mini.** No completed images or device acceptance are claimed by this rule.
+Перевіряти кожен профіль окремо за revision, toolchain, config, TRX size/SHA256,
+ROMFS, наявністю функцій і release gates. Фізичне приймання окреме й потребує
+чинного дозволу власника. Mi Mini залишається після WR1200JS acceptance.
 
 # Current workspace note - 2026-10-31
 

@@ -1,4 +1,11 @@
-## Hybrid Modern resumed by the owner — 2026-11-20
+## Поточне рішення власника — Classic-only WebUI, 2026-11-22
+
+Classic є єдиним WebUI у WR1200JS firmware і залишається в обох релізних
+профілях. Hybrid Modern не входить до активного firmware scope. Цей каталог
+зберігає попередні Modern assets, макети та докази для довідки. Архівні кроки
+нижче не є активними вимогами чи дозволом продовжувати Modern розробку.
+
+## Архівний checkpoint Modern IoT — 2026-11-20
 
 The owner explicitly resumed Hybrid Modern settings integration and apply
 verification. This supersedes the 2026-11-11 WebUI pause for that work. IoT
@@ -71,15 +78,15 @@ check_wifi_production.js для15 production Wi-Fi routes. Нових фізич
 перевірок WebUI в цьому checkpoint немає. Значення на малюнках залишаються
 візуальними прикладами. Цей checkpoint охоплює вихідний код і модель налаштувань веб-UI.
 
-## Відновлення роботи після вказівки власника
+## Архівні кроки відновлення Modern — не активне завдання
 
 1. Прочитати цей покажчик, checkpoint.json, PROJECT_STATUS.md та CODEX_HANDOFF.md.
 2. Звірити branch/HEAD, робочу копію та потрібні результати CI.
-3. Повернутися до незавершеної інтеграції збереження налаштувань і приймання
-   поточних сторінок, використовуючи чинні CGI/NVRAM/RC-шляхи й джерела SDK.
-4. Для нової сторінки погодити її ТЗ та дочекатися готового макета від власника.
-5. Завершити чотири варіанти релізу за матрицею Classic × CAKE/SQM та
-   виміряти їхні фактичні стиснені TRX і SHA256.
+3. Ці Modern кроки збережені як історичний план і не виконуються в поточному
+   Classic-only firmware scope.
+4. Нові WebUI вимоги визначаються чинним scope, а не цим архівним checkpoint.
+5. Порівняння Modern варіантів скасоване. Для активних профілів див. поточну
+   [матрицю Classic × CAKE/SQM](../WR1200JS-FINAL-WEBUI-RELEASE-VARIANTS.md).
 
 PNG-еталони займають26173588 байтів, приблизно25 MiB. Це збережені вхідні
 матеріали дизайну. Дубль зображення посилається на ту саму копію в manifest.

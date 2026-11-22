@@ -20,9 +20,9 @@ must never be treated as a flash receipt or a loaded ra2 credential receipt.
 
 ## Current integration checkpoint — 2026-11-21
 
-Hybrid Modern settings/apply resumed by the owner on2026-11-20; IoT remains
-first. Older pause/unpublished/next-step statements below are historical.
-Do not infer current absence of an implementation from those statements.
+The 2026-11-22 owner decision selects Classic as the sole firmware WebUI and
+supersedes the earlier Hybrid Modern resumption. IoT remains first priority;
+these source-level configuration and apply findings must serve Classic paths.
 
 Source recheck on main14ef311c finds saved-config-store.c, config-save-server.c,
 flash-save-native.c and native-flash-reader.c. The save facade registers only

@@ -70,10 +70,10 @@ Guest connected and must never restart/scan physical Wi-Fi.
 
 Require atomic/recoverable save ownership, setter/readback failure retention,
 reboot/default-OFF behavior and honest Classic queued/applied/saved/unknown
-states before enabling the page. Reuse native save behavior, keep all controls
-in Classic. The owner resumed Hybrid Modern settings integration and apply
-verification on 2026-11-20; IoT remains first priority. This resumption does
-not establish target/image/device acceptance. Source evidence: ../evidence/
+states before enabling the page. Reuse native save behavior and keep IoT
+controls in Classic. The 2026-11-22 owner decision selects Classic as the sole
+firmware WebUI and supersedes the earlier Hybrid Modern resumption. IoT remains
+first priority. This does not establish target/image/device acceptance. Source evidence: ../evidence/
 WR1200JS-IOT-CLASSIC-PERSISTENCE-GAPS-2026-11-16.json.
 
 ## Native configuration API inspection — 2026-11-17

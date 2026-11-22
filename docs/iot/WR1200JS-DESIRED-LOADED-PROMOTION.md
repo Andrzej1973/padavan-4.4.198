@@ -479,9 +479,9 @@ target and image integration provide the required evidence.
 
 ## Current integration checkpoint — 2026-11-21
 
-Hybrid Modern settings/apply resumed by the owner on2026-11-20; IoT remains
-first. Older pause/unpublished/next-step statements below are historical.
-Do not infer current absence of an implementation from those statements.
+The 2026-11-22 owner decision selects Classic as the sole firmware WebUI and
+supersedes the earlier Hybrid Modern resumption. IoT remains first priority;
+current configuration and apply requirements use Classic controls.
 
 Source recheck on main14ef311c finds saved-config-store.c, config-save-server.c,
 flash-save-native.c and native-flash-reader.c. The save facade registers only
@@ -601,5 +601,5 @@ readback; RAM GET or bare zero return alone cannot prove it. No flash writer or
 new durable status is implemented in this package.
 
 Classic configuration/read/keep-password integration, main-image promotion,
-physical acceptance and the final four Hybrid Modern/Classic/CAKE variants remain
-separate requirements. Mi Mini follows WR1200JS acceptance.
+physical acceptance and the two Classic/CAKE release profiles remain separate
+requirements. Mi Mini follows WR1200JS acceptance.

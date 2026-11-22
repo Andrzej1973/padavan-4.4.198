@@ -11,7 +11,7 @@ The image gate above covers isolated packaging. Production installation,
 physical ON/OFF/recovery/reopen, Main/Guest continuity, network isolation and
 persistence after reboot remain open. Device acceptance requires separate
 owner authorization. This checkpoint covers one isolated candidate and does
-not establish acceptance of the four final release variants.
+not establish acceptance of either current Classic release profile.
 
 ## Cold released-root handoff and exact candidate CI — 2026-11-22
 
@@ -72,8 +72,10 @@ file/signal/finalizer scenarios. See
 [OFF publication evidence](../evidence/WR1200JS-OFF-TERMINAL-PUBLICATION-2026-11-21.json).
 Full exact-source target link, independently inspected candidate image, main-image
 promotion and physical Main/Guest/IoT/network acceptance remain open. Mandatory
-IoT is not optional release content. Modern settings/apply resumed2026-11-20,
-IoT stays first; four final WR1200JS variants precede Mi Mini. No device mutation.
+IoT is not optional release content. The 2026-11-22 owner decision selects
+Classic as the sole firmware WebUI and withdraws the Hybrid Modern/four-variant
+matrix. IoT stays first; the two Classic profiles precede Mi Mini. No device
+mutation.
 Older image/SHA checkpoints below retain only their stated historical coverage.
 
 ## Optional1344 independent cold image PASS; extraction cleaned — 2026-11-17

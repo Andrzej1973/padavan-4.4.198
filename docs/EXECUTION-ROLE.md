@@ -1,4 +1,4 @@
-## Чинна вказівка власника — Sol, 2026-11-21
+## Чинна вказівка власника — Sol, 2026-11-22
 
 Власник у цьому головному чаті прямо визначив Sol єдиним writer у
 `/home/andrzej/padavan-build/router-guide-work`. Поточна робоча гілка після
@@ -7,11 +7,12 @@
 Цей запис фіксує вказівку власника, а не передачу credentials чи припущення
 про доступ іншого акаунта. Попередній запис CheckMIM нижче є історичним.
 
-IoT має перший пріоритет. Hybrid Modern settings/apply відновлено власником
-2026-11-20. Mi Mini відкладено до WR1200JS acceptance з чотирма фінальними
-варіантами. Поточні SHA, CI та наступні дії — у PROJECT_STATUS.md,
-CODEX_HANDOFF.md і docs/LOCAL-MERGE-AUDIT-2026-11-21.md. Дозволу на
-device-side зміни це не надає.
+IoT має перший пріоритет. Чинний WR1200JS scope — Classic-only WebUI з двома
+профілями: із CAKE/SQM (заводський OFF) та без CAKE/SQM. Classic залишається
+в обох, IoT є обов'язковим. Hybrid Modern та чотириваріантний матрикс більше
+не є вимогами. Mi Mini відкладено до acceptance за цим scope. Поточні SHA,
+CI та наступні дії — у PROJECT_STATUS.md і CODEX_HANDOFF.md. Це не надає
+дозволу на device-side зміни.
 
 ## Історична роль — CheckMIM, 2026-11-19
 

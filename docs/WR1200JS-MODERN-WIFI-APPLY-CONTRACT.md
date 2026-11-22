@@ -1,14 +1,11 @@
-## Hybrid Modern resumed by the owner — 2026-11-20
+## Архівний контракт Hybrid Modern — не чинний firmware scope
 
-The owner explicitly resumed Hybrid Modern settings integration and apply
-verification. This supersedes the 2026-11-11 WebUI pause for that work. IoT
-remains first priority; preserve current settings, Band Steering and router
-access. Use existing authenticated configuration/service paths. Host candidate,
-target compilation, final image and physical acceptance remain separate.
-No device-side changes are authorized by this resumption. Modern IoT host checks
-now carry generated form submissions through native C HTTP handlers and the
-production mailbox submit/claim path. The RC dispatcher-to-saved-config path,
-firmware integration and image/device acceptance remain open.
+Owner decision 2026-11-22 selects Classic as the sole WR1200JS firmware WebUI.
+This file is retained for historical source analysis only. Hybrid Modern is not
+an active firmware deliverable. Keep applicable IoT safety and settings
+invariants, but route current UI requirements through Classic. No device-side
+changes are authorized here. The evidence below does not establish current
+target/image/device acceptance.
 
 ## Historical WebUI pause — 2026-11-11
 

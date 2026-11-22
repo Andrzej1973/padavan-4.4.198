@@ -1,106 +1,35 @@
-## WR1200JS recovery build without CAKE/SQM or IoT — 2026-11-22
+## Чинний WR1200JS delivery scope — рішення власника 2026-11-22
 
-The owner requested a Classic-only recovery image without CAKE/SQM or
-the isolated IoT payload. Use the Standard WR1200JS lane with SQM
-excluded. The Classic service catalog links to the existing forms grouped
-by function. The SQM-enabled build profile and isolated IoT development
-remain available for later work. Hardware acceptance is still required.
+Classic — єдиний firmware WebUI і залишається в обох релізних профілях:
+із CAKE/SQM (заводський стан OFF) та без CAKE/SQM. IoT обов'язковий в обох
+профілях і керується через Classic. Hybrid Modern і Classic-free образи не є
+частиною поточного scope. Чотириваріантний матрикс скасований.
 
-## WR1200JS Classic-only WebUI — owner decision 2026-11-22
+Recovery-образ без CAKE/SQM чи ізольованого IoT payload є окремим recovery
+кандидатом, не завершеним релізним образом. Поточний пристрій та наступний
+крок звіряти з верхніми записами PROJECT_STATUS.md і CODEX_HANDOFF.md.
 
-Classic is the sole firmware WebUI. This supersedes the Hybrid Modern and
-Classic-free image requirements below. The WR1200JS release profiles are
-Classic with CAKE/SQM (factory OFF) and Classic without CAKE/SQM. IoT remains
-mandatory and is managed through Classic. Firmware preparation and the
-isolated IoT image lane omit Modern and Hybrid dashboard assets.
-
-The current router candidate is Classic without CAKE/SQM. Keep Classic with
-CAKE/SQM available as an optional build profile, with factory settings OFF.
-
-## WR1200JS preflash candidate — owner clarification 2026-11-22
-
-Prepare Hybrid Modern + Classic without CAKE/SQM. IoT ra2 is mandatory and
-included by default in the firmware profile. Build inclusion is separate
-from runtime activation: preserve saved IoT settings and do not silently
-enable an unconfigured network. Before flashing, compare current read-only
-router observations with the exact TRX and record unresolved runtime issues
-and recovery readiness. Physical mutation requires the owner's separate approval.
-
-## Four final WR1200JS variants before Mi Mini — owner requirement 2026-11-17
-
-Complete and verify four final Hybrid Modern images with all agreed fixes:
-
-| Variant | Hybrid Modern | Classic | CAKE/SQM |
-| --- | --- | --- | --- |
-| 1 | Included | Included | Included, factory OFF |
-| 2 | Included | Omitted | Included, factory OFF |
-| 3 | Included | Included | Omitted |
-| 4 | Included | Omitted | Omitted |
-
-Mandatory IoT, Band Steering, Zapret2, settings compatibility and router access
-remain requirements in all four. Included CAKE must support explicit enable/
-disable from the available WebUI, including the variant without Classic.
-CAKE-free images must omit the implementation and expose no working-looking
-CAKE control. Existing saved settings must be preserved across variants;
-CAKE factory OFF must not silently overwrite an owner's saved enabled choice.
-
-This supersedes the earlier two-image delivery matrix and mandatory CAKE in
-every final image. Keep CAKE included/default OFF in the current development
-baseline until explicit final variant selection is implemented. The owner
-explicitly resumed Hybrid Modern settings/apply development on 2026-11-20;
-IoT remains first priority and this does not authorize router changes.
-
-Verify each image independently: exact revision/toolchain/configuration,
-TRX size and SHA256, ROMFS, feature inclusion/absence, complete WebUI controls,
-release gates and separately authorized physical acceptance. Compare Classic
-size at fixed CAKE selection and CAKE size at fixed Classic selection using
-matched builds. CI standard/optional lanes remain separate from release variants.
-**Only after WR1200JS acceptance, including this four-variant delivery, proceed
-to Mi Mini.** No completed images or device acceptance are claimed by this rule.
-
-## CAKE requirement corrected by the owner — 2026-11-11
-
-CAKE/SQM must be included in WR1200JS firmware and disabled at runtime by
-factory default (`CONFIG_FIRMWARE_INCLUDE_SQM=y`, `sqm_enable=0`). This supersedes
-older "without CAKE"/"CAKE excluded" scope statements, including stale automatic
-goal text. Preserve saved user configuration and acceleration preferences;
-activation is an explicit user choice. Existing Classic SQM integration may be
-restored for this requirement. Modern settings/apply work resumed on 2026-11-20
-by direct owner instruction. Target image and physical runtime verification are
-separate and still required.
-See docs/CAKE-SQM-RESTORATION.md for the historical cause and current gates.
+Кожен релізний профіль перевіряти окремо: revision/toolchain/config, TRX
+size/SHA256, ROMFS, наявність потрібних функцій та release gates. Заводський
+OFF не повинен перезаписувати збережений вибір користувача. Фізичне приймання
+потребує окремого дозволу. Mi Mini — після WR1200JS acceptance.
 
 # WR1200JS project delivery requirements
 
-## WebUI paused by the owner — 2026-11-11
+## WebUI scope
 
-WebUI development was paused until a separate explicit owner instruction.
-The owner supplied that instruction on 2026-11-20 for settings integration and
-apply verification; IoT remains the first priority. Preserved source, settings
-model, visual references and evidence are indexed in [WebUI preservation](webui/README.md).
-
-
-## Two final WebUI variants — owner requirement 2026-11-11
-
-Deliver Modern + Classic and Modern only; compare compressed final images from
-matched inputs. Requirements and release gates:
-[Final WebUI release variants](WR1200JS-FINAL-WEBUI-RELEASE-VARIANTS.md).
+Classic is the only active WR1200JS firmware WebUI. Modern assets and evidence
+remain preserved for reference; they are not active delivery work. IoT remains
+first priority and must be managed through supported Classic controls.
 
 
-## WebUI space reserved for IoT — owner clarification 2026-11-10
+The former WebUI release matrix is superseded. See
+[current release profiles](WR1200JS-FINAL-WEBUI-RELEASE-VARIANTS.md).
 
-Preserve a dedicated IoT place in the Modern WebUI navigation and Wi-Fi layout,
-alongside the main 2.4 GHz and 5 GHz controls. IoT itself is 2.4 GHz only.
-Reserve the future configuration/status page and space for SSID/security,
-subnet/DHCP/DNS and isolation controls; reuse the established design language.
-Until the real backend is integrated, show a clear development/unavailable
-state and keep mutation actions disabled. Reserved space must not imply that
-IoT is operational or that a saved toggle changes the router.
 
-Reference supplied by the owner:
-`PADAVAN_4.4.198_Development_Plan_EN.txt`, received 2026-11-10.
-This clarification records the requested WebUI reservation; the attachment's
-other proposed operations require their own task scope and verified execution.
+Classic IoT controls must only expose operations supported by the board's
+kernel/driver, backend, saved configuration and final image. UI presentation
+alone is not evidence that IoT is active or safely applied.
 
 
 ## Historical Mi Mini schedule — superseded 2026-11-17
@@ -112,11 +41,12 @@ dual-band uplink/repeater with stability metrics and anti-flap policy; existing
 USB printing and Ethernet printer management; integrated existing WebUI,
 resource/security gates, and mandatory board-specific IoT acceptance.
 
-This 2026-11-07 scheduling note is retained as project history. The owner’s
-2026-11-17 requirement supersedes it: do not start Mi Mini audit or implementation
-work until WR1200JS acceptance, including all four final variants. Builds in
-progress do not open the Mi Mini stage. The accepted Mi Mini scope below remains
-deferred planning context and does not authorize current implementation.
+This 2026-11-07 scheduling note is retained as project history. The current
+gate is WR1200JS acceptance for the two Classic release profiles described
+above. The withdrawn four-variant matrix is not a prerequisite for Mi Mini.
+Builds in progress do not open the Mi Mini stage. The accepted Mi Mini scope
+below remains deferred planning context and does not authorize current
+implementation.
 
 Track actual Mi Mini progress and next action in
 [Mi Mini status](mi-mini-port-status.md); use the audit's full phases and
