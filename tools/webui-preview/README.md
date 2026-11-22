@@ -144,7 +144,12 @@ and modes: Modern assets, httpd, RC, Band Steering/Classic service pages and
 dictionaries, plus enabled Zapret2 binary, wrapper, Lua and license files.
 It complements uImage CRC/size/DTB checks; it does not prove device behavior.
 Run `python3 check_trx_gate.py` for real SquashFS positive/corruption/missing-file
-fixtures. The workflow stores `final-content-check.json` with the exact TRX hash.
+fixtures. The workflow publishes final-content-check.json with the exact TRX
+hash in the padavan-linux-4.4.198-wr1200js artifact.
+The report's modern_asp_reference_literals field lists literal ASP references
+by verified Modern asset. Use it to review the remaining Classic dependencies
+before packaging a profile without Classic. It does not resolve dynamically
+assembled paths or demonstrate that any listed endpoint runs.
 
 Production generic pages provide local Classic ASP links, including separate VPN
 and DNS destinations. DEMO keeps explanation dialogs and IoT exposes no control
