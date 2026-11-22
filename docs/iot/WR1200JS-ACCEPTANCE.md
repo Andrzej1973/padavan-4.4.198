@@ -1,3 +1,18 @@
+## Released enabled-ON tail -> OFF source checkpoint — 2026-11-22
+
+The containing source package admits checked resource-free enabled-ON tails
+into explicit OFF and routed shutdown. It never marks failed ON successful.
+Old exclusion remains until a new physical owner holds its fence/guard and
+entropy succeeds; actual backend CLOSE and physical RELEASE are still required.
+Host compositions execute the actual ON owner and physical controller/session
+in explicit/routed modes with backend/driver adapters. Foreign/live/unknown
+resources refuse; routed SIGTERM is replayed once after physical retirement.
+All eight desired-config modes, both new compositions and complete edit/view
+suite pass231.18s/166548KiB/exit0. Image/device acceptance remains separate.
+Cold and disabled-root equivalent recovery remains open; this checkpoint does
+not enable a production image or claim complete OFF/failure acceptance.
+Evidence: [released ON handoff](../evidence/WR1200JS-RELEASED-ON-OFF-HANDOFF-2026-11-22.json).
+
 ## Optional1471 independent image and current CI correction — 2026-11-21
 
 Exact3304214e optional1471/run44944175255 SUCCESS; independent artifact14723592493

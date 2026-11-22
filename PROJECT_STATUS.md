@@ -1,3 +1,76 @@
+## Released enabled-ON -> OFF handoff package — 2026-11-22
+
+This source supersedes the preparatory/gap notes below for enabled released
+ON tails. Entry/RC/routed admission permits only checked resource-free tails.
+New physical owner keeps fence/guard and succeeds entropy before exact inert
+root wipe; backend stays intact for independently observed CLOSE and physical
+RELEASE. No failed ON becomes DONE. Live/unknown child/profile/fence, foreign
+PID, unreturned WAN and live configuration borrow refuse. Routed scheduling
+yields only inert tail; commit accepts only the exact pending route witness.
+
+Actual ON owner -> physical controller/session composition passes explicit
+and routed modes, including one final SIGTERM after physical retirement.
+Guard/entropy refusal preserves old ON; native/restart cannot discard it.
+Related RC/entry/normal/routed/quiesce checks PASS. Final all-eight desired
+modes + two new compositions + complete edit/view suite PASS231.18s,
+peak166548KiB exit0. Pinned GCC10.5/uClibc1.0.48 compiles34 prepared0/1 MIPS
+objects PASS26.24s peak62300KiB including download/extraction; new symbols
+required by source staging and full target-link gate. SDK/backend/driver
+adapters retain stated host boundaries; full link/image/device remain open.
+
+Prior c877ce5e standard1475/run44988634981 and ABI44988635020 SUCCESS.
+Exact optional44989963565 dispatched after dedup. Prior f835fa31 optional1474/
+44988009137 SUCCESS. These do not cover this new handoff package.
+Removed temporary compiler188293206 apparent bytes, verified absent; no archive
+on disk, fixture contexts disposed. Historical/private scratch preserved.
+Evidence: WR1200JS-RELEASED-ON-OFF-HANDOFF-2026-11-22.json.
+Publish this coherent package once; verify remote/new standard/ABI and queue
+exact optional after standard success. Next review cold/disabled released
+root recovery before production entry/configuration promotion. No router ops.
+
+## Local OFF handoff preflight implementation — 2026-11-22
+
+Added wr_iot_radio_on_off_ready(): read-only structural eligibility for enabled
+released ON tails in WAN/IAPP_PENDING/RETAINED/DONE after WAN return. It checks
+exact PID, stable committed/released parent, consumed old OFF receipt, zero live
+profile/data/guard/fence/child, closed terminal identity, and wiped credentials/
+configuration borrow. It preserves root, ON exclusion and actual backend.
+This is not live-backend or physical proof and is not wired to admission yet.
+
+Owner fixture covers confirmed child failure eligibility, retained pre-UP
+refusal, foreign/busy owner, unknown child fd, terminal guard, unreturned WAN,
+live baseline, unchanged root and refusal to call successful ON retirement.
+Post-DONE network-proof loss is eligible only for eventual OFF, not success.
+First native check PASS8.28s peak127136KiB; final stricter terminal/config checks
+plus all eight desired-owner modes PASS86.79s peak166984KiB exit0.
+
+Source review confirms rc-backend quiesce already allows missing file history
+for safe OFF (later reload0 refuses); actual backend observation/CLOSE remains
+mandatory. Next wire a checked preflight/commit into validated pure-OFF physical
+admission, entry/RC and routed shutdown, preserve exclusions across handoff,
+and cover real consumer composition. Cold-root equivalent remains separate.
+Do not push this preparatory API alone. No device changes.
+
+## Next IoT package: released ON refusal -> explicit OFF — 2026-11-22
+
+Published c877ce5e remote verified. Standard1475/run44988634981 and ABI/
+run44988635020 running; prior f835fa31 optional1474/run44988009137 running.
+No duplicate queued. New source audit confirms candidate radio entry hooks
+are installed by later prepare-restart-entry-source.py; early runtime false
+binding flags must not be mistaken for missing candidate hooks.
+
+Actual remaining recovery gap: post-release ON child failure leaves RETAINED
+root/radio_on_owned. Ordinary OFF entry, RC admission and physical_begin each
+reject that flag; successful retirement requires DONE/fresh proof. Existing
+owner fixture explicitly uses test-only retained teardown, not production
+recovery. Rechecked actual owner fixture PASS7.63s peak125708KiB exit0. Source evidence: WR1200JS-RELEASED-ON-OFF-HANDOFF-GAP-2026-11-22.json.
+Next implement one coherent checked handoff for resource-free released ON tails
+into explicit OFF/routed shutdown, retaining actual backend for its own CLOSE
+and physical RELEASE. Live child/fence/baseline and uncertain ownership refuse.
+Do not claim failed ON as DONE or erase credentials/resources still in use.
+Cover real owner->admission->quiesce consumers and target units, then one push.
+Cold-root equivalent needs its own source check. No changes to router.
+
 ## ON retained-release proof — verified local package, 2026-11-22
 
 HEAD/origin f835fa31: standard1473/run44947566059 and ABI/run44947566037

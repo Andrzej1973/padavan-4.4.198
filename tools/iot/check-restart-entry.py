@@ -12,6 +12,7 @@ code=r'''
 #include "restart-entry.h"
 enum wr_iot_radio_entry_result wr_iot_cold_on_entry(int on,int reload){(void)on;(void)reload;return WR_RADIO_ENTRY_NATIVE;}
 struct wr_iot_rc_shutdown_admission wr_iot_rc_shutdown;
+int wr_iot_radio_on_off_ready(void){return 0;}
 static int owned=1;
 int wr_iot_rc_restart_owned(void){return owned;}
 static int held,guard=1,mode_ok=1,drift,reads,entropy_ok=1,claimed=1,calls,clock_fault,zero_entropy;

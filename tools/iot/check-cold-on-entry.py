@@ -25,6 +25,7 @@ int wr_iot_rc_cold_on_begin(const struct wr_iot_control_request*r,int reload){
 }
 #include "cold-on-entry.c"
 #include "rc-physical-stop.h"
+int wr_iot_radio_on_off_ready(void){return 0;}
 int wr_iot_rc_restart_owned(void){assert(0);return 0;}
 int wr_iot_rc_mode_read(struct wr_iot_rc_mode*m){(void)m;assert(0);return 0;}
 int wr_iot_rc_physical_begin_quiesce(const struct wr_iot_rc_physical_intent*i,const struct wr_iot_control_request*r){(void)i;(void)r;assert(0);return 0;}

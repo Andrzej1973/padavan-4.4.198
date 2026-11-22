@@ -12,6 +12,8 @@ static long entropy(void *out,unsigned n,unsigned flags)
 {assert(n==32&&flags==1);if(entropy_fail)return -1;memset(out,7,n);return n;}
 #define WR_IOT_GETRANDOM(out,n,flags) entropy(out,n,flags)
 #include "rc-physical-stop.c"
+int wr_iot_radio_on_off_ready(void){return 0;}
+int wr_iot_radio_on_off_handoff(const struct wr_iot_radio_stop_fence*f){(void)f;assert(0);return 0;}
 int wr_iot_rc_radio_on_saved_request(struct wr_iot_request *r){(void)r;assert(0);return 0;}
 void wr_iot_rc_initial_restart_detach_commit(void){assert(0);}
 int wr_iot_rc_normal_shutdown_arm_ready(void){assert(0);return 0;}

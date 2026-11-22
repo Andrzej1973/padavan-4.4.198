@@ -10,6 +10,8 @@ units=next(ast.literal_eval(n.value) for n in ast.walk(ast.parse(source)) if isi
 body=ns['body'];a=body.index('int main(void){')
 hooks=r'''
 #include "rc-physical-stop.c"
+int wr_iot_radio_on_off_ready(void){return 0;}
+int wr_iot_radio_on_off_handoff(const struct wr_iot_radio_stop_fence*f){(void)f;assert(0);return 0;}
 int wr_iot_rc_normal_shutdown_arm_ready(void){assert(0);return 0;}
 int wr_iot_rc_radio_on_saved_request(struct wr_iot_request *r){(void)r;assert(0);return 0;}
 int wr_iot_initial_restart_selected_current(const unsigned char*n,const struct wr_iot_idle_result*r){(void)n;(void)r;assert(0);return 0;}

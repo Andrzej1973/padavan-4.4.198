@@ -21,6 +21,7 @@
 #include "rc-shutdown-admission.h"
 #include "service-guard.h"
 #include "precreated-entropy.h"
+#include "radio-on-owner.h"
 static struct {
  pid_t owner;
  struct wr_iot_rc_physical_intent intent;
@@ -49,10 +50,12 @@ static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
 {
  struct wr_iot_driver_closed_result closed={0};
  struct wr_iot_physical_stop_request request={0};unsigned char entropy[32];
+ int on_tail=wr_iot_rc_shutdown.radio_on_owned!=0;
  if(!intent||intent->restart>1||intent->radio_on>1||intent->reload>1||
     (!intent->restart&&(intent->radio_on||intent->reload))||physical.owner||
     wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
-    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
+    (on_tail&&(!off||intent->restart||intent->radio_on||intent->reload||
+      !wr_iot_radio_on_off_ready()))||wr_iot_rc_shutdown.radio_off_owned)return 0;
  if(!wr_iot_restart_scheduler_prepare(!intent->restart&&!intent->radio_on))return 0;
  if(routed?!wr_iot_radio_stop_fence_begin_routed_shutdown(&physical.fence):
            !wr_iot_radio_stop_fence_begin(&physical.fence))return 0;
@@ -63,6 +66,7 @@ static int physical_begin(const struct wr_iot_rc_physical_intent *intent,
  if(off){
   /* Entropy failure must precede normal OFF admission/mutation. */
   if(wr_iot_precreated_entropy(NULL,entropy,sizeof(entropy))!=(int)sizeof(entropy))goto refuse;
+  if(on_tail&&!wr_iot_radio_on_off_handoff(&physical.fence))goto refuse;
   if(routed&&wr_iot_rc_boot_idle()){
    if(!wr_iot_initial_shutdown_claim(&physical.initial_shutdown,&physical.fence)||
       !wr_iot_rc_backend_initial_shutdown_prepare(off,&physical.initial_shutdown)||

@@ -1,0 +1,96 @@
+{
+  "date": "2026-11-22",
+  "base_revision": "c877ce5e07e2ade6ca2e864049101f19d5c06390",
+  "scope": "Enabled released ON tail -> explicit OFF/routed shutdown physical admission",
+  "implementation": [
+    "Read-only eligibility requires exact released/committed PID-bound root, wiped credentials/configuration borrow, no live baseline/fence/child, returned WAN and closed terminal.",
+    "OFF-only entry/RC/normal shutdown permit eligible tail while preserving its exclusion. Native/restart admission still refuses it.",
+    "Only new physical owner with held fence/guard and successful entropy commits inert tail wipe. Existing backend remains for independently observed CLOSE and exact physical RELEASE.",
+    "Routed pending signal must equal original route witness; inert tail yields RC scheduling without dropping ownership.",
+    "Successful ON retirement remains strict and independent; failed ON never becomes DONE."
+  ],
+  "verified_so_far": [
+    "Actual owner preflight/commit and current/foreign/live-resource refusals",
+    "Actual physical admission guard/entropy failures preserve old ON; restart/native refuse; real session reaches RELEASE",
+    "Actual failed-child ON owner + physical controller share guard/exclusion; explicit and routed RELEASE; final routed SIGTERM once",
+    "RC/cold/ON-entry/normal/routed shutdown and actual backend quiesce consumer tests pass",
+    "Actual INITIAL auto-cancel multi-translation-unit parent/backend/physical composition passes after explicit handoff actor exports; no INITIAL/disabled arm regression."
+  ],
+  "remaining_local_checks": [
+    "review exact outgoing package and publish once"
+  ],
+  "source_sha256": {
+    "tools/iot/check-cold-on-entry.py": "4f6f7d736e6d6151687ea309318129010cd358b6ce4a98862cd7b3f3e41c4edb",
+    "tools/iot/check-config-runtime-staging.py": "b74ccd11c2aaeb25e908ce5bec64045d23619fe741f970e65a5921e03817b57f",
+    "tools/iot/check-physical-parent-backend-composed.py": "6c83aea4b08367242e58a1d7016a7b452cbc6014ff398c4e5c691774a6b4918f",
+    "tools/iot/check-physical-stop-suite.py": "94b50245713e010d11fb773be62d8d92f051188a52dc3b15c239ba20bae8167c",
+    "tools/iot/check-radio-on-owner.py": "45028377550434c82b37753b45360d82c342ebbaff8b8c2d111a29b90392601a",
+    "tools/iot/check-rc-physical-quiesce.py": "7cc1109a38faec056c52ab968e2b17ae4c508d8409a1b5d49a66d3c4ce9ccbce",
+    "tools/iot/check-rc-physical-stop.c": "45b9e7027bfe8b5f81a0d9c97033faa1ebad7375c9505318a5b447ecc2ff3746",
+    "tools/iot/check-rc-radio-on-composition.py": "4193ec2649e27db268f3ef9e4ed248b36b73c3fe0384bf75cb2860c2de39be67",
+    "tools/iot/check-rc-runtime.c": "18c1fb210815e02ac019169b18b655f6e8c145d6a5d8c83822d1c66c00ed2279",
+    "tools/iot/check-restart-entry.py": "769d9538a6348ac8b55195cca86ef439ba70ada49847d16eb58412ed1094c47b",
+    "tools/iot/compile-runtime-link.sh": "cf2fcd861aaeea10b928cb0bbe5895c972e8571d5d15e920120338730a309808",
+    "tools/iot/radio-on-owner.c": "eed3f8df834c7f580a8a8354ec6b819f32033d7224653963aaf7b01b57d8b0a6",
+    "tools/iot/radio-on-owner.h": "7c7270f7caa46d469325e348ba2b7fdc73b7783f804d3b35b8d98397169795a2",
+    "tools/iot/rc-normal-shutdown.c": "46a1f70a5a4fd06c5d37b8fef888df6068329574b6b783ff2b692d34d84027ed",
+    "tools/iot/rc-physical-stop.c": "f075f21950367df2e2668f3c52bc73ffe1a05999febd182e9e3d22d70573ae71",
+    "tools/iot/rc-runtime.c": "9b5f2120c7df6974999384735a5087d5f17e158e8911c00b359e2edea09f82b7",
+    "tools/iot/restart-entry.c": "ff4d5f580515114bca04ccf7b9035c448353c30ccee76c85750e0d44cab2187e",
+    "tools/iot/check-physical-released-on-handoff.py": "a503996473027cce26d692c14890b4ad7f70bd9a5b09c4f839b881b16776668d",
+    "tools/iot/check-released-on-physical-composition.py": "f110e107ef89db243b83e94e058475b1003c92cb966867a1233d2104a43dd889"
+  },
+  "limits": [
+    "Driver/backend resource adapters remain injected in composed host scenarios.",
+    "Cold and disabled-root equivalents are separate remaining work.",
+    "No production promotion, final image or device acceptance.",
+    "Preparation refusals remain owned; no unknown/live state discarded."
+  ],
+  "production_promoted": false,
+  "device_operations": false,
+  "host_final": {
+    "checks": [
+      "check-radio-on-owner-desired.py",
+      "check-physical-released-on-handoff.py",
+      "check-released-on-physical-composition.py",
+      "check-config-edit-suite.py"
+    ],
+    "seconds": 231.18,
+    "peak_kib": 166548,
+    "exit": 0
+  },
+  "target_final": {
+    "objects": 34,
+    "modes": [
+      0,
+      1
+    ],
+    "gcc": "10.5.0",
+    "libc": "uClibc-ng1.0.48",
+    "archive_sha256": "5a9254920f52954b2910ad968086135436e320bfb1360928cf96f4f0bf03870a",
+    "seconds_including_download": 26.24,
+    "peak_kib": 62300,
+    "exit": 0
+  },
+  "cleanup": {
+    "path": "/tmp/wr-on-off-handoff-target-ackqir_2",
+    "removed_apparent_bytes": 188293206,
+    "absence_verified": true,
+    "archive": "memory only",
+    "fixture_contexts": "removed on exit",
+    "historical_private_scratch": "preserved"
+  },
+  "ci_checkpoint": {
+    "source": "c877ce5e07e2ade6ca2e864049101f19d5c06390",
+    "standard1475": 44988634981,
+    "standard_conclusion": "success",
+    "abi": 44988635020,
+    "abi_conclusion": "success",
+    "optional": 44989963565,
+    "optional_status": "dispatched",
+    "prior_optional1474": 44988009137,
+    "prior_optional_source": "f835fa31c2a542f0eeda6bb6347694520c07ad71",
+    "prior_optional_conclusion": "success",
+    "coverage": "None covers this later handoff package"
+  }
+}

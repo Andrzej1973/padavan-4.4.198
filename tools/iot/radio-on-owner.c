@@ -24,6 +24,7 @@ static struct {
 } on_owner;
 static void on_owner_wipe(void *data,size_t size)
 {volatile unsigned char*p=data;while(size--)*p++=0;}
+static int on_off_ready(int);
 int wr_iot_rc_radio_on_begin(const struct wr_iot_control_request *r,int reload)
 {
  struct wr_iot_control_fields fields;struct wr_iot_request desired={0};unsigned char nonce[16]={0};unsigned i,nonzero=0;int owned=0;
@@ -60,7 +61,12 @@ int wr_iot_rc_radio_on_begin(const struct wr_iot_control_request *r,int reload)
  done:on_owner.busy=0;on_owner_wipe(nonce,sizeof(nonce));on_owner_wipe(&desired,sizeof(desired));return owned;
 }
 int wr_iot_radio_on_pending(void)
-{return on_owner.owner!=0||wr_iot_rc_shutdown.radio_on_owned;}
+{
+ /* A resource-free released tail must not starve the routed OFF consumer.
+  * The physical admission still owns its checked transfer and real CLOSE. */
+ if(wr_iot_rc_shutdown.normal_route_requested&&on_off_ready(-1))return 0;
+ return on_owner.owner!=0||wr_iot_rc_shutdown.radio_on_owned;
+}
 static void on_cancelled_cleanup(void *unused)
 {
  struct wr_iot_on_admission *a=&on_owner.admission;size_t i;int guard=a->guard;
@@ -216,6 +222,63 @@ int wr_iot_radio_on_step(void)
  default:break;
  }
  on_owner_wipe(&r,sizeof(r));on_owner.busy=0;return result;
+}
+static int on_off_ready(int active)
+{
+ struct wr_iot_on_restore *r=&on_owner.restore;
+ struct wr_iot_on_admission *a=&on_owner.admission;
+ struct wr_iot_physical_stop_request receipt={0};size_t i;
+ if(on_owner.owner!=getpid()||on_owner.busy||!on_owner.iot_enabled||
+    (on_owner.phase!=ON_OWNER_FOLLOWUP&&on_owner.phase!=ON_OWNER_DONE&&on_owner.phase!=ON_OWNER_RETAINED)||
+    on_owner.shutdown.owner||on_owner.shutdown.busy||
+    !wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned||
+    (active>=0&&(wr_iot_rc_shutdown.active!=active||
+     (wr_iot_rc_shutdown.pending&&!(active==1&&wr_iot_rc_shutdown.normal_route_armed&&
+      wr_iot_rc_shutdown.pending==wr_iot_rc_shutdown.normal_route_requested&&
+      (wr_iot_rc_shutdown.pending==SIGTERM
+#ifdef SIGQUIT
+       ||wr_iot_rc_shutdown.pending==SIGQUIT
+#endif
+      )))))||
+    a->owner!=getpid()||a->phase!=WR_ON_ADMISSION_RELEASED||a->busy||a->guard||
+    a->fence.owner||a->fence.level||a->profile.active||a->profile.files.count||
+    r->owner!=getpid()||r->busy||
+    (r->phase!=WR_ON_RESTORE_WAN&&r->phase!=WR_ON_RESTORE_IAPP_PENDING&&
+     r->phase!=WR_ON_RESTORE_RETAINED&&r->phase!=WR_ON_RESTORE_DONE)||
+    r->generation.owner!=getpid()||r->generation.busy||!r->generation.main_may_have_started||
+    r->generation.phase!=WR_ON_GEN_COMMITTED||r->generation.admission||
+    r->main.busy||r->main.generation||r->guest.busy||r->guest.main||
+    r->services.busy||r->services.guest||r->multicast.busy||r->multicast.main||r->multicast.guest||
+    r->wan.owner!=getpid()||r->wan.radio_on!=1||!r->wan.attempted||!r->wan.returned||
+    r->terminal.busy||r->terminal.guard||r->terminal.child||r->terminal.fence.owner||r->terminal.fence.level||
+    (r->terminal.owner?(r->terminal.owner!=getpid()||!r->terminal.attempted||
+      r->terminal.result!=r->child.result||r->child.owner!=getpid()):
+      (r->terminal.attempted||r->terminal.result||r->child.owner))||!wr_iot_iapp_child_closed(&r->child)||
+    !r->handoff_created||r->handoff_created!=on_owner.input.created||
+    !memchr(on_owner.input.id,0,sizeof(on_owner.input.id))||!wr_iot_control_id(on_owner.input.id)||
+    memcmp(r->open_id,on_owner.nonce,16)||!r->main.identity.adapter_epoch||
+    !r->main.identity.device_generation||wr_iot_rc_radio_off_receipt(&receipt))return 0;
+ for(i=0;i<sizeof(on_owner.input.request);i++)if(((unsigned char*)&on_owner.input.request)[i])return 0;
+ for(i=0;i<sizeof(r->generation.desired);i++)if(((unsigned char*)&r->generation.desired)[i])return 0;
+#if WR_IOT_SAVED_CONFIG_SNAPSHOT_PREPARED == 1
+ if(r->generation.config_revision.owner||r->generation.config_revision.present)return 0;
+ for(i=0;i<sizeof(r->generation.provisioning);i++)if(((unsigned char*)&r->generation.provisioning)[i])return 0;
+#endif
+ for(i=0;i<WR_IOT_BUNDLE_MAX;i++)if(a->profile.files.saved[i].data)return 0;
+ return 1;
+}
+int wr_iot_radio_on_off_ready(void)
+{return on_off_ready(0);}
+int wr_iot_radio_on_off_handoff(const struct wr_iot_radio_stop_fence *fence)
+{
+ int fd;
+ if(!fence||fence->owner!=getpid()||fence->level!=1||!on_off_ready(1))return 0;
+ fd=wr_iot_service_guard_dup();if(fd<0)return 0;if(close(fd))return 0;
+ /* Only inert released bookkeeping is discarded. The newly claimed physical
+  * owner/fence/guard survives, including all later quiesce refusals. Backend
+  * resources remain intact for its actual observed CLOSE/physical RELEASE. */
+ on_owner_wipe(&on_owner,sizeof(on_owner));wr_iot_rc_shutdown.radio_on_owned=0;
+ return 1;
 }
 int wr_iot_radio_on_retire(void)
 {

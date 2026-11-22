@@ -71,13 +71,41 @@ int main(int argc,char**argv){
   }else if(fault){
    assert(!done&&on_owner.phase==ON_OWNER_RETAINED&&wr_iot_radio_on_pending()&&!wr_iot_radio_on_retire());
    assert(fault==1?(saw_release&&ups==1&&child_begins==1):(!ups&&!wan_submits&&on_owner.admission.profile.active));
+   assert(wr_iot_radio_on_off_ready()==(fault==1));
+   if(fault==1){
+    /* Confirmed failed child is eligible only for a future checked OFF
+     * handoff, never successful ON retirement. Preflight changes nothing. */
+    struct wr_iot_on_restore saved=on_owner.restore;
+    assert(wr_iot_radio_on_off_ready()&&wr_iot_rc_shutdown.radio_on_owned);
+    assert(!memcmp(&saved,&on_owner.restore,sizeof(saved)));
+    on_owner.busy=1;assert(!wr_iot_radio_on_off_ready());on_owner.busy=0;
+    on_owner.owner++;assert(!wr_iot_radio_on_off_ready());on_owner.owner--;
+    on_owner.restore.child.fd=77;assert(!wr_iot_radio_on_off_ready());on_owner.restore.child.fd=-1;
+    on_owner.restore.terminal.guard=1;assert(!wr_iot_radio_on_off_ready());on_owner.restore.terminal.guard=0;
+    on_owner.restore.wan.returned=0;assert(!wr_iot_radio_on_off_ready());on_owner.restore.wan.returned=1;
+    on_owner.admission.profile.active=1;assert(!wr_iot_radio_on_off_ready());on_owner.admission.profile.active=0;
+    assert(wr_iot_radio_on_off_ready()&&!wr_iot_radio_on_retire());
+    wr_iot_rc_shutdown.normal_route_requested=SIGTERM;
+    assert(!wr_iot_radio_on_pending()&&on_owner.owner==getpid());
+    wr_iot_rc_shutdown.normal_route_requested=0;
+    struct wr_iot_radio_stop_fence off_fence={0};
+    assert(!wr_iot_radio_on_off_handoff(&off_fence)&&on_owner.owner==getpid());
+    assert(wr_iot_radio_stop_fence_begin(&off_fence));
+    assert(wr_iot_service_guard_enter(1)==1);
+    assert(!wr_iot_radio_on_off_ready());
+    assert(wr_iot_radio_on_off_handoff(&off_fence)&&!on_owner.owner&&!wr_iot_rc_shutdown.radio_on_owned);
+    assert(wr_iot_rc_shutdown.active&&depth==1&&off_fence.owner==getpid());
+    assert(!wr_iot_radio_on_off_handoff(&off_fence));
+    wr_iot_service_guard_leave(1);assert(wr_iot_radio_stop_fence_end(&off_fence));
+   }
    /* Fixture-only retained-state teardown; production failure cleanup unfinished. */
    wr_iot_bundle_release(&on_owner.admission.profile.files);memset(&on_owner.admission.profile,0,sizeof(on_owner.admission.profile));
    if(on_owner.admission.guard){on_owner.admission.busy=0;assert(wr_iot_on_admission_cancel(&on_owner.admission));}
    on_owner_wipe(&on_owner,sizeof(on_owner));wr_iot_rc_shutdown.radio_on_owned=0;
   }else{
    assert(done&&saw_release&&ups==1&&wan_submits==1&&child_begins==1&&begins==1);
-   network_current=0;assert(!wr_iot_radio_on_retire()&&wr_iot_radio_on_pending());network_current=1;
+   network_current=0;assert(!wr_iot_radio_on_retire()&&wr_iot_radio_on_pending());
+   assert(wr_iot_radio_on_off_ready());network_current=1;
    assert(wr_iot_radio_on_retire()&&!wr_iot_radio_on_pending()&&!wr_iot_rc_shutdown.radio_on_owned&&!on_owner.owner);
    assert(!wr_iot_radio_on_retire()&&!wr_iot_rc_radio_on_begin(&r,1)); /* consumed OFF receipt */
   }

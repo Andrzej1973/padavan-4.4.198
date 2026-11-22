@@ -85,7 +85,7 @@ static int radio_off_pending(void)
 {return radio_off_owner.owner==getpid()||radio_off_followup.phase==WR_OFF_FOLLOWUP_DONE;}
 int wr_iot_rc_radio_off_begin(const struct wr_iot_control_request *off,int reload)
 {
- if((reload!=0&&reload!=1)||wr_iot_rc_shutdown.radio_on_owned||radio_off_receipt_valid||radio_off_owner.owner||radio_off_owner.busy||radio_off_followup.owner||
+ if((reload!=0&&reload!=1)||(wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_radio_on_off_ready())||radio_off_receipt_valid||radio_off_owner.owner||radio_off_owner.busy||radio_off_followup.owner||
     radio_off_followup.phase!=WR_OFF_FOLLOWUP_IDLE||radio_off_redispatch||wr_iot_rc_shutdown.radio_off_owned)return 0;
  if(!wr_iot_radio_off_begin(&radio_off_owner,off))return 0;
  wr_iot_rc_shutdown.radio_off_owned=1;radio_off_reload=reload;return 1;

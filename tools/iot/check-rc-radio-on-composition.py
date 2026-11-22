@@ -5,6 +5,9 @@ here=Path(__file__).resolve().parent
 code='#define WR_IOT_RUNTIME_FIXTURE_EXTERNAL_ON_OWNER\n'+(here/'check-rc-runtime.c').read_text()
 code=code.replace('static volatile int notification,alarm_flag;',r'''
 static int on_owned,on_steps,on_done,on_retire_allowed,on_retires,redispatches;
+#ifdef WR_IOT_RUNTIME_FIXTURE_EXTERNAL_ON_OWNER
+int wr_iot_radio_on_off_ready(void){return 0;}
+#endif
 int wr_iot_radio_on_pending(void){return on_owned;}
 int wr_iot_radio_on_step(void){on_steps++;return on_done;}
 int wr_iot_radio_on_retire(void){on_retires++;if(!on_retire_allowed)return 0;on_owned=0;wr_iot_rc_shutdown.radio_on_owned=0;return 1;}

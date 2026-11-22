@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-22",
+  "source_revision": "c877ce5e07e2ade6ca2e864049101f19d5c06390",
+  "finding": "Released ON followup refusal has no explicit OFF retirement handoff",
+  "confirmed_source_chain": [
+    "radio-on-followup.c: failed terminal child sets WR_ON_RESTORE_RETAINED after parent release.",
+    "radio-on-owner.c: ON_OWNER_RETAINED with generation owner and Main started has no ordinary explicit OFF disposal; retire requires ON_OWNER_DONE and fresh completion.",
+    "restart-entry.c: wr_iot_radio_off_entry rejects radio_on_owned before dispatch.",
+    "rc-runtime.c: wr_iot_rc_radio_off_begin rejects radio_on_owned.",
+    "rc-physical-stop.c: physical_begin rejects radio_on_owned before actual quiesce admission.",
+    "check-radio-on-owner.py explicitly uses fixture-only retained-state teardown for failed child; this is not production recovery."
+  ],
+  "not_a_missing_hook": "prepare-restart-entry-source.py already installs candidate OFF/ON/cold/initial/restart entry calls before legacy fence; compile-runtime-link.sh executes this preparer and validator. Early runtime *_entry_bound=false describes an earlier preparation stage.",
+  "next_coherent_package": [
+    "Provide checked disposal of only resource-free released ON tails for explicit OFF and routed shutdown; never treat refusal as successful ON.",
+    "Require exact parent-release bookkeeping, zero live baseline/guard/fence/child, ended WAN submission, consumed OFF receipt, exact backend identity. Preserve backend resources for its actual CLOSE.",
+    "Wire validated explicit OFF admission through entry/RC/physical paths and preserve exclusions until handoff; native/restart paths must not consume such tails.",
+    "Cover child failure and post-WAN/profile/network drift, live/unknown child refusal, foreign PID, failed admission/guard and actual subsequent quiesce/physical RELEASE.",
+    "Check cold-root equivalent separately; do not silently discard any live owner.",
+    "Run related native consumers and isolated target objects, then one coherent push."
+  ],
+  "scope": "Source-backed recovery gap, not device reproduction; no router operations.",
+  "source_sha256": {
+    "tools/iot/radio-on-owner.c": "a7514d28ae35a4bddc64c09f16f727a2e22ed0f61d8bcbfbb3b372633c7c0445",
+    "tools/iot/rc-runtime.c": "36e7f706d2786266f779b8d391c0b3b778957ebac437d4dfd48829b19a39a90d",
+    "tools/iot/restart-entry.c": "0d7c36e9bb7b7b9b92f8a45eaef55ecd0c4b3ee4e78b51c7978d9e4848eb379b",
+    "tools/iot/rc-physical-stop.c": "2b62ee0734a884d03e4c134c70551f9f456a4c6f324618988ff9c2ade478c6e8",
+    "tools/iot/check-radio-on-owner.py": "6faa75cd8d74abd01115ba55ca3d25384658644015b6bb12f65228230ca3a32b",
+    "tools/iot/prepare-restart-entry-source.py": "489ab990b04589c84d56f589ea73518ca5d334308ca28323498073cbc6d7d7ab",
+    "tools/iot/compile-runtime-link.sh": "4a025ab1c7cef5c7a8be9607ffdb5c3fcfc517526cdbbd07edd692e8f238d6fd"
+  },
+  "ci_current": {
+    "standard1475": 44988634981,
+    "abi": 44988635020,
+    "optional1474_prior_source": 44988009137,
+    "last_status": "all in_progress"
+  },
+  "verification": {
+    "command": "python3 -B tools/iot/check-radio-on-owner.py",
+    "seconds": 7.63,
+    "peak_kib": 125708,
+    "exit": 0,
+    "result": "Existing actual owner fixture confirms failed child root retained/nonreusable; fixture-only teardown remains. SDK/backend actors, no device reproduction."
+  },
+  "superseded_for_enabled_released_tails_by": "WR1200JS-RELEASED-ON-OFF-HANDOFF-2026-11-22.json"
+}

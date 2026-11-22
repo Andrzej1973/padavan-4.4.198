@@ -6,6 +6,7 @@
 #include "rc-physical-stop.h"
 #include "control-channel.h"
 #include "precreated-entropy.h"
+#include "radio-on-owner.h"
 static struct {
  pid_t owner;
  struct wr_iot_control_request off;
@@ -108,7 +109,7 @@ int wr_iot_rc_normal_shutdown_step(void)
  if(!normal_shutdown.claimed){
   /* Existing owners must drain, not be replaced by this controller. */
   if(wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
-     wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return 0;
+     (wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_radio_on_off_ready())||wr_iot_rc_shutdown.radio_off_owned)return 0;
   if(!normal_shutdown.generated){
    now=wr_iot_control_now();if(!now)return 0;
    if(wr_iot_precreated_entropy(NULL,bytes,sizeof(bytes))!=(int)sizeof(bytes))goto wipe;

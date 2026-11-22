@@ -30,6 +30,7 @@ int wr_iot_service_guard_dup(void){assert(0);return -1;}
 void wr_iot_service_guard_leave(int token){(void)token;assert(0);}
 #endif
 #ifndef WR_IOT_RUNTIME_FIXTURE_EXTERNAL_ON_OWNER
+int wr_iot_radio_on_off_ready(void){return 0;}
 int wr_iot_radio_on_pending(void){return 0;}
 int wr_iot_radio_on_step(void){assert(0);return 0;}
 int wr_iot_radio_on_retire(void){assert(0);return 0;}

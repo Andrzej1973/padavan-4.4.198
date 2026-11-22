@@ -76,7 +76,7 @@ enum wr_iot_radio_entry_result wr_iot_radio_off_entry(int radio_on,int reload)
  static const char hex[]="0123456789abcdef";
  if(radio_on!=0)return WR_RADIO_ENTRY_NATIVE;
  if((reload!=0&&reload!=1)||wr_iot_rc_shutdown.active||wr_iot_rc_shutdown.pending||
-    wr_iot_rc_shutdown.radio_on_owned||wr_iot_rc_shutdown.radio_off_owned)return result;
+    (wr_iot_rc_shutdown.radio_on_owned&&!wr_iot_radio_on_off_ready())||wr_iot_rc_shutdown.radio_off_owned)return result;
  /* An existing receipt is preserved, never replaced by a second OFF. */
  if(wr_iot_rc_radio_off_receipt(&receipt))return result;
  if(!wr_iot_rc_restart_owned())return WR_RADIO_ENTRY_NATIVE;

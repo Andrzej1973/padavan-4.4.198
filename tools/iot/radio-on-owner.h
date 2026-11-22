@@ -10,4 +10,11 @@ int wr_iot_radio_on_pending(void);
 int wr_iot_radio_on_step(void);
 /* Fresh completion/resource proof before wiping private root and exclusion. */
 int wr_iot_radio_on_retire(void);
+/* Read-only OFF handoff preflight for a released tail. Does not retire the
+ * root, clear exclusion, validate the live backend, or authorize Main DOWN. */
+int wr_iot_radio_on_off_ready(void);
+struct wr_iot_radio_stop_fence;
+/* Physical pure-OFF owner only: held fence and guard, after entropy succeeds.
+ * Drops inert ON bookkeeping, never closes backend or declares ON success. */
+int wr_iot_radio_on_off_handoff(const struct wr_iot_radio_stop_fence *);
 #endif
