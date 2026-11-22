@@ -4,6 +4,7 @@ import argparse,collections,hashlib,json,re,subprocess,sys
 from pathlib import Path
 from board_catalog import load
 ROOT=Path(__file__).resolve().parents[2]
+NAVIGATION_DOCS = ['README.md', 'docs/README.md', 'docs/LOCAL-NIM-HELPER-NOTES.md']
 DOCS=['REPOSITORY-ARCHITECTURE.md','REPOSITORY-STRUCTURE.md','NILABSENT-ARCHITECTURE-ANALYSIS.md','REPOSITORY-MIGRATION-PLAN.md','REPOSITORY-MIGRATION-REPORT.md','BUILD-SYSTEM.md','BOARD-PROFILE-ARCHITECTURE.md']
 GROUPS={'overlay':'Active overlay, package ports, isolated candidates; application is explicit','configs.build':'Requested board profiles; admission only through boards.json','configs':'Owned dependency manifests','reference':'Donor snapshots, never auto-selected as board targets','docs':'Contracts, evidence, historical records and navigation','tools':'Source transformations, checks and stable entry points','sources':'Preserved archives governed by sources.lock.json','toolchains':'Compiler source recipe profiles, no generated compiler trees','third_party':'Vendored components with their upstream notices','.github/workflows':'Build, diagnostics and publication recipes'}
 
@@ -18,6 +19,9 @@ def links(root,docs):
    target=target.split('#',1)[0]
    if target and not (p.parent/target).exists():errors.append(doc+' -> '+target)
  return errors
+
+def navigation_errors():
+ return links(ROOT, NAVIGATION_DOCS + ['docs/'+name for name in DOCS])
 
 def inventory():
  tracked=run('git','ls-files','-z').split('\0');tracked=[x for x in tracked if x]
@@ -39,8 +43,7 @@ def validate():
  except (ValueError,KeyError) as e:errors.append(str(e));boards=[]
  for group in GROUPS:
   if not (ROOT/group).is_dir():errors.append('Missing operational directory '+group)
- errors+=links(ROOT,['README.md','docs/README.md','docs/LOCAL-NIM-HELPER-NOTES.md',
-                     *('docs/'+x for x in DOCS)])
+ errors+=navigation_errors()
  for name in ['configs/owned-build-dependencies.json']:
   for item in json.loads((ROOT/name).read_text()):
    p=ROOT/'sources/archives'/item['filename']
@@ -49,9 +52,26 @@ def validate():
  dts={'board_dts':'overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts','layout':'overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi','status':'Exact existing DTS/model/include and SPI16M partitions checked; includes from pinned kernel and compiled DTB still require assembled-source/image validation'}
  return {'errors':errors,'boards':boards,'dts_review':dts,'scope':'local source/profile/required-path/doc-link/archive checks; no full firmware/runtime verification','passed':not errors}
 
-if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--inventory',action='store_true');p.add_argument('--report',type=Path);a=p.parse_args()
- report=inventory() if a.inventory else validate()
- if a.report:a.report.parent.mkdir(parents=True,exist_ok=True);a.report.write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
- print(json.dumps({'mode':'inventory' if a.inventory else 'validate','passed':report.get('passed'),'errors':report.get('errors',[]),'report':str(a.report) if a.report else None},ensure_ascii=False))
- if not a.inventory and not report['passed']:sys.exit(1)
+if __name__ == '__main__':
+ parser = argparse.ArgumentParser()
+ mode = parser.add_mutually_exclusive_group()
+ mode.add_argument('--inventory', action='store_true')
+ mode.add_argument('--navigation', action='store_true')
+ parser.add_argument('--report', type=Path)
+ args = parser.parse_args()
+ if args.inventory:
+  name, report = 'inventory', inventory()
+ elif args.navigation:
+  errors = navigation_errors()
+  name, report = 'navigation', {'passed': not errors, 'errors': errors}
+ else:
+  name, report = 'validate', validate()
+ if args.report:
+  args.report.parent.mkdir(parents=True, exist_ok=True)
+  args.report.write_text(json.dumps(report, indent=2, ensure_ascii=False)+chr(10))
+ print(json.dumps({'mode': name, 'passed': report.get('passed'),
+                   'errors': report.get('errors', []),
+                   'report': str(args.report) if args.report else None},
+                  ensure_ascii=False))
+ if report.get('passed') is False:
+  sys.exit(1)

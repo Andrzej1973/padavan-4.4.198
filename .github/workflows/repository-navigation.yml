@@ -1,0 +1,42 @@
+name: Repository navigation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - README.md
+      - docs/README.md
+      - docs/LOCAL-NIM-HELPER-NOTES.md
+      - docs/REPOSITORY-ARCHITECTURE.md
+      - docs/REPOSITORY-STRUCTURE.md
+      - docs/NILABSENT-ARCHITECTURE-ANALYSIS.md
+      - docs/REPOSITORY-MIGRATION-PLAN.md
+      - docs/REPOSITORY-MIGRATION-REPORT.md
+      - docs/BUILD-SYSTEM.md
+      - docs/BOARD-PROFILE-ARCHITECTURE.md
+      - .github/workflows/repository-navigation.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - README.md
+      - docs/README.md
+      - docs/LOCAL-NIM-HELPER-NOTES.md
+      - docs/REPOSITORY-ARCHITECTURE.md
+      - docs/REPOSITORY-STRUCTURE.md
+      - docs/NILABSENT-ARCHITECTURE-ANALYSIS.md
+      - docs/REPOSITORY-MIGRATION-PLAN.md
+      - docs/REPOSITORY-MIGRATION-REPORT.md
+      - docs/BUILD-SYSTEM.md
+      - docs/BOARD-PROFILE-ARCHITECTURE.md
+      - .github/workflows/repository-navigation.yml
+
+permissions:
+  contents: read
+
+jobs:
+  navigation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - run: python3 -B tools/repository/audit.py --navigation
