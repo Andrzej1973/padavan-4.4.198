@@ -45,18 +45,26 @@ int main(void){
 '''
 tree=ast.parse((here/'prepare-restart-entry-source.py').read_text())
 hook=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='body' for t in n.targets))
+restart_branch = "entry_result=wr_iot_restart_entry(radio_on,need_reload_conf);\n if(entry_result!=WR_RADIO_ENTRY_NATIVE){"
+assert hook.count(restart_branch) == 1
+predecessor_hook = hook.replace(
+    restart_branch, restart_branch.replace("!=WR_RADIO_ENTRY_NATIVE", "==WR_RADIO_ENTRY_OWNED")
+)
 wrapper=r'''
 #define BOARD_WR1200JS 1
 #define WR_IOT_IAPP_POLICY_PREPARED 1
 static int legacy_calls,legacy_bug_calls;
+static void logmessage(const char *tag, const char *format, ...)
+{
+ assert(strcmp(tag,"MT7603")==0 && strstr(format,"2.4 GHz request path="));
+}
 enum wr_iot_radio_entry_result wr_iot_initial_restart_entry(int on,int reload){(void)on;(void)reload;return WR_RADIO_ENTRY_NATIVE;}
 static void generated_restart(int radio_on,int need_reload_conf){
 '''+hook+r'''
  legacy_calls++;
 }
 static void predecessor_restart(int radio_on,int need_reload_conf){
-'''+hook.replace('if(wr_iot_restart_entry(radio_on,need_reload_conf)!=WR_RADIO_ENTRY_NATIVE)return;',
-                 'if(wr_iot_restart_entry(radio_on,need_reload_conf)==WR_RADIO_ENTRY_OWNED)return;')+r'''
+'''+predecessor_hook+r'''
  legacy_bug_calls++;
 }
 '''

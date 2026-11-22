@@ -318,6 +318,7 @@ jobs:
           python3 overlay/padavan-4.4/scripts/localize-wireguard-page.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/localize-inherited-dicts.py padavan-4.4
           python3 tools/prepare-flash-save-feedback.py padavan-4.4
+          python3 tools/prepare-classic-power-controls.py padavan-4.4
           python3 tools/wifi-capabilities/apply-board-capabilities.py padavan-4.4 \
             --manifest tools/wifi-capabilities/boards/wr1200js.json
           # The AmneziaWG step above replaces vpncli.asp wholesale, so the
