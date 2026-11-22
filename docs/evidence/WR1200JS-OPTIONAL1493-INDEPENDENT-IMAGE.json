@@ -1,0 +1,118 @@
+{
+  "revision": "2d50b8960ee82df5440c47f821dfbb0cce4d1738",
+  "image_sha256": "5016d61798cc58647c3c4d0c657da33bf1a83b3319049e28ede6fccd5301790f",
+  "image_bytes": 14547695,
+  "remaining_partition_bytes": 1639697,
+  "header_and_payload_crc_verified": true,
+  "squashfs_offset": 1982032,
+  "selected_embedded_files": {
+    "sbin/rc": {
+      "sha256": "754ae40584f9d62c6dda943aecb4795560b2b1e580087a4e73b6751ca180b74b",
+      "bytes": 1136628,
+      "elf32_le_mips": true
+    },
+    "usr/sbin/httpd": {
+      "sha256": "2e40360e8efd8369c24db655f23dde1b3620c91eb08373d262deb398d96b3319",
+      "bytes": 425168,
+      "elf32_le_mips": true
+    },
+    "usr/bin/iappd.sh": {
+      "sha256": "020f6b714bc6c174681b2ce040a9d57ba7d9943679591f00a8b8b17ea29a62fa",
+      "bytes": 1567
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "sha256": "f2624449baa2874e73cc32f3941ed8ce71aba6c9f0f66dda0786bc540fbcb77d",
+      "bytes": 6417688,
+      "elf32_le_mips": true
+    },
+    "www/Advanced_IoT_Content.asp": {
+      "sha256": "0dc9c09a824ab751d16c76c20c4c5708d8b4a33b80037ff07c9b1ff75d89d29a",
+      "bytes": 3979
+    },
+    "www/classic-iot-config.js": {
+      "sha256": "f370bb65e836c79cb5e7cad1d4f260f74afd5862e7c361170f54d76647d27394",
+      "bytes": 7958
+    },
+    "www/state.js": {
+      "sha256": "4e91ebdc867d0176aed6a1c286f44cee857473b1462e0a5729296937b8fd338e",
+      "bytes": 53017
+    },
+    "www/classic-iot-navigation.js": {
+      "sha256": "ad088221c85749ea6582748a3fe95b58cb37df9aedc4885c9570192630b2c39c",
+      "bytes": 3716
+    }
+  },
+  "linked_pair_files_and_input_hashes_verified": true,
+  "board_checks": {
+    "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
+    "image": "WR1200JS-IoT-CANDIDATE-2d50b896.trx",
+    "bytes": 14547695,
+    "sha256": "5016d61798cc58647c3c4d0c657da33bf1a83b3319049e28ede6fccd5301790f",
+    "declared_payload_bytes": 14547631,
+    "architecture_id": 5,
+    "compression_id": 3,
+    "checks": {
+      "uimage_magic": true,
+      "product_id": true,
+      "header_crc": true,
+      "declared_length": true,
+      "payload_crc": true,
+      "size_range": true,
+      "iot_hwnat_dtb": true
+    },
+    "iot_hwnat_dtb_policy": {
+      "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+      "external_devices": [
+        "usb0",
+        "wwan0",
+        "rax0",
+        "ra0",
+        "rai0",
+        "apclii0",
+        "apclix0",
+        "apcli0"
+      ],
+      "lan": [
+        "eth2"
+      ],
+      "wan": [
+        "eth3"
+      ],
+      "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+      "kernel_sha256": "55c149349f2743eb9601dfcc3e3b280609c95d72c39a72c66ab9c4ef2c93b785",
+      "runtime_verified": false
+    }
+  },
+  "scope": "Actual selected ROMFS bytes and linked-artifact integrity; not full ROMFS/source correctness or device acceptance",
+  "production_promoted": false,
+  "runtime_verified": false,
+  "run_id": 45018933370,
+  "artifact_id": 14754180312,
+  "dispatch_sha": "7b8fbc06974258fb49482df976ddac133bdedb7b",
+  "sqm_profile": "excluded",
+  "romfs_paths_present": [
+    "www/modern/modern-iot.js",
+    "www/modern/index.html",
+    "www/index.asp"
+  ],
+  "romfs_paths_absent": [
+    "sch_cake.ko",
+    "usr/lib/sqm/run.sh",
+    "Advanced_SQM.asp"
+  ],
+  "webui_checks": {
+    "classic_sqm_link_absent_from": [
+      "www/hybrid/index.html",
+      "www/modern/index.html"
+    ],
+    "client_route_literals_in_httpd": [
+      "wr_iot_edit_auto.cgi",
+      "wr_iot_edit_ram.cgi",
+      "wr_iot_edit_runtime.cgi",
+      "wr_iot_edit_save.cgi",
+      "wr_iot_result.cgi",
+      "wr_iot_token.cgi",
+      "wr_iot_view.cgi"
+    ]
+  }
+}
