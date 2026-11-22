@@ -681,7 +681,11 @@ jobs:
           python3 tools/webui-preview/prepare-production.py padavan-4.4
           python3 tools/webui-preview/check-production.py padavan-4.4
           node tools/hybrid-dashboard/check-dashboard.js
-          python3 tools/hybrid-dashboard/prepare.py padavan-4.4
+          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_SQM=y' configs.build/wr1200js.config; then
+            python3 tools/hybrid-dashboard/prepare.py padavan-4.4
+          else
+            python3 tools/hybrid-dashboard/prepare.py padavan-4.4 --without-sqm
+          fi
 
       - name: Prepare guarded firmware upload tmpfs action
         run: |

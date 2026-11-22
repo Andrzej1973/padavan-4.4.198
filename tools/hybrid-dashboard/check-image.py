@@ -14,10 +14,23 @@ assets = ('index.html', 'dashboard.css', 'dashboard.js',
 classic = ('index.asp', 'system_status_data.asp', 'status_wanlink.asp',
            'status_lanlink.asp', 'device-map/internet.asp', 'device-map/intranet.asp',
            'device-map/clients.asp', 'Main_WStatus2g_Content.asp',
-           'Advanced_Wireless_Content.asp', 'Advanced_SQM.asp', 'Main_LogStatus_Content.asp')
+           'Advanced_Wireless_Content.asp', 'Main_LogStatus_Content.asp')
+config = (args.source / 'trunk/.config').read_text().splitlines()
+sqm = 'CONFIG_FIRMWARE_INCLUDE_SQM=y' in config
+sqm_page = www / 'Advanced_SQM.asp'
+if sqm:
+    classic += ('Advanced_SQM.asp',)
+elif sqm_page.exists() or sqm_page.is_symlink():
+    raise SystemExit('Unexpected Classic SQM page with SQM disabled')
 for name in assets:
     actual = www / 'hybrid' / name
-    if not actual.is_file() or actual.read_bytes() != (here / name).read_bytes():
+    expected = (here / name).read_bytes()
+    if name == 'index.html' and not sqm:
+        link = '<a href="/Advanced_SQM.asp">Керування трафіком</a>\n'.encode()
+        if expected.count(link) != 1:
+            raise SystemExit('Dashboard SQM navigation anchor changed')
+        expected = expected.replace(link, b'', 1)
+    if not actual.is_file() or actual.read_bytes() != expected:
         raise SystemExit('Missing or altered hybrid asset: ' + name)
 for name in classic:
     if not (www / name).is_file():

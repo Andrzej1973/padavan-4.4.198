@@ -6,6 +6,7 @@ import shutil
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('source', type=Path)
+parser.add_argument('--without-sqm', action='store_true')
 args = parser.parse_args()
 root = args.source.resolve(strict=True)
 www = root / 'trunk/user/www'
@@ -26,8 +27,17 @@ if any(not (here / name).is_file() for name in assets):
     parser.error('Missing dashboard asset')
 if sum((here / name).stat().st_size for name in assets) > 100_000:
     parser.error('Dashboard assets exceed 100 KB')
+sqm_link = '<a href="/Advanced_SQM.asp">Керування трафіком</a>\n'
+index = (here / 'index.html').read_text(encoding='utf-8')
+if index.count(sqm_link) != 1:
+    parser.error('Dashboard SQM navigation anchor changed')
+if args.without_sqm:
+    index = index.replace(sqm_link, '', 1)
 target.mkdir()
 for name in assets:
-    shutil.copyfile(here / name, target / name)
+    if name == 'index.html':
+        (target / name).write_text(index, encoding='utf-8')
+    else:
+        shutil.copyfile(here / name, target / name)
 makefile.write_text(text.replace(anchor, anchor + copy, 1), encoding='utf-8')
 print('Installed hybrid dashboard alongside Classic; image/runtime verification pending')

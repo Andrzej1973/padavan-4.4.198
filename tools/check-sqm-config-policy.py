@@ -3,6 +3,10 @@
 import argparse
 import importlib.util
 import json
+import shutil
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -42,3 +46,44 @@ for key in required:
 profile=verifier.read_config(Path(__file__).resolve().parents[1]/'configs.build/wr1200js.config')
 assert profile.get('CONFIG_FIRMWARE_INCLUDE_SQM')=='y', 'WR1200JS must include CAKE/SQM; runtime default is separately OFF'
 print('PASS SQM inclusion, normalized historical exclusion and missing CAKE/IFB/ingress components refused')
+
+
+def check_dashboard(selector):
+    tools=Path(__file__).with_name('hybrid-dashboard')
+    with tempfile.TemporaryDirectory(prefix='wr-sqm-dashboard-') as directory:
+        source=Path(directory)
+        www=source/'trunk/user/www'
+        classic=www/'n56u_ribbon_fixed'
+        classic.mkdir(parents=True)
+        (www/'Makefile').write_text('WEBUI_NAME=n56u_ribbon_fixed\nromfs:\n\tcp -R $(WEBUI_NAME) $(ROMFS_DIR)/www\n')
+        (source/'trunk/.config').write_text(selector+'\n')
+        enabled=selector.endswith('=y')
+        routes=('index.asp','system_status_data.asp','status_wanlink.asp','status_lanlink.asp',
+                'device-map/internet.asp','device-map/intranet.asp','device-map/clients.asp',
+                'Main_WStatus2g_Content.asp','Advanced_Wireless_Content.asp','Main_LogStatus_Content.asp')
+        for route in routes+(('Advanced_SQM.asp',) if enabled else ()):
+            path=classic/route
+            path.parent.mkdir(parents=True,exist_ok=True)
+            path.touch()
+        command=[sys.executable,str(tools/'prepare.py'),str(source)]
+        subprocess.run(command+([] if enabled else ['--without-sqm']),check=True)
+        romfs=source/'trunk/romfs'
+        romfs.mkdir()
+        subprocess.run(['make','-s','-C',str(www),'romfs','ROMFS_DIR='+str(romfs)],check=True)
+        check=[sys.executable,str(tools/'check-image.py'),str(source)]
+        subprocess.run(check,check=True)
+        index=romfs/'www/hybrid/index.html'
+        assert ('/Advanced_SQM.asp' in index.read_text())==enabled
+        if enabled:
+            (romfs/'www/Advanced_SQM.asp').unlink()
+            expected='Missing Classic route: Advanced_SQM.asp'
+        else:
+            shutil.copyfile(tools/'index.html',index)
+            expected='Missing or altered hybrid asset: index.html'
+        refused=subprocess.run(check,capture_output=True,text=True)
+        assert refused.returncode==1 and expected in refused.stderr
+
+for selector in ('CONFIG_FIRMWARE_INCLUDE_SQM=y','CONFIG_FIRMWARE_INCLUDE_SQM=n',
+                 '# CONFIG_FIRMWARE_INCLUDE_SQM is not set'):
+    check_dashboard(selector)
+print('PASS SQM-dependent Hybrid navigation and ROMFS gate with actual copy recipe')
