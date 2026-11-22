@@ -1,0 +1,28 @@
+{
+  "implementation": "strict literal transformation of actual peer-close-executor.inc; not installed in composed candidate",
+  "test": "PASS actual transformed executor C11 -Werror O2 ASan/UBSan",
+  "assertions": [
+    "unarmed legacy unaffected",
+    "armed exact current task and main netdev required",
+    "body runs outside lock once",
+    "finish under same MacTabLock critical section as executor leave",
+    "actual table seal/executor state gate success",
+    "failure retained; duplicate close blocked",
+    "duplicate transform refused"
+  ],
+  "sources": {
+    "tools/iot/physical-stop-executor.py": "c7414f72b21d693b37d7b5c8db15ea1523c52b551df1031d914eb4d216cfd5ea",
+    "tools/iot/check-physical-stop-executor.py": "6e56f6f2928803cc35a829d6277d3c585df359cc29869894f7f25b0f1af02ae9"
+  },
+  "missing": [
+    "installation into full composed candidate and target compile",
+    "module/task/netdev pins and retirement guard",
+    "arm/query API transport",
+    "RC consumption and re-open gate"
+  ],
+  "device_runtime_verified": false,
+  "cleanup": "TemporaryDirectory removed",
+  "cross_lane_exclusion": "PASS checked-close refuses ARMED/COMPLETE/FAILED physical record before body; physical arm refuses running/retained checked executor",
+  "main_open_exclusion": "PASS literal transformed real peer-open-dispatch preamble blocks ARMED/COMPLETE/FAILED before downstream dispatch; IDLE unchanged; duplicate transform refuses",
+  "storage_transform": "PASS adapter field/include plus zero-init only between actual fresh publication marker and transition initialization; duplicate/out-of-order placement refuses"
+}

@@ -1,0 +1,19 @@
+{
+  "scope": "Observed job wall-clock intervals from GitHub run jobs, excluding queue and billing rounding",
+  "samples": [
+    {
+      "run": 43255083921,
+      "seconds": 18
+    },
+    {
+      "run": 43258179432,
+      "seconds": 25
+    },
+    {
+      "run": 43279478090,
+      "seconds": 24
+    }
+  ],
+  "total_seconds": 67,
+  "note": "Three failed-run monitor jobs. No claim about all historical usage or billed minutes."
+}

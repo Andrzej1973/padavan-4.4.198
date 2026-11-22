@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-19",
+  "kind": "github_actions_optional_target_translation_unit_probe",
+  "repository": "Andrzej1973/padavan-4.4.198",
+  "workflow": ".github/workflows/build-multiple-boards.yml",
+  "run_id": 44576631105,
+  "run_number": 1431,
+  "run_url": "https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/44576631105",
+  "source_revision": "8fb2bbe6d4575e5f0c683a2087177ad8fca14bd7",
+  "run_status": "completed",
+  "run_conclusion": "success",
+  "artifact": {
+    "id": 14558891245,
+    "name": "iot-merged-driver-probe",
+    "api_sha256": "9f26fad9b19c8153d0dd181d238ea3203630a3cec4a90a6ada9457b83688da6d",
+    "downloaded_sha256": "9f26fad9b19c8153d0dd181d238ea3203630a3cec4a90a6ada9457b83688da6d",
+    "zip_crc": "PASS"
+  },
+  "probe_report": "ft-bounds-target-tu.json",
+  "scope": "Prepared FT RRB/stamped-consumer and explicit native MLME enqueue temporary TUs only",
+  "status": "passed",
+  "translation_units": {
+    "ft": {
+      "effective_macros": {
+        "DOT11R_FT_SUPPORT": true,
+        "CONFIG_AP_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true
+      },
+      "command_sha256": "86e91052706e2a515e660943c390791e7ce110e28c98be8ab343e20fb327843c",
+      "source_sha256": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+      "prepared_source_sha256": "ca9413e55f448826b3e5d9bd558962f0a32c39fd8c797e24dbff00745ce27e4d",
+      "object_sha256": "744ffeb5024ce1077c42cb9bded1b8db7dc6fe28302d8c2463280e251421b378",
+      "object_bytes": 112592,
+      "symbol": "wr_ft_mlme_enqueue_for_recv referenced as GLOBAL UND"
+    },
+    "mlme": {
+      "effective_macros": {
+        "DOT11R_FT_SUPPORT": true,
+        "CONFIG_AP_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true
+      },
+      "command_sha256": "7174a510037cf8a8f7e4b92bcf8ecf75d2c55d783461e3f8af3fe473f6ff8aab",
+      "source_sha256": "844f609dcfaa2499041262b325bc0414867806b854e7ab22f4f5accb00b7c896",
+      "prepared_source_sha256": "25fdbe8b325536ad926d020067a05dabe997ce24f52eed1a6fb4a0a76f7bd031",
+      "object_sha256": "16ce5a4dec6160dbc9425f788dce477e4404a1fbf4dcee7b0fe1e258310a90d3",
+      "object_bytes": 166832,
+      "symbol": "wr_ft_mlme_enqueue_for_recv defined as GLOBAL FUNC"
+    }
+  },
+  "module_installed": false,
+  "runtime_verified": false,
+  "acceptance_boundary": "This verifies the prepared temporary MIPS translation units and cross-object symbol contract only; it does not verify installation into mt76x3_ap.ko or device runtime."
+}

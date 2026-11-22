@@ -1,0 +1,27 @@
+{
+  "scope": "14 uninstalled candidate host/source/composition checks",
+  "command": "python3 tools/iot/check-physical-stop-suite.py",
+  "session": 78499,
+  "exit_code": 0,
+  "compiler": "gnu11 -Wall -Wextra -Werror -O2 ASan UBSan",
+  "parts": [
+    "record",
+    "down",
+    "pins",
+    "lifetime",
+    "wire",
+    "response",
+    "observe",
+    "terminal",
+    "ioctl",
+    "executor",
+    "retirement",
+    "candidate",
+    "terminal-composition",
+    "prior-close"
+  ],
+  "production_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "remaining": "actual physical-stop transaction handler and deferred checked path integration"
+}

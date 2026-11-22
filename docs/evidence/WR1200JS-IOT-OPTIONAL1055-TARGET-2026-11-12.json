@@ -1,0 +1,85 @@
+{
+  "run": 43259664324,
+  "source": "b7597c93ca7231d36131800b5cd7b167924cb1d4",
+  "artifact": 13963894485,
+  "modules": [
+    {
+      "path": "mt76x3_ap.ko",
+      "bytes": 5968688,
+      "sha256": "d11cb03d47a882150ab740acec2c8d3712f78ec1fe499b7682ec5f217e33037e"
+    },
+    {
+      "path": "psm-diagnostics/mt76x3_ap-psm-off.ko",
+      "bytes": 5966628,
+      "sha256": "8774e868c451e0ad606e0042e4094c52b7232fd693896eb56115287de00768de"
+    },
+    {
+      "path": "psm-diagnostics/mt76x3_ap-psm-on.ko",
+      "bytes": 5977000,
+      "sha256": "bc33f2caf47ad628ea37eb4039109238e11f5627239a48ee0e63f50ff5cd7b41"
+    },
+    {
+      "path": "reload-feature/mt76x3_ap-reload.ko",
+      "bytes": 5970800,
+      "sha256": "4a449efff631fcf470d8cc86e67bf7173e23ce17c980eda53242f5e0971c6a6a"
+    },
+    {
+      "path": "wsc-feature/mt76x3_ap-wsc.ko",
+      "bytes": 6578660,
+      "sha256": "9787174884d760a4b909cb97a439a0ab4485942a87472950e2f44872368f28bc"
+    }
+  ],
+  "prepared_source": {
+    "scope": "Hash-checked prepared source inputs; compilation/runtime recorded separately",
+    "files": {
+      "ap/ap_mbss.c": {
+        "sha256": "6621d9a78ae9664a1686e8f4176e053b3300973322319988799626f13e3990c4",
+        "bytes": 18640
+      },
+      "common/cmm_data_pci.c": {
+        "sha256": "569277cb66f3d132d612cfa15d6f692a3485acc4b62af705bc92a8dd2f273f26",
+        "bytes": 80340
+      },
+      "mac/mt_mac.c": {
+        "sha256": "b9c0fc557ad941d032d00832e71eacceee8cf103d69b7b8a63dba5862fc5dc95",
+        "bytes": 72540
+      },
+      "tx_rx/txs.c": {
+        "sha256": "66308669ab68a25f6f3bc155c80683630cbb83bb7643344e69a86e96c1573c51",
+        "bytes": 33401
+      },
+      "ap/ap_connect.c": {
+        "sha256": "494f2c58a28a36b4cbaacee90856dabcfffb114693200ff75cb9192c66cd054a",
+        "bytes": 59349
+      },
+      "include/wr-iot-beacon-producer-kernel.h": {
+        "sha256": "6c227cfb5bb55ac60cee2f87edbef4c8ebb0b2f7d9c4ff82b46a2329bbcde255",
+        "bytes": 4137
+      },
+      "hw_ctrl/cmm_asic_mt.c": {
+        "sha256": "4fdc86f16b9f9f5dd0f8bc037ab11004db437c90be975fdba94665ae80fb7b37",
+        "bytes": 217157
+      },
+      "include/beacon-filter-owner-kernel.h": {
+        "sha256": "d65856a510ddba8d7a1d33467533bc6e16868ffa814c675f763738f5a0a9414c",
+        "bytes": 2520
+      },
+      "include/ra2-software-off.h": {
+        "sha256": "016fa5b7abda6afb77c2da166faf73c3f6ecbb0bda88c11d6968c3384f51a104",
+        "bytes": 2870
+      }
+    },
+    "bytes": 490954
+  },
+  "runtime_verified": false,
+  "scope": "Five actual MIPS module headers/hashes and exported source bytes verified. New no-host experiment belongs to later source.",
+  "scratch": "ZIP processed in memory",
+  "experimental_composition_replay": {
+    "verified_against_exported_source": [
+      "mac/mt_mac.c constructor",
+      "tx_rx/txs.c callback",
+      "include/wr-iot-beacon-producer-kernel.h periodic"
+    ],
+    "scope": "Pure transformations applied to exported final source bytes. Full experiment MIPS execution remains pending1058/1059."
+  }
+}

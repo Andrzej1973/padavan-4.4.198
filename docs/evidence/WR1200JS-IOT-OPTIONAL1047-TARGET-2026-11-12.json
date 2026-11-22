@@ -1,0 +1,49 @@
+{
+  "run_id": 43247744904,
+  "number": 1047,
+  "requested_source": "998f93abe3558621a7d7b132f0cb254654ecade5",
+  "dispatch_head": "ebe16bd7f267ec1771fd9629d4591214ce8facd4",
+  "artifact_id": 13959073157,
+  "conclusion": "success",
+  "actual_modules": [
+    {
+      "path": "mt76x3_ap.ko",
+      "bytes": 5967928,
+      "sha256": "01ccffdf8f0c7d273f21e91a008b04e9f95c7cf750a7c7b44761e1eb476a7246",
+      "elf": "ELF32 LE MIPS"
+    },
+    {
+      "path": "psm-diagnostics/mt76x3_ap-psm-off.ko",
+      "bytes": 5965896,
+      "sha256": "c143462edba75ed96998e3cf2c3be2b14e5f85ff14647399c00164a8dd4aef2f",
+      "elf": "ELF32 LE MIPS"
+    },
+    {
+      "path": "psm-diagnostics/mt76x3_ap-psm-on.ko",
+      "bytes": 5976236,
+      "sha256": "2cd08d24071a3b8134b7b58463b8cf766eb0682e4e2f258fa52719c0a7188573",
+      "elf": "ELF32 LE MIPS"
+    },
+    {
+      "path": "reload-feature/mt76x3_ap-reload.ko",
+      "bytes": 5970036,
+      "sha256": "f8d75b9c55fb30b72918e3b0542742dba4f01cea41a07a1ac36cdd5a86ab8e8f",
+      "elf": "ELF32 LE MIPS"
+    },
+    {
+      "path": "wsc-feature/mt76x3_ap-wsc.ko",
+      "bytes": 6577896,
+      "sha256": "5c0927b9fca49679adcf11548b56041912f6b890df992d1999734a343b8c300c",
+      "elf": "ELF32 LE MIPS"
+    }
+  ],
+  "selected_host_reports": {
+    "beacon-filter-owner.txt": "PASS actual recovery wrapper: shared BSS exclusion, reentry, early return release, stale token and exhaustion refusal, other chip bypass; vendor body injected, no MMIO proof\n",
+    "beacon-txs-stop.txt": "PASS actual callback STOP/bounds immutability; negative reopened-state witness. No hardware delivery/RF proof.\nPASS actual callback STOP/bounds immutability; negative reopened-state witness. No hardware delivery/RF proof.\n"
+  },
+  "manifest_present": true,
+  "scope": "Actual module ELF headers/SHA256; original manifest and selected host reports inspected. Not new unpublished no-host experiment or later recovery-result fix.",
+  "production_installed": false,
+  "runtime_verified": false,
+  "scratch": "Downloaded ZIP processed in memory; no retained archive or extraction tree"
+}

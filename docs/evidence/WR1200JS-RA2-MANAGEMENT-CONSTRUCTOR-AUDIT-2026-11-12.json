@@ -1,0 +1,23 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "MT management TXD constructor call-site audit",
+  "findings": [
+    "MT beacon helper ap/ap_connect.c:106-134 zeroes MAC_TX_INFO and uses bss_idx/TxSPriv=apidx, PID0.",
+    "Legacy RTMP/RLT beacon helper is separate and uses PID_MGMT.",
+    "ap/ap_nps.c:87-112 uses a separate TIM packet with PID_MGMT and Q_IDX_BCN. It must not be classified as a beacon merely by queue number.",
+    "tx_rx/txs.c:MgmtTxSHandler returns0 without beacon state mutation.",
+    "The experimental policy requires management beacon subtype, matching BSS2 and TxSPriv2, and beacon queue. Queue-only suppression would affect the TIM path."
+  ],
+  "requirements": [
+    "Keep TIM packet ownership and producer gates in OFF/reopen review",
+    "Retain normal DMA-ring owner for TIM and beacon",
+    "No blanket PID or host-status disable"
+  ],
+  "runtime_verified": false,
+  "dma_observer": {
+    "source": "tools/iot/prepare-radio-queue-candidate.py:WrBeaconDmaOutstanding",
+    "finding": "Observer walks every occupied beacon-ring cell and decodes own_mac from its current packet TXD. It does not restrict observation to the BeaconPkt pointer. Matching BSS2 therefore includes TIM packets on that ring. Invalid/malformed ownership or cell-count mismatch returns unknown rather than empty.",
+    "tim_stop": "Prepared RT28xx_UpdateTimToAsic checks bBcnSntReq under BcnRingLock. APMakeBssTimFrame has the shared producer lease; close revokes and joins those producers.",
+    "limit": "Ring-cell software mapping snapshot; no RF-silence assertion. Packet release remains native DMA completion."
+  }
+}

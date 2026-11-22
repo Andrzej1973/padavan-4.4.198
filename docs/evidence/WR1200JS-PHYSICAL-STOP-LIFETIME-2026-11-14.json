@@ -1,0 +1,18 @@
+{
+  "design": "transition-lock-owned lifetime fence precedes MacTabLock record/pin publication; stays active through outside-lock puts; avoids unsynchronized retirement reads",
+  "test": "PASS actual radio-transition type C11 -Werror O2 ASan/UBSan",
+  "cases": [
+    "retiring/busy/reset/PM/exhausted/fault/notready refuse begin",
+    "stale serial and incomplete record/ref returns retain fence",
+    "duplicate/stale release and serial exhaustion refuse"
+  ],
+  "limits": "record_idle/pins_returned must come from actual kernel binding receipts, never userspace booleans",
+  "sources": {
+    "tools/iot/physical-stop-lifetime.h": "427113c7afa8859031e3c343ee8ba97eba8979abc5c60578c193c12006726ff1",
+    "tools/iot/check-physical-stop-lifetime.c": "3334ed3ddb5f46da25fd9841a058c812ae80511f9ca593f7105149b7557a4618"
+  },
+  "binding": "pending storage, retirement gates and arm/query API",
+  "runtime_verified": false,
+  "cleanup": "TemporaryDirectory removed",
+  "active_tx_admission": "Reject arm while existing admitted TX remains, even with busy0"
+}

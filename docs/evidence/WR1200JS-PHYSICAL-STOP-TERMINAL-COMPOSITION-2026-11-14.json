@@ -1,0 +1,26 @@
+{
+  "scope": "actual record/pin/lifetime/terminal helper composition; kernel ref operations injected",
+  "test": "PASS strict C11 -Werror O2 ASan/UBSan",
+  "ordered_steps": [
+    "ARM with retained refs",
+    "record cancel or actual modeled close/finish",
+    "detach bundle under record lock",
+    "ref-return operations outside locks",
+    "end lifetime under transition lock",
+    "terminal commit from observed idle/refcounts/fence"
+  ],
+  "verified": [
+    "early terminal publication refuses",
+    "lost-copy3 retries serialize only",
+    "no repeat detach/puts",
+    "pid ref retained independently until cache clear"
+  ],
+  "sources": {
+    "tools/iot/check-physical-stop-terminal-composition.py": "cc90a8ddf37813998a25e0157b7dcf34c0227a80e10d5413e9288ff20934fe24"
+  },
+  "remaining": [
+    "actual ioctl/admission/reset/open binding",
+    "full SDK target and device validation"
+  ],
+  "cleanup": "TemporaryDirectory removed"
+}

@@ -1,0 +1,12 @@
+{
+  "run_id": 43245234767,
+  "source_revision": "998f93abe3558621a7d7b132f0cb254654ecade5",
+  "evidence_type": "Original successful CI log, assembled ROMFS check; not independent final TRX extraction",
+  "host_parser_tests": "PASS",
+  "romfs_check": "PASS hybrid ROMFS assets and Classic routes",
+  "asset_bytes": 7482,
+  "index_sha256": "2c9767d06fb3bb9066c85d21f6cd0f3ff8f92ae5398839a86b9665f9a37ff25d",
+  "log_timestamp": "2026-11-12T15:24:09.5794323Z",
+  "final_trx_independently_verified": false,
+  "physical_runtime_verified": false
+}

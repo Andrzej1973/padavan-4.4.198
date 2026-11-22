@@ -1,0 +1,132 @@
+{
+  "run": 43538151214,
+  "verified_revision": "13c7f50ea66807634faf5878f34278b16bd03bb2",
+  "artifact": 14091412016,
+  "zip_bytes": 31341060,
+  "archive_sha256": "a37d4eeb6418c3e531331da2b6cc638be91f8033f51bebdb79110747c1becbc1",
+  "binaries": {
+    "httpd": {
+      "bytes": 398804,
+      "sha256": "c0feb1ca6e0e4d991d717d08ed92735b715e3a5fe4aab21ffc0065bbf41cd144",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    "rc": {
+      "bytes": 644480,
+      "sha256": "4332137699257bbfa65f425315d3fa5997a0ae53815cf7a07349126a6cae5a4e",
+      "elf": "ELF32 little-endian MIPS"
+    }
+  },
+  "reports": {
+    "httpd-dependency-closure.json": {
+      "runtime_verified": false,
+      "production_installed": false,
+      "dependency_closure_verified": true,
+      "elf_files": {
+        "candidate:usr/sbin/httpd": {
+          "sha256": "c0feb1ca6e0e4d991d717d08ed92735b715e3a5fe4aab21ffc0065bbf41cd144",
+          "needed": [
+            "libshared.so",
+            "libiw.so.30",
+            "libdisk.so",
+            "libssl.so.3",
+            "libcrypto.so.3",
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libshared.so": {
+          "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+          "needed": []
+        },
+        "image:lib/libiw.so.30": {
+          "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+          "needed": [
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libuClibc-1.0.48.so": {
+          "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+          "needed": [
+            "ld-uClibc.so.1"
+          ]
+        },
+        "image:lib/ld-uClibc-1.0.48.so": {
+          "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+          "needed": []
+        },
+        "image:lib/libdisk.so": {
+          "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+          "needed": []
+        },
+        "image:lib/libssl.so.3": {
+          "sha256": "3cb01582ae199b37e864e0470a2418d9c0023805e6fa11ecf6e0a3dfdcaaa938",
+          "needed": [
+            "libcrypto.so.3",
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libcrypto.so.3": {
+          "sha256": "92e2f8c23e20d901b2532425e1363147fcc013e46241896eae80315886a61b46",
+          "needed": [
+            "libc.so.0"
+          ]
+        }
+      },
+      "errors": []
+    },
+    "iot-runtime-source.json": {
+      "board": "WR1200JS",
+      "activation_backend_installed": true,
+      "http_private_status_backend_installed": true,
+      "pid1_wait_bound": true,
+      "status_peer_pid": 1,
+      "status_peer_uid": 0,
+      "progress_period_ms": 100,
+      "initial_off_admission": true,
+      "off_reopen_admission": true,
+      "production_ready": false,
+      "runtime_verified": false
+    },
+    "rc-dependency-closure.json": {
+      "runtime_verified": false,
+      "production_installed": false,
+      "dependency_closure_verified": true,
+      "elf_files": {
+        "candidate:usr/sbin/rc": {
+          "sha256": "4332137699257bbfa65f425315d3fa5997a0ae53815cf7a07349126a6cae5a4e",
+          "needed": [
+            "libiw.so.30",
+            "libshared.so",
+            "libdisk.so",
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libiw.so.30": {
+          "sha256": "4c09f83d824dec1e1d8fab2310e1b5e13cb2892ec7d0f978446f43363eea9fa5",
+          "needed": [
+            "libc.so.0"
+          ]
+        },
+        "image:lib/libuClibc-1.0.48.so": {
+          "sha256": "b1769b7b83ff1bdda5623741f400d593783c106626712cb1177cf5072deffe84",
+          "needed": [
+            "ld-uClibc.so.1"
+          ]
+        },
+        "image:lib/ld-uClibc-1.0.48.so": {
+          "sha256": "dacb5a7dcd79e923236975d106220c364b2b23d793879a1e153d96ddb32f10d2",
+          "needed": []
+        },
+        "image:lib/libshared.so": {
+          "sha256": "898c1ae3a482f796ebc14450669d80ae3a53a68d9e0be38467f577cb07c94fb5",
+          "needed": []
+        },
+        "image:lib/libdisk.so": {
+          "sha256": "8cc063e4b37ea073a139fa36852e44480308acd515ef76b93a3313af8bca83bd",
+          "needed": []
+        }
+      },
+      "errors": []
+    }
+  },
+  "scope": "experimental full target RC/HTTP link, separate from image/device acceptance"
+}

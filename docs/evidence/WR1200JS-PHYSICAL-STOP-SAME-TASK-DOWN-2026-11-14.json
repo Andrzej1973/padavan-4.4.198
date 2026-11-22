@@ -1,0 +1,26 @@
+{
+  "implementation": "fixed ra0 DOWN using calling task socket/ioctl, not shell; currently unbound",
+  "test": "PASS GNU11 -Werror O2 ASan/UBSan with injected socket/ioctl/close",
+  "cases": [
+    "socket failure",
+    "flags read failure",
+    "already down",
+    "SIOCSIFFLAGS failure",
+    "close failure after submit",
+    "single success preserves other flags"
+  ],
+  "acceptance": "IOCTL_RETURNED explicitly not driver/RF/DMA completion; separate exact receipt mandatory",
+  "remaining": [
+    "arm/finish driver hooks with lifetime pins",
+    "authenticated observation transport",
+    "RC integration before reload/open",
+    "MIPS and physical validation"
+  ],
+  "sources": {
+    "tools/iot/physical-stop-down.h": "a30857ae84ba60c4476b6c3192f3b7ad05b7771cd218a191f031b1e9b3da880a",
+    "tools/iot/physical-stop-down.c": "f11b079eb5ff70b03f38aadbfbf958afd14088155e65f382676c716043a484f4",
+    "tools/iot/check-physical-stop-down.c": "05a300e40cbee5ba699f7c336d0fda93a21e18495bd24de310740cd830ab0c45"
+  },
+  "cleanup": "TemporaryDirectory removed",
+  "device_modified": false
+}

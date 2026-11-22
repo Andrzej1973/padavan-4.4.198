@@ -1,0 +1,119 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "Fresh inspection of exact pinned vendor source; no upstream comparison",
+  "references": [
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/common/cmm_data_pci.c",
+      "sha256": "cce10c0bdc7ee3c8b0caaa24afb5a8207f9c497656de4830a27c022664796459",
+      "anchors": [
+        {
+          "anchor": "PCI_UNMAP_SINGLE(pAd, pTxD->SDPtr0",
+          "lines": [
+            1363,
+            2640,
+            2702
+          ]
+        },
+        {
+          "anchor": "bcn_state = BCN_TX_DMA_DONE",
+          "lines": [
+            2738
+          ]
+        }
+      ]
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/tx_rx/txs.c",
+      "sha256": "58f963297852e7a864be13a7b9b7ea5ffd2a394a36309e736eef6691acee0524",
+      "anchors": [
+        {
+          "anchor": "INT32 BcnTxSHandler",
+          "lines": [
+            77
+          ]
+        },
+        {
+          "anchor": "pMbss->bcn_buf.bcn_state = BCN_TX_IDLE",
+          "lines": [
+            98
+          ]
+        },
+        {
+          "anchor": "TXS_D_4 *txs_d4",
+          "lines": [
+            59,
+            87,
+            641
+          ]
+        }
+      ]
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/mac/mt_mac.c",
+      "sha256": "0503f18843b3ddc5206b6f2565c7a57aedbe7e64f7591f0dc5d6aa5be1355576",
+      "anchors": [
+        {
+          "anchor": "txd_5->pid = AddTxSStatus(pAd, TXS_TYPE1",
+          "lines": [
+            1009,
+            1326
+          ]
+        },
+        {
+          "anchor": "txd_5->tx_status_2_host = 1",
+          "lines": [
+            952,
+            975,
+            1011,
+            1293,
+            1328
+          ]
+        }
+      ]
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_connect.c",
+      "sha256": "5499298bb20028e56401735b5c6ebc2f3716ad087851282d443fd23120b1ed85",
+      "anchors": [
+        {
+          "anchor": "pMbss->bcn_buf.bcn_state != BCN_TX_IDLE",
+          "lines": [
+            622
+          ]
+        }
+      ]
+    }
+  ],
+  "established": [
+    "Beacon DMA completion unmaps the ring-owned mapping and clears its ring packet reference under BcnRingLock. It advances WRITE_TO_DMA to DMA_DONE, not IDLE.",
+    "BcnTxSHandler independently sets IDLE; its original timestamp and sequence accesses are DBG-only telemetry, not a validated reservation comparison.",
+    "TYPE1 PID reservation is allocated in long TXD construction before host status is enabled. Clearing only the host-status bit would strand the reservation."
+  ],
+  "next_implementation_constraints": [
+    "Any non-owning beacon-status mode must skip reservation allocation before descriptor publication and define separate pacing; changing DMA_DONE to IDLE alone is insufficient.",
+    "Sequence presence in a debug report does not establish that software assigned the corresponding descriptor sequence. Trace assignment and wrap before using it as correlation.",
+    "Preserve existing DMA completion owner, ACK protection, Main/Guest and radio timing. Keep owner release fenced until the replacement lifecycle is verified."
+  ],
+  "rom_documentation_requested": false,
+  "driver_modified": false,
+  "runtime_verified": false,
+  "scratch": "Source read directly from existing preservation archive; no extraction or additional archive retained.",
+  "sequence_constructor_inspection": {
+    "function": "write_tmac_info",
+    "starts_at_line": 770,
+    "sn_or_sn_vld_assignments": 0,
+    "beacon_constructor_zeroes_long_txd": true,
+    "conclusion": "Current beacon constructor does not establish a host-assigned TXD sequence cookie. The returned TxS SN cannot safely be compared with a new software generation without an additional verified descriptor policy."
+  },
+  "vendor_sn_valid_scan": {
+    "scope": "All C/H files under exact pinned mt76x3 archive tree",
+    "assignments": [
+      "chips/mt7603.c:108 dw3->sn_vld = 0",
+      "chips/mt7628.c:182 dw3->sn_vld = 0",
+      "chips/mt7636.c:204 dw3->sn_vld = 0"
+    ],
+    "other_use": "mac/mt_mac.c:162 debug print",
+    "finding": "No vendor example enabling host-controlled sn_vld was found. Do not assert that setting sn_vld=1 is a demonstrated equivalent to firmware cookie correlation.",
+    "short_template_context": "MT7603 asic_set_tmac_info_template zeroes descriptor template, sets sn_vld=0 and tx_status_2_host=0; short template is distinct from the long-beacon path."
+  }
+}

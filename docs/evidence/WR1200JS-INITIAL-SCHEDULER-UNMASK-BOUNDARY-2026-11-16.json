@@ -1,0 +1,87 @@
+{
+  "date": "2026-11-16",
+  "status": "HOST_VERIFIED_CANDIDATE",
+  "published_head": "18a4e70f049ae283134bf6f71237e419a264ee74",
+  "candidate_directory": ".scratch/initial-desired-owner",
+  "production_installed": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "checks": [
+    {
+      "command": "python3 .scratch/initial-desired-owner/check-physical-scheduler-unmask-boundary.py",
+      "result": "PASS",
+      "sanitizers": [
+        "address",
+        "undefined"
+      ],
+      "warnings": "-Wall -Wextra -Werror"
+    },
+    {
+      "command": "python3 .scratch/initial-desired-owner/check-radio-stop-fence.py",
+      "result": "PASS",
+      "sanitizers": [
+        "address",
+        "undefined"
+      ],
+      "warnings": "-Wall -Wextra -Werror"
+    },
+    {
+      "command": "python3 .scratch/initial-desired-owner/check-terminal-iapp.py",
+      "result": "PASS",
+      "sanitizers": [
+        "address",
+        "undefined"
+      ],
+      "warnings": "-Wall -Wextra -Werror"
+    }
+  ],
+  "coverage": [
+    "Actual scheduler, resume, physical INITIAL owner/session/fence, parent, generation, Main, backend, runner, commit and cleanup composition",
+    "Enabled WAN/IAPP tail with real local child process",
+    "SIGTERM at physical-finish SIG_SETMASK boundary retains owner and routes software OFF before replay",
+    "SIGTERM at IAPP SIG_SETMASK boundary retains terminal ownership and routes software OFF before replay",
+    "Legacy unconditional fence and terminal IAPP behavior preserved"
+  ],
+  "boundaries": [
+    "Driver, network, DNS and Guest adapters remain host actors",
+    "No router operations performed",
+    "Existing published CI does not cover these scratch changes"
+  ],
+  "sha256": {
+    "check-physical-scheduler-unmask-boundary.py": "ed7d434bf156dd7c2cab79fbde39d8f6448d92de7b75815544c2ac72ec003ce1",
+    "check-radio-stop-fence.py": "8a10a8d9d62be2332d57290f8fd33bd31727e70aac561da54a300eeda2747764",
+    "check-terminal-iapp.py": "4dd5f7170eb14f69978599f07b793d53e2190a90047b9bfabcbce66db333d226",
+    "radio-stop-fence.c": "657b40b6e02361b02f05c267d49dda10f28b72914f2959c64f733d6a7db190c3",
+    "radio-stop-fence.h": "d8da7e20064a836602952f799d6f6a9a92b7ed9bd38a72f6dac20d51c889bc7d",
+    "rc-backend.c": "3a6235932070da6dac7e70edb8e99f1b428f8c0eb1de17e94b03ed771252859a",
+    "rc-cold-start.inc": "0af9c521d3d6254c5e5f4892dbeac1d3dfd5f3abf278cb14c96bb0adb59c817f",
+    "rc-initial-restart-detach.inc": "f3c13de79bf3fd239379dc55d83940e860a75d1ca10f052c1d2c18f950a6140e",
+    "rc-initial-restart-start.inc": "34935194a3e8974c76f14ff33c471438d0f61d719fef02a2b2fecfc49d6584f0",
+    "rc-physical-stop.c": "642a321d668a46d80edc18da35c33bc49edf7dc63af13a3456c980997a38a1bc",
+    "restart-cancel-check.c": "08e226b03ee42cdb14091d154367473ab98dd9813a497076b078b1409e509eba",
+    "restart-finish-check.c": "b9ffe3dc4d697f57d5c97f6275f8053bc2872e053d4f94be044f0d2de8f32082",
+    "restart-generation.c": "ed62fb5469fa8950516f754cd828a4ec32069cd2c95f611821b732903ea5cc19",
+    "restart-initial-handoff.c": "84342899cf3e9accec568d416ee1229efcdf35cf7487b286bf59b94a5290ffc1",
+    "restart-initial-handoff.h": "a4d59e7b5b2e5412ec6ef62120a4c2bd9dbc6bc5834f0014f72167c8cdd6ca8e",
+    "restart-initial-parent.c": "c4be2f7d43d9dfa1dfbbd77f4b59ea234040601c6fa563f6164d0c02bf064e7e",
+    "restart-initial-parent.h": "da31eb001ce907d9aa6dfd90fffd86d4bf8e4c2a5c0b592e991ab5c113feec23",
+    "restart-main-controller.c": "59954f0c6e7eb78750c7accaee66677eac4f6e2874bc4d01662d641dc3c981d7",
+    "restart-profile.c": "608a55b2c5b9d99372ece4479d61be12f2288cd25c01a49ec4a9b95978237be8",
+    "restart-profile.h": "72bddf76af0135ad5f8965bead87db3021410e0760f84d0e45a3d66466a24697",
+    "restart-restore.h": "758791202350ebc97579a65c8b88f8ea96c97e490736cf78baa0c4b00a996e90",
+    "restart-resume.c": "20f47f1757f0bfb6ef858d7572993ef1340505377e6f9e7f4ccdad1066910c1e",
+    "restart-resume.h": "fd30c0c42696a8624a3dc89f20665f0e2c85f97c44b869ee110a2a2af074468c",
+    "restart-scheduler.c": "b896424d8150146bb1d75065d89945cfac3ff4fed0cd58a66afed011d91c3a88",
+    "restart-terminal-iapp.c": "64f5719a52d99a4be874e6e6d8cf6bc09d3fcb61c8be00e6c1b6d2db963c28e9",
+    "start-closed-rollback.c": "55458dd48cd6fe2aaaf712d663413bdb9e560d2091b13de4e659565f04120788",
+    "start-network-rollback.h": "bef3fc2f41fcf6b2d7a35235e534842e9ec9eda8cef3e8d74c2904c805ee0054",
+    "start-runner.c": "60776bc76c3737defb8d3afc3bbf1f5ba9bdca1d5dc7e1af636ca42aee962030",
+    "start-runner.h": "1396dd1182f05cfffc121762277aee6d97d0e9caa6dddd2f5619d6144210ffae"
+  },
+  "next": [
+    "Integrate owned candidate sources and new headers into permanent staging and runtime link lists",
+    "Make composed fixtures reproducible from permanent paths",
+    "Run coherent host suite then target/standard/optional GitHub checks for exact published SHA",
+    "Physical runtime acceptance only with explicit owner authorization"
+  ]
+}

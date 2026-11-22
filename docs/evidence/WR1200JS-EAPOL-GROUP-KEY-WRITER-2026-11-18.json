@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-18",
+  "sdk_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "status": "ADDITIONAL_EAPOL_WRITER_PATH_IDENTIFIED_REQUIRES_SOURCE_INTEGRATION",
+  "source_files": {
+    "common/mlme.c": {
+      "sha256": "edc1746194fc63d579ab3f753cf8dcac2e011d97e42e40ab3911da415e435459",
+      "git_blob_sha1": "bb23e40cf3301df8d0e58d9fb9f25ef6fdba1c41"
+    },
+    "common/cmm_wpa.c": {
+      "sha256": "f4a17a192bffdc567dba35b8eb022107655d99c90f6e82fcd6bbd8047858c638",
+      "git_blob_sha1": "e08c6c601ef52dc49fc190ffb5a52f6f6f87f8a3"
+    },
+    "ap/ap_wpa.c": {
+      "sha256": "0b502f4e25100c73b33abb166b727ba2afafb1d057afdfae23ffa9bbd7556c97",
+      "git_blob_sha1": "90289ec9c2ca053a3333f9494546b2701e8d17f4"
+    }
+  },
+  "call_chain": [
+    {
+      "file": "common/mlme.c",
+      "line": 700,
+      "function": "MlmeHandler",
+      "scope": "Own bRunning queue executor, separate from MlmePeriodicExec"
+    },
+    {
+      "file": "common/mlme.c",
+      "line": 962,
+      "function": "WPA_STATE_MACHINE dispatcher",
+      "scope": "StateMachinePerformAction WpaMachine"
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 129,
+      "function": "WpaStateMachineInit",
+      "scope": "MT2_EAPOLKey action binding"
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 356,
+      "function": "WpaEAPOLKeyAction",
+      "scope": "Finds current station by source address; group-key update branch"
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 619,
+      "function": "WPAInstallSharedKey call",
+      "scope": "Selected entry func_tb_idx BSS/group WCID"
+    },
+    {
+      "file": "common/cmm_wpa.c",
+      "line": 6868,
+      "function": "CmdProcAddRemoveKey call",
+      "scope": "Existing direct WTBL path"
+    }
+  ],
+  "conclusion": "Counted GTK periodic timer alone does not establish all WPA writer serialization against ra2 CLOSE/provision. Existing MlmePeriodicExec admission is a different entry point. Prepared candidate full-source/call-chain evidence still needed before claiming this handler unprotected at runtime.",
+  "next_checks": [
+    "Verify exact prepared MlmeHandler/WpaEAPOLKeyAction call paths in target artifact; distinguish source absence of wrapper from alternate runtime exclusion.",
+    "Correlate queued EAPOL event, station association identity, current WCID and exact ra2 wdev before accepting a scoped writer lease; source-address lookup alone must not be treated as original event identity.",
+    "Reuse existing counted transition admission around a verified scoped handler; do not drop/requeue global MLME queues or invent stale packet references.",
+    "Exercise CLOSE-first and handler-first interleavings, WCID reuse, Main/Guest/APCLI passthrough, malformed/short event and existing association teardown.",
+    "Trace peer table execution lease/readiness before key mutation and separately verify producer/GTK MMIO completion for a future closed-profile operation."
+  ],
+  "driver_changed": false,
+  "host_execution_verified": false,
+  "target_verified": false,
+  "runtime_verified": false,
+  "original_ack_issue_fixed": false
+}

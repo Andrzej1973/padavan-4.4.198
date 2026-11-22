@@ -1,0 +1,29 @@
+{
+  "run_id": 43245234767,
+  "revision": "998f93abe3558621a7d7b132f0cb254654ecade5",
+  "artifact_id": 13958940573,
+  "image": "padavan-4.4/trunk/images/WR1200JS_4.4.198.9-1045_998f93ab.trx",
+  "bytes": 13125088,
+  "sha256": "a439277ab8820265a39892eeb613401bb190dbd9a0e951bfbdce84a40697a5c6",
+  "uimage_header_crc": true,
+  "payload_crc": true,
+  "declared_length": true,
+  "architecture": "MIPS",
+  "squashfs_offset": 1981680,
+  "actual_squashfs_content_checks": {
+    "hybrid/index.html": true,
+    "hybrid/dashboard.css": true,
+    "hybrid/dashboard.js": true,
+    "www/index.asp": true,
+    "www/Advanced_SQM.asp": true,
+    "usr/lib/sqm/run.sh": true
+  },
+  "hybrid_hashes": {
+    "index.html": "2c9767d06fb3bb9066c85d21f6cd0f3ff8f92ae5398839a86b9665f9a37ff25d",
+    "dashboard.css": "23af560a0972294a86d67d59b001ed096bac3e1987098d31b3b5a14b468f3209",
+    "dashboard.js": "1393c5e1354f87a9d7b915689765bb55c115521d430bbc08fe2ae7f9f2b8fbe5"
+  },
+  "scope": "Independent original TRX extraction, exact hybrid asset comparison and Classic/SQM file presence; not runtime acceptance or SQM factory-default verification",
+  "runtime_verified": false,
+  "scratch": "Temporary firmware image removed; no extracted filesystem retained"
+}

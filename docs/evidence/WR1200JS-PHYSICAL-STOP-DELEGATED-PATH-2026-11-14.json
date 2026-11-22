@@ -1,0 +1,18 @@
+{
+  "discovery": "actual candidate delegates last-user physical main-close to existing recovery worker outside ndo_stop RTNL",
+  "references": [
+    "tools/iot/prepare-main-physical-close-delegation.py",
+    "tools/iot/main-close-checked.inc",
+    "tools/iot/check-main-physical-close-delegation.py"
+  ],
+  "invalidated_assumption": "calling DOWN in RC task does not make physical close execute in RC task",
+  "correction": "isolated physical-stop installer refuses delegated checked main-close shape before output; legacy-only executor transform remains uninstalled/source-model scope",
+  "test": "PASS installer deferred-path refusal; actual full SDK binding pending",
+  "required_next": [
+    "bind to current main recovery owner/exact ticket rather than arbitrary task",
+    "capture final software close/module-return receipt after worker completion",
+    "retain main recovery pins until terminal publication",
+    "integrate current checked lane; do not enable legacy-only hooks"
+  ],
+  "runtime_verified": false
+}

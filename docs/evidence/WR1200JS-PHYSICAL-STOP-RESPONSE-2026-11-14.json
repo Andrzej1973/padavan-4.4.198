@@ -1,0 +1,27 @@
+{
+  "scope": "proposed distinct64byte WPSR reply; syntax only, no endpoint",
+  "result": "PASS strict C11/GNU11 -Werror O2 ASan/UBSan",
+  "states": [
+    "ARMED",
+    "RUNNING",
+    "COMPLETE",
+    "FAILED",
+    "CANCELLED",
+    "RELEASED"
+  ],
+  "verified": [
+    "allowed action/status matrix",
+    "requests rejected as replies and reverse",
+    "every identity/nonce/header/reserved corruption refused",
+    "ARM assigns nonzero serial, subsequent QUERY exact serial",
+    "all truncated lengths refused",
+    "failed encode/decode clears output"
+  ],
+  "sources": {
+    "tools/iot/physical-stop-response.h": "ce3c836bf0613161f9e6906b665d0d2d5fc6a84d315d222024a7952578e95e08",
+    "tools/iot/check-physical-stop-response.c": "13f25cba2b7b7bfc4828ed5be044006e7498337196d3331db5f99a05fe440eae"
+  },
+  "remaining": "derive reply from actual exact record observation under lifetime/admission; no RF/DMA evidence from wire alone",
+  "runtime_verified": false,
+  "cleanup": "TemporaryDirectories removed"
+}

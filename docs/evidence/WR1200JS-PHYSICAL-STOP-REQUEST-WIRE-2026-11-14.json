@@ -1,0 +1,39 @@
+{
+  "scope": "proposed fixed64byte Linux request syntax only; new ioctl number not allocated/installed",
+  "actions": [
+    "ARM",
+    "QUERY",
+    "CANCEL",
+    "RELEASE"
+  ],
+  "fields": [
+    "epoch",
+    "generation",
+    "prior OPEN token",
+    "prior CLOSED serial",
+    "physical attempt serial",
+    "16byte nonce"
+  ],
+  "result": "PASS strict C11/GNU11 -Werror O2 ASan/UBSan, unified8-part suite20712 exit0",
+  "checks": [
+    "header/version/action/reserved rejection",
+    "mandatory nonzero fields/nonce",
+    "ARM requires attempt0, other actions require nonzero",
+    "all truncated lengths reject",
+    "decode/encode error outputs clear",
+    "64bit values preserve high words"
+  ],
+  "sources": {
+    "tools/iot/physical-stop-wire.h": "9ef05065b780e58b7b8b930389073dd42cb9daa798d99e871e1ac28b26242214",
+    "tools/iot/check-physical-stop-wire.c": "e961980c9378371390028be238e8954a32583a1d8e53a994b82e04ac0422a1cd"
+  },
+  "remaining": [
+    "distinct typed completion response",
+    "capability/RTNL/task lifetime dispatch",
+    "fresh identity/CLOSED admission",
+    "reset/open integration",
+    "MIPS and device checks"
+  ],
+  "runtime_verified": false,
+  "cleanup": "TemporaryDirectories removed"
+}

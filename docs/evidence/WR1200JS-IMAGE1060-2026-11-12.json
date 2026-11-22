@@ -1,0 +1,54 @@
+{
+  "run": 43277848365,
+  "number": 1060,
+  "source": "85c1250d63bfd78e60a71fb36c6ed7f90cb4cfac",
+  "artifact": 13971323791,
+  "image": "padavan-4.4/trunk/images/WR1200JS_4.4.198.9-1060_85c1250d.trx",
+  "bytes": 13125264,
+  "sha256": "e68ef3074026f5abe61bdb3b324321aa38f05283cbce0a7fa23510930c364cfe",
+  "header_crc": true,
+  "payload_crc": true,
+  "length": true,
+  "architecture": "MIPS",
+  "squashfs_offset": 1981680,
+  "actual_content": {
+    "www/index.asp": {
+      "bytes": 28173,
+      "sha256": "6f7d4e73a40ef7a9d5a5e4e3bad4bbd8e873f033fcbacb6a63e912d9c9e2be17"
+    },
+    "www/Advanced_SQM.asp": {
+      "bytes": 3780,
+      "sha256": "38a3b2b3d9bbd57153f1bd5351d59f5e8d1a8db393cac7ff8dbcdcba3940c075"
+    },
+    "usr/lib/sqm/run.sh": {
+      "bytes": 2803,
+      "sha256": "88bbcfe057d487290dbd2a3e41860089dcf88d6e448070eb995650ea8ac0b7ca"
+    },
+    "usr/sbin/nfqws2": {
+      "bytes": 565388,
+      "sha256": "76abaee143ca999d77453240ae4fd8e935f454cc994c136b991f2ed65c54d8d0"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 345120,
+      "sha256": "cf8c34bb03385e2a11eba6771930769ade0f8bcf3ba5c1d15a16045ab163f4d6"
+    },
+    "www/hybrid/index.html": {
+      "bytes": 2184,
+      "sha256": "2c9767d06fb3bb9066c85d21f6cd0f3ff8f92ae5398839a86b9665f9a37ff25d",
+      "source_match": true
+    },
+    "www/hybrid/dashboard.css": {
+      "bytes": 1680,
+      "sha256": "23af560a0972294a86d67d59b001ed096bac3e1987098d31b3b5a14b468f3209",
+      "source_match": true
+    },
+    "www/hybrid/dashboard.js": {
+      "bytes": 3618,
+      "sha256": "1393c5e1354f87a9d7b915689765bb55c115521d430bbc08fe2ae7f9f2b8fbe5",
+      "source_match": true
+    }
+  },
+  "runtime_verified": false,
+  "scope": "Independent image structure, selected SquashFS files and ELF architecture. Device operation and complete release gates remain pending.",
+  "scratch": "Temporary image removed automatically, ZIP in memory"
+}

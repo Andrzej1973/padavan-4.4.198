@@ -1,0 +1,48 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "All pinned C/H deinit references scanned, followed by exact function inspection",
+  "references": [
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/ap/ap_mbss.c",
+      "sha256": "402a0a3dfc95bc52347262fcd7ff18f70922a9b2d1dcb72a8c6657c0013bb616",
+      "deinit_mentions": [
+        196
+      ]
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/rt_profile.c",
+      "sha256": "044a891f9f170d80160e5be1a11866a0be1377ebbd79eea574df53c65c8ccfcd",
+      "deinit_mentions": [
+        1778
+      ]
+    },
+    {
+      "file": "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/tx_rx/wdev.c",
+      "sha256": "37985d6aec32ae2e57705b37f18e4b52712890f9e2191b3e1dd7e500ab638ee2",
+      "deinit_mentions": [
+        133
+      ]
+    }
+  ],
+  "findings": [
+    "MBSS_Close stops the netdev queue, kicks associated stations, disables beacon request and refreshes beacon configuration; it does not deinit/free BeaconPkt.",
+    "MBSS_Remove deinitializes each virtual BSS beacon before detach/unregister/free of its netdev.",
+    "The rt_profile.c call targets MAIN_MBSSID during adapter teardown, not ordinary ra2 virtual close.",
+    "wdev_bcn_buf_deinit requires IDLE in the original MT path then marks STOP and frees BeaconPkt. Isolated candidate adds stricter drain/locking guards; this audit does not bypass them."
+  ],
+  "conclusion": "Existing virtual-close lifetime supports retaining the mapped beacon packet object across ordinary OFF/ON. This does not establish the DMA mapping, RF queue or late-TxS boundary.",
+  "remaining": [
+    "Trace APMakeAllBssBeacon and virtual-open rebuild ownership in the final composed candidate",
+    "Bind reservation-free mode only with periodic pacing and producer/registration checks",
+    "Retain physical remove/adapter shutdown guards separately"
+  ],
+  "driver_modified": false,
+  "runtime_verified": false,
+  "scratch": "Read existing archive in place; no source extraction retained",
+  "rebuild_path": {
+    "APMakeAllBssBeacon": "Iterates APMakeBssBeacon then calls AsicSetMbssMode; keep MAC-mode side effect distinct from packet mutation",
+    "APMakeBssBeacon": "MT_MAC/HIF_MT branch returns before GET_OS_PKT_DATAPTR and beacon frame writes; source notes MT7603 build merged into updater",
+    "candidate_producer": "prepare-beacon-producer-candidate.py wraps APUpdateBeaconFrame and APMakeBssTimFrame. prepare-driver-api.py makes ra2 producer exclusive and checks WrBeaconDmaOutstanding before mutation.",
+    "verification_scope": "Pinned function inspected and generator source traced; actual final prepared candidate/runtime still needs integrated verification"
+  }
+}

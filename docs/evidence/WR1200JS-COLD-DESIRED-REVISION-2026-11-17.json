@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-17",
+  "scope": "Local initial-generation desired revision guard; new credential generator input and loaded promotion incomplete",
+  "source_sha256": {
+    "tools/iot/cold-on-generation.c": "08260939b511b31cb251fc37d5bf540338f7b34d1d95d164511e16ad2b27adbd",
+    "tools/iot/cold-on-generation.h": "1b6e07abbc6b449e666ae61f78f977e1693b22eac553849ecd9e90e6d65c0da9",
+    "tools/iot/saved-config-store.c": "c57249fcf8dd55125f31e5e659866536605768a0d2831e42d400c15b88ceda68",
+    "tools/iot/saved-config-store.h": "5d420c2c63495ed9e9146cceaf9ea1de9eecafcd31f9d9b480d1f77921bd3d27",
+    "tools/iot/check-cold-config-revision.py": "0a60d993e6e16f8be89280033e787a9702628f0bb84003bc7dd3b7ef3b7c43e5",
+    "tools/iot/check-generation-config-absent.h": "b7e04d1df6e1e5affff62435b812fff6c783c3f11eda3f78cde04413195eac43"
+  },
+  "checks": {
+    "cold_real_config": "PASS actual cold admission/generation/journal and native store/snapshot, external native/guard/DOWN/SDK actors",
+    "legacy_generation_main_recovery_owner": "PASS, explicit absent-config actor",
+    "staged_config": "PASS capability0/1",
+    "early_initial_headers": "PASS",
+    "latest_preflight": {
+      "session": 6834,
+      "state": "running",
+      "log": ".scratch/config-transport-20261117/bound-generation-preflight.log"
+    },
+    "final_double_observation": "focused cold-real-config-final.log PASS after adding final revision check"
+  },
+  "source_behaviour": [
+    "Capture admitted nonce/close-serial-bound desired revision",
+    "Refuse present mismatch or malformed record before generator",
+    "Refuse copied generation identity",
+    "Restore owned baseline on changed/unknown revision without repeated generator",
+    "Keep loaded identity separate; no new profile promotion yet"
+  ],
+  "target_build_verified": false,
+  "device_verified": false
+}

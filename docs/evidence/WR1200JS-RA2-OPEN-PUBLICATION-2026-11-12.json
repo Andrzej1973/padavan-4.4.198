@@ -1,0 +1,34 @@
+{
+  "scope": "Host publication receipt compatibility with isolated no-host beacon experiment",
+  "source_sha256": {
+    "precreated-first-beacon-wait.inc": "d4b72488b10a3916a5651d527a85d9eb4bbaae172c0f648eeb8d86f1057be79b",
+    "precreated-first-beacon-kernel.h": "d409f33bb55f44d9d3c0fbef2a873e04368805830607492a851960115978541b",
+    "driver-api-owner-binding.inc": "bd8efebb772f56b7accca2626f3b1082b6e6066edb733f3150560f65061dae99",
+    "driver-api-open-entry.inc": "a8d5f05b0b4fcd17bfda246efcd26760796c7cc0a5d53980acb1840ba472166d",
+    "ra2-beacon-no-host-submit.py": "5310e7512580d7a28b365c37ede0a4f319c94c0fd54714909a684a93b1a54dc4"
+  },
+  "findings": [
+    "OPEN waits for a captured producer identity and checked descriptor/CIDX publication, not BcnTxSHandler completion.",
+    "No-host lower composer preserves the existing publication hook and HAL failure rollback.",
+    "Suppressing ra2 beacon host TxS does not inherently require weakening the OPEN host-publication contract."
+  ],
+  "checks_passed": [
+    "check-precreated-first-beacon",
+    "check-precreated-first-beacon-kernel",
+    "check-precreated-first-beacon-wait",
+    "check-first-beacon-owner-snapshot",
+    "check-driver-api-open-entry",
+    "check-ra2-no-host-bundle.py --archive pinned exact SDK",
+    "check-ra2-beacon-no-host-submit.py --archive pinned exact SDK"
+  ],
+  "check_scope": "Five C fixtures with ASan/UBSan and two source-composition/lower-submit checks. Scheduler, MMIO, packet predicate and hardware are injected as described by each fixture.",
+  "remaining": [
+    "Cold epoch admission and exact registration",
+    "Scoped OFF owner release/reopen",
+    "Full experimental module target build",
+    "Physical runtime acceptance"
+  ],
+  "runtime_verified": false,
+  "activation_ready": false,
+  "cleanup": "TemporaryDirectory test sources and binaries removed after checks; no retained scratch."
+}

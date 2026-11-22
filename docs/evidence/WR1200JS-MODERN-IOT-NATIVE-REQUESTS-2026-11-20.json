@@ -1,0 +1,44 @@
+{
+  "scope": "generated Modern request bytes passed to actual native HTTP readers under ASan/UBSan",
+  "regression_found": "Content-Type charset suffix caused actual native view reader to reject the generated request",
+  "change": "use exact application/x-www-form-urlencoded accepted by existing readers",
+  "checks": [
+    {
+      "command": "python3 tools/webui-preview/check_modern_iot_native_requests.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 tools/webui-preview/check_modern_iot_staging.py",
+      "exit_code": 0
+    },
+    {
+      "command": "nim c -r --out:/tmp/ft_pending_identity_check tools/iot/ft_pending_identity_check.nim",
+      "exit_code": 0
+    }
+  ],
+  "negative_controls": [
+    "old charset-bearing Content-Type rejected",
+    "mismatched token rejected"
+  ],
+  "native_coverage": [
+    "actual view request reader",
+    "actual edit request reader for RAM/auto/explicit/runtime",
+    "actual URLSearchParams encoded bytes from generated controller"
+  ],
+  "sha256": {
+    "tools/webui-preview/prepare-modern-iot.py": "a44f0aff7827f936de52f986f6ade1e5fe0608fb1714f01a9a8813eae2bca7bf",
+    "tools/webui-preview/check_modern_iot.js": "7e7edb07449c8bbd51e28fc84c45da34ef89f1ac1b65c027f544589920605aa4",
+    "tools/webui-preview/check_modern_iot_native_requests.py": "1166deaa38549524bca91ed44014a769e491756bf23578fe90ba2a6aa7cbe7aa",
+    "tools/iot/http-edit-request.h": "045b462bfa5d3699c48b12ecd5247e9fbcdfa17971791e9c70f0fb98c3ac0264",
+    "tools/iot/http-view-request.h": "3559eaf65786ca07d16f0a874b703afb78725e36a3843bf678dfffc66fe81e13"
+  },
+  "limitations": [
+    "DOM and fetch are fixture implementations",
+    "readback and result polling responses are simulated",
+    "actual HTTP dispatcher, RC persistence and browser sockets are not combined in this check",
+    "production candidate uninstalled; no target/image/device acceptance"
+  ],
+  "production_installed": false,
+  "target_compiled": false,
+  "device_verified": false
+}

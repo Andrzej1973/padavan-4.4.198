@@ -1,0 +1,10 @@
+{
+  "observed_utc": "2026-11-15T18:15:09.440102+00:00",
+  "command": "python3 tools/iot/check-physical-initial-ioctl.py",
+  "result": "PASS",
+  "scope": "Actual C ioctl and actual provider with injected net namespace, capability, user-copy and kernel-ref actors. Capability/RTNL refuse before copy; malformed and failed copy-in do not acquire lifetime. Lost ARM and CANCEL replies retain exact retry, reference counts unchanged on retries; RELEASE runs through actual ioctl. Existing ioctl dispatcher/SDK target not yet connected.",
+  "source_sha256": {
+    "tools/iot/physical-initial-ioctl.inc": "0c535e415035f56fd5369cb2033cd264b5b208d26cb5688ebcb2f232fc4ad054",
+    "tools/iot/check-physical-initial-ioctl.py": "3d6dd3667dfed7611deba6c466f1321b64f1b08fb019503b9bb13b8abf9a65ea"
+  }
+}

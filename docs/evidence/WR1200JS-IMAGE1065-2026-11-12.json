@@ -1,0 +1,42 @@
+{
+  "run": 43285398569,
+  "number": 1065,
+  "source": "6393edc8e52da1a413f53c4d7114fa9232d7efe2",
+  "artifact": 13974972488,
+  "bytes": 13124900,
+  "sha256": "c8d83d251a4035cc123af7eb354e1423eae3343ccadf4149adb058a7c29d6467",
+  "header_crc": true,
+  "payload_crc": true,
+  "length": true,
+  "architecture": "MIPS",
+  "squashfs_offset": 1981680,
+  "actual_content": {
+    "www/index.asp": {
+      "bytes": 28173,
+      "sha256": "6f7d4e73a40ef7a9d5a5e4e3bad4bbd8e873f033fcbacb6a63e912d9c9e2be17"
+    },
+    "www/Advanced_SQM.asp": {
+      "bytes": 3780,
+      "sha256": "38a3b2b3d9bbd57153f1bd5351d59f5e8d1a8db393cac7ff8dbcdcba3940c075"
+    },
+    "usr/lib/sqm/run.sh": {
+      "bytes": 2803,
+      "sha256": "88bbcfe057d487290dbd2a3e41860089dcf88d6e448070eb995650ea8ac0b7ca"
+    },
+    "usr/sbin/nfqws2": {
+      "bytes": 565388,
+      "sha256": "ebb385c0f4fca470db827bd43f0456c8bbf2800576323ae0c63cbdcaa747da6f"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 345120,
+      "sha256": "cf8c34bb03385e2a11eba6771930769ade0f8bcf3ba5c1d15a16045ab163f4d6"
+    }
+  },
+  "cake_ci_artifact": 13976755031,
+  "cake_ci_reports": {
+    "cake-image-checks.json": "{\n  \"board\": \"WR1200JS\",\n  \"scope\": \"Effective config, ROMFS presence, reviewed script and factory defaults; separate ELF gates and physical runtime required\",\n  \"status\": \"runtime-unverified\",\n  \"checks\": {\n    \"profile_included\": true,\n    \"kernel_components\": true,\n    \"not_default_qdisc\": true,\n    \"factory_off\": true,\n    \"sch_cake.ko\": true,\n    \"ifb.ko\": true,\n    \"sch_ingress.ko\": true,\n    \"cls_u32.ko\": true,\n    \"act_mirred.ko\": true,\n    \"bin/tc\": true,\n    \"bin/ip\": true,\n    \"usr/lib/sqm/run.sh\": true,\n    \"www/Advanced_SQM.asp\": true,\n    \"manual_web_control\": true,\n    \"reviewed_lifecycle\": true,\n    \"start_requires_enable\": true\n  },\n  \"manifest_sha256\": \"502b7c80143b0f927c9b64e5212214cd717af6730b95a926b939940fa1968232\",\n  \"runtime_verified\": false\n}\n"
+  },
+  "runtime_verified": false,
+  "scope": "Actual selected image bytes and CRCs independently inspected. CAKE report retained as CI evidence; default behavior not independently executed.",
+  "cleanup": "Archive held in memory; temporary TRX and selected root files removed."
+}

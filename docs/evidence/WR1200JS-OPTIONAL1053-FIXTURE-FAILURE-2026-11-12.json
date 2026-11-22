@@ -1,0 +1,12 @@
+{
+  "run": 43255103859,
+  "source": "9f7d2d01082508957936618861979ce0c0893285",
+  "failed_job": 131311249128,
+  "monitor": 43258179432,
+  "monitor_artifact": 13963130720,
+  "original_error": "check-periodic-first-beacon.py generated C missing bcn_buf at lines243,277,335",
+  "assessment": "Same fixture layout failure as1052, fixed in b7597c93 after this source revision. Monitor and original job causal lines agree.",
+  "next": "Verify b7597c93 standard1054 then required exact-source optional. Existing failed ancestor run cannot include correction.",
+  "runtime_verified": false,
+  "scratch": "ZIP inspected in memory"
+}

@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-17",
+  "base_revision": "a176a11f67031a878f9c82a3ec009fe6ddf0b849",
+  "status": "UNINSTALLED_RAM_STORE_HOST_VERIFIED",
+  "codec_session": 68179,
+  "store_session": 15124,
+  "exit_code": 0,
+  "actual_components": [
+    "saved-config-store.c",
+    "service-guard.c",
+    "band-steering/settings-snapshot.c"
+  ],
+  "actors": [
+    "native nvram_getall",
+    "native nvram_set"
+  ],
+  "snapshot_capability_default": 0,
+  "no_flash_commit": true,
+  "no_runtime_or_loaded_profile_mutation": true,
+  "owner_retains_outer_shutdown_admission": true,
+  "target_verified": false,
+  "runtime_verified": false,
+  "source_sha256": {
+    "tools/iot/saved-config.h": "a5e525d402b3f06b4617184cace64b31d1025ea5510974dbb59cb94fc08b0a31",
+    "tools/iot/check-saved-config.c": "838760cda7fb58e994f5949d0cf8ba52300dc4853247008ef09b643f62646855",
+    "tools/iot/check-saved-config.py": "94b1e1d3b57f04ca948c1833094db0659c0f542463529af9b1b04dfd158cb421",
+    "tools/iot/saved-config-store.h": "04e1185250bfbff858371bc12e3938906e7f3c7333a0e1fae26ca3e4067df8ae",
+    "tools/iot/saved-config-store.c": "ce1b88ab26e7411ecbe74acea8b36fecf0f8a82bd5ccf201f240b64018e462e9",
+    "tools/iot/check-saved-config-store.c": "5e6e706d1ce45e337099d5484c3583d26f57de1204f1896a7a00bb1d391f0129",
+    "tools/iot/check-saved-config-store.py": "a7bc8b49dcd4dd965c97746ba48c4a8cca0794b844e0daca999c3f3564009ea9"
+  },
+  "log_sha256": {
+    "saved-store-final-2.log": "3a15c2a5a3c70a8feabf3efbae8f3b47d58b23d6d0b7a3a75fa3d47fd799e765"
+  },
+  "remaining": [
+    "Bind exact RC configuration-operation owner and authenticated request/status transport",
+    "Verify native getall overflow transform before enabling prepared capability",
+    "Bind desired/cold-generation/loaded provenance without invalidating safe OFF",
+    "Preserve/migrate legacy and factory configuration explicitly",
+    "Integrate native manual/automatic flash-save policy outside PID1",
+    "Classic Apply, target/image tests, physical acceptance"
+  ]
+}

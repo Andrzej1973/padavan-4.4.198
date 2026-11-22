@@ -1,0 +1,41 @@
+{
+  "command": "python3 -B tools/iot/check-config-edit-suite.py",
+  "exit_code": 0,
+  "scope": "focused host edit/view suite including Modern IoT; generated Modern POST reaches actual native C handler, production control-client submit and mailbox claim; dispatcher-to-persistence remains separate",
+  "final_line": "PASS complete edit/view focused host suite including Modern IoT; target firmware, assembled UI and physical acceptance remain required",
+  "pass_lines": 49,
+  "log_sha256": "a51810181890ee53f3e7ce5f2f1af17aaa5dcf8a97324c0dce86f5695e7545f7",
+  "sha256": {
+    "tools/iot/check-config-edit-suite.py": "eb047b32822075c4776a4621d416c5bc73169ff8385b97312c1cef51e3c89d71",
+    "tools/webui-preview/check_modern_iot_native_handlers.py": "d779e8ef6e3c46dfbdeb90d00471fd1ed81a7f7cc8d5a1e8c1602673aa6e8e8a",
+    "tools/webui-preview/check_modern_iot.js": "6ff60571db6d5de0de4f9bc5601a51b72a894272677e67f1d6edd02445e02a3d"
+  },
+  "new_gate": [
+    "Modern staging and timeout",
+    "generated request bytes through native HTTP readers",
+    "actual HTTP output handlers to client including invalid token/MIME rejection",
+    "generated Modern edit POST -> native C HTTP output handler -> production control-client -> actual mailbox submit/claim; four modes and exact fields checked"
+  ],
+  "remaining": [
+    "single composition from native HTTP dispatcher through RC edit lease/owner to saved-config commit",
+    "IoT FT ownership/refusal propagation",
+    "target/image/device gates"
+  ],
+  "production_installed": false,
+  "target_compiled": false,
+  "device_verified": false,
+  "latest_suite_recheck": {
+    "command": "python3 -B tools/iot/check-config-edit-suite.py",
+    "exit_code": 0,
+    "final_line": "PASS complete edit/view focused host suite including Modern IoT; target firmware, assembled UI and physical acceptance remain required"
+  },
+  "follow_up_test": {
+    "command": "python3 -B tools/webui-preview/check_modern_iot_native_handlers.py",
+    "exit_code": 0,
+    "summary": "Modern generated controller uses actual HTTP handler and production control-client; mailbox claim validates all four edit modes, profile, revision and key intent. View/result response and RC dispatcher/config commit remain fixture boundaries.",
+    "sha256": {
+      "tools/webui-preview/check_modern_iot_native_handlers.py": "37ebc191a9c61180ed720901490e32f355cc9371acea83b5664a533f7569007b",
+      "tools/webui-preview/check_modern_iot.js": "3d27c2fb549400f8339f8d9350e82f8277b227534ba41d08475a3518f1c4002f"
+    }
+  }
+}

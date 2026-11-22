@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-20",
+  "scope": "prepared atomic PMK-R1 response store API",
+  "repository": "Andrzej1973/padavan-4.4.198",
+  "branch": "codex/wr1200js-service-webui",
+  "head": "0015bae6b4f062e0c7af5286172f7d1db02dacdc",
+  "pinned_vendor_root": "/home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+  "files": {
+    "tools/iot/ft-r1kh-snapshot-composition.py": "8c7c4219d5dccf4d542a140ee64859e111386c45f5dae2ea96aa6f6aa0ff4817",
+    "tools/iot/check-ft-r1kh-snapshot.py": "061a1bf49dc37099dd9ba5d7efb34462ecf584c1c3a21a1b842c77723f408416"
+  },
+  "checks": [
+    {
+      "command": "python3 tools/iot/check-ft-r1kh-snapshot.py <pinned-mt76x3-root>",
+      "exit_status": 0,
+      "results": [
+        "PASS | FT AUTH cache miss",
+        "PASS | FT R1KH snapshot",
+        "PASS | FT response cache transaction",
+        "PASS | FT R1KH atomic store/delete",
+        "PASS | FT composition drift",
+        "PASS | FT cache lock negative control",
+        "PASS | FT R1KH snapshot composition"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-ft-cache-api-lifetime.py <pinned-mt76x3-root>",
+      "exit_status": 0,
+      "result": "PASS | FT cache API lifetime | cold/draining refusal, snapshot/store/delete leases, allocation failure release, close during admitted store blocks destroy"
+    },
+    {
+      "command": "python3 tools/iot/check-ft-iapp-response-copy.py <pinned-mt76x3-root>",
+      "exit_status": 0,
+      "results": [
+        "PASS | FT IAPP response copy",
+        "PASS | complete prepared IAPP handler; same-key bypass remains reproduced"
+      ]
+    },
+    {
+      "command": "python3 tools/iot/check-ft-kdp-cache-chain.py <pinned-mt76x3-root>",
+      "exit_status": 0,
+      "result": "PASS | FT cache/KDP chain | actual snapshot/API/storage and checked KDP callers compose; owner schema stand-in; no target compile"
+    }
+  ],
+  "api_contract": {
+    "result_minus_one": "store failed; preserve old entry",
+    "result_zero": "same PMK-R1 key already cached; no replacement",
+    "result_one": "inserted or atomically replaced by PMKR1Name under FT_R1khEntryTabLock",
+    "raw_entry_pointer_escapes_lock": false,
+    "allocation_failure_preserves_old_value": true,
+    "cache_table_size_preserved_on_replace": true
+  },
+  "verification_boundary": {
+    "response_token_and_peer_lease_integrated": false,
+    "native_handler_uses_atomic_response_api": false,
+    "same_key_ack_completion_fixed": false,
+    "lock_order_proven": false,
+    "target_compiled": false,
+    "producer_installed": false,
+    "image_verified": false,
+    "device_verified": false
+  },
+  "next_step": "Compose the exact reserved-token claim and current AUTH peer lease before any PMK-R1 cache operation; use response_store result 0 or 1 as valid cache success, complete counters/ACK under the proven peer transaction, and finish request/claim on all exits."
+}

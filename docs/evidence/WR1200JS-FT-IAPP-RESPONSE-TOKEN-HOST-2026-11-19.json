@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-19",
+  "base_revision": "dc041181966f261721941d00c0a5f13b3aa53bcf",
+  "status": "standalone-ledger-host-model-passed-unintegrated",
+  "scope": "Host model for an opaque seven-byte IAPP response token and local BSS/MAC/WCID/association-generation ledger. No driver or daemon source is composed with it.",
+  "sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "verification": {
+    "command": "gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-iapp-response-token.c -o /tmp/check-ft-iapp-response-token && /tmp/check-ft-iapp-response-token",
+    "exit_status": 0,
+    "results": [
+      "PASS | FT IAPP response token | exact token/MAC/R1KHID, single claim and BSS/WCID/generation context",
+      "PASS | FT IAPP timeout race | timeout-first cancellation rejects delayed response; stale handle cannot cancel reused slot",
+      "PASS | FT IAPP request supersession | newer attempt retires old waiting token; claimed attempt cannot be replaced",
+      "PASS | FT IAPP claim-first retirement | claimed token cannot be timeout-cancelled; association retirement invalidates cache admission",
+      "PASS | FT IAPP token ledger bounds | bounded capacity refusal preserves existing pending requests"
+    ]
+  },
+  "coverage": [
+    "round-trip token mapping across FT_KDP_EVT_KEY_ELM.RSV[3] plus KeyInfo.RSV[4]",
+    "reject zero and colliding tokens and duplicate live identity",
+    "claim once only after station MAC and response R1KHID match",
+    "require exact BSS, WCID and association generation before cache admission",
+    "timeout-first cancellation rejects delayed responses",
+    "new request for the same association retires an older waiting token; a claimed response cannot be superseded",
+    "claim-first prevents timeout cancellation; association retirement invalidates the claimed response before cache admission",
+    "stale handles cannot cancel a reused slot; capacity refusal preserves existing pending requests"
+  ],
+  "source_sha256": {
+    "tools/iot/ft-iapp-response-token.h": "309a84d43bb98454e00aad6d96b339a823f996190e7aab7b970c13785017bed7",
+    "tools/iot/check-ft-iapp-response-token.c": "182e99bf31e80b8d27f0e5fa703414106c274f90b8c712744e79b7edfe3ebf48"
+  },
+  "not_proven": [
+    "cryptographically strong per-attempt token generation and adapter-epoch uniqueness",
+    "integration with FT_AuthReqRsnValidation and FT_KDP_KeyResponseToUs",
+    "response-side peer lease or reference transfer while the AUTH handler waits",
+    "retirement from every association/delete/adapter-teardown path",
+    "target compilation, CI execution of this model, firmware image or device runtime"
+  ],
+  "producer_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false
+}

@@ -1,0 +1,28 @@
+{
+  "scope": "Recovery join-to-API lifetime retirement source analysis; no release implemented",
+  "source_sha256": {
+    "tools/iot/mbss-recovery-join.inc": "67fc95b2cc50e6211badf61f84a9f998f05ca64340bab16e585c74484cdd7dad",
+    "tools/iot/mbss-close-recovery-owner.h": "b1f4c9e6bd5ba6bc41052c7a51afff04eac974c10813cd4c378ce3095b5384cc",
+    "tools/iot/driver-api-close-owner.h": "3776b405113e1aeb827f210671334fc9917cc53ad9b3d4ab12240bd5170d3ac3",
+    "tools/iot/prepare-mbss-reaper-gate.py": "5394baae126d6d75c0e9041de03e9d67d7ef22ea8ad633c878408a617b40f758"
+  },
+  "ordering": [
+    "join flushes existing work outside transition lock",
+    "locked exact completed registration and original ticket validation",
+    "recovery_complete reinitializes recovery identity under lock",
+    "unlock then dev_put returns transferred netdev hold",
+    "public/inner idle still refuses active API CLOSE owner"
+  ],
+  "unsafe_inference": "Empty recovery slot alone cannot identify which ticket released its transferred hold or whether post-unlock dev_put has occurred",
+  "implementation_requirements": [
+    "Capture exact API identity and original ticket while recovery identity still exists",
+    "Claim one release continuation under exclusive reaper/transition lock",
+    "Mark transferred netdev return only after actual dev_put",
+    "Keep adapter/API lifetime fence while between claim and completion",
+    "Reject reused device/generation/token/ticket and duplicate completion",
+    "Define separate extra-module release ordering and remaining executing-code lifetime",
+    "Do not interpret reference-release receipt as RF silence, buffer retirement, isolation removal or reopen permission"
+  ],
+  "runtime_verified": false,
+  "release_implemented": false
+}

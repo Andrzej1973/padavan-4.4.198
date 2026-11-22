@@ -1,0 +1,24 @@
+{
+  "revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "references": [
+    {
+      "file": "ap/ap_connect.c",
+      "line": 1741,
+      "sha256": "5499298bb20028e56401735b5c6ebc2f3716ad087851282d443fd23120b1ed85"
+    },
+    {
+      "file": "hw_ctrl/cmm_asic_mt.c",
+      "line": 566,
+      "sha256": "a2bcc245b48f709164dcc3bbe73267cb8c7c4f4abe8fc6bebdcd6de5d53e6e45"
+    }
+  ],
+  "source_finding": "MT AsicSetMbssMode derives NumOfMacs/MacMask/RMAC_ACBEN from reserved BssidNum plus fixed Mesh/APCLI counts, not active NumOfBcns. GetBcnNum updates BcnBufIdx for active BSS. The legacy RLT/RTMP implementation differs; do not substitute it.",
+  "host_test": "Actual extracted MT functions GCC ASan/UBSan: all4 Guest/IoT active combinations with reserved BssidNum3 and injected MAX_MESH_NUM0/MAX_APCLI_NUM1 yield stable MacMask and RMAC_ACBEN value; active count varies. MMIO injected.",
+  "limitations": [
+    "Compile-time Mesh/APCLI constants in this host fixture are injected, not effective board config proof",
+    "GetBcnNum index writes remain distinct from packet payload and DMA ownership",
+    "No device association continuity verified"
+  ],
+  "runtime_verified": false,
+  "scratch": "Extracted function fixture and binary removed automatically"
+}

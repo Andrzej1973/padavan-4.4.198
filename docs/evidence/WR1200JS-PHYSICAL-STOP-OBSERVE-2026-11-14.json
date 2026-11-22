@@ -1,0 +1,25 @@
+{
+  "scope": "actual record-lifecycle-to-wire ARM/QUERY observer; no installed ioctl",
+  "result": "PASS C11/GNU11 -Werror O2 ASan/UBSan; unified10-part suite29843 exit0",
+  "cases": [
+    "ARM serial reply",
+    "QUERY ARMED/RUNNING/COMPLETE/FAILED from actual record functions",
+    "foreign task/current epoch/current generation/token/close serial/attempt/nonce refusal",
+    "error output cleared",
+    "record bytewise unchanged"
+  ],
+  "sources": {
+    "tools/iot/physical-stop-observe.h": "62eb3d264c38917a311d55c0bce8ebaeab396c4655eaf65af7cac319dfeb7fb8",
+    "tools/iot/check-physical-stop-observe.c": "c39127a2e191ea75990d97e9b40b36be10b1e0613784a6b000ded5218ba423bb"
+  },
+  "required_binding": "live identity must be sampled under actual transition/registry synchronization, not passed cached record identity; serialize record under MacTabLock",
+  "remaining": [
+    "CANCEL/RELEASE retained result publication",
+    "capability/RTNL dispatch",
+    "reset/open admission",
+    "complete candidate/MIPS/device checks"
+  ],
+  "cleanup": "TemporaryDirectories removed",
+  "runtime_verified": false,
+  "released_and_rearmed": "PASS released record refuses old QUERY; new ARM has serial2/nonce2 and still refuses old query; observer cannot synthesize CANCEL/RELEASE terminal receipts"
+}

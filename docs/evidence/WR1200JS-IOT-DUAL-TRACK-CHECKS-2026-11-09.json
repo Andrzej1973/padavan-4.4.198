@@ -1,0 +1,23 @@
+{
+  "scope": "GNU99 native host fixtures with injected backends; not target or router verification",
+  "invocation_correction": "Strict ISO C99 first failed to declare POSIX strtok_r in firewall fixture; reran with GNU99, no source workaround",
+  "checks": {
+    "check-precreated-activation": {
+      "status": "passed",
+      "output": "PASS precreated activation:100 cycles, all11 start-stage and all10 stop-stage failures with persistent-fault retry, loaded-profile refusal, retained rollback, no legacy profile/reload/restore dispatch. Injected backend; loaded identity and hardware pending."
+    },
+    "check-precreated-profile": {
+      "status": "passed",
+      "output": "PASS cold third-profile reservation independent of runtime enable; primary/guest/channel preserved; invalid credentials/enable rejected. No loaded BSS, default OFF, RF or runtime claim."
+    },
+    "check-precreated-profile-request": {
+      "status": "passed",
+      "output": "PASS cold request retains validated credentials while OFF/default-OFF; borrowed buffer snapshots and rejection atomicity; runtime OFF behavior unchanged. Empty unprovisioned credentials refuse; startup fallback not implemented."
+    },
+    "check-firewall": {
+      "status": "passed",
+      "output": "PASS policy normalization: equivalent masks/host addresses/protocol modules/state order, negation preserved, malformed masks/states and bounds rejected\nPASS expected active policy prefixes: complete IPv4/IPv6 plan, prior accept and changed DNS port rejected; live capture not bound\nPASS quarantine snapshot parser: chain prefixes, missing commit, prior accept, wrong interface and duplicate filter rejected; live kernel capture not bound\nPASS IoT firewall fragment candidate: ordered isolation, scoped DHCP/DNS, WAN-only forwarding, no-WAN drop, IPv6 drop, bounded input; packet behavior unverified"
+    }
+  },
+  "runtime_verified": false
+}

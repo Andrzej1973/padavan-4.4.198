@@ -1,0 +1,35 @@
+{
+  "scope": "Unbound Linux-side physical-stop attempt metadata; no hardware completion claim",
+  "source_hashes": {
+    "tools/iot/physical-stop-record.h": "fb30014d21f2ae816bf7b77aad91553622345a76afafa871bdc46c3a40058d26",
+    "tools/iot/check-physical-stop-record.c": "1b95068da87a3d2636454bd4b14cbb18c6f7a5db66dc3c44b7b77784a0eb86fa"
+  },
+  "test": "PASS strict C11 -Werror O2 ASan/UBSan",
+  "verified": [
+    "actual peer table begin/close_seal and executor enter/leave produce required software states",
+    "nonce/serial/epoch/generation/task mismatch leaves record unchanged",
+    "8 failure conditions retain failed owner",
+    "duplicate finish/release/start refuse",
+    "serial persists across release and exhaustion refuses arm"
+  ],
+  "binding_requirements": [
+    "adapter/module/task pinned from arm until proved release",
+    "existing adapter MacTabLock serializes all accesses",
+    "arm binds prior IoT CLOSED token/serial before native stop",
+    "begin on exact matching task entry; shell ifconfig child cannot be assumed PID1",
+    "finish after real close body and executor leave, before exposing receipt",
+    "separate RC receipt transport and reload/open gate"
+  ],
+  "not_implemented": [
+    "driver field/init and entry/finish hooks",
+    "wire/transport",
+    "RC consumption",
+    "post-OPEN physical restart acceptance"
+  ],
+  "cleanup": "completed59368byte test binary removed",
+  "runtime_verified": false,
+  "immediate_nonce_replay": "PASS release retains last nonsecret nonce and next arm refuses it without incrementing serial; historical uniqueness still RC issuer responsibility",
+  "cancel_before_entry": "PASS exact owner can cancel ARMED only; nonce/serial retained, duplicate cancel and running cancel refused",
+  "lock_lifetime_source": "prepare-peer-lock-lifetime.py already moves MacTabLock initialization/final free to adapter lifetime; must verify in actual composed tree",
+  "read_only_observation": "PASS exact nonce/serial/epoch/generation/task and prior token/close serial required; failed/released record refuses; all queries leave state bytewise unchanged"
+}

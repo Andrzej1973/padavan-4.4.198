@@ -1,0 +1,10 @@
+{
+  "observed_utc": "2026-11-15T18:13:02.368271+00:00",
+  "command": "python3 tools/iot/check-physical-initial-handler.py",
+  "result": "PASS",
+  "scope": "Actual C provider and native helper composition with injected kernel primitives. Failed module acquisition unwinds, ARM lost-reply retries preserve single attempt/ref bundle; QUERY readback; foreign CANCEL cannot allocate terminal cache; exact CANCEL and checked Main COMPLETE/RELEASE terminal retries release refs only once. Ioctl dispatch, full SDK/MIPS and physical acceptance not yet verified.",
+  "source_sha256": {
+    "tools/iot/physical-initial-handler.inc": "838baaa038687fedefb563cea5c7ed1a6c795f798a809e9c2b238854ebc358f4",
+    "tools/iot/check-physical-initial-handler.py": "bf3074c9f4ae529a4cea5bb7d4bb211d113aed3ad6b9e9a0aa1dcb9254dfa5a6"
+  }
+}

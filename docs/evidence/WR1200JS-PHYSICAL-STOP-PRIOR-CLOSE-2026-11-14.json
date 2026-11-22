@@ -1,0 +1,22 @@
+{
+  "implementation": "read-only ARM prerequisite reuses actual driver_close_release_reference on local copy of already released CLOSE owner",
+  "test": "PASS C11 -Werror O2 ASan/UBSan; actual existing release fixture/setup used",
+  "checks": [
+    "prior CLOSE actually released first",
+    "epoch/generation/token/serial binding",
+    "active/poisoned owner refusal",
+    "producer/probe/ref holds/reset/removal refusal",
+    "stored CLOSE owner bytewise unchanged"
+  ],
+  "sources": {
+    "tools/iot/physical-stop-prior-close.h": "6ed97078f604c8a0d4978dacfe4871a37f97fe2570373ee1330989b99293ad06",
+    "tools/iot/check-physical-stop-prior-close.py": "a820c904598ffe7da8d78b6ed402be6d64d6765be39db4b372f059f5fe8e8279"
+  },
+  "limits": "prior BSS configuration/reference proof only; caller must serialize current registry/radio and producer observation correctly; no physical teardown permission",
+  "remaining": [
+    "kernel transaction handler/lock integration",
+    "reset/open lifetime admission",
+    "target/full SDK/device checks"
+  ],
+  "cleanup": "TemporaryDirectory removed"
+}

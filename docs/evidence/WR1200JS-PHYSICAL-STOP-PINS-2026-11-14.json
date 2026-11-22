@@ -1,0 +1,30 @@
+{
+  "implementation": "actual kernel reference-bundle source, currently uninstalled",
+  "test": "PASS C11 -Werror O2 ASan/UBSan with kernel refcount operations injected",
+  "checked": [
+    "only current task may acquire",
+    "module refusal acquires nothing",
+    "exactly one extra module/task/netdev hold",
+    "duplicate acquire/drop refuses",
+    "bundle cleared before dev_put reentry",
+    "native baseline references remain1"
+  ],
+  "binding_requirements": [
+    "acquire/drop outside locks",
+    "adapter slot transfer under stable MacTabLock",
+    "cancel or complete record before detaching bundle",
+    "PCI removal must fence on owned record/bundle",
+    "no drop on RUNNING/FAILED"
+  ],
+  "source_hashes": {
+    "tools/iot/physical-stop-pins.inc": "302eab6071dbf8a6bd06296edfa28be1e409321df026a47fe26f7d2bd2c8f239",
+    "tools/iot/check-physical-stop-pins.c": "42319bde66d05b83548a7481e3afbba8b13cfc0920715bd6ebb847d2db8db932"
+  },
+  "target_compiled": false,
+  "runtime_verified": false,
+  "cleanup": "TemporaryDirectory removed",
+  "composition": "PASS actual record+pin publish/detach with lock-aware mocked kernel operations; successful cancel/release count balance, replay publish no transfer, RUNNING/FAILED retain refs",
+  "retirement_predicate": "PASS null refusal and all31 nonempty partial-state combinations; active/failed record blocks. Not installed in retirement callers yet.",
+  "lock_integration_requirement": "Read under same MacTabLock; existing transition-lock-only retirement checks cannot read it directly. RTNL must span detach and outside-lock puts.",
+  "lifetime_composition": "PASS actual transition lifetime + record + pin functions: active after detach, active during final module_put, only ends after all real mock reference counters returned; premature end refuses"
+}

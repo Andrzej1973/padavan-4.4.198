@@ -1,0 +1,44 @@
+{
+  "run_id": 43243676150,
+  "run_number": 1044,
+  "conclusion": "success",
+  "source_revision": "73ed42045dac6836c925886fe9575975ee161af0",
+  "artifact_id": 13957062466,
+  "verification": "Actual downloaded module ELF headers, sizes and SHA256 independently inspected",
+  "modules": [
+    {
+      "path": "mt76x3_ap.ko",
+      "bytes": 5967928,
+      "sha256": "3ce7afc8cb82bdf5a3aacdb6716890cb0e574fde4f7cfb2434e50f6530581cd8",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    {
+      "path": "psm-diagnostics/mt76x3_ap-psm-off.ko",
+      "bytes": 5965896,
+      "sha256": "e3f3570c10dbdcb8d165a1b8a3017ce58bf6b5168a15e60c7d57ca974e8736db",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    {
+      "path": "psm-diagnostics/mt76x3_ap-psm-on.ko",
+      "bytes": 5976236,
+      "sha256": "7ff20a1187eab84dd44eab757338b39a014f9eb67b2b3684f9a01027240fdffd",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    {
+      "path": "reload-feature/mt76x3_ap-reload.ko",
+      "bytes": 5970036,
+      "sha256": "7f2a99894695dd976d79264c93d038baf8dda112425370bb1f2e9149b8f258fb",
+      "elf": "ELF32 little-endian MIPS"
+    },
+    {
+      "path": "wsc-feature/mt76x3_ap-wsc.ko",
+      "bytes": 6577896,
+      "sha256": "f4563a0bf85c594686b67a55cb4303ca5d2361418702bf1fcce85d4520b7182a",
+      "elf": "ELF32 little-endian MIPS"
+    }
+  ],
+  "production_installed": false,
+  "physical_runtime_verified": false,
+  "remaining": "Owner release/reopen and production activation backend incomplete",
+  "scratch": "ZIP processed in memory; no downloaded archive retained"
+}

@@ -1,0 +1,13 @@
+{
+  "observed_utc": "2026-11-15T18:04:55.863681+00:00",
+  "test": "python3 tools/iot/check-physical-initial-query.py",
+  "result": "PASS",
+  "scope": "Actual C QUERY with injected kernel/lock/current actors, real prior Main completion fixture; RUNNING and COMPLETE readback; foreign task/nonce/attempt/lifetime/module refusal with zero reply; RTNL refusal; no work submission or state mutation",
+  "endpoint_installed": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "sha256": {
+    "tools/iot/physical-initial-query.inc": "c9876dfb982bb6e4bd2d8a67bc35626bcbb2c87d58604169f8518f962075acfb",
+    "tools/iot/check-physical-initial-query.py": "0bafd7daaff5f0f6169e3ed3274f23ef15b4401faef5ed8c7bb31fcee08030be"
+  }
+}

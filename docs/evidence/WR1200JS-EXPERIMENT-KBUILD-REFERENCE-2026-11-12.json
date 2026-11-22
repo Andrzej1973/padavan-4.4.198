@@ -1,0 +1,20 @@
+{
+  "reference_run": 43249791415,
+  "artifact": 13959981723,
+  "source": "ebe16bd7f267ec1771fd9629d4591214ce8facd4",
+  "inspected": "Actual downloaded merged-beacon-config.json and command artifact inventory",
+  "beacon_command_sha256": "7f2cddf2c14db50677a962bb4e7c831ec3943452f46cc9c724a0746d52e23872",
+  "observed_driver_includes": [
+    "-Idrivers/net/wireless/mediatek/mt76x3/include",
+    "-Idrivers/net/wireless/mediatek/mt76x3/ate/include"
+  ],
+  "observed_flags": [
+    "-DMT7603",
+    "-DMT_MAC",
+    "-DRTMP_MAC_PCI",
+    "-DRTMP_PCI_SUPPORT"
+  ],
+  "runner_alignment": "Actual observed relative include paths are covered by experimental remapper. Kernel generated/system include paths remain resolved against kernel build directory.",
+  "remaining": "Current exact-source experiment has not yet executed MIPS TU compilation. Historical command inspection does not establish current output.",
+  "scratch": "ZIP processed in memory, no downloaded archive retained"
+}

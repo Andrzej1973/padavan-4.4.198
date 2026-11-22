@@ -1,0 +1,236 @@
+{
+  "scope": "actual reproduced peer-retirement AP source; no mutation/execution",
+  "source_sha256": "d08fdb07a2c42effcde899e4fa0c01c654709c78b3c05f9e06792644b73b7d76",
+  "functions": [
+    {
+      "function": "APStop",
+      "line": 1327,
+      "returns": [
+        {
+          "line": 1370,
+          "statement": "return FALSE;"
+        },
+        {
+          "line": 1483,
+          "statement": "return TRUE;"
+        }
+      ],
+      "reset_before_ft_release": true
+    },
+    {
+      "function": "APStopBssOnly",
+      "line": 1486,
+      "returns": [
+        {
+          "line": 1499,
+          "statement": "return FALSE;"
+        },
+        {
+          "line": 1548,
+          "statement": "return FALSE;"
+        },
+        {
+          "line": 1648,
+          "statement": "return TRUE;"
+        }
+      ],
+      "reset_before_ft_release": true
+    }
+  ],
+  "direct_stop_callers": [
+    {
+      "path": "ap/ap.c",
+      "line": 311,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "ap/ap_cfg.c",
+      "line": 2193,
+      "statement": "if (APStop(pAd)) APStartUp(pAd);"
+    },
+    {
+      "path": "ap/ap_cfg.c",
+      "line": 2637,
+      "statement": "if (!APStop(pAd)) { Status = -EBUSY; break; }"
+    },
+    {
+      "path": "ap/ap_cfg.c",
+      "line": 2672,
+      "statement": "if (!APStop(pAd)) { Status = -EBUSY; break; }"
+    },
+    {
+      "path": "ap/ap_cfg.c",
+      "line": 5812,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "ap/ap_cfg.c",
+      "line": 5820,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "ap/ap_cfg.c",
+      "line": 5828,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "ap/ap_mix_mode.c",
+      "line": 75,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "ate/mt_mac/mt_ate.c",
+      "line": 164,
+      "statement": "if (!APStop(pAd)) return -1;"
+    },
+    {
+      "path": "common/cmm_info.c",
+      "line": 629,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "common/cmm_info.c",
+      "line": 657,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "common/cmm_info.c",
+      "line": 4393,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "common/cmm_info.c",
+      "line": 4428,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "common/cmm_radar.c",
+      "line": 257,
+      "statement": "if (!APStop(pAd)) return;"
+    },
+    {
+      "path": "common/cmm_usb_io.c",
+      "line": 862,
+      "statement": "if (!APStop(pAd)) return NDIS_STATUS_FAILURE;"
+    },
+    {
+      "path": "common/mtusb_io.c",
+      "line": 489,
+      "statement": "if (!APStop(pAd)) return NDIS_STATUS_FAILURE;"
+    },
+    {
+      "path": "common/rtmp_init.c",
+      "line": 2756,
+      "statement": "if (!APStop(pAd)) break;"
+    },
+    {
+      "path": "common/scan.c",
+      "line": 115,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "common/wsc.c",
+      "line": 2718,
+      "statement": "if (!APStop(pAd)) return;"
+    },
+    {
+      "path": "common/wsc.c",
+      "line": 9432,
+      "statement": "if (!APStop(pAd)) return;"
+    },
+    {
+      "path": "easy_setup/mt7603_chip_ops.c",
+      "line": 882,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "easy_setup/mt7603_chip_ops.c",
+      "line": 915,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "easy_setup/mt7603_chip_ops_api.c",
+      "line": 1073,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "easy_setup/mt7603_chip_ops_api.c",
+      "line": 1106,
+      "statement": "if (!APStop(pAd)) return FALSE;"
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "line": 6612,
+      "statement": "if (!APStop(pAd)) return;"
+    },
+    {
+      "path": "os/linux/rt_rbus_pci_drv.c",
+      "line": 1379,
+      "statement": "if (!APStop(pAd)) return;"
+    }
+  ],
+  "close_executor_sha256": "58feca7c44653eac0559a31793e8c60f757279edf24546b546c0df61a2423d33",
+  "carrier_assessment": "Existing executor stores lane/serial only, with no BSS identity or FT ticket; direct APStop callers include config/radar/WSC paths outside RTMPDrvClose, so close executor alone is not sufficient AP ownership",
+  "candidate_source_sha256": {
+    "ap/ap_cfg.c": "b13083337f7972021bf6f71abcd943d2698ea295a5093897bcbbdda92e0a3ec7",
+    "common/cmm_info.c": "919be03073f34bb8c62b7b662f85399f35d626dcd82bfd5be5e5b4e0c834e11a",
+    "hw_ctrl/cmm_asic_mt.c": "1708dec34f2388d4075c815385db759cbbe4b18d49a4d0ea584e0985987d838c",
+    "ap/ap.c": "d08fdb07a2c42effcde899e4fa0c01c654709c78b3c05f9e06792644b73b7d76",
+    "include/ap.h": "eaaae8eb8854dede4be05da3a8e3a49cf868eadd9edaa354614d0a554de509b1"
+  },
+  "pre_stop_mutation_examples": [
+    {
+      "path": "ap/ap_cfg.c",
+      "function": "RTMPAPSetInformation",
+      "lines": "2627-2637",
+      "observation": "AuthMode and PortSecured are changed before APStop; a refused stop returns EBUSY without restoring those fields."
+    },
+    {
+      "path": "ap/ap_cfg.c",
+      "function": "Set_AP_SSID_Proc",
+      "lines": "5802-5813",
+      "observation": "SSID bytes/length are changed and broadcast deauth is sent before APStop; function identity alone cannot distinguish a retry with a new requested SSID."
+    },
+    {
+      "path": "common/cmm_info.c",
+      "function": "Set_HtTxStream_Proc",
+      "lines": "4380-4394",
+      "observation": "TxStream and common HT state are changed before APStop; a later stop refusal leaves the requested state in memory."
+    },
+    {
+      "path": "hw_ctrl/cmm_asic_mt.c",
+      "function": "MTSdioMlmeRadioOff",
+      "lines": "6610-6624",
+      "observation": "Adapter-wide APStop runs before LED/PM/radio-off flag changes; caller has no BSS argument and APStop accepts no operation token."
+    }
+  ],
+  "identity_requirement": "A resumable AP-stop owner must be created at the original operation boundary and carry an immutable operation generation plus scope/request identity through refusal and retry. Function address, adapter pointer, current BSS/MAC, or reread configuration alone cannot prove the retry is the same operation.",
+  "constraints": [
+    "AP interrupt disable precedes fallible MacTableReset/ResetWdev; these are already partial-stop paths",
+    "A local-only FT ticket reserved at entry is lost on reset FALSE and cannot be reacquired while cache is DESTROYING",
+    "Reservation must be stored in an adapter-owned AP operation with exact operation/BSS identity and resume state, or rolled back only when absence of side effects is proved",
+    "Retry must reuse original ticket and skip completed teardown phases; a fresh local ticket or cold-success shortcut is insufficient",
+    "FT_R1KH_KEEP requires retained-cache and releasing-cache operations to have distinct outcomes",
+    "All KDP entrants/release must share lifetime before installing this reservation"
+  ],
+  "next_required": "Bind durable AP operation identity/resume before redirecting FT_Release; inspect existing close executor ownership as the carrier",
+  "producer_installed": false,
+  "target_compiled": false,
+  "bss_only_path": {
+    "declaration": {
+      "path": "include/ap.h",
+      "line": 314
+    },
+    "definition": {
+      "path": "ap/ap.c",
+      "line": 1486
+    },
+    "in_tree_direct_call_sites": 0,
+    "ft_release": {
+      "path": "ap/ap.c",
+      "line": 1640,
+      "scope": "adapter-wide FT_Release after MacTableResetWdev"
+    },
+    "constraint": "Any external BSS-only entry must coordinate with the same adapter-level FT cache lifetime owner; a BSS-local ticket cannot independently release it."
+  }
+}

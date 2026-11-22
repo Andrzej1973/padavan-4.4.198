@@ -1,0 +1,20 @@
+{
+  "issue": "Native physical close may advance radio epoch; preclose epoch is not the final observation epoch",
+  "implementation": "record retains original identity plus completion_epoch; finish_at_epoch requires nonzero monotonic resulting epoch; observer binds live epoch to completion epoch only for COMPLETE",
+  "tests": "PASS unified14-part suite7764 -Werror O2 ASan/UBSan",
+  "verified": [
+    "requestepoch1 -> completionepoch2 accepted",
+    "old currentepoch1 and later resetepoch3 refused",
+    "executor requires separate completion_epoch adapter binding sampled outside MacTabLock",
+    "no stored-epoch fallback in generated executor"
+  ],
+  "sources": {
+    "tools/iot/physical-stop-record.h": "e18f39c128c568afed99e5aae0a45bca6968aaa141dbba972ca833e03d880829",
+    "tools/iot/physical-stop-observe.h": "fcb407526de943310c8cfdb0ad94112390196b9d0832bf9cf694dc3c85d365f9",
+    "tools/iot/physical-stop-executor.py": "781132be3c5b95560853c997c9b692eaee24f06dedf569817bfa3c33ee6d1f2d",
+    "tools/iot/check-physical-stop-observe.c": "007be2697d3c5ca7cb254696a564c6e7d2480427fdcff55ae2c8ca5a51124734"
+  },
+  "remaining": "real completion-epoch sampler/driver state proof and full handler/reset admission; existing same-epoch helper reserved for model fixtures",
+  "cleanup": "TemporaryDirectories removed",
+  "runtime_verified": false
+}

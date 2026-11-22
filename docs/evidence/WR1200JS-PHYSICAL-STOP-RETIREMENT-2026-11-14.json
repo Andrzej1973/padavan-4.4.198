@@ -1,0 +1,23 @@
+{
+  "implementation": "strict work/join retirement transform uses transition-owned physical lifetime only; adapter storage/fresh init extended",
+  "test": "PASS actual composed reaper with existing API reference return helpers, ASan/UBSan; executor/storage test also PASS",
+  "scope": "work source transform checked; actual join/reaper executed with injected kernel refs; not full driver compile",
+  "verified": [
+    "active physical fence prevents retirement readiness",
+    "native dev_put receipt remains pending during put and confirmed afterward",
+    "duplicate does not repeat put",
+    "generation/incomplete cases preserve owner",
+    "no MacTabLock-field sampling under transition lock"
+  ],
+  "sources": {
+    "tools/iot/physical-stop-executor.py": "c10937b25b64982c950043034b229ffb435676bdc50695ba152bd4208b4dbab2",
+    "tools/iot/check-physical-stop-retirement.py": "3b271bfbf7e720fd4a05cfee283c772a0c1c8f25a38ef99197421fc2683dee0f"
+  },
+  "remaining": [
+    "actual arm/return transactional lifetime binding",
+    "full candidate installation and manifest",
+    "wire/API transport and RC consumption",
+    "MIPS/runtime checks"
+  ],
+  "cleanup": "TemporaryDirectories removed"
+}

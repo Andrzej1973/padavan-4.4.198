@@ -1,0 +1,26 @@
+{
+  "implementation": "actual standalone kernel ioctl wrapper, uninstalled/no ioctl number",
+  "test": "PASS C11 -Werror O2 ASan/UBSan; transaction handler injected",
+  "gates": [
+    "RTNL",
+    "net namespace CAP_NET_ADMIN",
+    "MT7603",
+    "exact main netdev and third BSS",
+    "fixed64byte input plus request decoder",
+    "typed exact reply validation before user copy"
+  ],
+  "errors": [
+    "malformed input",
+    "copy_from_user",
+    "strong handler refusal",
+    "invalid handler reply",
+    "copy_to_user failure never reexecutes handler"
+  ],
+  "source_hashes": {
+    "tools/iot/physical-stop-ioctl.inc": "f09fe83a0a788d01c7938ba266868bc234f23a8432b0ebe2b81566906cd2da2e",
+    "tools/iot/check-physical-stop-ioctl.c": "1b685528d5ad31b713b81f188bfe5a7b39c6a6c7f1ea8257f894c903fd91fb5b"
+  },
+  "remaining": "strong physical_stop_handle validates registry/identity, lifetime/reset admission and performs actual record/pin/cache transaction; no fallback supplied",
+  "cleanup": "TemporaryDirectory removed",
+  "runtime_verified": false
+}

@@ -1,0 +1,20 @@
+{
+  "implementation": "separate tree installer for dormant adapter storage, close executor/main-open and retirement transforms",
+  "test": "PASS reviewed source-snippet installer integration",
+  "checks": [
+    "source hashes unchanged",
+    "manifest explicitly marks endpoint/pins/reset admission/target/runtime false",
+    "existing output and duplicate install refused",
+    "symlink source refused before output creation"
+  ],
+  "source_hashes": {
+    "tools/iot/prepare-physical-stop-candidate.py": "08fb0dba884640813a3f993c328f099a15771f6ee6cf4e93b7e71b134fac58e3",
+    "tools/iot/check-physical-stop-candidate.py": "39f306b09ec12c0f1b7a6b9fbcef3fe7acd2c995c49873727d453096182cd044"
+  },
+  "not_verified": [
+    "full composed SDK predecessor compatibility",
+    "MIPS compile",
+    "actual arm/query or RC runtime"
+  ],
+  "cleanup": "TemporaryDirectory removed"
+}

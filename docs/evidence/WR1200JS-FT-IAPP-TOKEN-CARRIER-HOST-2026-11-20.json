@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-20",
+  "scope": "Source-contract audit of FT KDP response token carrier only; native token publication/claim and lease transaction not integrated",
+  "pinned_driver_revision": "c25283e",
+  "daemon_archive": "/home/andrzej/padavan-build/firmware-source-backup/padavan-4.4-c25283e-git-exact.tar",
+  "status": "reserved-field-carrier-verified-response-transaction-open",
+  "checks": [
+    "FT_KDP_EVT_KEY_ELM has three reserved bytes and FT_KDP_PMK_KEY_INFO has four reserved bytes",
+    "prepared token helper packs/unpacks the seven bytes across those exact fields",
+    "local automatic FT request emits the fixed FT_KDP_EVT_KEY_ELM payload after initialization",
+    "pinned daemon copies request and response event payloads into security blocks without interpreting fields",
+    "remote pinned driver processes and emits the same FT_KDP_EVT_KEY_ELM as response",
+    "daemon ACK carries the response block to the local key-response OID on every configured Wi-Fi interface",
+    "separate 8-byte IAPP InitVec is forwarded but is not proven to identify the original request"
+  ],
+  "commands": [
+    {
+      "command": "python3 tools/iot/check-ft-iapp-token-transport.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit_status": 0,
+      "summary": "PASS FT IAPP token carrier, nonce boundary and interface fanout source contract"
+    },
+    {
+      "command": "gcc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-iapp-response-token.c -o /tmp/check-ft-iapp-response-token && /tmp/check-ft-iapp-response-token",
+      "exit_status": 0,
+      "summary": "PASS token identity, timeout/response races, retirement, slot reuse, bounds and AUTH-end arbitration"
+    }
+  ],
+  "source_sha256": {
+    "tools/iot/check-ft-iapp-token-transport.py": "7a33324df6ba266c3114e6a79e77ced98ac1a85f1e363c12af91b2b39287c000",
+    "tools/iot/ft-iapp-response-token.h": "432a59edfb147ae32eb996a8f444eb92b31e7c20cb07d9389ce4e0254ac6e0a4",
+    "tools/iot/check-ft-iapp-response-token.c": "66c262dababa76a11ab21baee8ff4a62e32e5a9387095f1ad0c89faef4cafd8a",
+    "pinned/common/ft.c": "d0adbee2fe62e783c8c2924ae5c16e03b248b613dba91ffbd6e4f8d7fcbdfd85",
+    "pinned/ap/ap_ftkd.c": "19ca90564222128b0a8ef98e7799bd542e5725a71d130c2d6a3e37ffb7488e4b",
+    "pinned/include/ft.h": "95465f2a5f52e84a9663de511a5df9d47edcbbfd386dabb60863bd2d5ab67d9b"
+  },
+  "daemon_member_sha256": {
+    "trunk/user/ralinkiappd/rtmpiapp.c": "be9150ce4240f54656b7c06b6e576b7dec78c6e336e04f78bf1232af37d842a7",
+    "trunk/user/ralinkiappd/rtmpiapp.h": "ed483ce83c98ca93ca921fe123831b41183a0020f30b3439792a61fc84f1b6b4",
+    "trunk/user/ralinkiappd/rt_config.h": "f3d18b6fe2d17f4bb02c8616d10670a025e6262be1dff7625abb23001e7776af"
+  },
+  "native_token_publication": false,
+  "native_response_claim": false,
+  "response_cache_ack_transaction": false,
+  "optional_encryption_roundtrip_verified": false,
+  "target_compiled": false,
+  "runtime_verified": false,
+  "next_required": "Integrate token publication in the exact live AUTH context and claim it before any cache mutation; serialize cache replacement, retry counters, ACK completion and token finish against timeout, generation retirement, deletion and teardown under a proven lock order."
+}

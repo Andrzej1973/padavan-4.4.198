@@ -1,0 +1,148 @@
+{
+  "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+  "scope": "Pinned original Linux ioctl and vendor exit source, before project transformations",
+  "files": {
+    "trunk/linux-4.4.x/net/core/dev_ioctl.c": {
+      "sha256": "56274c5daed81f78c9e83a1c285e22cbf53bdc7fa29ac128d95138a2fa23e8ab",
+      "excerpts": [
+        {
+          "line": 240,
+          "text": "}\n\n/*\n *\tPerform the SIOCxIFxxx calls, inside rtnl_lock()\n */\nstatic int dev_ifsioc(struct net *net, struct ifreq *ifr, unsigned int cmd)\n{\n\tint err;\n\tstruct net_device *dev = __dev_get_by_name(net, ifr->ifr_name);\n\tconst struct net_device_ops *ops;\n"
+        },
+        {
+          "line": 320,
+          "text": "\t *\tUnknown or private ioctl\n\t */\n\tdefault:\n\t\tif ((cmd >= SIOCDEVPRIVATE &&\n\t\t    cmd <= SIOCDEVPRIVATE + 15) ||\n\t\t    cmd == SIOCBONDENSLAVE ||\n\t\t    cmd == SIOCBONDRELEASE ||\n\t\t    cmd == SIOCBONDSETHWADDR ||\n\t\t    cmd == SIOCBONDSLAVEINFOQUERY ||\n\t\t    cmd == SIOCBONDINFOQUERY ||\n\t\t    cmd == SIOCBONDCHANGEACTIVE ||"
+        },
+        {
+          "line": 321,
+          "text": "\t */\n\tdefault:\n\t\tif ((cmd >= SIOCDEVPRIVATE &&\n\t\t    cmd <= SIOCDEVPRIVATE + 15) ||\n\t\t    cmd == SIOCBONDENSLAVE ||\n\t\t    cmd == SIOCBONDRELEASE ||\n\t\t    cmd == SIOCBONDSETHWADDR ||\n\t\t    cmd == SIOCBONDSLAVEINFOQUERY ||\n\t\t    cmd == SIOCBONDINFOQUERY ||\n\t\t    cmd == SIOCBONDCHANGEACTIVE ||\n\t\t    cmd == SIOCGMIIPHY ||"
+        },
+        {
+          "line": 406,
+          "text": "\t */\n\n\tif (cmd == SIOCGIFCONF) {\n\t\trtnl_lock();\n\t\tret = dev_ifconf(net, (char __user *) arg);\n\t\trtnl_unlock();\n\t\treturn ret;\n\t}\n\tif (cmd == SIOCGIFNAME)\n\t\treturn dev_ifname(net, (struct ifreq __user *)arg);\n"
+        },
+        {
+          "line": 408,
+          "text": "\tif (cmd == SIOCGIFCONF) {\n\t\trtnl_lock();\n\t\tret = dev_ifconf(net, (char __user *) arg);\n\t\trtnl_unlock();\n\t\treturn ret;\n\t}\n\tif (cmd == SIOCGIFNAME)\n\t\treturn dev_ifname(net, (struct ifreq __user *)arg);\n\n\tif (copy_from_user(&ifr, arg, sizeof(struct ifreq)))\n\t\treturn -EFAULT;"
+        },
+        {
+          "line": 457,
+          "text": "\n\tcase SIOCETHTOOL:\n\t\tdev_load(net, ifr.ifr_name);\n\t\trtnl_lock();\n\t\tret = dev_ethtool(net, &ifr);\n\t\trtnl_unlock();\n\t\tif (!ret) {\n\t\t\tif (colon)\n\t\t\t\t*colon = ':';\n\t\t\tif (copy_to_user(arg, &ifr,\n\t\t\t\t\t sizeof(struct ifreq)))"
+        },
+        {
+          "line": 459,
+          "text": "\t\tdev_load(net, ifr.ifr_name);\n\t\trtnl_lock();\n\t\tret = dev_ethtool(net, &ifr);\n\t\trtnl_unlock();\n\t\tif (!ret) {\n\t\t\tif (colon)\n\t\t\t\t*colon = ':';\n\t\t\tif (copy_to_user(arg, &ifr,\n\t\t\t\t\t sizeof(struct ifreq)))\n\t\t\t\tret = -EFAULT;\n\t\t}"
+        },
+        {
+          "line": 481,
+          "text": "\t\tif (!ns_capable(net->user_ns, CAP_NET_ADMIN))\n\t\t\treturn -EPERM;\n\t\tdev_load(net, ifr.ifr_name);\n\t\trtnl_lock();\n\t\tret = dev_ifsioc(net, &ifr, cmd);\n\t\trtnl_unlock();\n\t\tif (!ret) {\n\t\t\tif (colon)\n\t\t\t\t*colon = ':';\n\t\t\tif (copy_to_user(arg, &ifr,\n\t\t\t\t\t sizeof(struct ifreq)))"
+        },
+        {
+          "line": 483,
+          "text": "\t\tdev_load(net, ifr.ifr_name);\n\t\trtnl_lock();\n\t\tret = dev_ifsioc(net, &ifr, cmd);\n\t\trtnl_unlock();\n\t\tif (!ret) {\n\t\t\tif (colon)\n\t\t\t\t*colon = ':';\n\t\t\tif (copy_to_user(arg, &ifr,\n\t\t\t\t\t sizeof(struct ifreq)))\n\t\t\t\tret = -EFAULT;\n\t\t}"
+        },
+        {
+          "line": 532,
+          "text": "\tcase SIOCBONDSLAVEINFOQUERY:\n\tcase SIOCBONDINFOQUERY:\n\t\tdev_load(net, ifr.ifr_name);\n\t\trtnl_lock();\n\t\tret = dev_ifsioc(net, &ifr, cmd);\n\t\trtnl_unlock();\n\t\treturn ret;\n\n\tcase SIOCGIFMEM:\n\t\t/* Get the per device memory space. We can add this but\n\t\t * currently do not support it */"
+        },
+        {
+          "line": 534,
+          "text": "\t\tdev_load(net, ifr.ifr_name);\n\t\trtnl_lock();\n\t\tret = dev_ifsioc(net, &ifr, cmd);\n\t\trtnl_unlock();\n\t\treturn ret;\n\n\tcase SIOCGIFMEM:\n\t\t/* Get the per device memory space. We can add this but\n\t\t * currently do not support it */\n\tcase SIOCSIFMEM:\n\t\t/* Set the per device memory buffer space."
+        },
+        {
+          "line": 552,
+          "text": "\tdefault:\n\t\tif (cmd == SIOCWANDEV ||\n\t\t    cmd == SIOCGHWTSTAMP ||\n\t\t    (cmd >= SIOCDEVPRIVATE &&\n\t\t     cmd <= SIOCDEVPRIVATE + 15)) {\n\t\t\tdev_load(net, ifr.ifr_name);\n\t\t\trtnl_lock();\n\t\t\tret = dev_ifsioc(net, &ifr, cmd);\n\t\t\trtnl_unlock();\n\t\t\tif (!ret && copy_to_user(arg, &ifr,\n\t\t\t\t\t\t sizeof(struct ifreq)))"
+        },
+        {
+          "line": 553,
+          "text": "\t\tif (cmd == SIOCWANDEV ||\n\t\t    cmd == SIOCGHWTSTAMP ||\n\t\t    (cmd >= SIOCDEVPRIVATE &&\n\t\t     cmd <= SIOCDEVPRIVATE + 15)) {\n\t\t\tdev_load(net, ifr.ifr_name);\n\t\t\trtnl_lock();\n\t\t\tret = dev_ifsioc(net, &ifr, cmd);\n\t\t\trtnl_unlock();\n\t\t\tif (!ret && copy_to_user(arg, &ifr,\n\t\t\t\t\t\t sizeof(struct ifreq)))\n\t\t\t\tret = -EFAULT;"
+        },
+        {
+          "line": 555,
+          "text": "\t\t    (cmd >= SIOCDEVPRIVATE &&\n\t\t     cmd <= SIOCDEVPRIVATE + 15)) {\n\t\t\tdev_load(net, ifr.ifr_name);\n\t\t\trtnl_lock();\n\t\t\tret = dev_ifsioc(net, &ifr, cmd);\n\t\t\trtnl_unlock();\n\t\t\tif (!ret && copy_to_user(arg, &ifr,\n\t\t\t\t\t\t sizeof(struct ifreq)))\n\t\t\t\tret = -EFAULT;\n\t\t\treturn ret;\n\t\t}"
+        },
+        {
+          "line": 557,
+          "text": "\t\t\tdev_load(net, ifr.ifr_name);\n\t\t\trtnl_lock();\n\t\t\tret = dev_ifsioc(net, &ifr, cmd);\n\t\t\trtnl_unlock();\n\t\t\tif (!ret && copy_to_user(arg, &ifr,\n\t\t\t\t\t\t sizeof(struct ifreq)))\n\t\t\t\tret = -EFAULT;\n\t\t\treturn ret;\n\t\t}\n\t\t/* Take care of Wireless Extensions */\n\t\tif (cmd >= SIOCIWFIRST && cmd <= SIOCIWLAST)"
+        }
+      ]
+    },
+    "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/rt_main_dev.c": {
+      "sha256": "47357250d8e7c5dea3b11ae28e03aa35bcba6e9d8cae660948e420f279c9bbd4",
+      "excerpts": []
+    },
+    "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/multi_main_dev.c": {
+      "sha256": "ab90ff2e80df1708e64cab4db070c3c6018b4f8f7dd165227008154259bf932f",
+      "excerpts": [
+        {
+          "line": 55,
+          "text": "}\n\n\nstatic void __exit wifi_drv_cleanup_module(void)\n{\n//\tint status = 0;\n\n#ifdef RTMP_PCI_SUPPORT\n\trt_pci_cleanup_module();\n\tprintk(\"Unregister PCI device driver\\n\");\n#endif /* RTMP_PCI_SUPPORT */\n"
+        },
+        {
+          "line": 60,
+          "text": "//\tint status = 0;\n\n#ifdef RTMP_PCI_SUPPORT\n\trt_pci_cleanup_module();\n\tprintk(\"Unregister PCI device driver\\n\");\n#endif /* RTMP_PCI_SUPPORT */\n\n\n}\n\n\nmodule_init(wifi_drv_init_module);"
+        },
+        {
+          "line": 69,
+          "text": "\n\nmodule_init(wifi_drv_init_module);\nmodule_exit(wifi_drv_cleanup_module);\n\n#endif /* MULTI_INF_SUPPORT */\n"
+        }
+      ]
+    },
+    "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/pci_main_dev.c": {
+      "sha256": "ea7ec584066b1f9afb1586aca5144d9dca2abbdf6bcf3de84f7f3cc774d0138e",
+      "excerpts": [
+        {
+          "line": 408,
+          "text": "\n\n\t\t/* Free RTMP_ADAPTER related structures. */\n\t\tRtmpRaDevCtrlExit(pAd);\n\t\t\n\t\t/* Unmap CSR base address */\n\t\tiounmap((char *)(csr_addr));\n\t\t\n\t\t/* release memory region */\n\t\trelease_mem_region(pci_resource_start(pci_dev, 0), pci_resource_len(pci_dev, 0));\n\t}\n\telse"
+        },
+        {
+          "line": 478,
+          "text": "}\n\n\nvoid __exit rt_pci_cleanup_module(void)\n{\n    pci_unregister_driver(&rt_pci_driver);\n}\n\n#ifndef MULTI_INF_SUPPORT\nmodule_init(rt_pci_init_module);\nmodule_exit(rt_pci_cleanup_module);\n"
+        },
+        {
+          "line": 480,
+          "text": "\nvoid __exit rt_pci_cleanup_module(void)\n{\n    pci_unregister_driver(&rt_pci_driver);\n}\n\n#ifndef MULTI_INF_SUPPORT\nmodule_init(rt_pci_init_module);\nmodule_exit(rt_pci_cleanup_module);\n\n\n#endif /* MULTI_INF_SUPPORT */"
+        },
+        {
+          "line": 485,
+          "text": "\n#ifndef MULTI_INF_SUPPORT\nmodule_init(rt_pci_init_module);\nmodule_exit(rt_pci_cleanup_module);\n\n\n#endif /* MULTI_INF_SUPPORT */\n"
+        }
+      ]
+    },
+    "trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x3/os/linux/sdio_main_dev.c": {
+      "sha256": "8d30142f99b9f567cd4ec48f0f61c3116f977070589f9fe49baa10d781eb4009",
+      "excerpts": [
+        {
+          "line": 190,
+          "text": "\n\n\t\t/* Free RTMP_ADAPTER related structures. */\n\t\tRtmpRaDevCtrlExit(pAd);\n\t}\n\telse\n\t{\n\t\t/* Unregister network device */\n\t\tRtmpOSNetDevDetach(net_dev);\n\t}\n   sdio_claim_host(func);\n   ret = sdio_release_irq(func);"
+        },
+        {
+          "line": 261,
+          "text": "}\n\n\nvoid __exit rt_sdio_cleanup_module(void)\n{\n//\tsdio_unregister_driver(&rt_sdio_driver);\n   sdio_unregister_driver(&rt_sdio_drv);\n\n}\n\n\n#ifndef MULTI_INF_SUPPORT"
+        },
+        {
+          "line": 263,
+          "text": "\nvoid __exit rt_sdio_cleanup_module(void)\n{\n//\tsdio_unregister_driver(&rt_sdio_driver);\n   sdio_unregister_driver(&rt_sdio_drv);\n\n}\n\n\n#ifndef MULTI_INF_SUPPORT\nmodule_init(rt_sdio_init_module);\nmodule_exit(rt_sdio_cleanup_module);"
+        },
+        {
+          "line": 264,
+          "text": "void __exit rt_sdio_cleanup_module(void)\n{\n//\tsdio_unregister_driver(&rt_sdio_driver);\n   sdio_unregister_driver(&rt_sdio_drv);\n\n}\n\n\n#ifndef MULTI_INF_SUPPORT\nmodule_init(rt_sdio_init_module);\nmodule_exit(rt_sdio_cleanup_module);\n"
+        },
+        {
+          "line": 271,
+          "text": "\n#ifndef MULTI_INF_SUPPORT\nmodule_init(rt_sdio_init_module);\nmodule_exit(rt_sdio_cleanup_module);\n\nMODULE_LICENSE(\"GPL\");\nMODULE_AUTHOR(\"MediaTek Inc\");\nMODULE_DESCRIPTION(\"MediaTek SDIO Driver\");\n#endif /* MULTI_INF_SUPPORT */\n"
+        }
+      ]
+    },
+    "trunk/linux-4.4.x/kernel/module.c": {
+      "sha256": "9cb816ad8de0dc1bcbe272be34ab8ab42fca9cf1c0ee4924d05b811dbe28368d",
+      "delete_module_line": 953,
+      "delete_module_body": "SYSCALL_DEFINE2(delete_module, const char __user *, name_user,\n\t\tunsigned int, flags)\n{\n\tstruct module *mod;\n\tchar name[MODULE_NAME_LEN];\n\tint ret, forced = 0;\n\n\tif (!capable(CAP_SYS_MODULE) || modules_disabled)\n\t\treturn -EPERM;\n\n\tif (strncpy_from_user(name, name_user, MODULE_NAME_LEN-1) < 0)\n\t\treturn -EFAULT;\n\tname[MODULE_NAME_LEN-1] = '\\0';\n\n\tif (mutex_lock_interruptible(&module_mutex) != 0)\n\t\treturn -EINTR;\n\n\tmod = find_module(name);\n\tif (!mod) {\n\t\tret = -ENOENT;\n\t\tgoto out;\n\t}\n\n\tif (!list_empty(&mod->source_list)) {\n\t\t/* Other modules depend on us: get rid of them first. */\n\t\tret = -EWOULDBLOCK;\n\t\tgoto out;\n\t}\n\n\t/* Doing init or already dying? */\n\tif (mod->state != MODULE_STATE_LIVE) {\n\t\t/* FIXME: if (force), slam module count damn the torpedoes */\n\t\tpr_debug(\"%s already dying\\n\", mod->name);\n\t\tret = -EBUSY;\n\t\tgoto out;\n\t}\n\n\t/* If it has an init func, it must have an exit func to unload */\n\tif (mod->init && !mod->exit) {\n\t\tforced = try_force_unload(flags);\n\t\tif (!forced) {\n\t\t\t/* This module can't be removed */\n\t\t\tret = -EBUSY;\n\t\t\tgoto out;\n\t\t}\n\t}\n\n\t/* Stop the machine so refcounts can't move and disable module. */\n\tret = try_stop_module(mod, flags, &forced);\n\tif (ret != 0)\n\t\tgoto out;\n\n\tmutex_unlock(&module_mutex);\n\t/* Final destruction now no one is using it. */\n\tif (mod->exit != NULL)\n\t\tmod->exit();\n\tblocking_notifier_call_chain(&module_notify_list,\n\t\t\t\t     MODULE_STATE_GOING, mod);\n\tasync_synchronize_full();\n\n\t/* Store the name of the last unloaded module for diagnostic purposes */\n\tstrlcpy(last_unloaded_module, mod->name, sizeof(last_unloaded_module));\n\n\tfree_module(mod);\n\treturn 0;\nout:\n\tmutex_unlock(&module_mutex);\n\treturn ret;\n}"
+    }
+  },
+  "kernel_private_ioctl_rtnl_confirmed": true,
+  "module_release_implemented": false,
+  "scope_limit": "Original pinned source only; successor remove/free fences and async work ordering require separate validation",
+  "last_module_hold_risk": "Linux delete_module calls exit then free_module; vendor PCI remove is void. A retained adapter/free-fence refusal alone is not proof that executing worker module text stays allocated.",
+  "release_implemented": false
+}

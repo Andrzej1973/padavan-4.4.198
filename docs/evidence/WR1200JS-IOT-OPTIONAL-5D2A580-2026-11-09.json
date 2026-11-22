@@ -1,0 +1,420 @@
+{
+  "run_id": 42630814928,
+  "artifact_id": 13682232184,
+  "verified_revision": "5d2a5802d6a9f492baecd167934b0e1264c1b375",
+  "dispatch_revision": "ee6cc2ba4eeb4a22bf43661771d4a45a10868b22",
+  "runtime_verified": false,
+  "reports": {
+    "target-compile-result.json": {
+      "schema": 1,
+      "candidate_variant": "peer82",
+      "repository_revision": "5d2a5802d6a9f492baecd167934b0e1264c1b375",
+      "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false,
+      "module": "mt76x3_ap.ko",
+      "module_bytes": 5874864,
+      "module_sha256": "e33fa18c30530c73c933ec7242efa1408c4354e414a41593c2744f1d5540c77c",
+      "compiled_task_macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      },
+      "compiled_nettask_macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      },
+      "compiled_ap_startup_macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      },
+      "compiled_beacon_macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": false,
+        "WSC_AP_SUPPORT": false,
+        "WSC_V2_SUPPORT": false,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      },
+      "ap_startup_command_sha256": "fb845fa5dd74cf3b19c001bb6c1ae904ecbc5d8ee3b0de5785b7054e186d2c22",
+      "ap_startup_source_sha256": "8f55861313a6bb3539a1f3be91885caca9365ddbc9efb7e30caac3969cd59f3f",
+      "beacon_command_sha256": "7a6b02be3b32a28dff13c81b03f375e8c1368cf2b77578260be0d4a6d7c109ed",
+      "beacon_source_sha256": "423abcda27d448cd68f9d6fa667c30427fee3ee5019f63ac39ed3b4a0a367d3a",
+      "nettask_command_sha256": "ef5b46e10bf46069b59464b6f2ecaa7c56e81b7b0f8729ec462a70e86a05912d",
+      "nettask_source_sha256": "4bff8bb0cc5a254715ea58e7bc36b5755e1aca0436e8d3ca0796d6685caa21f0",
+      "task_command_sha256": "8a9eda69f6f6c8ccb03cf277d337f713f03b1e7c7916ed638f29aa05559f65b8",
+      "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+      "channel_target_config_sha256": "b6971ba53fcdee935f1426ac8e7c459dd4974f3b50f19534b6f95b272ffd8bf5"
+    },
+    "close-bindings-target-tu.json": {
+      "status": "passed",
+      "scope": "staged CLOSE bindings in actual rt_main_dev TU; not linked or installed",
+      "runtime_verified": false,
+      "endpoint_installed": false,
+      "resource_retirement_verified": false,
+      "compiled_bundle_source_sha256": {
+        "driver-api-close-admission.h": "7e58154dda1fe718d4fc15769fbada0032c6954fe4722016822b2456e75ffbbe",
+        "driver-api-close-bundle.h": "5e1518277facc5c5887937ca0bfe32e278903a9b80108217640e880869071cf7",
+        "driver-api-close-completion.h": "dabcc2a5b6d73bdb3086fc804913273a8ff5d1897e385af2971894cc88785996",
+        "driver-api-close-enter.inc": "34b23d8f3bcfffeecb4fab47f8932a2e1a373fdac3faef83bf6854fb8d65859f",
+        "driver-api-close-entry.inc": "a6c6a1bebb50d1d2c59c0d17718022f3d2c6eddc49a5a0c7b3749a7e9700559a",
+        "driver-api-close-finish-binding.inc": "b123c6be45872baba99433354a12a919783e1a50de8e40152fa304472da81e8d",
+        "driver-api-close-finish-recovery.inc": "fc79167c1ef971c8eaf6ed020fafa55c550133e5175db9b6e7e1ecba8173924a",
+        "driver-api-close-finish.h": "00cd558ddd51ab44d6505598369bf6a7e49b391557a21a051017a049a7cd7c1a",
+        "driver-api-close-join.h": "e65042947eea28d952a4275bcd6ab8e727ac4bcc0d9d9e9e3f1db82bb6c5aadc",
+        "driver-api-close-owner.h": "42df58da1a527e6d5e4008eabcd7b944838ec2164977e4aa85eb2f7de6e308c4",
+        "driver-api-close-progress-entry.inc": "d418aafd3096a8f29ff7a62e1e1088b8cebe90dddf62ed413e16d78c4c119cb4",
+        "driver-api-close-progress-ioctl.inc": "8ee111a038678892db6e44bde84330e6017637fdf1dda7fbe4a0eb542967cbbc",
+        "driver-api-close-progress-match.h": "2c57eabab319696cdbe7eb379e538f4caa7e8dc1d86cebfce8217fffebdea5b2",
+        "driver-api-close-progress-wire.h": "e1c546e1651b66a3e3fde66f22cb4d2c1234974c2412e948584e102243b7294e",
+        "driver-api-close-progress.inc": "d13042037f6b63f7a4143bc5dbe42f7448fde787475a7dade8b3f45ef9838e30",
+        "driver-api-close-recovery-binding.inc": "e4cd77a065049c8d91cff779c37c7274ba65ad42b344f0fb326a1c54a5b16290",
+        "driver-api-close-recovery.h": "63beb5120f8da45ae661ea0307336ba3c143a5f1887d7e6b43bd10e79f67ec25",
+        "driver-api-close-retirement-binding.inc": "1b33ad7b6263caf060065b5c94af25bb5b91e54a8df2e849247b7f7b47da0fce",
+        "driver-api-close-retirement-cancel.inc": "2d7844b4d4e0d85904fbef7da98f1d154753e0e2fe8e8e0c4bf865ee7d46f797",
+        "driver-api-close-retirement-create.inc": "b5dfba5b3bc304a4aa60d083826ad963b0ba5b948cc84db58c3cd88725c0014b",
+        "driver-api-close-retirement-launch.inc": "257f268175096ec33be9f1692a238016d64e680970d130b3707a3c58c5e94370",
+        "driver-api-close-retirement-reconcile.inc": "245fcecc91383e617c6ed1c6a726eb371b3cbfb888b475ff3df6cf6649149f1b",
+        "driver-api-close-retirement-start.inc": "16dbc7e9fe15689bc6dd9d50fd8313de930a782d6b011f3d2682f280c7167f54",
+        "driver-api-close-retirement-thread-body.inc": "2974c98887e752cca2d0ecc9e49123d6b92390f5d36923c30ae3dbe2d1d5d7b7",
+        "driver-api-close-retirement-thread-entry.inc": "711f4a56fd95604541a57c887a895d2ee11b3fa7faafcf6ad0a1187990566e57",
+        "driver-api-close-retirement.h": "bb8e8d53ca20d277a4d3208c5a3b34e9a79e6b422622e0b795074e6f19b7f279",
+        "driver-api-close-synchronous-put.h": "d3a4c0a0d5c700cc6b119503573ac755d113001aac5a3f7cf17f675240e4db54",
+        "driver-api-close-synchronous-put.inc": "4fcb51ec0bf1885d3396958acb3ff8a96db52179114c639e0d89617f4654dcf2",
+        "driver-api-close-wire.h": "e9616dea37fc6c253eb55333faf5804e789678d6c7958aa9c37cec0a9fc9d428",
+        "driver-api-owner.h": "419d584b61b77febfaad6645b5e70de3d89c57cb52e9efc244ebd7868218ada2",
+        "driver-api-wire.h": "121ddcce90083db8a9e377dc8274c12c80b85558cc9a62527de72a2d004bae0a",
+        "interface-reference.h": "307538acc32bb62d64d55730d77611fea783b7995ac0e7d8f0b8e32bfe932503",
+        "interface-registry.h": "bb789eb32871ab1c97b98d57d29c254242fb6e9411e7acdf22afd96b4a2bb541",
+        "mbss-close-receipt.h": "9e82c164b8ec3f2723e15e7117726a2368db8e96e9a3807ab34bb891a0540a7d",
+        "mbss-close-recovery-owner.h": "b1f4c9e6bd5ba6bc41052c7a51afff04eac974c10813cd4c378ce3095b5384cc",
+        "mbss-poll-lifetime.h": "7e92c54b6de13001b26f27f0734312d94fbb30a7d10a0dd4bdbf5669bb2357e7",
+        "mbss-reaper-gate.h": "39b6233561a31c0e1a6fc477bf67c912e0cc1f42cf78295be89495b9c06db4f4",
+        "mbss-recovery-storage.h": "e1b3cdb163475962509c723ef3317f06c1e6607ac09494c5936a3677395dd6a2",
+        "radio-transition-api.h": "7cb51bc18daf93617e4052b469f60540df818e46f1cb6f1d983bedacb99c8d51",
+        "radio-transition.h": "7cb51bc18daf93617e4052b469f60540df818e46f1cb6f1d983bedacb99c8d51",
+        "virtual-open-claim.h": "8bb2017fae17f18ef6d31e50dc577aeb9db83497b049d246b36b29b1677a913b"
+      },
+      "ordinary_driver_bundle_present": true,
+      "command_sha256": "8225d2932a00e0fd7378e504e45309980e3836cb712564780789576c6f40a081",
+      "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "binding_source_sha256": {
+        "driver-api-close-finish.h": "00cd558ddd51ab44d6505598369bf6a7e49b391557a21a051017a049a7cd7c1a",
+        "driver-api-close-recovery.h": "63beb5120f8da45ae661ea0307336ba3c143a5f1887d7e6b43bd10e79f67ec25",
+        "driver-api-close-progress-match.h": "2c57eabab319696cdbe7eb379e538f4caa7e8dc1d86cebfce8217fffebdea5b2",
+        "driver-api-close-enter.inc": "34b23d8f3bcfffeecb4fab47f8932a2e1a373fdac3faef83bf6854fb8d65859f",
+        "driver-api-close-finish-binding.inc": "b123c6be45872baba99433354a12a919783e1a50de8e40152fa304472da81e8d",
+        "driver-api-close-recovery-binding.inc": "e4cd77a065049c8d91cff779c37c7274ba65ad42b344f0fb326a1c54a5b16290",
+        "driver-api-close-finish-recovery.inc": "fc79167c1ef971c8eaf6ed020fafa55c550133e5175db9b6e7e1ecba8173924a",
+        "driver-api-close-entry.inc": "a6c6a1bebb50d1d2c59c0d17718022f3d2c6eddc49a5a0c7b3749a7e9700559a",
+        "driver-api-close-synchronous-put.h": "d3a4c0a0d5c700cc6b119503573ac755d113001aac5a3f7cf17f675240e4db54",
+        "driver-api-close-synchronous-put.inc": "4fcb51ec0bf1885d3396958acb3ff8a96db52179114c639e0d89617f4654dcf2",
+        "driver-api-close-retirement.h": "bb8e8d53ca20d277a4d3208c5a3b34e9a79e6b422622e0b795074e6f19b7f279",
+        "driver-api-close-retirement-binding.inc": "1b33ad7b6263caf060065b5c94af25bb5b91e54a8df2e849247b7f7b47da0fce",
+        "driver-api-close-retirement-create.inc": "b5dfba5b3bc304a4aa60d083826ad963b0ba5b948cc84db58c3cd88725c0014b",
+        "driver-api-close-retirement-cancel.inc": "2d7844b4d4e0d85904fbef7da98f1d154753e0e2fe8e8e0c4bf865ee7d46f797",
+        "driver-api-close-retirement-start.inc": "16dbc7e9fe15689bc6dd9d50fd8313de930a782d6b011f3d2682f280c7167f54",
+        "driver-api-close-retirement-thread-entry.inc": "711f4a56fd95604541a57c887a895d2ee11b3fa7faafcf6ad0a1187990566e57",
+        "driver-api-close-retirement-thread-body.inc": "2974c98887e752cca2d0ecc9e49123d6b92390f5d36923c30ae3dbe2d1d5d7b7",
+        "driver-api-close-retirement-launch.inc": "257f268175096ec33be9f1692a238016d64e680970d130b3707a3c58c5e94370",
+        "driver-api-close-retirement-reconcile.inc": "245fcecc91383e617c6ed1c6a726eb371b3cbfb888b475ff3df6cf6649149f1b",
+        "driver-api-close-progress.inc": "d13042037f6b63f7a4143bc5dbe42f7448fde787475a7dade8b3f45ef9838e30",
+        "driver-api-close-progress-wire.h": "e1c546e1651b66a3e3fde66f22cb4d2c1234974c2412e948584e102243b7294e",
+        "driver-api-close-progress-entry.inc": "d418aafd3096a8f29ff7a62e1e1088b8cebe90dddf62ed413e16d78c4c119cb4",
+        "driver-api-close-progress-ioctl.inc": "8ee111a038678892db6e44bde84330e6017637fdf1dda7fbe4a0eb542967cbbc",
+        "driver-api-close-bundle.h": "5e1518277facc5c5887937ca0bfe32e278903a9b80108217640e880869071cf7"
+      },
+      "driver_source_sha256": "896f27aef728cff325ff872dc55da3d45c17e803a7220f6d01e29394efd47c44",
+      "retirement_locked_binding_compiled": true,
+      "nonreturning_module_exit_compiled": true,
+      "stopped_kthread_create_compiled": true,
+      "thread_exit_context_checks": "designated current task, PF_KTHREAD, not PF_WQ_WORKER; compile only",
+      "object_sha256": "35daa63147c665975d13662513ee4ee3b8aa5b268c8fbc3696e3bc7d4d48b7f1",
+      "object_bytes": 242376,
+      "probe_symbol_bytes": 5616,
+      "probe_source_sha256": "78d31a72abe6e86ab05cdb7e964ed0246dcc695634a21789b61564bbd10bd08e"
+    },
+    "psm-diagnostics/target-result.json": {
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false,
+      "variants": {
+        "off": {
+          "bytes": 5872796,
+          "sha256": "617ad3613d3bda0afdb199ada048b0f03891a46b2f00dd2d863ab988410a3347",
+          "objects": {
+            "txs": {
+              "object_sha256": "9ff07362bd4b15eafb8eb678d180aff488ad0edeeea431eeb3feca3a9e7f748a",
+              "command_sha256": "2ab63119aa1509ea15fc43d9e2c2557c7cd2ca80fb591acb5aeaa7dddbbf8c4a"
+            },
+            "ap_connect": {
+              "object_sha256": "2109df802ad6f53d4c9a66495be5a1a47f6291b5d16d9f4426700950ea362b49",
+              "command_sha256": "ead46fd27d5436001f5e6c0e708012a96bafa98e95df46d3f89e84de2ffb08ea"
+            },
+            "ap": {
+              "object_sha256": "8840192b93b9f4b80905cf417dd66198a7cde66deb5b843521145ffe494622dc",
+              "command_sha256": "af1809be743b23b371393ad5ce1b7bd32600888b244ff7cf3d4b38f4e26fdf24"
+            },
+            "mt_ps": {
+              "object_sha256": "0bcc03febffc7cf3a22086f2fb5497f59b07d6bc8eb4e47c84eaba98776a6634",
+              "command_sha256": "f951314f365f9e3673cd2d4874b2e3f36b543218e8e642761a2d88605a0f9cd0"
+            }
+          }
+        },
+        "on": {
+          "bytes": 5880040,
+          "sha256": "c84a88b3b327f13069ba629165923f4f1089bbf3e069c3ef891cb422e641734c",
+          "objects": {
+            "txs": {
+              "object_sha256": "67add1f6d9359b646b0928105973c301971e86bfdf94bdc4beea6e86da483f46",
+              "command_sha256": "faa01e91366684453ce78164ca87518aeae998c62f609b2eb543cb8fcec34338"
+            },
+            "ap_connect": {
+              "object_sha256": "14ea90a2ea45a32e96caead75e5e290246dac99ab03841858813dc7778da1466",
+              "command_sha256": "5d9b8481c1ad80f39ff8309497f71e2d8eeac8b3593661d46e43c70ee55e8cb5"
+            },
+            "ap": {
+              "object_sha256": "994defcd2ffc9d44a3e48ae59feb659499dc3137d7173ff2bc89b88fe103c2fa",
+              "command_sha256": "ea39b595a7a37026b93397b8764d619965e62ac36b253169db91fb09b564d90d"
+            },
+            "mt_ps": {
+              "object_sha256": "6f4d5edffe799d8e6caecf2fd30919f8547f634823a4cf8ebeffe87ef581681d",
+              "command_sha256": "1031aed93870abd8e61af7cd5c04d93accca7b7c4abfa427e2b227d7a844285b"
+            }
+          }
+        }
+      },
+      "source_sha256": {
+        "common/mt_ps.c": "6c14d46ffd82b480094f2dddfdadfe9324c17ebe3d0b6dcb7a6980f38d022389",
+        "ap/ap.c": "6f7357346cb30184bfdc808f9f48d22fedb99029cba1919fc733c6fcb1b98482",
+        "ap/ap_connect.c": "b23799750f6f2ca03d72579903345c77982104a3a2fc10b8c52388b8446d7b8e",
+        "tx_rx/txs.c": "0ee869b07fae1c1a9e255b40b09a478cafb5ab1fafc73545f25edf195587e42e",
+        "include/wr-iot-psm-diag.h": "e6a6f5f9ceecf22e8f32ebbebb00fdec8148bb53ea4462e6721fd5d72636f3ab"
+      }
+    },
+    "wsc-feature/result.json": {
+      "scope": "complete isolated MT7603 WSC module",
+      "repository_revision": "5d2a5802d6a9f492baecd167934b0e1264c1b375",
+      "source_revision": "c25283e915a2a00a763774dd255b14aff997285e",
+      "baseline_module_sha256": "e33fa18c30530c73c933ec7242efa1408c4354e414a41593c2744f1d5540c77c",
+      "baseline_report_sha256": "17a8e5492b5dcba5a31cd7d79a790fa9c48f6b34dbcd36e2c8e4111666ae4052",
+      "kernel_config_sha256": "fa047c0252b38d5e9525dbbd80cd1ef8cd4564d01b384edb5d861c200177aaa9",
+      "make_overrides": {
+        "CONFIG_MT7603E_WSC_INCLUDED": "y",
+        "CONFIG_MT7603E_WSC_V2_SUPPORT": "y"
+      },
+      "target_compiled": true,
+      "production_installed": false,
+      "runtime_verified": false,
+      "module_bytes": 6484900,
+      "module_sha256": "f70e487fb690e8ee777055c6568bfecc0b7f2e4e5854ee948a8dbd72f6cf2549",
+      "task_macros": {
+        "KTHREAD_SUPPORT": true,
+        "OS_ABL_FUNC_SUPPORT": false,
+        "CONFIG_PM": false,
+        "RTMP_TIMER_TASK_SUPPORT": false,
+        "WSC_INCLUDED": true,
+        "WSC_AP_SUPPORT": true,
+        "WSC_V2_SUPPORT": true,
+        "WORKQUEUE_BH": false,
+        "CONFIG_ANDES_SUPPORT": true,
+        "MT7603": true,
+        "MT_MAC": true,
+        "RTMP_PCI_SUPPORT": true,
+        "RESOURCE_PRE_ALLOC": true,
+        "LOAD_FW_ONE_TIME": true,
+        "AIRPLAY_SUPPORT": false,
+        "MBSS_SUPPORT": true,
+        "WH_EZ_SETUP": false,
+        "BCN_OFFLOAD_SUPPORT": false
+      },
+      "task_command_sha256": "5aa24495a89d7769516f90291fe0ad745395032e416ee15e82d192a1bea6dbe4",
+      "task_source_sha256": "3864d12123d83f0664776023f8090f15ede6172fbd67579b542ab4ae63709f6c",
+      "wsc_objects": {
+        "wsc": {
+          "bytes": 304360,
+          "sha256": "6a4c018e81d02036e588a1a1f78e091d2ba559282cf6e0e1f26cf9f4a9b59923",
+          "command_sha256": "e610c3e65042111fcc637bbf4b7d37348d59eecae9e63afa8ba102e7fd77d45f",
+          "source_sha256": "da7be986af56fe086fd9cefad8641fe79e41f0b4400a43f8a2c8ec2669abef99"
+        },
+        "wsc_tlv": {
+          "bytes": 115972,
+          "sha256": "11ef88e6930ccbb902e2409146f62d5eb2de385496d97782eb91c7187021f320",
+          "command_sha256": "55adf27a630051d103657a5ddc59dbc3134133154a3f2f61f46258133dad9470",
+          "source_sha256": "05cd26aa666d13f7b2923bb351bb87713cb9b2ad7bbeeaf55872b42f0eb81b39"
+        },
+        "wsc_ufd": {
+          "bytes": 3104,
+          "sha256": "f6c88fd5d41562ba24f63844313330a264e241abd52fe48b82e070c22d26f3b7",
+          "command_sha256": "e36808a493280377cfa2b3e4f84c0f2b5550e1964e187e3ccb8e02555e36b96c",
+          "source_sha256": "3b49482afd0ba7f014e755c9d8ab22d1ff5e60c5b49bc0e5525217fae4471200"
+        },
+        "wsc_v2": {
+          "bytes": 12488,
+          "sha256": "8d49c0500cd7bf1e7e17b731c2d6c0eafb51f3b6d09d87cb44277fc7ef881aae",
+          "command_sha256": "abc308c4817343ae51a1f61b2131a2e99554af4f77a53e3ec387bde1a20dca4c",
+          "source_sha256": "64ac3633848dd71317c0711ea3c83e0b1e28e865647b398194cea6c92f384e27"
+        },
+        "crypt_dh": {
+          "bytes": 8872,
+          "sha256": "d413e562e1c21d795c873921f5ca37635a1ea02918d3a73651631e4d46b76d23",
+          "command_sha256": "4bc6d1f7691220a7d294921922c4239a552025d4103d3efe661a2e470beeb436",
+          "source_sha256": "3bacd3c878762a7a5384ede7a06d9e1d9c5decfa1469be4f54187684030aba15"
+        },
+        "crypt_biginteger": {
+          "bytes": 36804,
+          "sha256": "d7075e8188fcb06632957e01e8740d47fd61bfb817cffdefe086f049d1ece60a",
+          "command_sha256": "8b514d1b8281438604e377435273d0ea178a2d6e201561c8ad0599c87fff8d77",
+          "source_sha256": "a775812b25eb8de52b3aad11118cbaf078e6356433bf4996b78418c73381ef63"
+        }
+      },
+      "channel_target_config_sha256": "e319c77ce8db54999dfa95ff3048880068c42a18f0fecd8031b53b03a1f39d05",
+      "apcli_probe_source": {
+        "scope": "isolated WSC feature only",
+        "source": "ap/apcli_sync.c",
+        "input_sha256": "2252b15357451acf6908af84bdae71f6bee2ca1bf0b2355dc1c8e2f90c91c067",
+        "output_sha256": "81e6daaa7592df458356558e9ca68ab97460c7ae0f59aaa3d55b1ad8216d94bf",
+        "changed_sources": {
+          "ap/apcli_sync.c": {
+            "input_sha256": "2252b15357451acf6908af84bdae71f6bee2ca1bf0b2355dc1c8e2f90c91c067",
+            "output_sha256": "81e6daaa7592df458356558e9ca68ab97460c7ae0f59aaa3d55b1ad8216d94bf"
+          },
+          "common/wsc.c": {
+            "input_sha256": "8280845ea389550b63ebdac42d851e84adb2002443021b94c492181cc57f3fea",
+            "output_sha256": "da7be986af56fe086fd9cefad8641fe79e41f0b4400a43f8a2c8ec2669abef99"
+          },
+          "common/crypt_biginteger.c": {
+            "input_sha256": "55d2e1d84cda96eb3d3624ca673d8f3cfb5855cdffd7421e41d63988ac78d769",
+            "output_sha256": "a775812b25eb8de52b3aad11118cbaf078e6356433bf4996b78418c73381ef63"
+          }
+        },
+        "production_installed": false,
+        "runtime_verified": false
+      }
+    },
+    "vendor-virtual-no-restart.json": {
+      "source": "common/cmm_cfg.c",
+      "source_sha256": "8ba11a6c5fb2fb2494c3b3d79a79cd91297ccbdb6512be9da59b264616b5c154",
+      "extracted_sha256": "465c364c49ab4267e7d57e908e6d0c886097f49d957ccf220d4511686f7dddb1",
+      "host_result": "PASS actual vendor dispatcher:1000 third-reference UP/DOWN cycles retain Main+Guest, no physical open/close hook; last-reference close and first-reference open remain distinct. Beacon/hardware hooks injected; no association/runtime proof.",
+      "scope": "Vendor reference dispatcher only, not current candidate composition, beacon descendants, concurrency, dynamic credentials or isolation.",
+      "runtime_verified": false
+    }
+  },
+  "binary_checks": {
+    "mt76x3_ap.ko": {
+      "sha256": "e33fa18c30530c73c933ec7242efa1408c4354e414a41593c2744f1d5540c77c",
+      "bytes": 5874864,
+      "elf32": true,
+      "elf_machine": 8
+    },
+    "close-bindings-target-tu.o": {
+      "sha256": "35daa63147c665975d13662513ee4ee3b8aa5b268c8fbc3696e3bc7d4d48b7f1",
+      "bytes": 242376,
+      "elf32": true,
+      "elf_machine": 8
+    },
+    "psm-diagnostics/mt76x3_ap-psm-off.ko": {
+      "sha256": "617ad3613d3bda0afdb199ada048b0f03891a46b2f00dd2d863ab988410a3347",
+      "bytes": 5872796,
+      "elf32": true,
+      "elf_machine": 8
+    },
+    "psm-diagnostics/mt76x3_ap-psm-on.ko": {
+      "sha256": "c84a88b3b327f13069ba629165923f4f1089bbf3e069c3ef891cb422e641734c",
+      "bytes": 5880040,
+      "elf32": true,
+      "elf_machine": 8
+    },
+    "wsc-feature/mt76x3_ap-wsc.ko": {
+      "sha256": "f70e487fb690e8ee777055c6568bfecc0b7f2e4e5854ee948a8dbd72f6cf2549",
+      "bytes": 6484900,
+      "elf32": true,
+      "elf_machine": 8
+    },
+    "reload-feature/mt76x3_ap-reload.ko": {
+      "sha256": "3eae8d66e32218c010e715a0284afe150dc201eebd0f7fd83846ef962e0ade9b",
+      "bytes": 5876940,
+      "elf32": true,
+      "elf_machine": 8
+    }
+  },
+  "report_scope": "Archived reports and independently hashed ELF32 MIPS files; not production installation or device acceptance.",
+  "independent_checks": {
+    "baseline_module": true,
+    "close_object": true,
+    "wsc_module": true,
+    "psm_on": true,
+    "psm_off": true,
+    "37_direct_assets_match_verified_git": true
+  },
+  "close_bundle_files_total": 41,
+  "generated_assets_not_direct_git_matches": [
+    "interface-reference.h",
+    "interface-registry.h",
+    "radio-transition-api.h",
+    "radio-transition.h"
+  ],
+  "generated_asset_scope": "Four earlier generated-layer headers are preserved by close-bundle-assets.py, not overwritten by local assets. Archived compile report records their hashes. This audit independently matches37 direct assets, not a fresh reconstruction of these4 generated headers.",
+  "reload_module_scope": "ELF identity/hash inventoried only; reload-feature report comparison pending."
+}

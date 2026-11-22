@@ -1,0 +1,20 @@
+{
+  "monitor_causal_line_present": false,
+  "causal_diagnostic": "In file included from /home/runner/work/_temp/wr1200js-ra2-no-host-experiment/include/rt_config.h:73,\n                 from /home/runner/work/_temp/wr1200js-ra2-no-host-experiment/mac/mt_mac.c:27:\n/home/runner/work/_temp/wr1200js-ra2-no-host-experiment/include/rtmp.h:10169:10: fatal error: beacon-producer-gate.h: No such file or directory\n10169 | #include \"beacon-producer-gate.h\"\n      |          ^~~~~~~~~~~~~~~~~~~~~~~~\ncompilation terminated.\n",
+  "target_report": {
+    "status": "failed",
+    "scope": "Four experimental vendor translation units",
+    "units": {},
+    "runtime_verified": false,
+    "activation_ready": false,
+    "error": "Preprocessing failed for mac/mt_mac.c"
+  },
+  "run": 43277311033,
+  "source": "ad3c04e188278b125e440997ce34861c22d5c85c",
+  "monitor": 43281827435,
+  "monitor_artifact": 13972891701,
+  "diagnostic_artifact": 13973710734,
+  "classification": "Same prepared-header name failure fixed by f615bf20. No second source correction required.",
+  "runtime_verified": false,
+  "scratch": "ZIPs inspected in memory"
+}

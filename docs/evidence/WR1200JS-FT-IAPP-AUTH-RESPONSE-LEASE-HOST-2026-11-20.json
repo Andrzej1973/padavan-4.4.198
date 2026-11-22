@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-20",
+  "scope": "prepared FT IAPP response-to-active-AUTH lease adapter",
+  "repository": "Andrzej1973/padavan-4.4.198",
+  "branch": "codex/wr1200js-service-webui",
+  "head": "b581469258780d65429c6e3d29b3c950072175c3",
+  "files": {
+    "tools/iot/ft-iapp-auth-response-admission.h": "e3b51cefaa33182afc9be75c7b942e537f1422cd6a38f72417431a8e7085f066",
+    "tools/iot/check-ft-iapp-auth-response-admission.c": "d72ec623918c9c3e73057e7e63534feff16f8929083bd7a5b5973dc1430fd11f",
+    "tools/iot/ft-iapp-response-token.h": "598901dd9778229564fd0095bcb53f6450eca1b5913487632d38276bfdb94d4d",
+    "tools/iot/ft-iapp-peer-admission.h": "0793a347bd8787c292bda41b5e7e87bb135ab286d35786fd65374c61c19bdace"
+  },
+  "checks": [
+    {
+      "command": "gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-pie -no-pie -Itools/iot tools/iot/check-ft-iapp-auth-response-admission.c -o /tmp/check-ft-iapp-auth-response-admission && /tmp/check-ft-iapp-auth-response-admission",
+      "exit_status": 0,
+      "results": [
+        "PASS | active AUTH response lease | token claim under MacTabLock; cache phase outside it; exact peer reacquire, counter/ACK and finish",
+        "PASS | timeout and response arbitration | timeout-first cancels request; late response refused; 8 stale, detached, token, BSS/MAC and state cases refused",
+        "PASS | response finish identity | tampered MAC/BSSID retains claimed response and AUTH lease",
+        "PASS | cache failure response | unclaims for retry without ACK; retry may complete; timeout may cancel and release AUTH lease"
+      ],
+      "fixture_contract": "The fixture models response claim under MacTabLock, releases MacTabLock across the cache phase, and reacquires it for exact peer/token revalidation. Successful cache work then orders retry-counter/ACK before finish. Failed cache work unclaims the response, leaves the AUTH request WAITING for another response or timeout, and performs no ACK/counter update. Cache calls and driver behavior remain modeled, not native execution."
+    },
+    {
+      "command": "nim c -r --out:/tmp/wr-ft-pending-identity-check tools/iot/ft_pending_identity_check.nim",
+      "exit_status": 0,
+      "result": "PASS for pending BSS+MAC ledger, pending queue ownership/lifecycle, and AP-stop resume contract"
+    },
+    {
+      "command": "python3 tools/iot/check-ft-iapp-token-transport.py /home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3",
+      "exit_status": 0,
+      "result": "PASS for token carrier through pinned driver/daemon/remote response; separate nonce is not generation identity"
+    },
+    {
+      "command": "gcc -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -Itools/iot tools/iot/check-ft-iapp-response-token.c -o /tmp/check-ft-iapp-response-token && /tmp/check-ft-iapp-response-token",
+      "exit_status": 0,
+      "result": "PASS for token ledger timeout/supersession/retirement/bounds/context rules"
+    }
+  ],
+  "verification_boundary": {
+    "native_response_handler_integrated": false,
+    "cache_counter_ack_composition_verified": false,
+    "native_lock_order_proven": false,
+    "target_compilation": false,
+    "producer_installed": false,
+    "final_image_verified": false,
+    "device_runtime_verified": false
+  },
+  "next_step": "Integrate token publication/claim and AUTH peer ownership into native request/response call paths; compose the prepared response retry/finish state machine with cache API leases, delete/reassociation and adapter teardown. Keep uninstalled until exact caller coverage and target TU checks pass.",
+  "native_handler_observations": {
+    "source": "/home/andrzej/padavan-build/legacy-materials/iot-pinned-mt76x3-c25283e/mt76x3/ap/ap_ftkd.c:799-918 and common/ft.c:827-991,1356-1404",
+    "facts": [
+      "FT_KDP_KeyResponseToUs performs R1KH cache lookup/delete/insert before its MAC-only MacTableLookup and does not acquire MacTabLock itself.",
+      "R1KH lookup returns an entry after releasing FT_R1khEntryTabLock; delete and insert acquire that lock independently.",
+      "The cache-miss retry counters and ack_r1kh completion are updated only after a non-null MAC lookup, under no local MacTabLock in this handler.",
+      "FT_R1KHInfoMaintenance holds FT_R1khEntryTabLock while doing MacTableLookup, enqueue and daemon notification; actual lock nesting and safe response transaction order need a complete caller/lock audit."
+    ],
+    "integration_decision": "Do not install this prepared helper or wrap cache/ACK work with MacTabLock until lock order, returned cache-entry lifetime and timeout/delete arbitration are proven."
+  }
+}

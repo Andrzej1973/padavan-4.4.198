@@ -1,0 +1,24 @@
+{
+  "implementation": "bounded kernel PID-reference terminal cache for CANCEL/RELEASE replies; currently uninstalled",
+  "test": "PASS C11/GNU11 -Werror O2 ASan/UBSan; unified11part suite69010 exit0",
+  "checks": [
+    "prepare holds exactly one kernel pid identity ref",
+    "commit refuses until record idle/refs returned/lifetime ended",
+    "foreign owner refuses commit/query",
+    "repeated terminal reply is read-only without repeat cleanup or extra holds",
+    "stale attempt/nonce refuses",
+    "clear balances pid ref once"
+  ],
+  "binding_requirements": [
+    "actual cleanup receipts only, not user booleans",
+    "cache survives radio resource teardown",
+    "serialized publish/read, detached clear outside locks",
+    "bounded replacement at next admitted ARM/final adapter retirement"
+  ],
+  "sources": {
+    "tools/iot/physical-stop-terminal.inc": "44b9bea648e5619c692d4b36746407d9e73bdc342ba2386de040f3cca5b3a07b",
+    "tools/iot/check-physical-stop-terminal.c": "6e83ee8805ee8ad2901ce723f83a7e5bb2bf8b9949c526a7ee6eb2815b8ca918"
+  },
+  "runtime_verified": false,
+  "cleanup": "TemporaryDirectories removed"
+}

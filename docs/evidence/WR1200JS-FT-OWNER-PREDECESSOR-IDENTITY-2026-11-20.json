@@ -1,0 +1,76 @@
+{
+  "scope": "exact source input identity only; does not execute preparers or validate ownership",
+  "predecessors": [
+    {
+      "preparer": "prepare-peer-table-owner.py",
+      "preparer_sha256": "0d40fee1b9b2440886429a534894db32702443eef9fb3faf2e684c147e1de0be",
+      "all_inputs_match": false,
+      "inputs": [
+        {
+          "path": "mgmt/mgmt_entrytb.c",
+          "expected": "e6515864f6fc87950f269e1f79015bc67eda4a09f1b2dce2a51c7c5612e2617c",
+          "actual": "d8c38bebce1b9b4612aceead5b9c2c9acf77a1e6c3bba07dcc06e977c06ae426",
+          "matches": false
+        },
+        {
+          "path": "include/rtmp.h",
+          "expected": "27850a9cfd3f334a4f0c9b0b03958df0df400849ca7957df3995bdd9b01b4626",
+          "actual": "d3fcdacce2246a6f19f4319f851adf1f26142ce74762f411e158d6c5fe8fd45b",
+          "matches": false
+        },
+        {
+          "path": "common/rtmp_init.c",
+          "expected": "9fc1d002acdc80e087c43686ed4088d18d1043d3b8cdef65d498f1c9a4ae0275",
+          "actual": "f4bc432661900513e026c2abe05c4d861dc1982990968ad5c276ed6444fef011",
+          "matches": false
+        },
+        {
+          "path": "ap/ap_repeater.c",
+          "expected": "24e69448945f4967bff075097f42204fa0a67f29be49aaf0756a382dbdd1b2c9",
+          "actual": "24e69448945f4967bff075097f42204fa0a67f29be49aaf0756a382dbdd1b2c9",
+          "matches": true
+        },
+        {
+          "path": "easy_setup/mt7603_chip_ops.c",
+          "expected": "d8cfdc153de3044a1c50aa7e2997f943d62cfa195e3f40c672178041f0ba6bce",
+          "actual": "fea58ded16d0fb46e8b312bec334cf6e0f6a2d9dc24f9693095b5dcd3ac58df8",
+          "matches": false
+        }
+      ]
+    },
+    {
+      "preparer": "prepare-peer-close-executor.py",
+      "preparer_sha256": "dea0f2552a7e6fdeb430fc41253ecc7c7216a5c77c6b16216648f393847026fb",
+      "all_inputs_match": false,
+      "inputs": [
+        {
+          "path": "common/rtmp_init_inf.c",
+          "expected": "58df1c881e4f1d37f1178fbe5646b08c01c189541c71664b99e2126493319899",
+          "actual": "fcf2b2d6da578b3709a5575c92a1ad3f7bdf5cf85684fa4313ba2fcdf137fe94",
+          "matches": false
+        },
+        {
+          "path": "common/rtmp_init.c",
+          "expected": "353637d8fdfee6355d2e727be1addab1e75e4f48e0fe2b75beb1e14eda472abb",
+          "actual": "f4bc432661900513e026c2abe05c4d861dc1982990968ad5c276ed6444fef011",
+          "matches": false
+        },
+        {
+          "path": "include/rtmp.h",
+          "expected": "5960c192632c0a8ee3d06b746511c2a9c3ed3b48a0f2e22339f262c200acf54b",
+          "actual": "d3fcdacce2246a6f19f4319f851adf1f26142ce74762f411e158d6c5fe8fd45b",
+          "matches": false
+        },
+        {
+          "path": "include/wr-iot-peer-open-dispatch.inc",
+          "expected": "65c59733e514a763c92506715c914e61148f9a6ba5f52d4668f3c5ca802f21c7",
+          "actual": null,
+          "matches": false
+        }
+      ]
+    }
+  ],
+  "required_next": "Reproduce the existing staged candidate chain with exact pin receipts before replacing association-owner stand-in; do not weaken hash gates or call field-only schema complete integration",
+  "target_compiled": false,
+  "producer_installed": false
+}
