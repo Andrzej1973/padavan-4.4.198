@@ -49,6 +49,13 @@ and mt76x3_ap.ko. The module reports Linux 4.4.198 and MIPS32_R2 vermagic.
 This verifies the Standard build path after the reorganization. IoT and
 Hybrid Modern feature acceptance is tracked separately.
 
+The [Optional #1493 image audit](evidence/WR1200JS-OPTIONAL1493-INDEPENDENT-IMAGE.json)
+also verifies the isolated WR1200JS profile with Classic and without SQM.
+Its effective source was 2d50b896. ROMFS contains the Modern IoT client
+and Classic entry page, and excludes the CAKE module, SQM service script
+and Classic SQM page. This covers one image combination. The two
+Classic-free variants and the complete final release matrix remain open.
+
 ---
 
 ## Historical repository import plan (2026-10-03)
