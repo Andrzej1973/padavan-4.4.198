@@ -18,13 +18,19 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
         path=romfs/name
         path.parent.mkdir(parents=True,exist_ok=True)
         path.write_text(name)
+    (romfs/'www/modern/wifi.js').write_text(
+        'const routes = ["/status_lanlink.asp", "/index.asp", "/index.asp"];')
     binary=romfs/'usr/sbin/httpd'
     binary.chmod(0o755)
     squash=root/'fixture.sqfs'
     subprocess.run(['mksquashfs',str(romfs),str(squash),'-noappend','-processors','1','-no-progress'],check=True,stdout=subprocess.DEVNULL)
     image=root/'fixture.trx'
     image.write_bytes(b'fixture header'+squash.read_bytes())
-    assert check(image,romfs)['squashfs_offset']==14
+    report = check(image, romfs)
+    assert report['squashfs_offset'] == 14
+    assert report['modern_asp_reference_literals'] == {
+        'www/modern/wifi.js': ['/index.asp', '/status_lanlink.asp'],
+    }
     # A valid filesystem with a required component omitted must fail closed.
     missing=romfs/'usr/sbin/nfqws2'
     saved_missing=missing.read_bytes()

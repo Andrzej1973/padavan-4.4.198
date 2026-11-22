@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import re
 import stat
 import subprocess
 import tempfile
@@ -37,6 +38,7 @@ def check(image, romfs, zapret2=True):
                   *('usr/share/zapret2/' + n for n in ('zapret-lib.lua', 'zapret-antidpi.lua', 'zapret-auto.lua')),
                   'usr/share/licenses/zapret2/LICENSE.txt']
     hashes = {}
+    modern_asp_references = {}
     with tempfile.TemporaryDirectory(prefix='wr-trx-content-') as scratch:
         extracted = Path(scratch) / 'root'
         subprocess.run(['unsquashfs', '-no-progress', '-processors', '1', '-offset', str(offsets[0]),
@@ -51,9 +53,14 @@ def check(image, romfs, zapret2=True):
             if stat.S_IMODE(actual.stat().st_mode) != stat.S_IMODE(expected.stat().st_mode):
                 raise ValueError('TRX mode differs from verified ROMFS: ' + name)
             hashes[name] = hashlib.sha256(content).hexdigest()
+            if name.startswith('www/modern/') and name.endswith(('.html', '.js', '.json')):
+                references = sorted(set(re.findall(rb'[A-Za-z0-9_/-]+[.]asp', content)))
+                if references:
+                    modern_asp_references[name] = [value.decode('ascii') for value in references]
     return {'scope': 'Final image selected content equals verified ROMFS; no runtime acceptance',
             'image_sha256': hashlib.sha256(data).hexdigest(), 'squashfs_offset': offsets[0],
-            'files_sha256': hashes, 'scratch_removed': True}
+            'files_sha256': hashes, 'modern_asp_reference_literals': modern_asp_references,
+            'scratch_removed': True}
 
 
 if __name__ == '__main__':
