@@ -56,6 +56,16 @@ and Classic entry page, and excludes the CAKE module, SQM service script
 and Classic SQM page. This covers one image combination. The two
 Classic-free variants and the complete final release matrix remain open.
 
+### Current owner decision — keep Classic
+
+Keep Classic alongside Hybrid Modern in current WR1200JS images, including
+the profile with SQM excluded. Verify that the Classic entry page and the
+existing settings routes survive each packaging change. CAKE inclusion is
+selected independently. The two variants without Classic are deferred pending
+a new owner decision.
+
+### Deferred Classic-free dependency notes
+
 For Classic-free packaging, distinguish rendered pages from ASP data endpoints.
 The Hybrid dashboard still reads system_status_data.asp, status_wanlink.asp and
 status_lanlink.asp. Preserve those response contracts or migrate their callers
