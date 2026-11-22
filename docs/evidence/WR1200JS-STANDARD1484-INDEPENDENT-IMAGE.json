@@ -1,0 +1,28 @@
+{
+  "scope": "Standard image inspection only",
+  "revision": "a084c7692795ddb61fd0f2c71324bf1ad1a68a34",
+  "run_id": 45009472096,
+  "artifact_id": 14749711870,
+  "image": "WR1200JS_4.4.198.9-1484_a084c769.trx",
+  "bytes": 13128056,
+  "sha256": "1f29003b0aee164de9fff245331f572c26d8900dacd13c64ee128375275290c9",
+  "uimage_header_crc32": "032ac5a6",
+  "uimage_data_crc32": "89e7201e",
+  "configuration_sha256": "635cb4bc006a66215ea2ed7026e1ced0a5f35c929de03f1277432407bd5b1ca5",
+  "romfs_offset": 1982304,
+  "romfs_files": {
+    "sbin/rc": {
+      "bytes": 400496,
+      "sha256": "0dc2ae746ea1580c2a0b246f5037645ca4c02a99a91cde32c35086f17e0841a0"
+    },
+    "usr/sbin/httpd": {
+      "bytes": 345120,
+      "sha256": "cf8c34bb03385e2a11eba6771930769ade0f8bcf3ba5c1d15a16045ab163f4d6",
+      "iot_edit_save_route_literal_present": false
+    },
+    "lib/modules/4.4.198/kernel/drivers/net/wireless/mediatek/mt76x3_ap/mt76x3_ap.ko": {
+      "bytes": 1848672,
+      "sha256": "b787575d000c74e55c6c8d60b927ac6fd7a963044c431d0ac0eacb3dc2a58f3a"
+    }
+  }
+}
