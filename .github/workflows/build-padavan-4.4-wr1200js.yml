@@ -733,7 +733,9 @@ jobs:
           cd padavan-4.4
           test ! -e trunk/user/rc/wr-iot-profile.c
           test ! -d trunk/user/rc/wr-iot
+          python3 ../tools/prepare-autostart-log.py trunk/user/scripts/autostart.sh
           make WR1200JS TOOLCHAIN=mipsel-linux-uclibc CONFIG_CCACHE=y
+          python3 ../tools/prepare-autostart-log.py --check trunk/romfs/usr/bin/autostart.sh
           grep -qx 'CONFIG_CCACHE=y' trunk/.config
           test "$(readlink toolchain/toolchain-mipsel/lib/ccache/mipsel-linux-uclibc-gcc)" = /usr/bin/ccache
           compiler="$(find "$PWD/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
