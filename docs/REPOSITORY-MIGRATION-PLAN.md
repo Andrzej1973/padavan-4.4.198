@@ -41,6 +41,11 @@ bootloader layout would change those responsibilities.
 [Standard WR1200JS build for the restructure revision](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/45014362085)
 passed for e350803655ab3fb28b1633a4010f47c1663d0596. Board selection,
 WR1200JS compilation, firmware ZIP and download aggregation all succeeded.
+Independent inspection of artifact 14752695378 confirmed the WR1200JS board
+identifier and a 13,128,272-byte TRX with SHA-256
+6f6574efca74989cb37d60ed3a4e5a276157a5ae2bb1cdf34edd3d80834149fd.
+SquashFS at offset 1,982,224 contains rc, httpd, Classic index.asp, nfqws2
+and mt76x3_ap.ko. The module reports Linux 4.4.198 and MIPS32_R2 vermagic.
 This verifies the Standard build path after the reorganization. IoT and
 Hybrid Modern feature acceptance is tracked separately.
 
