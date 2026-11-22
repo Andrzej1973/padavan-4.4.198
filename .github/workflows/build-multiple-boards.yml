@@ -96,6 +96,7 @@ on:
       - 'tools/eoip/**'
       - 'tools/wan-port/**'
       - 'tools/services-nav/**'
+      - 'tools/prepare-shadowsocks-localization.py'
       - 'tools/check-zerotier-state.py'
       - 'tools/check-target-busybox.py'
       - 'tools/check-target-busybox-map.py'

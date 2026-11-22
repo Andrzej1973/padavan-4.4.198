@@ -61,6 +61,12 @@ LABELS = [
     ('SSLocManual', 'Manual', 'Вручну', 'Вручную'),
     ('SSLocSubscriptionNotice', 'After adding subscription URLs, click Apply settings first, then Update subscription to fetch the nodes.', 'Після додавання адрес підписки спочатку натисніть «Застосувати», а потім «Оновити підписку», щоб завантажити вузли.', 'После добавления адрес подписки сначала нажмите «Применить», затем «Обновить подписку», чтобы загрузить узлы.'),
     ('SSLocSubscriptionUrls', 'Enter node subscription URLs (one URL per line)', 'Введіть адреси підписки на вузли (по одній адресі в рядку)', 'Введите адреса подписки на узлы (по одному адресу в строке)'),
+    ('SSLocNoMatchingNodes', 'No matching nodes', 'Відповідних вузлів не знайдено', 'Подходящие узлы не найдены'),
+    ('SSLocKeywordFilter', 'Keyword filter', 'Фільтр за ключовими словами', 'Фильтр по ключевым словам'),
+    ('SSLocScheduledSubscription', 'Scheduled subscription updates', 'Оновлення підписки за розкладом', 'Обновление подписки по расписанию'),
+    ('SSLocAutoUpdate', 'Auto update', 'Автоматичне оновлення', 'Автоматическое обновление'),
+    ('SSLocUpdate', 'Update', 'Оновити', 'Обновить'),
+    ('SSLocRuleCount', 'Number of rules: ', 'Кількість правил: ', 'Количество правил: '),
     ('SSLocDiscardKeywords', 'Nodes matching these keywords will be discarded. Separate multiple keywords with /.', 'Вузли, що містять ці ключові слова, буде відкинуто. Розділяйте слова символом /.', 'Узлы с этими ключевыми словами будут отброшены. Разделяйте слова символом /.'),
     ('SSLocAllNodes', 'All nodes', 'Усі вузли', 'Все узлы'),
     ('SSLocCustomNodes', 'Custom nodes', 'Власні вузли', 'Собственные узлы'),
@@ -195,6 +201,13 @@ def strip_javascript_comments(source: str) -> str:
 # Exact visible labels/options in the inherited page. Configuration values
 # (the value= attributes and NVRAM calls) are not included in these anchors.
 REPLACEMENTS = [
+    ('<script type="text/javascript" src="/bootstrap/js/bootstrap-table-zh-CN.min.js"></script>', ''),
+    ("$j('#table99').bootstrapTable({", "$j('#table99').bootstrapTable({\n                        formatNoMatches: function () { return '<#SSLocNoMatchingNodes#>'; },"),
+    ('<#ss_schedule_enable_tr#>', '<#SSLocScheduledSubscription#>'),
+    ('<#Keyword_filter#>', '<#SSLocKeywordFilter#>'),
+    ('<#menu5_16_19#>', '<#SSLocAutoUpdate#>'),
+    ('<#menu5_17_2#>', '<#SSLocUpdate#>'),
+    ('<#menu5_17_3#>', '<#SSLocRuleCount#>'),
     ('>客户端</a>', '><#SSLocTabClient#></a>'),
     ('>节点管理</a>', '><#SSLocTabNodes#></a>'),
     ('>高级设置</a>', '><#SSLocTabAdvanced#></a>'),
@@ -334,6 +347,8 @@ root = args.source
 if args.verify_image:
     www = root / 'www'
     page = (www / 'Shadowsocks.asp').read_text(encoding='utf-8')
+    if 'bootstrap-table-zh-CN.min.js' in page or "return '<#SSLocNoMatchingNodes#>'" not in page:
+        raise SystemExit('Shadowsocks node table must use the active WebUI language')
     visible_source = re.sub(r'<!--.*?-->', '', page, flags=re.DOTALL)
     visible_source = re.sub(
         r'(?is)<script\b[^>]*>.*?</script>',
@@ -359,7 +374,24 @@ for old, new in REPLACEMENTS:
         raise SystemExit(f'Shadowsocks localization anchor missing: {old[:80]}')
     page = page.replace(old, new)
 
+# Translate only the inherited comments in the factory rule lists.
+rule_comments = {
+    "一个IP一行": "One IP address per line",
+    "一个域名一行": "One domain per line",
+    "注意:此脚本要内网控制选项为:指定IP走代理才会生效":
+        "Applies only when LAN access control is set to proxy selected IP addresses",
+}
+rule_dir = root / 'trunk/user/shadowsocks'
 changes = [(page_path, page)]
+for filename in ('ss_lan_gmip.sh', 'ss_lan_ip.sh', 'ss_lan_bip.sh',
+                 'ss_wan_ip.sh', 'ss_dom.sh', 'uss_dom.sh'):
+    path = rule_dir / filename
+    contents = path.read_text(encoding='utf-8')
+    for source, translated in rule_comments.items():
+        contents = re.sub(r'^(!-+)' + re.escape(source) + r'(-+)$',
+                          lambda match: match[1] + translated + match[2],
+                          contents, flags=re.MULTILINE)
+    changes.append((path, contents))
 for i, filename in enumerate(('EN.footer', 'UK.dict', 'RU.dict')):
     path = root / 'trunk/user/www/dict' / filename
     contents = path.read_text(encoding='utf-8')
