@@ -19,12 +19,14 @@ KEYS = {
     "WRServicesNavProxy": ("Proxy", "Проксі", "Прокси"),
     "WRServicesNavAccess": ("Access", "Доступ", "Доступ"),
     "WRServicesNavDiagnostics": ("Diagnostics", "Діагностика", "Диагностика"),
+    "WRServicesNavIPSet": ("IPSet", "IPSet", "IPSet"),
     "WRServicesNavSystem": ("System", "Система", "Система"),
     "WRServicesNavBack": ("← Services", "← Служби", "← Службы"),
     "WRServicesNavStubby": ("Stubby / DNS-over-TLS", "Stubby / DNS-over-TLS", "Stubby / DNS-over-TLS"),
     "WRServicesNavDoH": ("DNS-over-HTTPS", "DNS-over-HTTPS", "DNS-over-HTTPS"),
     "WRServicesNavVPNServer": ("VPN server", "VPN-сервер", "VPN-сервер"),
-    "WRServicesNavWireGuard": ("WireGuard / AmneziaWG profiles", "Профілі WireGuard / AmneziaWG", "Профили WireGuard / AmneziaWG"),
+    "WRServicesNavVPNServerTab": ("VPN server (WireGuard, AmneziaWG)", "VPN-сервер (WireGuard, AmneziaWG)", "VPN-сервер (WireGuard, AmneziaWG)"),
+    "WRServicesNavVPNClient": ("VPN client", "VPN-клієнт", "VPN-клиент"),
     "WRServicesNavZeroTier": ("ZeroTier", "ZeroTier", "ZeroTier"),
     "WRServicesNavEoIP": ("EoIP", "EoIP", "EoIP"),
     "WRServicesNavShadowsocks": ("Shadowsocks", "Shadowsocks", "Shadowsocks"),
@@ -42,16 +44,16 @@ KEYS = {
     "WRServicesNavASUSDiscovery": ("ASUS Info Discovery", "Виявлення ASUS Info", "Обнаружение ASUS Info"),
 }
 VPN_TAB_LABELS = {
-    "EN": "WireGuard / AmneziaWG profiles",
-    "UK": "Профілі WireGuard / AmneziaWG",
-    "RU": "Профили WireGuard / AmneziaWG",
+    "EN": "VPN client (WireGuard / AmneziaWG)",
+    "UK": "VPN-клієнт (WireGuard / AmneziaWG)",
+    "RU": "VPN-клиент (WireGuard / AmneziaWG)",
 }
 
 GROUPS = (
     ("WRServicesNavDNS", (("WRServicesNavStubby", "Advanced_Services_DoT.asp", "CONFIG_FIRMWARE_INCLUDE_STUBBY"),
                            ("WRServicesNavDoH", "Advanced_Services_DoH.asp", "CONFIG_FIRMWARE_INCLUDE_DOH"))),
     ("WRServicesNavVPN", (("WRServicesNavVPNServer", "vpnsrv.asp", "CONFIG_FIRMWARE_INCLUDE_WIREGUARD"),
-                           ("WRServicesNavWireGuard", "vpncli.asp", "CONFIG_FIRMWARE_INCLUDE_WIREGUARD"),
+                           ("WRServicesNavVPNClient", "vpncli.asp", "CONFIG_FIRMWARE_INCLUDE_WIREGUARD"),
                            ("WRServicesNavZeroTier", "Advanced_zerotier.asp", "CONFIG_FIRMWARE_INCLUDE_ZEROTIER"),
                            ("WRServicesNavEoIP", "Advanced_Services_EoIP.asp", "CONFIG_FIRMWARE_INCLUDE_EOIP"))),
     ("WRServicesNavProxy", (("WRServicesNavShadowsocks", "Shadowsocks.asp", "CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS|CONFIG_FIRMWARE_INCLUDE_SSLOCAL|CONFIG_FIRMWARE_INCLUDE_SSREDIR"),
@@ -62,7 +64,8 @@ GROUPS = (
                                ("WRServicesNavSSH", "Advanced_Services_Content.asp#row_sshd", "CONFIG_FIRMWARE_INCLUDE_DROPBEAR|CONFIG_FIRMWARE_INCLUDE_OPENSSH"),
                                ("WRServicesNavTelnet", "Advanced_Services_Content.asp#telnetd_on_of", None))),
     ("WRServicesNavDiagnostics", (("WRServicesNavIperf", "Advanced_Services_Content.asp#row_iperf3", "CONFIG_FIRMWARE_INCLUDE_IPERF3"),)),
-    ("WRServicesNavSystem", (("WRServicesNavCron", "Advanced_Services_Content.asp#crond_enable_on_of", None),
+    ("WRServicesNavSystem", (("WRServicesNavIPSet", "Advanced_Services_IPSet.asp", "CONFIG_FIRMWARE_INCLUDE_IPSET"),
+                               ("WRServicesNavCron", "Advanced_Services_Content.asp#crond_enable_on_of", None),
                                ("WRServicesNavWatchdog", "Advanced_Services_Content.asp#watchdog_cpu_on_of", None),
                                ("WRServicesNavKMS", "Advanced_Services_Content.asp#vlmcsd_enable_on_of", "CONFIG_FIRMWARE_INCLUDE_VLMCSD"),
                                ("WRServicesNavDiscovery", "Advanced_Services_Content.asp#lltd_enable_on_of", None),
@@ -93,14 +96,6 @@ def service_excluded(label_key: str, excluded_services: set[str]) -> bool:
 
 def page_path(www: Path, route: str) -> Path:
     return www / route.split("#", 1)[0]
-
-
-def catalog_link() -> str:
-    return (
-        f'<nav {MARKER} class="wr-service-catalog-shortcut" aria-label="<#WRServicesNav#>">'
-        f'<a class="btn btn-small btn-primary wr-service-link" href="/{CATALOG}"><#WRServicesNavCatalog#></a>'
-        '</nav>'
-    )
 
 
 SERVICE_TABS = (
@@ -142,7 +137,13 @@ def rendered_groups(www: Path, config: set[str], excluded_services: set[str] | N
                 continue
             links.append(f'<a class="btn btn-mini btn-primary wr-service-link" href="/{html.escape(route, quote=True)}"><#{label_key}#></a>')
         if links:
-            chunks.append('<div class="wr-service-group"><strong><#' + heading + '#></strong>' + "".join(links) + "</div>")
+            link_class = "wr-service-links"
+            if heading == "WRServicesNavDNS":
+                link_class += " wr-service-links-stacked"
+            chunks.append(
+                f'<div class="wr-service-group"><strong><#{heading}#></strong>'
+                f'<div class="{link_class}">{"".join(links)}</div></div>'
+            )
     if not chunks:
         raise SystemExit("No supported services were found for the unified navigation")
     return (
@@ -160,10 +161,11 @@ def inject(path: Path, nav: str, tabs: str = "") -> None:
         raise SystemExit(f"Unexpected service-page structure: {path.name}")
     css = '''
 <style>
-.wr-service-catalog-shortcut { margin:6px 0 8px; }
 .wr-service-nav { display:grid; grid-template-columns:fit-content(31%) fit-content(34%) minmax(0,1fr); align-items:start; gap:4px 8px; margin:4px 0 6px; padding:5px; }
-.wr-service-group { display:flex; width:fit-content; max-width:100%; box-sizing:border-box; min-width:0; flex-wrap:wrap; align-items:center; gap:3px 4px; padding:2px 5px; }
-.wr-service-group strong { margin-right:2px; }
+.wr-service-group { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:start; gap:4px; min-width:0; padding:2px 5px; }
+.wr-service-group strong { padding-top:2px; }
+.wr-service-links { display:flex; flex-wrap:wrap; align-items:flex-start; gap:3px 4px; min-width:0; }
+.wr-service-links-stacked { flex-direction:column; flex-wrap:nowrap; }
 .wr-service-link { display:inline-block; max-width:100%; box-sizing:border-box; padding:2px 5px; line-height:1.35; overflow-wrap:anywhere; }
 td.wr-service-status-panel { border-radius:4px; padding:10px !important; }
 .wr-service-status-panel:not(td) { box-sizing:border-box; margin:6px 0; padding:10px; border-radius:4px; }
@@ -224,8 +226,6 @@ td.wr-service-status-panel { border-radius:4px; padding:10px !important; }
         if text.count(slot) != 1:
             raise SystemExit("Classic service catalog slot is missing")
         text = text.replace(slot, nav, 1)
-    elif not tabs:
-        text = text.replace(anchor, anchor + "\n" + nav, 1)
     if tabs:
         tab_slot = '<div id="tabMenu" class="submenuBlock"></div>'
         if text.count(tab_slot) != 1:
@@ -244,7 +244,7 @@ def prepare_legacy_vpn_tabs(www: Path, config: set[str]) -> None:
         return
     old = '<a href="Advanced_wireguard.asp"><#menu5_35_1#></a>'
     new = '<a href="/vpncli.asp"><#menu5_35_1#></a>'
-    server_tab = '<li><a href="/vpnsrv.asp"><#WRServicesNavVPNServer#></a></li>'
+    server_tab = '<li><a href="/vpnsrv.asp"><#WRServicesNavVPNServerTab#></a></li>'
     for path in (zerotier, legacy):
         if not path.is_file():
             continue
@@ -252,6 +252,14 @@ def prepare_legacy_vpn_tabs(www: Path, config: set[str]) -> None:
         if text.count(old) != 1:
             raise SystemExit(f"Legacy VPN tab anchor changed in {path.name}")
         text = text.replace(old, new, 1)
+        if path == zerotier:
+            client_tab = r'<li id="wilink" style="display:none">\s*' + re.escape(new) + r"\s*</li>"
+            text, count = re.subn(client_tab, lambda _: server_tab + "<li>" + new + "</li>", text, count=1)
+            if count != 1:
+                raise SystemExit("ZeroTier VPN client tab anchor changed")
+            text = re.sub(r"(?m)^\s*showhide_div\('wilink', found_app_wireguard\(\)\);[^\S\n]*\n", "\n", text)
+            path.write_text(text, encoding="utf-8", newline="\n")
+            continue
         if path.name == "Advanced_wireguard.asp":
             active_tab = re.compile(r'<li class="active">(\s*' + re.escape(new) + r')')
             text, count = active_tab.subn(r'<li>\1', text, count=1)
@@ -269,9 +277,11 @@ def legacy_vpn_tab_contract_error(name: str, text: str) -> str | None:
     expected = '<a href="/vpncli.asp"><#menu5_35_1#></a>'
     if old in text:
         return "legacy tab still targets the single-protocol form"
+    if name == "Advanced_zerotier.asp" and f"<li>{expected}</li>" not in text:
+        return "visible VPN client tab is missing"
     if expected not in text:
         return "protocol-selecting profile link is missing"
-    if '<a href="/vpnsrv.asp"><#WRServicesNavVPNServer#></a>' not in text:
+    if '<a href="/vpnsrv.asp"><#WRServicesNavVPNServerTab#></a>' not in text:
         return "VPN server tab is missing"
     if name == "Advanced_wireguard.asp" and re.search(
         r'<li class="active">\s*' + re.escape(expected), text
@@ -347,7 +357,7 @@ def verify(www: Path, config: set[str], *, image: bool = False,
         if tabs:
             if MARKER in text or text.count(tabs) != 1:
                 raise SystemExit(f"Expected one service tab row and no top shortcut in {name}")
-        else:
+        elif name == CATALOG:
             if MARKER not in text or 'aria-label="<#WRServicesNav#>"' not in text:
                 raise SystemExit(f"Unified navigation absent from {name}")
             marker_at = text.index(MARKER)
@@ -356,11 +366,12 @@ def verify(www: Path, config: set[str], *, image: bool = False,
                 raise SystemExit(f"Unified navigation opening tag is invalid in {name}")
             nav_end = text.index("</nav>", nav_begin)
             nav_html = text[nav_begin:nav_end + len("</nav>")]
-            expected_nav = nav if name == CATALOG else catalog_link()
-            if nav_html != expected_nav:
+            if nav_html != nav:
                 raise SystemExit(
                     f"Service navigation in {name} does not exactly match active build capabilities"
                 )
+        elif MARKER in text:
+            raise SystemExit(f"Unexpected top catalog shortcut in {name}")
         if status_panel_contract_error(text):
             raise SystemExit(f"Service status blue-panel grouping or styles absent from {name}")
         if enabled(config, "CONFIG_FIRMWARE_INCLUDE_WIREGUARD") and name in {
@@ -458,7 +469,7 @@ def main() -> None:
         raise SystemExit(f"Service catalog already exists: {catalog}")
     catalog.write_bytes(Path(__file__).with_name(CATALOG).read_bytes())
     for name in pages:
-        inject(www / name, nav if name == CATALOG else catalog_link(), service_tabs(config, name))
+        inject(www / name, nav, service_tabs(config, name))
     dictionary_root = args.source / "trunk/user/www/dict"
     translations = {
         "EN.footer": 0,

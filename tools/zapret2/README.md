@@ -51,6 +51,15 @@ The “process, strategy and rules present” state does not verify blocking
 effectiveness, routing or management access. Apply reuses Padavan's firewall
 event and reapplies Zapret2 after the firewall is rebuilt.
 
+## Built-in strategies
+
+Profiles 5–9 are adapted from niLabSent/padavan-ng revision
+`c29b12da69b1593a6e8cf65cd43767fc99bb6386`, under
+`trunk/user/zapret/config/strategy2`. The wrapper uses the Classic domain
+and exclusion lists for every profile, and the bundled payload files come
+from the pinned Zapret2 source. A built-in strategy requires a domain list.
+Saved custom strategy 0 and slots 1–10 use the existing storage paths.
+
 ## Strategy boundary
 
 The textarea accepts arguments passed directly to `nfqws2`; it is not a shell

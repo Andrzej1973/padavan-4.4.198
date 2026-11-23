@@ -696,6 +696,7 @@ jobs:
           python3 tools/eoip/prepare-status.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-settings.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/eoip/prepare-page.py padavan-4.4 --config configs.build/wr1200js.config
+          python3 tools/ipset/prepare.py padavan-4.4 --config configs.build/wr1200js.config
           python3 tools/services-nav/prepare-unified-nav.py padavan-4.4 \
             --config configs.build/wr1200js.config --exclude-service watchdog_cpu
           python3 tools/connected-devices/prepare-ui.py padavan-4.4
@@ -1071,6 +1072,18 @@ jobs:
           grep -q '^CONFIG_FIRMWARE_INCLUDE_DDNS_SSL=y$' trunk/.config
           python3 ../tools/services-nav/prepare-unified-nav.py trunk/romfs \
             --config trunk/.config --verify-image --exclude-service watchdog_cpu
+          if grep -q '^CONFIG_FIRMWARE_INCLUDE_IPSET=y$' trunk/.config; then
+            test -x trunk/romfs/sbin/ipset
+            test -x trunk/romfs/usr/bin/curl
+            for action in apply refresh watch; do
+              test -x "trunk/romfs/usr/sbin/wr-classic-ipset-$action"
+            done
+            test -s trunk/romfs/www/Advanced_Services_IPSet.asp
+            grep -Fq 'wr_classic_ipset_result();' trunk/romfs/www/Advanced_Services_IPSet.asp
+            grep -aFq 'wr_classic_ipset_state' trunk/romfs/usr/sbin/httpd
+            grep -aFq 'wr_classic_ipset_result' trunk/romfs/usr/sbin/httpd
+            grep -aFq '/usr/sbin/wr-classic-ipset-watch' trunk/romfs/sbin/rc
+          fi
           python3 ../tools/prepare-shadowsocks-localization.py trunk/romfs --verify-image
           python3 ../overlay/padavan-4.4/scripts/verify-ddns-elf.py \
             trunk/romfs ../ddns-elf-dependencies.json

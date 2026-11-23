@@ -35,7 +35,11 @@ cat >"$MOCK/nvram" <<'EOF'
 #!/bin/sh
 [ "$1" = get ] || exit 2
 case "$2" in
-    wan_ifname|wan0_ifname) printf '%s\n' "${MOCK_WAN-eth3}" ;;
+    zapret2_iface) printf '%s\n' "${MOCK_IFACE-}" ;;
+    zapret2_clients_mode) printf '%s\n' "${MOCK_CLIENT_MODE-exclude}" ;;
+    zapret2_profile) printf '%s\n' "${MOCK_PROFILE-0}" ;;
+    zapret2_log) printf '%s\n' "${MOCK_LOG-0}" ;;
+    wan_ifname|wan0_ifname) printf '%s\n' "${MOCK_WAN-lo}" ;;
     *) exit 1 ;;
 esac
 EOF
@@ -62,6 +66,9 @@ chain="$state/chain"
 jump="$state/jump"
 nfqueue="$state/nfqueue"
 case "$*" in
+    "-t mangle -S POSTROUTING")
+        if [ -f "$jump" ]; then cat "$jump"; fi
+        ;;
     "-t mangle -n -L ZAPRET2") test -f "$chain" ;;
     "-t mangle -N ZAPRET2")
         test ! -e "$chain"
@@ -76,7 +83,7 @@ case "$*" in
         rm -f "$chain" "$jump" "$nfqueue"
         ;;
     "-t mangle -I POSTROUTING 1 -o "*" -j ZAPRET2")
-        : >"$jump"
+        printf "%s\n" "-A POSTROUTING -o $7 -j ZAPRET2" >"$jump"
         ;;
     "-t mangle -C POSTROUTING -o "*" -j ZAPRET2")
         test -f "$jump"
@@ -103,7 +110,7 @@ chmod +x "$MOCK/nvram" "$MOCK/sleep" "$MOCK/nfqws2" "$MOCK/iptables"
 
 run_service() {
     MOCK_STATE="$STATE" \
-    MOCK_WAN=${MOCK_WAN-eth3} \
+    MOCK_WAN=${MOCK_WAN-lo} \
     ZAPRET2_PATH="$MOCK:$REAL_PATH" \
     ZAPRET2_NFQWS2="$MOCK/nfqws2" \
     ZAPRET2_ARGS="$TMP/args" \
@@ -170,6 +177,82 @@ if run_service start >/dev/null 2>&1; then
 fi
 printf '%s\n' '--filter-tcp=443' >"$TMP/args"
 MOCK_WAN='' run_service start >/dev/null 2>&1 && fail "missing WAN was accepted"
+
+MOCK_WAN=missing0 MOCK_IFACE=lo MOCK_LOG=1 run_service start >/dev/null ||
+    fail "explicit interface and logging were not accepted"
+grep -qx -- '--debug=syslog' "$STATE/nfqws-args" ||
+    fail "syslog option was not passed to nfqws2"
+MOCK_IFACE=missing0 run_service stop >/dev/null ||
+    fail "stop did not remove the prior interface hook"
+
+printf '%s\n' '--filter-tcp=8443' >"$TMP/args.10"
+MOCK_PROFILE=10 run_service start >/dev/null || fail "profile 10 did not start"
+grep -qx -- '--filter-tcp=8443' "$STATE/nfqws-args" || fail "wrong profile arguments"
+run_service stop >/dev/null || fail "profile 10 did not stop"
+if MOCK_PROFILE=11 run_service start >/dev/null 2>&1; then
+    fail "invalid profile was accepted"
+fi
+if MOCK_PROFILE=1 run_service start >/dev/null 2>&1; then
+    fail "missing profile was accepted"
+fi
+
+printf '%s\n' '192.168.20.0/24 # clients' >"$TMP/zapret2.clients-exclude"
+run_service rules >"$TMP/rules.out" || fail "valid client exclusion was rejected"
+grep -qx -- 'iptables -t mangle -A ZAPRET2 -s 192.168.20.0/24 -j RETURN' "$TMP/rules.out" ||
+    fail "missing source exclusion rule"
+printf '%s\n' '198.51.100.0/24' >"$TMP/zapret2.destinations-exclude"
+run_service rules >"$TMP/rules.out" || fail "valid destination exclusion was rejected"
+grep -qx -- 'iptables -t mangle -A ZAPRET2 -d 198.51.100.0/24 -j RETURN' "$TMP/rules.out" ||
+    fail "missing destination exclusion rule"
+run_service start >/dev/null || fail "start with client exclusion failed"
+run_service stop >/dev/null || fail "stop after client exclusion failed"
+printf '%s\n' '192.168.20.1/33' >"$TMP/zapret2.clients-exclude"
+if run_service start >/dev/null 2>&1; then
+    fail "invalid client exclusion was accepted"
+fi
+test ! -e "$STATE/jump" || fail "invalid exclusion installed a firewall hook"
+rm -f "$TMP/zapret2.clients-exclude"
+printf '%s\n' '198.51.100.256' >"$TMP/zapret2.destinations-exclude"
+if run_service start >/dev/null 2>&1; then
+    fail "invalid destination exclusion was accepted"
+fi
+test ! -e "$STATE/jump" || fail "invalid destination exclusion installed a firewall hook"
+
+
+rm -f "$TMP/zapret2.destinations-exclude"
+printf '%s\n' '192.0.2.4' >"$TMP/zapret2.clients-exclude"
+MOCK_CLIENT_MODE=include run_service rules >"$TMP/rules.out" ||
+    fail "could not describe selected-client rules"
+grep -qx -- 'iptables -t mangle -A ZAPRET2 -m set ! --match-set wr_classic_zapret2_clients src -j RETURN' "$TMP/rules.out" ||
+    fail "missing selected-client filter"
+if MOCK_CLIENT_MODE=include ZAPRET2_IPSET_APPLY="$TMP/missing" run_service start >/dev/null 2>&1; then
+    fail "selected-client mode accepted a missing IPSet helper"
+fi
+test ! -e "$STATE/jump" || fail "missing IPSet helper installed a firewall hook"
+
+printf '%s\n' 'example.test' >"$TMP/zapret2.hosts"
+printf '%s\n' 'excluded.example.test' >"$TMP/zapret2.hosts-exclude"
+printf '%s\n' '--filter-tcp=443' '--new=udp --filter-udp=443' >"$TMP/args"
+run_service start >/dev/null || fail "strategy with domain lists did not start"
+grep -E -- '^(--hostlist|--new|--filter)' "$STATE/nfqws-args" >"$TMP/domain-args"
+printf '%s\n' "--hostlist=$TMP/zapret2.hosts" "--hostlist-exclude=$TMP/zapret2.hosts-exclude" \
+    '--filter-tcp=443' '--new=udp' "--hostlist=$TMP/zapret2.hosts" \
+    "--hostlist-exclude=$TMP/zapret2.hosts-exclude" '--filter-udp=443' >"$TMP/domain-expected"
+cmp -s "$TMP/domain-expected" "$TMP/domain-args" || fail "domain lists did not bind to both profiles"
+run_service stop >/dev/null || fail "stop after domain strategy failed"
+
+mkdir "$TMP/presets"
+printf '%s\n' '--filter-tcp=9443' >"$TMP/presets/strategy5"
+MOCK_PROFILE=preset5 ZAPRET2_PRESETS="$TMP/presets" run_service start >/dev/null ||
+    fail "built-in profile 5 did not start"
+grep -qx -- '--filter-tcp=9443' "$STATE/nfqws-args" || fail "wrong built-in strategy arguments"
+grep -qx -- "--hostlist=$TMP/zapret2.hosts" "$STATE/nfqws-args" ||
+    fail "built-in strategy did not use the storage-side domain list"
+run_service stop >/dev/null || fail "built-in strategy did not stop"
+rm -f "$TMP/zapret2.hosts"
+if MOCK_PROFILE=preset5 ZAPRET2_PRESETS="$TMP/presets" run_service start >/dev/null 2>&1; then
+    fail "built-in strategy accepted a missing domain list"
+fi
 
 grep -q -- '--queue-bypass' "$SERVICE" || fail "NFQUEUE fail-open flag is absent"
 if grep -q -- '-j LOG' "$SERVICE"; then

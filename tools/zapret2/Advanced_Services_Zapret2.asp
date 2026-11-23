@@ -29,9 +29,23 @@ function initial(){
 // ZAPRET2_STATUS_SCRIPT
 function applyRule(){
     if(found_app_zapret2() && validZapret2()){
-        showLoading();
-        document.form.action_mode.value = " Apply ";
-        document.form.submit();
+        var form = document.form;
+        var unchanged = $j(form).find('[data-zapret2-profile] textarea, textarea[data-zapret2-file]').filter(function () {
+            return this.value === this.defaultValue;
+        });
+        form.action_mode.value = " Apply ";
+        unchanged.prop('disabled', true);
+        try {
+            // Padavan httpd reads at most 65534 bytes of the encoded POST body.
+            if ($j(form).serialize().length > 65000) {
+                alert('<#WRZapret2RequestTooLarge#>');
+                return;
+            }
+            showLoading();
+            form.submit();
+        } finally {
+            unchanged.prop('disabled', false);
+        }
     }
 }
 function done_validating(action){ refreshpage(); }

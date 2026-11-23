@@ -9,20 +9,58 @@ export PATH
 
 NFQWS2=${ZAPRET2_NFQWS2:-/usr/sbin/nfqws2}
 ARGS=${ZAPRET2_ARGS:-/etc/storage/zapret2.args}
+STORAGE=$(dirname "$ARGS")
+PRESETS=${ZAPRET2_PRESETS:-/usr/share/zapret2/presets}
 PIDFILE=${ZAPRET2_PIDFILE:-/var/run/zapret2.pid}
 LUA_DIR=${ZAPRET2_LUA_DIR:-/usr/share/zapret2}
 CHAIN=ZAPRET2
 QNUM=200
+CLIENT_SET=wr_classic_zapret2_clients
+IPSET_APPLY=${ZAPRET2_IPSET_APPLY:-/usr/sbin/wr-classic-ipset-apply}
+
+client_mode() {
+    mode=$(nvram get zapret2_clients_mode 2>/dev/null)
+    case "$mode" in
+        ''|exclude) echo exclude ;;
+        include) echo include ;;
+        *) return 1 ;;
+    esac
+}
 
 wan_iface() {
-    iface=$(nvram get wan_ifname 2>/dev/null)
+    iface=$(nvram get zapret2_iface 2>/dev/null)
+    [ -n "$iface" ] || iface=$(nvram get wan_ifname 2>/dev/null)
     [ -n "$iface" ] || iface=$(nvram get wan0_ifname 2>/dev/null)
     [ -n "$iface" ] || return 1
     [ ${#iface} -le 15 ] || return 1
     case "$iface" in
         *[!A-Za-z0-9_.:-]*) return 1 ;;
     esac
+    [ -d "/sys/class/net/$iface" ] || return 1
     echo "$iface"
+}
+
+ipv4_exclusions() {
+    file="$STORAGE/zapret2.$1-exclude"
+    [ -e "$file" ] || return 0
+    [ -f "$file" ] && [ -r "$file" ] || return 1
+    size=$(wc -c <"$file") || return 1
+    [ "$size" -le 4096 ] || return 1
+    awk '
+        { sub(/#.*/, ""); gsub(/^[[:space:]]+|[[:space:]]+$/, "") }
+        !length { next }
+        {
+            if (++count > 64 || $0 !~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/[0-9]+)?$/)
+                exit 1
+            parts = split($0, ip, /[.\/]/)
+            for (i = 1; i <= parts; i++) {
+                if ((length(ip[i]) > 1 && substr(ip[i], 1, 1) == "0") ||
+                    length(ip[i]) > 3 || ip[i] > (i == 5 ? 32 : 255))
+                    exit 1
+            }
+            if (!seen[$0]++) print
+        }
+    ' "$file"
 }
 
 print_rules() {
@@ -30,12 +68,27 @@ print_rules() {
         echo "WAN interface is unavailable" >&2
         return 1
     }
+    clients=$(ipv4_exclusions clients) || return 1
+    mode=$(client_mode) || return 1
+    destinations=$(ipv4_exclusions destinations) || return 1
     cat <<EOF
 iptables -t mangle -N $CHAIN
 iptables -t mangle -A $CHAIN -d 192.168.0.0/16 -j RETURN
 iptables -t mangle -A $CHAIN -d 10.0.0.0/8 -j RETURN
 iptables -t mangle -A $CHAIN -d 172.16.0.0/12 -j RETURN
 iptables -t mangle -A $CHAIN -d 127.0.0.0/8 -j RETURN
+EOF
+    if [ "$mode" = include ]; then
+        printf 'iptables -t mangle -A %s -m set ! --match-set %s src -j RETURN\n' "$CHAIN" "$CLIENT_SET"
+    else
+        for client in $clients; do
+            printf 'iptables -t mangle -A %s -s %s -j RETURN\n' "$CHAIN" "$client"
+        done
+    fi
+    for destination in $destinations; do
+        printf 'iptables -t mangle -A %s -d %s -j RETURN\n' "$CHAIN" "$destination"
+    done
+    cat <<EOF
 iptables -t mangle -A $CHAIN -p tcp -j NFQUEUE --queue-num $QNUM --queue-bypass
 iptables -t mangle -A $CHAIN -p udp -j NFQUEUE --queue-num $QNUM --queue-bypass
 iptables -t mangle -I POSTROUTING 1 -o $iface -j $CHAIN
@@ -47,6 +100,11 @@ chain_exists() {
 }
 
 rules_installed() {
+    mode=$(client_mode) || return 1
+    if [ "$mode" = include ]; then
+        iptables -t mangle -C "$CHAIN" -m set ! --match-set "$CLIENT_SET" src -j RETURN ||
+            return 1
+    fi
     iptables -t mangle -C POSTROUTING -o "$(wan_iface)" -j "$CHAIN" \
         >/dev/null 2>&1 || return 1
     iptables -t mangle -C "$CHAIN" -p tcp -j NFQUEUE \
@@ -56,11 +114,11 @@ rules_installed() {
 }
 
 remove_rules() {
-    iface=$(wan_iface 2>/dev/null)
-    if [ -n "$iface" ]; then
-        while iptables -t mangle -D POSTROUTING -o "$iface" -j "$CHAIN" \
-            2>/dev/null; do :; done
-    fi
+    hooks=$(iptables -t mangle -S POSTROUTING) || return 1
+    interfaces=$(printf '%s\n' "$hooks" | sed -n 's/^-A POSTROUTING -o \([A-Za-z0-9_.:-]*\) -j ZAPRET2$/\1/p')
+    for old_iface in $interfaces; do
+        iptables -t mangle -D POSTROUTING -o "$old_iface" -j "$CHAIN" || return 1
+    done
     while iptables -t mangle -D POSTROUTING -j "$CHAIN" 2>/dev/null; do :; done
     if chain_exists; then
         iptables -t mangle -F "$CHAIN" || return 1
@@ -74,11 +132,24 @@ install_rules() {
         echo "WAN interface is unavailable" >&2
         return 1
     }
+    clients=$(ipv4_exclusions clients) || return 1
+    mode=$(client_mode) || return 1
+    destinations=$(ipv4_exclusions destinations) || return 1
     iptables -t mangle -N "$CHAIN" || return 1
     iptables -t mangle -A "$CHAIN" -d 192.168.0.0/16 -j RETURN || return 1
     iptables -t mangle -A "$CHAIN" -d 10.0.0.0/8 -j RETURN || return 1
     iptables -t mangle -A "$CHAIN" -d 172.16.0.0/12 -j RETURN || return 1
     iptables -t mangle -A "$CHAIN" -d 127.0.0.0/8 -j RETURN || return 1
+    if [ "$mode" = include ]; then
+        iptables -t mangle -A "$CHAIN" -m set ! --match-set "$CLIENT_SET" src -j RETURN || return 1
+    else
+        for client in $clients; do
+            iptables -t mangle -A "$CHAIN" -s "$client" -j RETURN || return 1
+        done
+    fi
+    for destination in $destinations; do
+        iptables -t mangle -A "$CHAIN" -d "$destination" -j RETURN || return 1
+    done
     iptables -t mangle -A "$CHAIN" -p tcp \
         -j NFQUEUE --queue-num "$QNUM" --queue-bypass || return 1
     iptables -t mangle -A "$CHAIN" -p udp \
@@ -147,6 +218,17 @@ stop_processes() {
 
 start() {
     [ -x "$NFQWS2" ] || { echo "nfqws2 is not installed"; return 1; }
+    profile=$(nvram get zapret2_profile 2>/dev/null)
+    case "$profile" in
+        ''|0) ;;
+        [1-9]|10) ARGS="$ARGS.$profile" ;;
+        preset[5-9])
+            ARGS="$PRESETS/strategy${profile#preset}"
+            [ -s "$STORAGE/zapret2.hosts" ] ||
+                { echo "Built-in strategy requires a domain list" >&2; return 1; }
+            ;;
+        *) echo "Invalid strategy profile" >&2; return 1 ;;
+    esac
     [ -s "$ARGS" ] || { echo "strategy file $ARGS is required"; return 1; }
     args_size=$(wc -c <"$ARGS" 2>/dev/null) || {
         echo "strategy file size is unavailable"
@@ -166,6 +248,14 @@ start() {
         }
     done
     wan_iface >/dev/null || { echo "WAN interface is unavailable"; return 1; }
+    mode=$(client_mode) || { echo "Invalid IPv4 client mode" >&2; return 1; }
+    clients=$(ipv4_exclusions clients) || { echo "Invalid IPv4 client list" >&2; return 1; }
+    if [ "$mode" = include ]; then
+        [ -x "$IPSET_APPLY" ] && [ -n "$clients" ] ||
+            { echo "Selected-client mode requires IPSet and at least one client" >&2; return 1; }
+        WR_CLASSIC_IPSET_REQUIRE_ENTRIES=1 "$IPSET_APPLY"             "$STORAGE/zapret2.clients-exclude" zapret2_clients || return 1
+    fi
+    ipv4_exclusions destinations >/dev/null || { echo "Invalid IPv4 destination exclusion list" >&2; return 1; }
 
     pids=$(processes) || pids=
     if [ -n "$pids" ]; then
@@ -195,12 +285,9 @@ start() {
         return 1
     }
 
-    old_ifs=$IFS
     set -f
-    IFS=' '
     # The strategy file is a root-managed list of nfqws2 arguments.
     set -- $(cat "$ARGS")
-    IFS=$old_ifs
     set +f
     [ "$#" -gt 0 ] || {
         remove_rules
@@ -208,6 +295,36 @@ start() {
         return 1
     }
 
+    domains="$STORAGE/zapret2.hosts"
+    domain_exclusions="$STORAGE/zapret2.hosts-exclude"
+    for list in "$domains" "$domain_exclusions"; do
+        if [ -e "$list" ] && { [ ! -f "$list" ] || [ "$(wc -c <"$list")" -gt 8192 ]; }; then
+            remove_rules
+            echo "Invalid Zapret2 domain list" >&2
+            return 1
+        fi
+    done
+    first=1
+    for option do
+        shift
+        case "$option" in
+            --new|--new=*) set -- "$@" "$option"; add_lists=1 ;;
+            *) add_lists=$first ;;
+        esac
+        if [ "$add_lists" = 1 ]; then
+            if [ -s "$domains" ]; then
+                set -- "$@" "--hostlist=$domains"
+            fi
+            if [ -s "$domain_exclusions" ]; then
+                set -- "$@" "--hostlist-exclude=$domain_exclusions"
+            fi
+        fi
+        case "$option" in --new|--new=*) ;; *) set -- "$@" "$option" ;; esac
+        first=0
+    done
+    if [ "$(nvram get zapret2_log 2>/dev/null)" = 1 ]; then
+        set -- "$@" --debug=syslog
+    fi
     "$NFQWS2" --qnum="$QNUM" \
         --lua-init="@$LUA_DIR/zapret-lib.lua" \
         --lua-init="@$LUA_DIR/zapret-antidpi.lua" \

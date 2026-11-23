@@ -44,11 +44,24 @@ def prepare_webui(tree: Path) -> None:
         '\t\t\t{"iperf3_enable", "", NULL, EVM_RESTART_IPERF3},\n'
         "#endif\n"
     )
+    strategy_slots = range(1, 11)
+    strategy_files = "".join(
+        f'\t\t\t{{"scripts.zapret2.args.{slot}", "File", NULL, EVM_RESTART_FIREWALL}},\n'
+        for slot in strategy_slots
+    )
     zapret_vars = (
         "#if defined(APP_ZAPRET2)\n"
         '\t\t\t{"zapret2_enable", "", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"zapret2_log", "", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"zapret2_iface", "", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"zapret2_clients_mode", "", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"zapret2_profile", "", NULL, EVM_RESTART_FIREWALL},\n'
         '\t\t\t{"scripts.zapret2.args", "File", NULL, EVM_RESTART_FIREWALL},\n'
-        "#endif\n"
+        '\t\t\t{"scripts.zapret2.clients-exclude", "File", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"scripts.zapret2.destinations-exclude", "File", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"scripts.zapret2.hosts", "File", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"scripts.zapret2.hosts-exclude", "File", NULL, EVM_RESTART_FIREWALL},\n'
+        + strategy_files + "#endif\n"
     )
     variables = replace_once(
         variables, iperf_vars, iperf_vars + zapret_vars, "NVRAM variables"
@@ -66,6 +79,10 @@ def prepare_webui(tree: Path) -> None:
         "\n#if defined (APP_ZAPRET2)\n"
         "\t/* Zapret2 is factory-off until the user supplies a strategy. */\n"
         '\t{ "zapret2_enable", "0" },\n'
+        '\t{ "zapret2_profile", "0" },\n'
+        '\t{ "zapret2_log", "0" },\n'
+        '\t{ "zapret2_iface", "" },\n'
+        '\t{ "zapret2_clients_mode", "exclude" },\n'
         "#endif\n"
     )
     defaults = replace_once(
@@ -252,11 +269,12 @@ static int wr_zapret2_command_state(const char *command)
 }
 static int wr_zapret2_rules_state(void)
 {
- const char *wan;
+ const char *wan, *mode;
  char command[256];
  int state;
 #if defined(APP_ZAPRET2)
- wan = nvram_get("wan_ifname");
+ wan = nvram_get("zapret2_iface");
+ if (!wan || !wan[0]) wan = nvram_get("wan_ifname");
  if (!wan || !wan[0]) wan = nvram_get("wan0_ifname");
  if (!wan || !wan[0] || strlen(wan) > 15) return 2;
  for (state = 0; wan[state]; state++)
@@ -271,18 +289,37 @@ static int wr_zapret2_rules_state(void)
  state = wr_zapret2_command_state(
   "/usr/sbin/iptables -t mangle -C ZAPRET2 -p tcp -j NFQUEUE --queue-num 200 --queue-bypass >/dev/null 2>&1");
  if (state != 1) return state;
+ mode = nvram_get("zapret2_clients_mode");
+ if (mode && !strcmp(mode, "include")) {
+  state = wr_zapret2_command_state(
+   "/usr/sbin/iptables -t mangle -C ZAPRET2 -m set ! --match-set wr_classic_zapret2_clients src -j RETURN >/dev/null 2>&1");
+  if (state != 1) return state;
+ }
  return wr_zapret2_command_state(
   "/usr/sbin/iptables -t mangle -C ZAPRET2 -p udp -j NFQUEUE --queue-num 200 --queue-bypass >/dev/null 2>&1");
 #else
- (void)wan; (void)command; (void)state;
+ (void)wan; (void)mode; (void)command; (void)state;
  return 2;
 #endif
 }
 static int wr_zapret2_strategy_state(void)
 {
  struct stat info;
- if (stat("/etc/storage/zapret2.args", &info) == 0)
-  return S_ISREG(info.st_mode) && info.st_size > 0 ? 1 : 0;
+ char path[48] = "/etc/storage/zapret2.args";
+ const char *profile = nvram_get("zapret2_profile");
+ if (!profile) profile = "";
+ if (!strncmp(profile, "preset", 6) && profile[6] >= '5' &&
+     profile[6] <= '9' && !profile[7]) {
+  if (stat("/etc/storage/zapret2.hosts", &info) != 0 ||
+      !S_ISREG(info.st_mode) || info.st_size <= 0 || info.st_size > 8192) return 0;
+  snprintf(path, sizeof(path), "/usr/share/zapret2/presets/strategy%c", profile[6]);
+ } else if (profile[0] && strcmp(profile, "0")) {
+  if (!((profile[0] >= '1' && profile[0] <= '9' && !profile[1]) ||
+        !strcmp(profile, "10"))) return 2;
+  snprintf(path, sizeof(path), "/etc/storage/zapret2.args.%s", profile);
+ }
+ if (stat(path, &info) == 0)
+  return S_ISREG(info.st_mode) && info.st_size > 0 && info.st_size <= 8192 ? 1 : 0;
  return errno == ENOENT ? 0 : 2;
 }
 /* Separate saved, process, rules and strategy states; bypass effect is unverified. */
@@ -318,7 +355,7 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
     page = Path(__file__).with_name(page_path.name).read_text(encoding="utf-8")
     if page_path.exists():
         raise SystemExit("Zapret2 page already exists")
-    zapret_rows = '''<tr id="row_zapret2">
+    zapret_rows = r'''<tr id="row_zapret2">
                                             <th width="50%"><#WRZapret2Title#></th>
                                             <td>
                                                 <div class="main_itoggle">
@@ -342,17 +379,106 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
                                                 <#WRZapret2RulesLabel#>: <span id="wr_zapret2_rules_detail">—</span>;
                                                 <#WRZapret2StrategyLabel#>: <span id="wr_zapret2_strategy_detail">—</span></p></td>
                                         </tr>
+                                        <tr>
+                                            <th><label for="zapret2_iface"><#WRZapret2Interface#></label></th>
+                                            <td><input id="zapret2_iface" name="zapret2_iface" type="text" maxlength="15" pattern="[A-Za-z0-9_.:\-]{1,15}">
+                                                <p class="help-block"><#WRZapret2InterfaceHelp#></p></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_log"><#WRZapret2Logging#></label></th>
+                                            <td><select id="zapret2_log" name="zapret2_log">
+                                                <option value="0" <% nvram_match_x("", "zapret2_log", "0", "selected"); %>><#checkbox_No#></option>
+                                                <option value="1" <% nvram_match_x("", "zapret2_log", "1", "selected"); %>><#checkbox_Yes#></option>
+                                            </select></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_clients_mode"><#WRZapret2ClientMode#></label></th>
+                                            <td><select id="zapret2_clients_mode" name="zapret2_clients_mode">
+                                                <option value="exclude" <% nvram_match_x("", "zapret2_clients_mode", "exclude", "selected"); %>><#WRZapret2ExcludeMode#></option>
+                                                <option value="include" <% nvram_match_x("", "zapret2_clients_mode", "include", "selected"); %>><#WRZapret2IncludeMode#></option>
+                                            </select></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_clients_exclude"><#WRZapret2ExcludedClients#></label></th>
+                                            <td><textarea id="zapret2_clients_exclude" name="scripts.zapret2.clients-exclude" data-zapret2-file rows="4" maxlength="4096" class="span12" spellcheck="false"><% nvram_dump("scripts.zapret2.clients-exclude",""); %></textarea>
+                                                <p class="help-block"><#WRZapret2ExcludedClientsHelp#></p></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_destinations_exclude"><#WRZapret2ExcludedDestinations#></label></th>
+                                            <td><textarea id="zapret2_destinations_exclude" name="scripts.zapret2.destinations-exclude" data-zapret2-file rows="4" maxlength="4096" class="span12" spellcheck="false"><% nvram_dump("scripts.zapret2.destinations-exclude",""); %></textarea>
+                                                <p class="help-block"><#WRZapret2ExcludedClientsHelp#></p></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_hosts"><#WRZapret2Domains#></label></th>
+                                            <td><textarea id="zapret2_hosts" name="scripts.zapret2.hosts" data-zapret2-file rows="4" maxlength="8192" class="span12" spellcheck="false"><% nvram_dump("scripts.zapret2.hosts",""); %></textarea>
+                                                <p class="help-block"><#WRZapret2DomainsHelp#></p></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_hosts-exclude"><#WRZapret2DomainsExclude#></label></th>
+                                            <td><textarea id="zapret2_hosts-exclude" name="scripts.zapret2.hosts-exclude" data-zapret2-file rows="4" maxlength="8192" class="span12" spellcheck="false"><% nvram_dump("scripts.zapret2.hosts-exclude",""); %></textarea>
+                                                <p class="help-block"><#WRZapret2DomainsHelp#></p></td>
+                                        </tr>
                                         <tr id="row_zapret2_strategy">
                                             <th><label for="zapret2_strategy"><#WRZapret2StrategyTitle#></label></th>
                                             <td><textarea id="zapret2_strategy" rows="12" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="scripts.zapret2.args" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("scripts.zapret2.args",""); %></textarea>
                                                 <p class="help-block"><#WRZapret2StrategyHelp#></p></td>
                                         </tr>'''
+    profile_options = "".join(
+        f'<option value="{slot}" <% nvram_match_x("", "zapret2_profile", "{slot}", "selected"); %>>{slot}</option>'
+        for slot in range(11)
+    )
+    profile_options += "".join(
+        f'<option value="preset{slot}" <% nvram_match_x("", "zapret2_profile", "preset{slot}", "selected"); %>><#WRZapret2Preset#> {slot}</option>'
+        for slot in range(5, 10)
+    )
+    profile_selector = (
+        '<tr><th><label for="zapret2_profile"><#WRZapret2Profile#></label></th>'
+        f'<td><select name="zapret2_profile" id="zapret2_profile">{profile_options}</select></td></tr>'
+    )
+    strategy_rows = "".join(
+        f'<tr data-zapret2-profile="{slot}" hidden><th><#WRZapret2Profile#> {slot}</th><td>'
+        f'<textarea aria-label="<#WRZapret2Profile#> {slot}" rows="12" wrap="off" spellcheck="false" '
+        f'maxlength="8192" class="span12" name="scripts.zapret2.args.{slot}">'
+        f'<% nvram_dump("scripts.zapret2.args.{slot}",""); %></textarea></td></tr>'
+        for slot in strategy_slots
+    )
+    zapret_rows = zapret_rows.replace(
+        '<tr id="row_zapret2_strategy">',
+        profile_selector + '<tr id="row_zapret2_strategy" data-zapret2-profile="0">',
+        1,
+    ) + strategy_rows
     script = r'''
 var wrZapret2StatusBusy = false;
 var wrZapret2Generation = 0, wrZapret2SampledAt = 0;
+$j(function () {
+    var profile = document.getElementById('zapret2_profile');
+    if (!profile) return;
+    function showProfile() {
+        $j('[data-zapret2-profile]').each(function () {
+            this.hidden = this.getAttribute('data-zapret2-profile') !== profile.value;
+        });
+    }
+    $j(profile).on('change', showProfile);
+    showProfile();
+    document.getElementById('zapret2_iface').value = decodeURIComponent('<% nvram_char_to_ascii("", "zapret2_iface"); %>');
+});
 function validZapret2() {
+    var iface = document.getElementById('zapret2_iface');
+    if (!iface.checkValidity()) {
+        iface.reportValidity();
+        return false;
+    }
     if (!found_app_zapret2() || !document.form.zapret2_enable[0].checked) return true;
-    var strategy = document.form['scripts.zapret2.args'];
+    var profile = document.getElementById('zapret2_profile').value;
+    if (/^preset[5-9]$/.test(profile)) {
+        var domains = document.getElementById('zapret2_hosts');
+        if (domains.value.trim()) return true;
+        alert('<#WRZapret2PresetDomains#>');
+        domains.focus();
+        return false;
+    }
+    var name = 'scripts.zapret2.args' + (profile === '0' ? '' : '.' + profile);
+    var strategy = document.form.elements.namedItem(name);
     if (!strategy || !strategy.value.trim()) {
         alert('<#WRZapret2StrategyRequired#>');
         return false;
@@ -427,6 +553,22 @@ function wrZapret2Refresh() {
     translations = {
         "EN.footer": {
             "WRZapret2Title": "Zapret2 packet processing",
+            "WRZapret2Interface": "Interface",
+            "WRZapret2ExcludedClients": "Client IPv4 list",
+            "WRZapret2ClientMode": "Client mode",
+            "WRZapret2ExcludeMode": "Exclude listed clients",
+            "WRZapret2IncludeMode": "Only listed clients (requires IPSet)",
+            "WRZapret2ExcludedDestinations": "Excluded destinations",
+            "WRZapret2Domains": "Domains to process",
+            "WRZapret2DomainsExclude": "Excluded domains",
+            "WRZapret2DomainsHelp": "Enter one domain per line. Applies to each rule profile.",
+            "WRZapret2ExcludedClientsHelp": "Enter one IPv4 address or CIDR per line, up to 64 entries.",
+            "WRZapret2Profile": "Strategy profile",
+            "WRZapret2Preset": "Built-in strategy",
+            "WRZapret2PresetDomains": "Specify domains before enabling a built-in strategy.",
+            "WRZapret2RequestTooLarge": "Too many changes for one request. Apply fewer strategy edits at a time.",
+            "WRZapret2InterfaceHelp": "Leave empty for automatic WAN selection.",
+            "WRZapret2Logging": "Detailed system logging",
             "WRZapret2ObservedTitle": "Observed Zapret2 state",
             "WRZapret2Refresh": "Refresh status",
             "WRZapret2Unknown": "Process or rule state unknown",
@@ -446,11 +588,27 @@ function wrZapret2Refresh() {
             "WRZapret2NoObservation": "No confirmed observation yet",
             "WRZapret2ObservedNote": "This reads the saved switch, nfqws2 process, NFQUEUE hook and strategy file separately. It does not prove that bypassing works or that routed traffic is healthy. Traffic remains fail-open if the queue listener is absent.",
             "WRZapret2StrategyTitle": "nfqws2 strategy arguments",
-            "WRZapret2StrategyHelp": "One or more root-managed nfqws2 arguments, for example --filter-tcp=443 --filter-l7=tls. The service supplies --qnum and pinned Lua init files automatically. Do not put shell commands here. Rules are built-in and logging is disabled.",
+            "WRZapret2StrategyHelp": "One or more root-managed nfqws2 arguments, for example --filter-tcp=443 --filter-l7=tls. The service supplies --qnum and pinned Lua init files automatically. Do not put shell commands here. Rules are built-in.",
             "WRZapret2StrategyRequired": "Enter a non-empty nfqws2 strategy before enabling Zapret2.",
         },
         "UK.dict": {
             "WRZapret2Title": "Обробка пакетів Zapret2",
+            "WRZapret2Interface": "Інтерфейс",
+            "WRZapret2ExcludedClients": "IPv4-список клієнтів",
+            "WRZapret2ClientMode": "Режим для клієнтів",
+            "WRZapret2ExcludeMode": "Виключити клієнтів зі списку",
+            "WRZapret2IncludeMode": "Лише клієнти зі списку (потрібен IPSet)",
+            "WRZapret2ExcludedDestinations": "Винятки для адрес призначення",
+            "WRZapret2Domains": "Домени для обробки",
+            "WRZapret2DomainsExclude": "Винятки для доменів",
+            "WRZapret2DomainsHelp": "Введіть по одному домену на рядок. Список діє для кожного профілю правил.",
+            "WRZapret2ExcludedClientsHelp": "Введіть до 64 IPv4-адрес або підмереж CIDR, по одній на рядок.",
+            "WRZapret2Profile": "Профіль стратегії",
+            "WRZapret2Preset": "Готова стратегія",
+            "WRZapret2PresetDomains": "Вкажіть домени перед увімкненням готової стратегії.",
+            "WRZapret2RequestTooLarge": "Забагато змін для одного запиту. Застосуйте зміни до меншої кількості стратегій за раз.",
+            "WRZapret2InterfaceHelp": "Порожнє поле вибирає WAN автоматично.",
+            "WRZapret2Logging": "Докладний системний журнал",
             "WRZapret2ObservedTitle": "Спостережений стан Zapret2",
             "WRZapret2Refresh": "Оновити стан",
             "WRZapret2Unknown": "Стан процесу або правил невідомий",
@@ -470,11 +628,27 @@ function wrZapret2Refresh() {
             "WRZapret2NoObservation": "Підтвердженого спостереження ще немає",
             "WRZapret2ObservedNote": "Окремо читаються збережений перемикач, процес nfqws2, хук NFQUEUE і файл стратегії. Це не доводить ефективність обходу або справність маршрутизованого трафіку. За відсутності обробника черга працює fail-open.",
             "WRZapret2StrategyTitle": "Аргументи стратегії nfqws2",
-            "WRZapret2StrategyHelp": "Один або кілька root-керованих аргументів nfqws2, наприклад --filter-tcp=443 --filter-l7=tls. Сервіс сам додає --qnum і закріплені Lua-файли. Не вводьте сюди shell-команди. Правила вбудовані, журналювання вимкнене.",
+            "WRZapret2StrategyHelp": "Один або кілька root-керованих аргументів nfqws2, наприклад --filter-tcp=443 --filter-l7=tls. Сервіс сам додає --qnum і закріплені Lua-файли. Не вводьте сюди shell-команди. Правила вбудовані.",
             "WRZapret2StrategyRequired": "Введіть непорожню стратегію nfqws2 перед увімкненням Zapret2.",
         },
         "RU.dict": {
             "WRZapret2Title": "Обработка пакетов Zapret2",
+            "WRZapret2Interface": "Интерфейс",
+            "WRZapret2ExcludedClients": "IPv4-список клиентов",
+            "WRZapret2ClientMode": "Режим для клиентов",
+            "WRZapret2ExcludeMode": "Исключить клиентов из списка",
+            "WRZapret2IncludeMode": "Только клиенты из списка (нужен IPSet)",
+            "WRZapret2ExcludedDestinations": "Исключения для адресов назначения",
+            "WRZapret2Domains": "Домены для обработки",
+            "WRZapret2DomainsExclude": "Исключения для доменов",
+            "WRZapret2DomainsHelp": "Введите по одному домену на строку. Список действует для каждого профиля правил.",
+            "WRZapret2ExcludedClientsHelp": "Введите до 64 IPv4-адресов или подсетей CIDR, по одной на строку.",
+            "WRZapret2Profile": "Профиль стратегии",
+            "WRZapret2Preset": "Готовая стратегия",
+            "WRZapret2PresetDomains": "Укажите домены перед включением готовой стратегии.",
+            "WRZapret2RequestTooLarge": "Слишком много изменений для одного запроса. Применяйте изменения к меньшему числу стратегий за раз.",
+            "WRZapret2InterfaceHelp": "Пустое поле выбирает WAN автоматически.",
+            "WRZapret2Logging": "Подробный системный журнал",
             "WRZapret2ObservedTitle": "Наблюдаемое состояние Zapret2",
             "WRZapret2Refresh": "Обновить состояние",
             "WRZapret2Unknown": "Состояние процесса или правил неизвестно",
@@ -494,7 +668,7 @@ function wrZapret2Refresh() {
             "WRZapret2NoObservation": "Подтверждённого наблюдения пока нет",
             "WRZapret2ObservedNote": "Отдельно читаются сохранённый переключатель, процесс nfqws2, хук NFQUEUE и файл стратегии. Это не доказывает эффективность обхода или исправность маршрутизируемого трафика. При отсутствии обработчика очередь работает fail-open.",
             "WRZapret2StrategyTitle": "Аргументы стратегии nfqws2",
-            "WRZapret2StrategyHelp": "Один или несколько управляемых root аргументов nfqws2, например --filter-tcp=443 --filter-l7=tls. Служба сама добавляет --qnum и закреплённые Lua-файлы. Не вводите здесь shell-команды. Правила встроены, журналирование отключено.",
+            "WRZapret2StrategyHelp": "Один или несколько управляемых root аргументов nfqws2, например --filter-tcp=443 --filter-l7=tls. Служба сама добавляет --qnum и закреплённые Lua-файлы. Не вводите здесь shell-команды. Правила встроены.",
             "WRZapret2StrategyRequired": "Введите непустую стратегию nfqws2 перед включением Zapret2.",
         },
     }

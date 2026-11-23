@@ -29,6 +29,9 @@ romfs:
 \t$(ROMFSINST) share/lua/zapret-antidpi.lua /usr/share/zapret2/zapret-antidpi.lua
 \t$(ROMFSINST) share/lua/zapret-auto.lua /usr/share/zapret2/zapret-auto.lua
 \t$(ROMFSINST) share/LICENSE.txt /usr/share/licenses/zapret2/LICENSE.txt
+\tmkdir -p $(ROMFSDIR)/usr/share/zapret2/presets $(ROMFSDIR)/usr/share/zapret2/fake
+\tfor f in share/presets/*; do $(ROMFSINST) "$$f" "/usr/share/zapret2/presets/$${f##*/}" || exit 1; done
+\tfor f in share/fake/*; do $(ROMFSINST) "$$f" "/usr/share/zapret2/fake/$${f##*/}" || exit 1; done
 
 clean:
 \trm -f nfqws2
@@ -96,6 +99,11 @@ def main() -> int:
     target.mkdir(parents=True)
     deps.mkdir()
     lua.mkdir(parents=True)
+    shutil.copytree(here / "presets", share / "presets")
+    fake = share / "fake"
+    fake.mkdir()
+    for name in ("quic_initial_www_google_com.bin", "stun.bin", "tls_clienthello_www_google_com.bin"):
+        shutil.copy2(repo / "third_party/bol-van/zapret2/files/fake" / name, fake / name)
     shutil.copytree(repo / "third_party/bol-van/zapret2/nfq2", nfq2)
     for archive in (repo / "third_party/netfilter").glob("*.tar.bz2"):
         shutil.copyfile(archive, deps / archive.name)

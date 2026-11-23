@@ -45,9 +45,6 @@ if not module.service_excluded("WRServicesNavWatchdog", {"watchdog_cpu"}):
 if module.service_excluded("WRServicesNavCron", {"watchdog_cpu"}):
     raise SystemExit("CPU watchdog exclusion suppressed an unrelated service")
 
-if module.catalog_link().count(f'href="/{module.CATALOG}"') != 1:
-    raise SystemExit("Service-page catalog link is missing")
-
 dns_config = module.parse_config("CONFIG_FIRMWARE_INCLUDE_STUBBY=y\n")
 tabs = module.service_tabs(dns_config, "Advanced_Services_DoT.asp")
 catalog_tab = f'<li><a href="/{module.CATALOG}"><#WRServicesNavCatalog#></a></li>'
@@ -65,7 +62,7 @@ if module.service_tabs(dns_config, module.CATALOG):
     raise SystemExit("The services catalog must not duplicate the settings tabs")
 
 profile_tab = '<li><a href="/vpncli.asp"><#menu5_35_1#></a></li>'
-server_tab = '<li><a href="/vpnsrv.asp"><#WRServicesNavVPNServer#></a></li>'
+server_tab = '<li><a href="/vpnsrv.asp"><#WRServicesNavVPNServerTab#></a></li>'
 if module.legacy_vpn_tab_contract_error("Advanced_zerotier.asp", profile_tab) is None:
     raise SystemExit("Verifier accepted absent VPN server navigation")
 if module.legacy_vpn_tab_contract_error("Advanced_zerotier.asp", profile_tab + server_tab):
@@ -107,9 +104,9 @@ for language, expected in module.VPN_TAB_LABELS.items():
 from tempfile import TemporaryDirectory
 
 with TemporaryDirectory() as scratch:
-    page = Path(scratch) / "Advanced_Services_Content.asp"
-    page.write_text('<html><head></head><body><div id="TopBanner"></div></body></html>', encoding="utf-8")
-    for name in ("vpncli.asp", "vpnsrv.asp"):
+    page = Path(scratch) / module.CATALOG
+    page.write_text('<html><head></head><body><div id="TopBanner"></div><div id="wr_service_catalog"></div></body></html>', encoding="utf-8")
+    for name in ("Advanced_Services_Content.asp", "vpncli.asp", "vpnsrv.asp"):
         (page.parent / name).touch()
     nav = module.rendered_groups(page.parent, set())
     module.inject(page, nav)
@@ -118,5 +115,10 @@ with TemporaryDirectory() as scratch:
     assert 'class="btn btn-mini btn-primary wr-service-link' in themed
     assert 'alert alert-info wr-service-status-panel' in themed
     assert 'background:#' not in themed
+
+    vpn = page.parent / "vpnsrv.asp"
+    vpn.write_text('<html><head></head><body><div id="TopBanner"></div></body></html>', encoding="utf-8")
+    module.inject(vpn, nav)
+    assert module.MARKER not in vpn.read_text(encoding="utf-8")
 
 print("PASS service panels, board-specific exclusions, active capability parsing, return links and VPN profile route")

@@ -1,7 +1,7 @@
 {
   "upstream": "https://github.com/bol-van/zapret2",
-  "commit": "4a33055448ce5f4e7acc704e1fbe0d8a8a6aa08d",
-  "archive_sha256": "97df3ff802359eb0fbd3c7dea5f9c88e76d4e37c13a65dd8fe53b6e202a7f4c1",
+  "commit": "038c97e5819df10f8e8c22a2f1fffe57f2f7379b",
+  "archive_sha256": "f31711fa2dc94135bd295542c8024e5db8f6adf71d4c542f7289f3e04347e29d",
   "file_count": 253,
   "files": [
     {
@@ -141,8 +141,8 @@
     },
     {
       "path": "blockcheck2.sh",
-      "size": 53477,
-      "sha256": "9e37dd4cf9fc0803cf4bc1e3f173145ea472b9058600202dd8bc01332f1dff3b"
+      "size": 53579,
+      "sha256": "a49b41da38b4ac36bb493c88bc393bd1b22a10a4e85387b8c7f62a9ac1430a49"
     },
     {
       "path": "common/base.sh",
@@ -191,8 +191,8 @@
     },
     {
       "path": "common/linux_iphelper.sh",
-      "size": 558,
-      "sha256": "9a1dd5a521170c7e4db1a9d02eccd2f9cfa386c32ac6e06e118329a67c1f42e0"
+      "size": 1976,
+      "sha256": "157307a1a599f52e789c5bf77e9fd95513eccccc0e62ffcd5e130c8e3658a271"
     },
     {
       "path": "common/list.sh",
@@ -201,8 +201,8 @@
     },
     {
       "path": "common/nft.sh",
-      "size": 19816,
-      "sha256": "5d726b060c6d2af150c1d486d16591dcd00297a0effe56cb4aa0f73aaa9090c8"
+      "size": 19813,
+      "sha256": "2621e2116ccea84466ca0ccfbdb651b29e6c591b7bd0d92c1ab2cc1d0f7b4ead"
     },
     {
       "path": "common/virt.sh",
@@ -216,8 +216,8 @@
     },
     {
       "path": "docs/changes.txt",
-      "size": 12417,
-      "sha256": "2223c0ca08ef73e01e88db060241dcc3ab6dfd2854e36b78f42f0496b822305e"
+      "size": 12798,
+      "sha256": "6f86ae917b347af4b7a27768e6621f5363c238642f93d4e593b8b8231465133b"
     },
     {
       "path": "docs/compile/build_howto_openwrt.txt",
@@ -296,18 +296,18 @@
     },
     {
       "path": "docs/manual.en.md",
-      "size": 348503,
-      "sha256": "b678c33971baeda76898d1f68b26a836ae5dd96e5b2bcb2c1e511753fc5cbd98"
+      "size": 349236,
+      "sha256": "eb9bb9f9f8bc8e9a828c1f7094a426d63d7b9a20173aafe9cf66bdbfd1976f8a"
     },
     {
       "path": "docs/manual.md",
-      "size": 512888,
-      "sha256": "600d9594411bcb8f1de16923e6c8de9f545bba0715c4b859c084e4840064996c"
+      "size": 514295,
+      "sha256": "b637cd8f5d0494f7dd463ed59f886035548f0ba6672e9f7393e59487187cce4c"
     },
     {
       "path": "docs/readme.md",
-      "size": 51001,
-      "sha256": "344e4a84cfc5acd897146507f1c9f446804ae9e47a8ed2da9c8ea7d207afbd54"
+      "size": 52388,
+      "sha256": "487fdada87548933f59a1caeea6aa919022f4a563143d704980771d11b219eb4"
     },
     {
       "path": "files/fake/bgp_open.bin",
@@ -741,8 +741,8 @@
     },
     {
       "path": "ip2net/Makefile",
-      "size": 940,
-      "sha256": "3153b28263172488a679cf0cc5ea7181252319db2b81c23131d8d9a8695d810c"
+      "size": 1193,
+      "sha256": "334545273adf43fe9127aeb086c3f41914626d2fd8fe8031984895f4680ef140"
     },
     {
       "path": "ip2net/qsort.c",
@@ -871,8 +871,8 @@
     },
     {
       "path": "lua/zapret-obfs.lua",
-      "size": 18871,
-      "sha256": "e2d75840a9f1e3bfb74fa7463886932e03eb02ab33c6146d6392d6a231d1cfd5"
+      "size": 21334,
+      "sha256": "75d91452eae06c672aecebe87d753fa968f939d95452a6103292aed658c533f3"
     },
     {
       "path": "lua/zapret-pcap.lua",
@@ -891,8 +891,8 @@
     },
     {
       "path": "mdig/Makefile",
-      "size": 989,
-      "sha256": "1a2ce81e3b4319bc053362f34a9db7c0eff76aa810dbbd4640e1c796a30b6971"
+      "size": 1292,
+      "sha256": "9b877a4b19ef9b9a2763878886ed275ff7c463c75e042dc6df68727945d361dc"
     },
     {
       "path": "mdig/mdig.c",
@@ -1021,18 +1021,18 @@
     },
     {
       "path": "nfq2/darkmagic.c",
-      "size": 69113,
-      "sha256": "6b566fc1b070217eed2ed1e0532b73c165816e323ac5b25d27963b346395e467"
+      "size": 69144,
+      "sha256": "04065994ccdba05da30616566f94aac0ebe6e73f64a1180142bd29ee279ad7fe"
     },
     {
       "path": "nfq2/darkmagic.h",
-      "size": 8237,
-      "sha256": "a1599f765c66e67ee8620f75cbb799d98ac06dbfd753082de205483cac419750"
+      "size": 8249,
+      "sha256": "988a5a84cb28fb462478f42037eecc93612407d3fd94befb89c002c847befa03"
     },
     {
       "path": "nfq2/desync.c",
-      "size": 74463,
-      "sha256": "54e3c9d03f62a844ee549e2ddc036c0253147c9aae67d937da8cc29c67a026bd"
+      "size": 74471,
+      "sha256": "474e609a9f6642f5156037fa7f349976c39e8f850f6390827ca8efa1c8287251"
     },
     {
       "path": "nfq2/desync.h",
@@ -1071,18 +1071,18 @@
     },
     {
       "path": "nfq2/hostlist.c",
-      "size": 10041,
-      "sha256": "4a7b2c67d89b6547bf01ac47f19fcd21e9de1e888bba1b40c76e555a7e47c82f"
+      "size": 10642,
+      "sha256": "50d9b6e653b756dfbd9dbeda258bf415a4239f0a4d2b80da93652804ee47649a"
     },
     {
       "path": "nfq2/hostlist.h",
-      "size": 749,
-      "sha256": "f9ab9aa124bfb0a9e785fd68794bf709fd9e5b30db004edd58fcbc20060adccf"
+      "size": 766,
+      "sha256": "d636fe24cf4a8c4b1932c3f93152e0d90f6da539d4b203668f4a3766e053c720"
     },
     {
       "path": "nfq2/ipset.c",
-      "size": 9320,
-      "sha256": "46bd987cc7166f014ccc46d999041767699f6184cd6d1671667448eb97e4c35c"
+      "size": 9313,
+      "sha256": "26474d3d5d5d5c21c71f6ed65945b22eb4b9a583e6f47214061270eedaceb524"
     },
     {
       "path": "nfq2/ipset.h",
@@ -1111,8 +1111,8 @@
     },
     {
       "path": "nfq2/nfqws.c",
-      "size": 94119,
-      "sha256": "b8b4e04f94e9ff246a39cc71dbc7f25e9a39ab5ecefcd2e6c6daa25f06745e61"
+      "size": 94568,
+      "sha256": "da4a95a49c91781e976f3d96399998f014d3859787ad7d360898b258f5072071"
     },
     {
       "path": "nfq2/nfqws.h",
@@ -1136,18 +1136,18 @@
     },
     {
       "path": "nfq2/params.h",
-      "size": 6981,
-      "sha256": "59d8586735b79fe53475dfba83f8430814c4e8d7a954fbacbb1fbf784db326ce"
+      "size": 7156,
+      "sha256": "14e05ef0a71ddd703c7fe655131c8e2b851bb4094553b4d37b7dd92273ed32bb"
     },
     {
       "path": "nfq2/pools.c",
-      "size": 28590,
-      "sha256": "92fee05b489e1f009c0c9f43b2f98e4482295b0450bfa652681c86c15e22a2a1"
+      "size": 28697,
+      "sha256": "d4e2e501ad33bc6c05d295dda8920e7fff3de6dd6fb833f2deb18f754121ce11"
     },
     {
       "path": "nfq2/pools.h",
-      "size": 10323,
-      "sha256": "c62ae5058bdd2f5b13d7f52e608b0132168b4e283c9f66a78236fec34a800277"
+      "size": 10396,
+      "sha256": "189b6e59f72e46193355839c73317b0dcd72e0705f81a6e24081a76a9995694c"
     },
     {
       "path": "nfq2/protocol.c",
