@@ -166,6 +166,9 @@ static int wr_iot_main_recovery_execute(PRTMP_ADAPTER adapter)
  unsigned long generation, token, wait_serial = 0;
  ULONG flags;
  unsigned int vendor_count;
+ unsigned int registry_result = 0, slot = 0, owned = 0, slot_phase = 0;
+ unsigned int source = 0, phase = 0, busy = 0, stage = 0;
+ unsigned int ticket_valid = 0, expected_vendor = 0;
  int bound, marked, released;
 
  if (!adapter) return -1;
@@ -186,7 +189,23 @@ static int wr_iot_main_recovery_execute(PRTMP_ADAPTER adapter)
   WDEV_NUM_MAX + 1, vendor_count);
  if (action == WR_MAIN_RECOVERY_CONTINUE_CLOSE)
   ticket = owner->close_ticket;
+ if (action == WR_MAIN_RECOVERY_NONE) {
+  source = owner->source;
+  phase = record ? record->phase : ~0U;
+  stage = record ? record->close_stage : 0;
+  expected_vendor = record ? record->close_vendor_count : 0;
+  ticket_valid = owner->close_ticket_valid;
+  busy = adapter->wr_iot_transition.busy;
+  registry_result = wr_iot_registry_count_check(adapter->wr_iot_interface_refs,
+   WDEV_NUM_MAX + 1, vendor_count, &slot, &owned);
+  if (slot < WDEV_NUM_MAX + 1)
+   slot_phase = adapter->wr_iot_interface_refs[slot].phase;
+ }
  RTMP_IRQ_UNLOCK(&adapter->wr_iot_transition_lock, flags);
+ if (action == WR_MAIN_RECOVERY_NONE)
+  printk_ratelimited(KERN_WARNING "MT7603 Main recovery admission refused: source=%u phase=%u busy=%u close_stage=%u ticket_valid=%u vendor=%u close_vendor=%u registry=%u slot=%u slot_phase=%u owned=%u\n",
+   source, phase, busy, stage, ticket_valid, vendor_count, expected_vendor,
+   registry_result, slot, slot_phase, owned);
 
  if (action == WR_MAIN_RECOVERY_BEGIN_CLOSE) {
   if (wr_iot_main_close_begin_checked(adapter, net_dev, &ticket,

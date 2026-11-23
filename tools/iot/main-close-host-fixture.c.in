@@ -2,6 +2,7 @@
 #include "main-open-recovery-owner.h"
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #define IN
 #define WDEV_NUM_MAX 1
 #define NDIS_STATUS_SUCCESS 0
@@ -32,6 +33,12 @@ static int capture_main_close_claim(
 #define wr_iot_main_close_claim_preclose capture_main_close_claim
 #define RTMP_OS_NETDEV_GET_PRIV(dev) ((dev)->priv)
 #define RTMP_IRQ_LOCK(lock,flags) do{(void)(lock);(flags)=0;assert(!held);held=1;}while(0)
+#define KERN_WARNING ""
+static char recovery_log[512];
+#define printk_ratelimited(...) do { \
+    assert(!held); \
+    snprintf(recovery_log,sizeof(recovery_log),__VA_ARGS__); \
+} while (0)
 #define RTMP_IRQ_UNLOCK(lock,flags) do{(void)(lock);(void)(flags);assert(held);held=0;}while(0)
 #define VIRTUAL_IF_NUM(ad) ((ad)->VirtualIfCnt)
 #define RT_MOD_DEC_USE_COUNT() do{assert(pins>0);pins--;}while(0)
@@ -137,5 +144,21 @@ int main(void){
  assert(deferred.wr_iot_interface_refs[0].phase==WR_REF_IDLE);
  assert(wr_iot_main_recovery_complete(&deferred.wr_iot_main_recovery,1));
  puts("PASS partial main close: ndo_stop, exact-ticket recovery, acquired-open deferred execution");
+#ifdef WR_TEST_RECOVERY_LOG
+ {
+  struct adapter diagnostic;
+  struct net_device main_device;
+  int aux_device;
+  int (*execute)(PRTMP_ADAPTER)=wr_iot_main_recovery_execute;
+  setup(&diagnostic,&main_device,&aux_device,2);
+  assert(wr_iot_main_recovery_queue(&diagnostic.wr_iot_main_recovery,
+   &diagnostic.wr_iot_transition,&diagnostic.wr_iot_interface_refs[0],
+   WR_MAIN_RECOVERY_OPEN_ACQUIRED,1,1,WR_MAIN_QUEUE_NORMAL,0));
+  assert(wr_iot_main_recovery_schedule_result(&diagnostic.wr_iot_main_recovery,1));
+  assert(wr_iot_ref_begin_close(&diagnostic.wr_iot_interface_refs[1],&aux_device,2,8));
+  assert(execute(&diagnostic)==-1);
+  assert(strstr(recovery_log,"vendor=2 close_vendor=0 registry=2 slot=1"));
+ }
+#endif
  return 0;
 }

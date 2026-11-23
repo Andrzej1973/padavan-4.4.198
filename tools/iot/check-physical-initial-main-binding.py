@@ -113,6 +113,6 @@ with tempfile.TemporaryDirectory(prefix='wr-stop-main-binding-') as d:
  }
 '''
  assert s.count(anchor)==1;s=s.replace(anchor,test+anchor);c.write_text(s)
- subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-fno-pie','-no-pie','-I'+str(inc),str(c),'-o',d+'/check'],check=True)
+ subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-O2','-fsanitize=address,undefined','-DWR_TEST_RECOVERY_LOG','-fno-pie','-no-pie','-I'+str(inc),str(c),'-o',d+'/check'],check=True)
  subprocess.run([d+'/check'],check=True)
 print('PASS actual Main worker initial-origin and legacy branches: initial wrong-token refusal then exact RUNNING/DOWN once, legacy wrong ARM token/cancelled record retain before DOWN, valid record becomes RUNNING and closes once; endpoint/target unverified')

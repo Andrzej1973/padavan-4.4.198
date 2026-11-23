@@ -41,6 +41,10 @@ module="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["modul
 "${cross}readelf" -p .modinfo "$probe/romfs/$module" > "$results/isolated-romfs-module-info.txt"
 grep -Eq 'vermagic=4\.4\.198([[:space:]]|$)' "$results/isolated-romfs-module-info.txt"
 "${cross}readelf" -sW "$probe/romfs/$module" > "$results/isolated-romfs-radio-symbols.txt"
+grep -aFq 'MT7603 Main recovery admission refused:' "$probe/romfs/$module" || {
+  echo 'The staged MT7603 module is missing the Main recovery admission diagnostic' >&2
+  exit 1
+}
 python3 -B tools/iot/check-candidate-radio-features.py
 python3 -B tools/iot/verify-candidate-radio-features.py "$trunk/linux-4.4.x/.config" \
   "$results/isolated-romfs-radio-symbols.txt" --report "$results/isolated-romfs-radio-features.json"
@@ -57,6 +61,7 @@ for name in ['sbin/rc','usr/sbin/httpd']:
   raise SystemExit('Actual-path binary changed: '+name)
 stage['dependency_closure_at_image_paths_verified']=True
 stage['module_vermagic_checked']=True
+stage['main_recovery_admission_diagnostic_verified']=True
 (root/'isolated-romfs-stage.json').write_text(json.dumps(stage,indent=2)+'\n')
 PY
 printf '%s\n' 'PASS isolated real ROMFS staging and actual-path dependencies; no TRX or device acceptance'
@@ -140,6 +145,7 @@ report={'source_revision':revision,'candidate_image':images[0].name,'sha256':dig
         'isolated_image_build_verified':True,'board_structure_and_hwnat_policy_verified':True,'radio_feature_code_verified':True,
         'complete_romfs_extraction_verified':content['isolated_trx_contents_verified'],
         'dependency_closure_at_image_paths_verified':True,'production_promoted':False,
+        'main_recovery_admission_diagnostic_verified':stage['main_recovery_admission_diagnostic_verified'],
         'physical_runtime_verified':False}
 (root/'isolated-image-verification.json').write_text(json.dumps(report,indent=2)+'\n')
 PY

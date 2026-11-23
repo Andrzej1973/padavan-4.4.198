@@ -25,6 +25,12 @@ int main(void){
  set_owned(&refs[0],&main_dev,WR_REF_FAMILY_MAIN,4,7);
  wr_iot_ref_init(&refs[1],&guest_dev,5);refs[1].published=1;
  refs[1].family=WR_REF_FAMILY_MBSS;
+ {
+  unsigned int slot,owned;
+  assert(wr_iot_registry_count_check(refs,2,2,&slot,&owned)==
+         WR_REGISTRY_COUNT_VENDOR_MISMATCH&&slot==2&&owned==1);
+ }
+
  wr_iot_main_recovery_init(&owner);
  assert(!wr_iot_main_recovery_queue(&owner,&radio,&refs[0],
         WR_MAIN_RECOVERY_OPEN_ACQUIRED,0,1,WR_MAIN_QUEUE_NORMAL,0));
@@ -73,6 +79,12 @@ int main(void){
  assert(wr_iot_main_recovery_action(&owner,&refs[0],&radio,refs,2,2)==
         WR_MAIN_RECOVERY_BEGIN_CLOSE);
  assert(wr_iot_ref_begin_close(&refs[1],&guest_dev,5,11));
+ {
+  unsigned int slot,owned;
+  assert(wr_iot_registry_count_check(refs,2,2,&slot,&owned)==
+         WR_REGISTRY_COUNT_SLOT_BLOCKED&&slot==1);
+ }
+
  assert(wr_iot_main_recovery_action(&owner,&refs[0],&radio,refs,2,2)==
         WR_MAIN_RECOVERY_NONE);
  wr_iot_ref_init(&refs[1],&guest_dev,5);refs[1].published=1;

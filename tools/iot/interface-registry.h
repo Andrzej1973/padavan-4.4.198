@@ -66,19 +66,38 @@ static inline struct wr_iot_interface_ref *wr_iot_registry_find_owned(
  * published, unambiguous registry owner. RESERVED, CLOSING and uncertain
  * records require their existing operation/recovery owner to finish first.
  * Caller holds the same adapter lock as every vendor count writer. */
-static inline int wr_iot_registry_count_matches(
+enum wr_iot_registry_count_result {
+ WR_REGISTRY_COUNT_MATCH,
+ WR_REGISTRY_COUNT_NO_SLOTS,
+ WR_REGISTRY_COUNT_SLOT_BLOCKED,
+ WR_REGISTRY_COUNT_VENDOR_MISMATCH
+};
+static inline enum wr_iot_registry_count_result wr_iot_registry_count_check(
  const struct wr_iot_interface_ref *slots,unsigned int count,
- unsigned int vendor_count){
+ unsigned int vendor_count,unsigned int *slot,unsigned int *owned_count){
  unsigned int i,owned=0;
- if(!slots)return 0;
+ if(slot)*slot=count;
+ if(owned_count)*owned_count=0;
+ if(!slots)return WR_REGISTRY_COUNT_NO_SLOTS;
  for(i=0;i<count;i++){
   const struct wr_iot_interface_ref *r=&slots[i];
   if(r->phase==WR_REF_IDLE)continue;
   if(r->phase!=WR_REF_OWNED||!r->device||!r->generation||
-     !r->published||r->removing||owned==~0U)return 0;
+     !r->published||r->removing||owned==~0U){
+   if(slot)*slot=i;
+   return WR_REGISTRY_COUNT_SLOT_BLOCKED;
+  }
   owned++;
  }
- return owned==vendor_count;
+ if(owned_count)*owned_count=owned;
+ return owned==vendor_count ? WR_REGISTRY_COUNT_MATCH :
+                              WR_REGISTRY_COUNT_VENDOR_MISMATCH;
+}
+static inline int wr_iot_registry_count_matches(
+ const struct wr_iot_interface_ref *slots,unsigned int count,
+ unsigned int vendor_count){
+ return wr_iot_registry_count_check(slots,count,vendor_count,0,0)==
+        WR_REGISTRY_COUNT_MATCH;
 }
 /* Caller holds the adapter lock. A matching removal path must set removing
  * under that SAME lock before unregister. hold() must be nonblocking and pin
