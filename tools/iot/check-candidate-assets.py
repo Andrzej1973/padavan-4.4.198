@@ -8,7 +8,7 @@ from candidate_assets import CRLF_ASSETS, asset_bytes, copy_asset
 PINS = {
     'checked-close-host-fixture.c.in': 'eb72013c5c94bd6f2565ab21a0b94035bba47cd404b7939f9503cf651736ea20',
     'interface-reference.h': '2871a1b90c4a381cb9c64106beccaf9bf6cb934fc1f73a8349d9a6fd421a944a',
-    'interface-registry.h': 'e90b709fe492b7f886b4278d46480a7b32a3deab5651620f6018801534a32f82',
+    'interface-registry.h': '238403cdfecddf8b2f3fbb57197d7175f9c872e4cc130e2e6487b6ef7acf87ec',
     'mbss-close-checked.inc': 'e0a8a276816e672286bd142ce545329d9c1fc7d8bd757bf821cd2e074d23157b',
     'mbss-open-admission.inc': '60dddc29753cdbdd6a582a7c05c1ae931e0605d2177ef7cdfcfa8cceafc9c8f7',
     'netdev-registration.inc': 'b3e4c41f1d2e29b130a1fa838c09dd39e240ea2cc2ceee0af25435dbe4af2ad6',
