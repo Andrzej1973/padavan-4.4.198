@@ -53,14 +53,19 @@ def prepare_webui(tree: Path) -> None:
         "#if defined(APP_ZAPRET2)\n"
         '\t\t\t{"zapret2_enable", "", NULL, EVM_RESTART_FIREWALL},\n'
         '\t\t\t{"zapret2_log", "", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"zapret2_host_auto", "", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"zapret2_post_enable", "", NULL, EVM_RESTART_FIREWALL|EVM_BLOCK_UNSAFE},\n'
         '\t\t\t{"zapret2_iface", "", NULL, EVM_RESTART_FIREWALL},\n'
         '\t\t\t{"zapret2_clients_mode", "", NULL, EVM_RESTART_FIREWALL},\n'
         '\t\t\t{"zapret2_profile", "", NULL, EVM_RESTART_FIREWALL},\n'
         '\t\t\t{"scripts.zapret2.args", "File", NULL, EVM_RESTART_FIREWALL},\n'
         '\t\t\t{"scripts.zapret2.clients-exclude", "File", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"scripts.zapret2.destinations", "File", NULL, EVM_RESTART_FIREWALL},\n'
         '\t\t\t{"scripts.zapret2.destinations-exclude", "File", NULL, EVM_RESTART_FIREWALL},\n'
         '\t\t\t{"scripts.zapret2.hosts", "File", NULL, EVM_RESTART_FIREWALL},\n'
         '\t\t\t{"scripts.zapret2.hosts-exclude", "File", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"scripts.zapret2.hosts-auto", "File", NULL, EVM_RESTART_FIREWALL},\n'
+        '\t\t\t{"scripts.zapret2.post-start.sh", "File", NULL, EVM_RESTART_FIREWALL|EVM_BLOCK_UNSAFE},\n'
         + strategy_files + "#endif\n"
     )
     variables = replace_once(
@@ -81,6 +86,8 @@ def prepare_webui(tree: Path) -> None:
         '\t{ "zapret2_enable", "0" },\n'
         '\t{ "zapret2_profile", "0" },\n'
         '\t{ "zapret2_log", "0" },\n'
+        '\t{ "zapret2_host_auto", "0" },\n'
+        '\t{ "zapret2_post_enable", "0" },\n'
         '\t{ "zapret2_iface", "" },\n'
         '\t{ "zapret2_clients_mode", "exclude" },\n'
         "#endif\n"
@@ -392,6 +399,20 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
                                             </select></td>
                                         </tr>
                                         <tr>
+                                            <th><label for="zapret2_host_auto"><#WRZapret2AutoLearn#></label></th>
+                                            <td><select id="zapret2_host_auto" name="zapret2_host_auto">
+                                                <option value="0" <% nvram_match_x("", "zapret2_host_auto", "0", "selected"); %>><#checkbox_No#></option>
+                                                <option value="1" <% nvram_match_x("", "zapret2_host_auto", "1", "selected"); %>><#checkbox_Yes#></option>
+                                            </select></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_post_enable"><#WRZapret2PostEnable#></label></th>
+                                            <td><select id="zapret2_post_enable" name="zapret2_post_enable">
+                                                <option value="0" <% nvram_match_x("", "zapret2_post_enable", "0", "selected"); %>><#checkbox_No#></option>
+                                                <option value="1" <% nvram_match_x("", "zapret2_post_enable", "1", "selected"); %>><#checkbox_Yes#></option>
+                                            </select></td>
+                                        </tr>
+                                        <tr>
                                             <th><label for="zapret2_clients_mode"><#WRZapret2ClientMode#></label></th>
                                             <td><select id="zapret2_clients_mode" name="zapret2_clients_mode">
                                                 <option value="exclude" <% nvram_match_x("", "zapret2_clients_mode", "exclude", "selected"); %>><#WRZapret2ExcludeMode#></option>
@@ -401,6 +422,11 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
                                         <tr>
                                             <th><label for="zapret2_clients_exclude"><#WRZapret2ExcludedClients#></label></th>
                                             <td><textarea id="zapret2_clients_exclude" name="scripts.zapret2.clients-exclude" data-zapret2-file rows="4" maxlength="4096" class="span12" spellcheck="false"><% nvram_dump("scripts.zapret2.clients-exclude",""); %></textarea>
+                                                <p class="help-block"><#WRZapret2ExcludedClientsHelp#></p></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_destinations"><#WRZapret2IncludedDestinations#></label></th>
+                                            <td><textarea id="zapret2_destinations" name="scripts.zapret2.destinations" data-zapret2-file rows="4" maxlength="4096" class="span12" spellcheck="false"><% nvram_dump("scripts.zapret2.destinations",""); %></textarea>
                                                 <p class="help-block"><#WRZapret2ExcludedClientsHelp#></p></td>
                                         </tr>
                                         <tr>
@@ -416,6 +442,16 @@ static int ej_wr_zapret2_status(int eid, webs_t wp, int argc, char **argv)
                                         <tr>
                                             <th><label for="zapret2_hosts-exclude"><#WRZapret2DomainsExclude#></label></th>
                                             <td><textarea id="zapret2_hosts-exclude" name="scripts.zapret2.hosts-exclude" data-zapret2-file rows="4" maxlength="8192" class="span12" spellcheck="false"><% nvram_dump("scripts.zapret2.hosts-exclude",""); %></textarea>
+                                                <p class="help-block"><#WRZapret2DomainsHelp#></p></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_hosts-auto"><#WRZapret2AutoDomains#></label></th>
+                                            <td><textarea id="zapret2_hosts-auto" name="scripts.zapret2.hosts-auto" data-zapret2-file rows="4" maxlength="8192" class="span12" spellcheck="false"><% nvram_dump("scripts.zapret2.hosts-auto",""); %></textarea>
+                                                <p class="help-block"><#WRZapret2DomainsHelp#></p></td>
+                                        </tr>
+                                        <tr>
+                                            <th><label for="zapret2_post-start.sh"><#WRZapret2PostScript#></label></th>
+                                            <td><textarea id="zapret2_post-start.sh" name="scripts.zapret2.post-start.sh" data-zapret2-file rows="4" maxlength="8192" class="span12" spellcheck="false"><% nvram_dump("scripts.zapret2.post-start.sh",""); %></textarea>
                                                 <p class="help-block"><#WRZapret2DomainsHelp#></p></td>
                                         </tr>
                                         <tr id="row_zapret2_strategy">
@@ -558,8 +594,17 @@ function wrZapret2Refresh() {
             "WRZapret2ClientMode": "Client mode",
             "WRZapret2ExcludeMode": "Exclude listed clients",
             "WRZapret2IncludeMode": "Only listed clients (requires IPSet)",
+            "WRZapret2IncludedDestinations": "Destination IPv4 inclusion list",
             "WRZapret2ExcludedDestinations": "Excluded destinations",
             "WRZapret2Domains": "Domains to process",
+            "WRZapret2AutoLearn": "Learn domains automatically",
+            "WRZapret2PostEnable": "Run an administrator script after start",
+            "WRZapret2PostScript": "Post-start shell script (runs as root)",
+            "WRZapret2PostEnable": "Виконувати скрипт адміністратора після запуску",
+            "WRZapret2PostScript": "Скрипт після запуску (виконується від root)",
+            "WRZapret2PostEnable": "Выполнять скрипт администратора после запуска",
+            "WRZapret2PostScript": "Скрипт после запуска (выполняется от root)",
+            "WRZapret2AutoDomains": "Automatically learned domains",
             "WRZapret2DomainsExclude": "Excluded domains",
             "WRZapret2DomainsHelp": "Enter one domain per line. Applies to each rule profile.",
             "WRZapret2ExcludedClientsHelp": "Enter one IPv4 address or CIDR per line, up to 64 entries.",
@@ -598,8 +643,11 @@ function wrZapret2Refresh() {
             "WRZapret2ClientMode": "Режим для клієнтів",
             "WRZapret2ExcludeMode": "Виключити клієнтів зі списку",
             "WRZapret2IncludeMode": "Лише клієнти зі списку (потрібен IPSet)",
+            "WRZapret2IncludedDestinations": "IPv4-список адрес призначення",
             "WRZapret2ExcludedDestinations": "Винятки для адрес призначення",
             "WRZapret2Domains": "Домени для обробки",
+            "WRZapret2AutoLearn": "Автоматично поповнювати список доменів",
+            "WRZapret2AutoDomains": "Автоматично додані домени",
             "WRZapret2DomainsExclude": "Винятки для доменів",
             "WRZapret2DomainsHelp": "Введіть по одному домену на рядок. Список діє для кожного профілю правил.",
             "WRZapret2ExcludedClientsHelp": "Введіть до 64 IPv4-адрес або підмереж CIDR, по одній на рядок.",
@@ -638,8 +686,11 @@ function wrZapret2Refresh() {
             "WRZapret2ClientMode": "Режим для клиентов",
             "WRZapret2ExcludeMode": "Исключить клиентов из списка",
             "WRZapret2IncludeMode": "Только клиенты из списка (нужен IPSet)",
+            "WRZapret2IncludedDestinations": "IPv4-список адрес назначения",
             "WRZapret2ExcludedDestinations": "Исключения для адресов назначения",
             "WRZapret2Domains": "Домены для обработки",
+            "WRZapret2AutoLearn": "Автоматически пополнять список доменов",
+            "WRZapret2AutoDomains": "Автоматически добавленные домены",
             "WRZapret2DomainsExclude": "Исключения для доменов",
             "WRZapret2DomainsHelp": "Введите по одному домену на строку. Список действует для каждого профиля правил.",
             "WRZapret2ExcludedClientsHelp": "Введите до 64 IPv4-адресов или подсетей CIDR, по одной на строку.",

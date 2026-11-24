@@ -38,6 +38,8 @@ case "$2" in
     zapret2_iface) printf '%s\n' "${MOCK_IFACE-}" ;;
     zapret2_clients_mode) printf '%s\n' "${MOCK_CLIENT_MODE-exclude}" ;;
     zapret2_profile) printf '%s\n' "${MOCK_PROFILE-0}" ;;
+    zapret2_host_auto) printf '%s\n' "${MOCK_HOST_AUTO-0}" ;;
+    zapret2_post_enable) printf '%s\n' "${MOCK_POST_ENABLE-0}" ;;
     zapret2_log) printf '%s\n' "${MOCK_LOG-0}" ;;
     wan_ifname|wan0_ifname) printf '%s\n' "${MOCK_WAN-lo}" ;;
     *) exit 1 ;;
@@ -240,6 +242,34 @@ printf '%s\n' "--hostlist=$TMP/zapret2.hosts" "--hostlist-exclude=$TMP/zapret2.h
     "--hostlist-exclude=$TMP/zapret2.hosts-exclude" '--filter-udp=443' >"$TMP/domain-expected"
 cmp -s "$TMP/domain-expected" "$TMP/domain-args" || fail "domain lists did not bind to both profiles"
 run_service stop >/dev/null || fail "stop after domain strategy failed"
+
+printf '%s\n' '203.0.113.0/24#comment' '192.0.2.1' >"$TMP/zapret2.destinations"
+run_service start >/dev/null || fail "strategy with destination list did not start"
+count=$(grep -Fxc -- "--ipset-ip=203.0.113.0/24,192.0.2.1" "$STATE/nfqws-args")
+test "$count" -eq 2 || fail "destination list did not bind to both profiles"
+run_service stop >/dev/null || fail "stop after destination strategy failed"
+printf '%s\n' '203.0.113.256' >"$TMP/zapret2.destinations"
+if run_service start >/dev/null 2>&1; then
+    fail "invalid destination list accepted"
+fi
+test ! -e "$STATE/jump" || fail "invalid destination list installed a firewall hook"
+rm -f "$TMP/zapret2.destinations"
+
+MOCK_HOST_AUTO=1 run_service start >/dev/null || fail "automatic domain strategy did not start"
+test -f "$TMP/zapret2.hosts-auto" || fail "automatic list was not created"
+count=$(grep -Fxc -- "--hostlist-auto=$TMP/zapret2.hosts-auto" "$STATE/nfqws-args")
+test "$count" -eq 2 || fail "automatic list did not bind to both profiles"
+run_service stop >/dev/null || fail "stop after automatic domain strategy failed"
+
+printf 'touch "%s"\n' "$TMP/post-ran" >"$TMP/zapret2.post-start.sh"
+run_service start >/dev/null || fail "disabled hook test did not start"
+test ! -e "$TMP/post-ran" || fail "post-start hook ran without opt-in"
+run_service stop >/dev/null || fail "disabled hook test did not stop"
+MOCK_POST_ENABLE=1 run_service start >/dev/null || fail "enabled hook test did not start"
+test -f "$TMP/post-ran" || fail "enabled post-start hook did not run"
+run_service stop >/dev/null || fail "enabled hook test did not stop"
+
+
 
 mkdir "$TMP/presets"
 printf '%s\n' '--filter-tcp=9443' >"$TMP/presets/strategy5"

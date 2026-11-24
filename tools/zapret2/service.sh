@@ -40,8 +40,8 @@ wan_iface() {
     echo "$iface"
 }
 
-ipv4_exclusions() {
-    file="$STORAGE/zapret2.$1-exclude"
+ipv4_list() {
+    file="$STORAGE/zapret2.$1"
     [ -e "$file" ] || return 0
     [ -f "$file" ] && [ -r "$file" ] || return 1
     size=$(wc -c <"$file") || return 1
@@ -68,9 +68,9 @@ print_rules() {
         echo "WAN interface is unavailable" >&2
         return 1
     }
-    clients=$(ipv4_exclusions clients) || return 1
+    clients=$(ipv4_list clients-exclude) || return 1
     mode=$(client_mode) || return 1
-    destinations=$(ipv4_exclusions destinations) || return 1
+    destinations=$(ipv4_list destinations-exclude) || return 1
     cat <<EOF
 iptables -t mangle -N $CHAIN
 iptables -t mangle -A $CHAIN -d 192.168.0.0/16 -j RETURN
@@ -132,9 +132,9 @@ install_rules() {
         echo "WAN interface is unavailable" >&2
         return 1
     }
-    clients=$(ipv4_exclusions clients) || return 1
+    clients=$(ipv4_list clients-exclude) || return 1
     mode=$(client_mode) || return 1
-    destinations=$(ipv4_exclusions destinations) || return 1
+    destinations=$(ipv4_list destinations-exclude) || return 1
     iptables -t mangle -N "$CHAIN" || return 1
     iptables -t mangle -A "$CHAIN" -d 192.168.0.0/16 -j RETURN || return 1
     iptables -t mangle -A "$CHAIN" -d 10.0.0.0/8 -j RETURN || return 1
@@ -249,13 +249,13 @@ start() {
     done
     wan_iface >/dev/null || { echo "WAN interface is unavailable"; return 1; }
     mode=$(client_mode) || { echo "Invalid IPv4 client mode" >&2; return 1; }
-    clients=$(ipv4_exclusions clients) || { echo "Invalid IPv4 client list" >&2; return 1; }
+    clients=$(ipv4_list clients-exclude) || { echo "Invalid IPv4 client list" >&2; return 1; }
     if [ "$mode" = include ]; then
         [ -x "$IPSET_APPLY" ] && [ -n "$clients" ] ||
             { echo "Selected-client mode requires IPSet and at least one client" >&2; return 1; }
         WR_CLASSIC_IPSET_REQUIRE_ENTRIES=1 "$IPSET_APPLY"             "$STORAGE/zapret2.clients-exclude" zapret2_clients || return 1
     fi
-    ipv4_exclusions destinations >/dev/null || { echo "Invalid IPv4 destination exclusion list" >&2; return 1; }
+    ipv4_list destinations-exclude >/dev/null || { echo "Invalid IPv4 destination exclusion list" >&2; return 1; }
 
     pids=$(processes) || pids=
     if [ -n "$pids" ]; then
@@ -295,6 +295,12 @@ start() {
         return 1
     }
 
+    destination_filter=$(ipv4_list destinations) || {
+        remove_rules
+        echo "Invalid Zapret2 destination IPv4 list" >&2
+        return 1
+    }
+    destination_filter=$(printf "%s" "$destination_filter" | tr "\n" ",")
     domains="$STORAGE/zapret2.hosts"
     domain_exclusions="$STORAGE/zapret2.hosts-exclude"
     for list in "$domains" "$domain_exclusions"; do
@@ -304,6 +310,22 @@ start() {
             return 1
         fi
     done
+    auto_domains=
+    if [ "$(nvram get zapret2_host_auto 2>/dev/null)" = 1 ]; then
+        auto_domains="$STORAGE/zapret2.hosts-auto"
+        if [ ! -e "$auto_domains" ] && [ ! -L "$auto_domains" ]; then
+            (umask 077; set -C; : >"$auto_domains") || {
+                remove_rules
+                return 1
+            }
+        fi
+        if [ -L "$auto_domains" ] || [ ! -f "$auto_domains" ] ||
+           [ ! -r "$auto_domains" ] || [ ! -w "$auto_domains" ]; then
+            remove_rules
+            echo "Invalid Zapret2 automatic domain list" >&2
+            return 1
+        fi
+    fi
     first=1
     for option do
         shift
@@ -312,6 +334,12 @@ start() {
             *) add_lists=$first ;;
         esac
         if [ "$add_lists" = 1 ]; then
+            if [ -n "$auto_domains" ]; then
+                set -- "$@" "--hostlist-auto=$auto_domains"
+            fi
+            if [ -n "$destination_filter" ]; then
+                set -- "$@" "--ipset-ip=$destination_filter"
+            fi
             if [ -s "$domains" ]; then
                 set -- "$@" "--hostlist=$domains"
             fi
@@ -333,6 +361,12 @@ start() {
     echo $! > "$PIDFILE"
     sleep 1
     if pid_owns_nfqws2 "$(cat "$PIDFILE" 2>/dev/null)" && rules_installed; then
+        if [ "$(nvram get zapret2_post_enable 2>/dev/null)" = 1 ]; then
+            post_start="$STORAGE/zapret2.post-start.sh"
+            if [ ! -L "$post_start" ] && [ -f "$post_start" ] && [ -s "$post_start" ]; then
+                /bin/sh "$post_start" </dev/null || echo "Zapret2 post-start script failed" >&2
+            fi
+        fi
         echo "started"
     else
         stop_processes

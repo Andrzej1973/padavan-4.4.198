@@ -35,12 +35,15 @@ def main() -> int:
     )
     require(
         user / "shared/defaults.c",
-        ('{ "zapret2_enable", "0" }',),
+        ('{ "zapret2_enable", "0" }', '{ "zapret2_host_auto", "0" }',
+         '{ "zapret2_post_enable", "0" }'),
     )
     require(
         user / "httpd/variables.c",
         ('"zapret2_enable"', '"scripts.zapret2.args"',
-         "EVM_RESTART_FIREWALL"),
+         '"scripts.zapret2.destinations"', '"scripts.zapret2.hosts-auto"',
+         '{"zapret2_post_enable", "", NULL, EVM_RESTART_FIREWALL|EVM_BLOCK_UNSAFE}',
+         '{"scripts.zapret2.post-start.sh", "File", NULL, EVM_RESTART_FIREWALL|EVM_BLOCK_UNSAFE}'),
     )
     require(
         user / "rc/services.c",
@@ -73,6 +76,11 @@ def main() -> int:
         (
             'id="zapret2_enable_on_of"',
             'name="scripts.zapret2.args"',
+            'name="scripts.zapret2.destinations"',
+            'name="zapret2_host_auto"',
+            'name="scripts.zapret2.hosts-auto"',
+            'name="zapret2_post_enable"',
+            'name="scripts.zapret2.post-start.sh"',
             'id="wr_zapret2_status"',
             "function validZapret2()",
             "found_app_zapret2() && validZapret2()",

@@ -1,3 +1,9 @@
+## WR1200JS #1521 source and donor comparison
+
+For firmware revision f066fedf66d6b3f0ed6ffb064d70b1a95be03064, all 253 vendored files under third_party/bol-van/zapret2 matched the corresponding Git blob IDs in the upstream v1.0.7 tree. The earlier 4a330554 base described below is historical. The #1521 TRX contains nfqws2; its binary does not expose a source revision in the inspected strings.
+
+The current niLabSent master package directory contains zapret2-1.0.6.tar.gz. The niLabSent Classic page and service script expose a writable automatic host list, a destination IP inclusion list, and an executable post-start hook. The WR1200JS page already exposes manual domain and exclusion lists, client selection, logging, built-in presets and editable strategies. Automatic learning needs a writable list and lifecycle handling, the destination inclusion list needs enforcement in each supported filter path, and the post-start hook needs authenticated storage and a documented execution contract. The local port now exposes all three controls through the existing Classic storage path. Validated IPv4 destination entries are supplied per strategy. Automatic learning and the post-start hook default to OFF. The hook and its enable flag use the native EVM_BLOCK_UNSAFE gate. Host lifecycle and generated WebUI checks passed against the pinned Padavan source. Target image and device validation remain open.
+
 # Zapret2 source base for Padavan
 
 Recorded 2026-10-24. This is a source snapshot and integration inventory, **not** an enabled firmware feature or a router test.
