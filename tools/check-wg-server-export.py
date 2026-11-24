@@ -32,7 +32,8 @@ nvram(){
  vpns_num_x) echo 1;;
  vpns_user_x0) echo client;;
  vpns_pass_x0) echo AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=;;
- vpns_public_x0|vpns_wg_public) echo BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=;;
+ vpns_public_x0) echo BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=;;
+ vpns_wg_public) printf "%s" "${CACHED_SERVER_PUBLIC:-}";;
  vpns_vnet) echo 10.0.0.0;;
  vpns_addr_x0) echo 2;;
  lan_ipaddr) echo 10.0.0.1;;
@@ -64,6 +65,7 @@ fixture_wg(){
  scenarios=[
   ('amneziawg',{'JCVALUE':'4'},True),
   ('wireguard',{'JCVALUE':'invalid'},True),
+  ('wireguard',{'CACHED_SERVER_PUBLIC':'D'*43+'='},True),
   ('amneziawg',{'JCVALUE':'4\nH1=9'},False),
   ('amneziawg',{'JCVALUE':'x'},False),
   ('amneziawg',{'JCVALUE':'1'*11},False),
@@ -109,6 +111,7 @@ fixture_wg(){
    line=key+' = '+expected[key]
    assert (line in server.read_text())==(module=='amneziawg')
    assert (line in client.read_text())==(module=='amneziawg')
+  assert 'PublicKey = '+'B'*43+'=' in client.read_text().splitlines()
   assert result.stdout==client.read_text()
  # Exercise actual startup control flow with all network operations mocked.
  startup=source[source.index('wg_start_abort()'):source.index('wg_addclient()')]

@@ -29,6 +29,18 @@ for lang in ("EN.footer", "UK.dict", "RU.dict"):
 match = re.search(r"function wrValidateAwgServer\(\)\{.*?\n\}", page, re.S)
 assert match, "AmneziaWG server validation missing"
 node = ['const assert=require("assert");']
+
+callback = re.search(r"function done_validating\(action\)\{[^}]+\}", page)
+assert callback, "VPN client list refresh callback missing"
+node.append("let reloads=0;const refreshpage=()=>{reloads++;};")
+node.append(callback.group(0))
+node.append("""done_validating(" Add ");
+assert.equal(reloads, 1);
+done_validating(" Del ");
+assert.equal(reloads, 2);
+done_validating(" Restart ");
+assert.equal(reloads, 2);""")
+
 node.append("const validate=Function('document','alert'," + json.dumps("return (" + match.group(0) + ")()") + ");")
 node.append('''function run(values){let message="";const document={form:{}};for(const key of ["jc","jmin","jmax","s1","s2","h1","h2","h3","h4"]){document.form["vpns_awg_"+key]={value:values[key]===undefined?"":String(values[key]),focus(){},select(){}};}return {ok:validate(document,x=>message=x),message};}
 assert.strictEqual(run({}).ok,true);
