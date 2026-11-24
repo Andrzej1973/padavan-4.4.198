@@ -5,6 +5,7 @@ umask 077
 
 refresh=${WR_CLASSIC_IPSET_REFRESH:-/usr/sbin/wr-classic-ipset-refresh}
 config=${WR_CLASSIC_IPSET_CONFIG:-/etc/storage/wr-classic-ipset.feeds}
+hook="$(dirname "$config")/wr-classic-ipset.post.sh"
 lock=${WR_CLASSIC_IPSET_LOCK:-/var/run/wr-classic-ipset.worker}
 mkdir "$lock" || exit 1
 cleanup() {
@@ -28,7 +29,12 @@ while :; do
     if [ "$enabled" = 1 ] && [ -f "$config" ] && [ "$(wc -c <"$config")" -le 8192 ]; then
         checksum=$(cksum <"$config")
     fi
-    settings="$enabled:$hours:$checksum"
+    hook_checksum=
+    if [ "$enabled" = 1 ] && [ ! -L "$hook" ] && [ -f "$hook" ] &&
+       [ "$(wc -c <"$hook")" -le 8192 ]; then
+        hook_checksum=$(cksum <"$hook")
+    fi
+    settings="$enabled:$hours:$checksum:$hook_checksum"
     if [ "$enabled" = 1 ]; then
         read -r uptime rest </proc/uptime
         now=${uptime%%.*}

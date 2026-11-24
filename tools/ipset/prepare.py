@@ -95,6 +95,7 @@ def main():
         '\t\t\t{"wr_classic_ipset_enable", "", NULL, 0},\n'
         '\t\t\t{"wr_classic_ipset_period", "", NULL, 0},\n'
         '\t\t\t{"scripts.wr-classic-ipset.feeds", "File", NULL, 0},\n'
+        '\t\t\t{"scripts.wr-classic-ipset.post.sh", "File", NULL, EVM_BLOCK_UNSAFE},\n'
     )
     default_anchor = '\t{ "iperf3_enable", "0" },\n#endif\n'
     default_rows = '\t{ "wr_classic_ipset_enable", "0" },\n\t{ "wr_classic_ipset_period", "24" },\n'
@@ -139,13 +140,19 @@ def main():
             "UK.dict": ("Останнє оновлення", "Результату ще немає", "Оновлено", "Помилка", "Джерела не налаштовані", "Успішно", "З помилкою"),
             "RU.dict": ("Последнее обновление", "Результата пока нет", "Обновлено", "Ошибка", "Источники не настроены", "Успешно", "С ошибкой"),
         }[name]
+        file_labels = {
+            "EN.footer": ("Import JSON", "Export JSON", "Invalid IPSet JSON file.", "Imported. Select Apply to save.", "Remove", "Set name", "Add", "Invalid, duplicate or oversized source.", "Script after successful refresh (runs as root)"),
+            "UK.dict": ("Імпортувати JSON", "Експортувати JSON", "Некоректний файл IPSet JSON.", "Імпортовано. Натисніть «Застосувати», щоб зберегти.", "Видалити", "Назва набору", "Додати", "Некоректне джерело, дублікат або перевищений ліміт.", "Скрипт після успішного оновлення (від root)"),
+            "RU.dict": ("Импортировать JSON", "Экспортировать JSON", "Некорректный файл IPSet JSON.", "Импортировано. Нажмите «Применить» для сохранения.", "Удалить", "Имя набора", "Добавить", "Недопустимый источник, дубликат или превышен лимит.", "Скрипт после успешного обновления (от root)"),
+        }[name]
         keys = (
             "WRIPSetEnable", "WRIPSetPeriod", "WRIPSetFeeds", "WRIPSetFeedsHelp",
             "WRIPSetDisabled", "WRIPSetRunning", "WRIPSetStopped", "WRIPSetStatus",
             "WRIPSetLastRefresh", "WRIPSetNoResult", "WRIPSetUpdated", "WRIPSetError",
             "WRIPSetUnconfigured", "WRIPSetSucceededCount", "WRIPSetFailedCount",
         )
-        entries = zip(keys, values + state_labels + result_labels)
+        keys += ("WRIPSetImport", "WRIPSetExport", "WRIPSetImportError", "WRIPSetImported", "WRIPSetRemove", "WRIPSetName", "WRIPSetAdd", "WRIPSetAddError", "WRIPSetPostScript")
+        entries = zip(keys, values + state_labels + result_labels + file_labels, strict=True)
         files[path] = content.rstrip("\n") + "\n" + "".join(f"{key}={value}\n" for key, value in entries)
     package.mkdir()
     recipe = ["all clean:", "\t@:", "", "romfs:"]

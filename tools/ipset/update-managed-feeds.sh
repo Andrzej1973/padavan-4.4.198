@@ -71,4 +71,12 @@ if [ "$updated" -eq 0 ]; then
     write_status unconfigured 0 0
 else
     write_status updated "$updated" 0
+    hook="$(dirname "$config")/wr-classic-ipset.post.sh"
+    if [ ! -L "$hook" ] && [ -f "$hook" ] && [ -s "$hook" ] &&
+       [ "$(wc -c <"$hook")" -le 8192 ]; then
+        /bin/sh "$hook" </dev/null || {
+            echo "IPSet post-update script failed" >&2
+            exit 1
+        }
+    fi
 fi
