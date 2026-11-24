@@ -125,6 +125,7 @@ function done_validating() { location.reload(); }
 </script>
 </head>
 <body onload="show_banner(1); show_menu(5,7,2); show_footer();">
+<div id="Loading" class="popup_bg"></div>
 <div class="wrapper">
     <div class="container-fluid">
         <div class="row-fluid">

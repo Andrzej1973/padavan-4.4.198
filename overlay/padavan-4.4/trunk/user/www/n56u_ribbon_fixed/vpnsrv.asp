@@ -242,7 +242,7 @@ function validForm(){
 }
 
 function done_validating(action){
-	if (action == " Del ")
+	if (action == " Add " || action == " Del ")
 		refreshpage();
 }
 
@@ -506,12 +506,23 @@ function markGroupACL(o, c, b) {
 			return false;
 		}
 
-		acl_addr = parseInt(document.form.vpns_addr_x_0.value);
-		if ((document.form.vpns_addr_x_0.value != "") && (acl_addr<2 || acl_addr>254)){
-			alert("IP octet value should be between 2 and 254!");
-			document.form.vpns_addr_x_0.focus();
-			document.form.vpns_addr_x_0.select();
+		var addrField = document.form.vpns_addr_x_0;
+		acl_addr = addrField.value.trim();
+		if (acl_addr && !/^[0-9]{1,3}$/.test(acl_addr)) {
+			alert("<#JS_validip#>");
+			addrField.focus();
+			addrField.select();
 			return false;
+		}
+		if (acl_addr) {
+			acl_addr = Number(acl_addr);
+			if (acl_addr < 2 || acl_addr > 254) {
+				alert("<#JS_validip#> (2–254)");
+				addrField.focus();
+				addrField.select();
+				return false;
+			}
+			addrField.value = String(acl_addr);
 		}
 
 		if (document.form.vpns_rnet_x_0.value.length > 0 || document.form.vpns_rmsk_x_0.value.length > 0) {
@@ -569,7 +580,7 @@ function wg_pubkey(key){
 	if (!login_safe())
 		return false;
 
-	if (!document.form.vpns_wg_private.value.length == 44) {
+	if (document.form.vpns_wg_private.value.length !== 44) {
 		document.form.vpns_wg_public.value = "";
 		return;
 	}
@@ -1459,7 +1470,7 @@ function getHash(){
                                         <button id="button_client_genkey" type="button" class="btn" style="margin-left: -5px; display: none; width: 6px; background-image: icon-refresh; outline: 0;" onclick="wg_client_genkey();"><i style="margin-left: -7px; margin-top: 1px" class="icon-refresh"></i></button>
                                     </td>
                                     <td style="padding-right: 0;">
-                                        <span id="vpnip3"></span><input type="text" size="2" maxlength="3" style="width: 22px;" name="vpns_addr_x_0" value="<% nvram_get_x("", "vpns_addr_x_0"); %>" onkeypress="return is_number(this,event);" />
+                                        <span id="vpnip3"></span><input type="text" placeholder="2" size="2" maxlength="3" style="width: 22px;" name="vpns_addr_x_0" value="<% nvram_get_x("", "vpns_addr_x_0"); %>" onkeypress="return is_number(this,event);" />
                                     </td>
                                     <td style="padding-right: 0; padding-left: 0;">
                                         <input type="text" size="14" maxlength="15" style="width: 92px;" name="vpns_rnet_x_0" value="<% nvram_get_x("", "vpns_rnet_x_0"); %>" onkeypress="return is_ipaddr(this,event);" />&nbsp;/

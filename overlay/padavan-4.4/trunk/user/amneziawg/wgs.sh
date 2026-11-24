@@ -35,6 +35,7 @@ fi
 
 IF_PRIVATE=$(nvram get vpns_wg_private)
 if [ ! "$IF_PRIVATE" ]; then
+    [ "$1" != "export" ] || exit 1
     IF_PRIVATE="$($WG genkey)"
     nvram set vpns_wg_private="$IF_PRIVATE"
     nvram set vpns_wg_public="$(echo $IF_PRIVATE | $WG pubkey)"
@@ -384,10 +385,12 @@ wg_export()
 {
     [ "$1" ] || return
 
-    local i max awg_options
+    local i max awg_options server_public
     awg_options=$(wg_awg_options) || return 1
 
     rm -f "$EXPORT_CONF"
+    server_public=$(printf '%s\n' "$IF_PRIVATE" | "$WG" pubkey) || return 1
+    [ -n "$server_public" ] || return 1
 
     max="$(nvram get vpns_num_x)"
     for i in $(seq 0 $((max-1))); do
@@ -401,7 +404,7 @@ Address = $(nvram get vpns_vnet | sed 's/\.0$/./')$(nvram get vpns_addr_x$i)/24
 DNS = $(nvram get lan_ipaddr)
 
 [Peer]
-PublicKey = $(nvram get vpns_wg_public)
+PublicKey = $server_public
 Endpoint = ${WAN_ADDR}:${PORT}
 PersistentKeepalive = 11
 AllowedIPs = 0.0.0.0/0
