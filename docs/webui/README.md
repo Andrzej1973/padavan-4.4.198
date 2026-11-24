@@ -5,6 +5,8 @@ Classic є єдиним WebUI у WR1200JS firmware і залишається в 
 зберігає попередні Modern assets, макети та докази для довідки. Архівні кроки
 нижче не є активними вимогами чи дозволом продовжувати Modern розробку.
 
+[Налаштування IoT Wi-Fi на WR1200JS через Classic](../iot/WR1200JS-CLASSIC-SETUP.uk.md)
+
 ## Архівний checkpoint Modern IoT — 2026-11-20
 
 The owner explicitly resumed Hybrid Modern settings integration and apply
@@ -49,7 +51,7 @@ HTTP-бінарник і файли до SHA256 образу. Хостовий �
 | ТЗ прийнятих макетів | [01 — спільні](../modern-design/01-WIFI-COMMON-UK.md), [02 — 2,4 ГГц](../modern-design/02-WIFI-24-GENERAL-UK.md), [03 — Guest 2,4](../modern-design/03-WIFI-24-GUEST-UK.md), [04 — 5 ГГц](../modern-design/04-WIFI-5-GENERAL-UK.md) |
 | Візуальні джерела з початковими назвами та SHA256 | [25 записів, 24 унікальні PNG](../modern-design/references/README.md) |
 | Початковий план власника | [Development plan](reference/PADAVAN_4.4.198_Development_Plan_EN.txt) |
-| Фінальні варіанти релізу та порівняння розмірів TRX | [Modern + Classic / Modern only](../WR1200JS-FINAL-WEBUI-RELEASE-VARIANTS.md) |
+| Чинні Classic профілі та вимоги до TRX | [Classic: з CAKE/SQM і без нього](../WR1200JS-FINAL-WEBUI-RELEASE-VARIANTS.md) |
 | Точний перелік збережених файлів і контрольні суми | [checkpoint.json](checkpoint.json) |
 
 ## Стан реалізації

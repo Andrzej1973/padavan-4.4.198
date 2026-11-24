@@ -27,6 +27,8 @@ KEYS = {
     "WRServicesNavVPNServer": ("VPN server", "VPN-сервер", "VPN-сервер"),
     "WRServicesNavVPNServerTab": ("VPN server (WireGuard, AmneziaWG)", "VPN-сервер (WireGuard, AmneziaWG)", "VPN-сервер (WireGuard, AmneziaWG)"),
     "WRServicesNavVPNClient": ("VPN client", "VPN-клієнт", "VPN-клиент"),
+    "WRServicesNavTunnels": ("Tunneling services", "Служби тунелювання", "Службы туннелирования"),
+    "WRServicesNavStatus": ("Status", "Стан", "Состояние"),
     "WRServicesNavZeroTier": ("ZeroTier", "ZeroTier", "ZeroTier"),
     "WRServicesNavEoIP": ("EoIP", "EoIP", "EoIP"),
     "WRServicesNavShadowsocks": ("Shadowsocks", "Shadowsocks", "Shadowsocks"),
@@ -159,6 +161,12 @@ def inject(path: Path, nav: str, tabs: str = "") -> None:
     anchor = '<div id="TopBanner"></div>'
     if text.count(anchor) != 1 or text.count("</head>") != 1 or text.count("</body>") != 1:
         raise SystemExit(f"Unexpected service-page structure: {path.name}")
+    if path.name == "Advanced_zerotier.asp":
+        text = re.sub(r'(<h2 class="box_head round_top">)[^<]*(?:<#menu5_32#>)?[^<]*(</h2>)',
+                      r'\g<1><#WRServicesNavTunnels#>\g<2>', text, count=1)
+        text = text.replace("<#menu5_32_1#>", "<#WRServicesNavZeroTier#>")
+        text = text.replace("<#menu5_32#></title>", "<#WRServicesNavTunnels#></title>")
+        text = text.replace("<#running_status#>", "<#WRServicesNavStatus#>")
     css = '''
 <style>
 .wr-service-nav { display:grid; grid-template-columns:fit-content(31%) fit-content(34%) minmax(0,1fr); align-items:start; gap:4px 8px; margin:4px 0 6px; padding:5px; }
@@ -495,6 +503,18 @@ def main() -> None:
         path = dictionary_root / filename
         lines = path.read_text(encoding="utf-8").splitlines()
         lines = upsert_single_dictionary_entry(lines, "menu5_35_1", value)
+        labels = {
+            "menu5_16": ("Shadowsocks", "Shadowsocks", "Shadowsocks"),
+            "menu5_2_6": ("Wake on LAN", "Пробудження через LAN", "Пробуждение по LAN"),
+            "menu5_7_9": ("FRP log", "Журнал FRP", "Журнал FRP"),
+            "menu5_25_1": ("FRP", "FRP", "FRP"),
+            "menu5_35": ("WireGuard", "WireGuard", "WireGuard"),
+            "menu5_23_1": ("AliDDNS", "AliDDNS", "AliDDNS"),
+            "menu5_32_1": ("ZeroTier", "ZeroTier", "ZeroTier"),
+            "menu5_34_1": ("DDNSTO", "DDNSTO", "DDNSTO"),
+        }
+        for key, values in labels.items():
+            lines = upsert_single_dictionary_entry(lines, key, values[translations[filename]])
         path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     print("Prepared unified, capability-gated service navigation on " + ", ".join(pages))
 

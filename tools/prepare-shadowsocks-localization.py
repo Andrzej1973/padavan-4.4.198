@@ -205,6 +205,8 @@ REPLACEMENTS = [
     ("$j('#table99').bootstrapTable({", "$j('#table99').bootstrapTable({\n                        formatNoMatches: function () { return '<#SSLocNoMatchingNodes#>'; },"),
     ('<#ss_schedule_enable_tr#>', '<#SSLocScheduledSubscription#>'),
     ('<#Keyword_filter#>', '<#SSLocKeywordFilter#>'),
+    ('<#menu5_16#> - ShadowSocksR Plus+', 'ShadowSocksR Plus+'),
+    ('<#menu5_16#>', 'Shadowsocks'),
     ('<#menu5_16_19#>', '<#SSLocAutoUpdate#>'),
     ('<#menu5_17_2#>', '<#SSLocUpdate#>'),
     ('<#menu5_17_3#>', '<#SSLocRuleCount#>'),

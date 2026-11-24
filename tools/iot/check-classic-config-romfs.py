@@ -45,6 +45,7 @@ with tempfile.TemporaryDirectory(prefix='wr-classic-romfs-') as directory:
     assert (root/'www/unrelated').read_text()=='keep'
     assert (root/'www/classic-iot-config.js').read_bytes()==(here/'classic-config.js').read_bytes()
     assert 'wrIotConfig.init()' in page.read_text()
+    assert page.read_text().count('WPA2-Personal (PSK), AES (CCMP)') == 1
     before=snapshot(root)
     try:stage(root,metadata)
     except ValueError:pass

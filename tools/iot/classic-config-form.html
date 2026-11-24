@@ -1,9 +1,20 @@
+<div class="iot-config-body" style="padding: 0 15px 15px;">
 <div class="alert alert-info">Бажані налаштування IoT 2,4 ГГц. Збереження не означає активацію Wi-Fi, DHCP або ізоляції. Після запису повторно прочитайте налаштування для наступного редагування.</div>
 <div id="iot-message" role="status" aria-live="polite">Натисніть «Прочитати налаштування».</div>
 <button type="button" id="iot-refresh" class="btn">Прочитати налаштування</button>
-<div class="control-group"><label for="iot-enabled"><input type="checkbox" id="iot-enabled"> Бажаний стан IoT: увімкнено</label></div>
+<style>
+.iot-enable-control { position: relative; }
+.iot-enable-control input { position: absolute; opacity: 0; margin: 0; }
+.iot-enable-control label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.iot-enable-switch { display: inline-block; width: 59px; height: 27px; flex: none;
+    background: url(/bootstrap/img/itoggle.png) 100% -27px no-repeat; }
+#iot-enabled:checked + label .iot-enable-switch { background-position: 0 -27px;
+    filter: hue-rotate(-75deg) saturate(1.15); }
+#iot-enabled:focus-visible + label .iot-enable-switch { outline: 2px solid #005580; outline-offset: 2px; }
+</style>
+<div class="control-group iot-enable-control"><input type="checkbox" role="switch" id="iot-enabled"><label for="iot-enabled"><span class="iot-enable-switch" aria-hidden="true"></span>Бажаний стан IoT: увімкнено</label></div>
 <div class="control-group"><label for="iot-ssid">Назва мережі (SSID)</label><input id="iot-ssid" maxlength="32" autocomplete="off"></div>
-<div class="control-group"><label for="iot-action">Пароль</label><select id="iot-action"><option value="keep">Залишити поточний</option><option value="replace">Встановити новий</option></select><input type="password" id="iot-password" maxlength="64" autocomplete="new-password" aria-label="Новий пароль"></div>
+<div class="control-group"><strong>Захист мережі</strong><div>WPA2-Personal (PSK), AES (CCMP)</div><div class="help-block">Режим захисту заданий профілем IoT. Канал і ширину каналу мережа бере з налаштувань основного радіо 2,4 ГГц.</div></div>Пароль</label><select id="iot-action"><option value="keep">Залишити поточний</option><option value="replace">Встановити новий</option></select><input type="password" id="iot-password" maxlength="64" autocomplete="new-password" aria-label="Новий пароль"></div>
 <div class="control-group"><label for="iot-gateway">IPv4 шлюзу IoT</label><input id="iot-gateway" maxlength="15" inputmode="decimal"></div>
 <div class="control-group"><label for="iot-mask">Маска підмережі</label><input id="iot-mask" maxlength="15" inputmode="decimal"></div>
 <div class="control-group"><label for="iot-first">Початок DHCP</label><input id="iot-first" maxlength="15" inputmode="decimal"></div>
@@ -15,3 +26,4 @@
 <p>Перемкнути збережений профіль зараз, без збереження нового бажаного стану. Якщо профіль ще не завантажено, запит буде відхилено без перезапуску Wi-Fi.</p>
 <button type="button" id="iot-on" class="btn" disabled>Увімкнути збережений профіль зараз</button>
 <button type="button" id="iot-off" class="btn" disabled>Вимкнути IoT зараз</button>
+</div>

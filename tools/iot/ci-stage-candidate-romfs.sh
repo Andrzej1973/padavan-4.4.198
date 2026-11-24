@@ -103,6 +103,9 @@ for name,digest in classic['sha256'].items():
  path=romfs/name
  if path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest:
   raise SystemExit('Classic payload changed before image verification: '+name)
+iot_page=(romfs/'www/Advanced_IoT_Content.asp').read_bytes()
+if iot_page.count(b'WPA2-Personal (PSK), AES (CCMP)')!=1:
+ raise SystemExit('Classic IoT page must display its fixed WPA2/AES mode once')
 for name in ('www/modern','www/hybrid'):
  if (romfs/name).exists() or (romfs/name).is_symlink():
   raise SystemExit('Classic-only candidate contains retired WebUI: '+name)

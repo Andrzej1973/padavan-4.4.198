@@ -121,4 +121,20 @@ with TemporaryDirectory() as scratch:
     module.inject(vpn, nav)
     assert module.MARKER not in vpn.read_text(encoding="utf-8")
 
+    zerotier = page.parent / "Advanced_zerotier.asp"
+    zerotier.write_text(
+        '<html><head><title>ASUS Wireless Router - <#menu5_32#></title></head>'
+        '<body><div id="TopBanner"></div>'
+        '<h2 class="box_head round_top">Tunnels - <#menu5_32#></h2>'
+        '<a href="Advanced_zerotier.asp"><#menu5_32_1#></a>'
+        '<table><tr><th><#running_status#></th></tr></table></body></html>',
+        encoding="utf-8",
+    )
+    module.inject(zerotier, nav)
+    rendered = zerotier.read_text(encoding="utf-8")
+    assert '<h2 class="box_head round_top"><#WRServicesNavTunnels#></h2>' in rendered
+    assert '><#WRServicesNavZeroTier#></a>' in rendered
+    assert '<th><#WRServicesNavStatus#></th>' in rendered
+    assert '<#menu5_32' not in rendered
+
 print("PASS service panels, board-specific exclusions, active capability parsing, return links and VPN profile route")
