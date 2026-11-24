@@ -46,6 +46,8 @@ with tempfile.TemporaryDirectory(prefix='wr-classic-romfs-') as directory:
     assert (root/'www/classic-iot-config.js').read_bytes()==(here/'classic-config.js').read_bytes()
     assert 'wrIotConfig.init()' in page.read_text()
     assert page.read_text().count('WPA2-Personal (PSK), AES (CCMP)') == 1
+    assert '<label for="iot-action">Пароль</label>' in page.read_text()
+    assert '<p style="padding-left: 15px;"><a class="btn" href="/index.asp">' in page.read_text()
     before=snapshot(root)
     try:stage(root,metadata)
     except ValueError:pass

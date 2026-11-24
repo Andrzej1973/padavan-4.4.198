@@ -14,7 +14,8 @@
 </style>
 <div class="control-group iot-enable-control"><input type="checkbox" role="switch" id="iot-enabled"><label for="iot-enabled"><span class="iot-enable-switch" aria-hidden="true"></span>Бажаний стан IoT: увімкнено</label></div>
 <div class="control-group"><label for="iot-ssid">Назва мережі (SSID)</label><input id="iot-ssid" maxlength="32" autocomplete="off"></div>
-<div class="control-group"><strong>Захист мережі</strong><div>WPA2-Personal (PSK), AES (CCMP)</div><div class="help-block">Режим захисту заданий профілем IoT. Канал і ширину каналу мережа бере з налаштувань основного радіо 2,4 ГГц.</div></div>Пароль</label><select id="iot-action"><option value="keep">Залишити поточний</option><option value="replace">Встановити новий</option></select><input type="password" id="iot-password" maxlength="64" autocomplete="new-password" aria-label="Новий пароль"></div>
+<div class="control-group"><strong>Захист мережі</strong><div>WPA2-Personal (PSK), AES (CCMP)</div><div class="help-block">Режим захисту заданий профілем IoT. Канал і ширину каналу мережа бере з налаштувань основного радіо 2,4 ГГц.</div></div>
+<div class="control-group"><label for="iot-action">Пароль</label><select id="iot-action"><option value="keep">Залишити поточний</option><option value="replace">Встановити новий</option></select><input type="password" id="iot-password" maxlength="64" autocomplete="new-password" aria-label="Новий пароль"></div>
 <div class="control-group"><label for="iot-gateway">IPv4 шлюзу IoT</label><input id="iot-gateway" maxlength="15" inputmode="decimal"></div>
 <div class="control-group"><label for="iot-mask">Маска підмережі</label><input id="iot-mask" maxlength="15" inputmode="decimal"></div>
 <div class="control-group"><label for="iot-first">Початок DHCP</label><input id="iot-first" maxlength="15" inputmode="decimal"></div>

@@ -31,7 +31,7 @@ function initial() { show_banner(1); show_menu(5,0,0); show_footer(); }
 <h2 class="box_head round_top"><#menu5_1#> - IoT (2.4GHz)</h2>
 <div class="round_bottom"><div id="tabMenu" class="submenuBlock"></div>
 <div class="alert alert-info"><#WR_IOT_CLASSIC_Pending#></div>
-<p><a class="btn" href="/index.asp"><#menu1#></a></p>
+<p style="padding-left: 15px;"><a class="btn" href="/index.asp"><#menu1#></a></p>
 </div></div></div>
 </div></div><div id="footer"></div>
 </div>
