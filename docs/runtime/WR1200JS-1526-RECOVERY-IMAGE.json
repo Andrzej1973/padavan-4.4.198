@@ -1,0 +1,40 @@
+{
+  "scope": "Padavan uImage upload structure and embedded IoT/HWNAT DTB policy; device boot/isolation unverified",
+  "image": "WR1200JS_4.4.198.9-1526_ba84894e.trx",
+  "bytes": 13059099,
+  "sha256": "ee353dac70cb65210d43a38db0b208084e39312d67b3f34948047005de8eed42",
+  "declared_payload_bytes": 13059035,
+  "architecture_id": 5,
+  "compression_id": 3,
+  "checks": {
+    "uimage_magic": true,
+    "product_id": true,
+    "header_crc": true,
+    "declared_length": true,
+    "payload_crc": true,
+    "size_range": true,
+    "iot_hwnat_dtb": true
+  },
+  "iot_hwnat_dtb_policy": {
+    "scope": "Embedded DTB HNAT policy only; no packet/runtime proof",
+    "external_devices": [
+      "usb0",
+      "wwan0",
+      "rax0",
+      "ra0",
+      "rai0",
+      "apclii0",
+      "apclix0",
+      "apcli0"
+    ],
+    "lan": [
+      "eth2"
+    ],
+    "wan": [
+      "eth3"
+    ],
+    "dtb_sha256": "54899d13006b8d4854a32feba4f494c01e019f804aac16a7dd227d4c6fd6f9d0",
+    "kernel_sha256": "3137ea3eba4f6b050d0cf009ff9b6b3657202114bfcadc413a398307eb823552",
+    "runtime_verified": false
+  }
+}

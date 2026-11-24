@@ -2,6 +2,10 @@
 
 Padavan firmware for **YOUHUA WR1200JS**, based on [vipshmily/padavan-4.4](https://github.com/vipshmily/padavan-4.4/tree/c25283e915a2a00a763774dd255b14aff997285e), with selected components from [nilabsent/padavan-ng](https://github.com/nilabsent/padavan-ng). Original project: [Padavan / rt-n56u](https://bitbucket.org/padavan/rt-n56u).
 
+## Поточний профіль WR1200JS
+
+Classic з основною та гостьовою Wi-Fi. Для робочого роутера — без CAKE/SQM. Розробку ізольованої IoT-мережі призупинено. [Архів напрацювань і діагностика](docs/runtime/WR1200JS-IOT-SUSPENSION-2026-11-24.md).
+
 ## Working on this repository
 
 Start with [docs/AGENT-BOOTSTRAP.md](docs/AGENT-BOOTSTRAP.md). It records the
