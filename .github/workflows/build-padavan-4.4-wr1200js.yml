@@ -1312,6 +1312,9 @@ jobs:
           fi
           python3 -B tools/webui-preview/check_trx_gate.py
           content_options=(--classic-only)
+          if ! grep -qx 'CONFIG_FIRMWARE_INCLUDE_EOIP=y' configs.build/wr1200js.config; then
+            content_options+=(--without-eoip)
+          fi
           if [ "$SQM_PROFILE" = excluded ]; then
             content_options+=(--without-sqm)
           else

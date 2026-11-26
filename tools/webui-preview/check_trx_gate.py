@@ -178,4 +178,18 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
         assert 'differs from verified ROMFS: ' + vpn_paths[-1] in str(error)
     else:
         raise AssertionError('Different AWG readback accepted')
+    image.write_bytes(b'fixture header' + classic.read_bytes())
+    assert check(image, romfs, classic_only=True, without_eoip=True)['eoip_excluded_verified']
+    module = romfs / 'lib/modules/4.4.198/eoip.ko'
+    module.write_bytes(b'test module')
+    eoip = root / 'eoip.sqfs'
+    subprocess.run(['mksquashfs', str(romfs), str(eoip), '-noappend',
+                    '-processors', '1', '-no-progress'], check=True, stdout=subprocess.DEVNULL)
+    image.write_bytes(b'fixture header' + eoip.read_bytes())
+    try:
+        check(image, romfs, classic_only=True, without_eoip=True)
+    except ValueError as error:
+        assert 'EoIP-excluded TRX contains EoIP:' in str(error)
+    else:
+        raise AssertionError('EoIP module accepted in excluded image')
 print('PASS final-content gate real SquashFS fixtures: offset/content/mode/missing filesystem; scratch removed')

@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 
 
-def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, with_sqm=False, vpn_protocols=()):
+def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, with_sqm=False, vpn_protocols=(), without_eoip=False):
     data = image.read_bytes()
     # Padavan appends SquashFS to its kernel image; validate candidates with unsquashfs.
     offsets = []
@@ -28,10 +28,16 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
         raise ValueError('Expected one valid embedded SquashFS, found ' + str(len(offsets)))
     paths = ['www/modern/' + name for name in (
         'index.html', 'app.js', 'wifi.js', 'shared-wifi.js', 'wifi-schema.json', 'styles.css', 'favicon.svg')]
-    if classic_only or without_sqm:
+    if classic_only or without_sqm or without_eoip:
         listing = subprocess.check_output(
             ['unsquashfs', '-ls', '-offset', str(offsets[0]), str(image)],
             text=True).splitlines()
+    if without_eoip:
+        names = {'Advanced_Services_EoIP.asp', 'wr-eoip-status.js', 'wr-eoip-editor.js',
+                 'wr-eoip-boot', 'eoip-service', 'eoip.ko', 'eoip.ko.gz', 'eoip.ko.xz'}
+        for entry in listing:
+            if Path(entry).name in names:
+                raise ValueError('EoIP-excluded TRX contains EoIP: ' + entry)
     if without_sqm:
         for entry in listing:
             if (entry.endswith(('/Advanced_SQM.asp', '/sch_cake.ko')) or
@@ -110,13 +116,14 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
             'iot_excluded_verified': classic_only,
             'sqm_excluded_verified': without_sqm, 'sqm_included_verified': with_sqm,
             'modern_asp_reference_literals': modern_asp_references,
-            'scratch_removed': True}
+            'eoip_excluded_verified': without_eoip, 'scratch_removed': True}
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('image', type=Path)
     parser.add_argument('romfs', type=Path)
+    parser.add_argument('--without-eoip', action='store_true')
     parser.add_argument('--without-zapret2', action='store_true')
     sqm = parser.add_mutually_exclusive_group()
     sqm.add_argument('--without-sqm', action='store_true')
@@ -126,6 +133,6 @@ if __name__ == '__main__':
     parser.add_argument('--report', type=Path, required=True)
     args = parser.parse_args()
     result = check(args.image, args.romfs, not args.without_zapret2,
-                   args.classic_only, args.without_sqm, args.with_sqm, args.vpn_protocol)
+                   args.classic_only, args.without_sqm, args.with_sqm, args.vpn_protocol, args.without_eoip)
     args.report.write_text(json.dumps(result, indent=2) + '\n')
     print('PASS final TRX selected content/modes equal verified ROMFS; scratch removed; runtime unverified')
