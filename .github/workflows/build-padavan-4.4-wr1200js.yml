@@ -881,6 +881,14 @@ jobs:
             for module in usbip-core usbip-host vhci-hcd; do
               test -n "$(find trunk/romfs/lib/modules -name "$module.ko" -print -quit)"
             done
+            usbip_dir=kernel/drivers/usb/usbip
+            modules_dep=trunk/romfs/lib/modules/4.4.198/modules.dep
+            for module in usbip-host vhci-hcd; do
+              awk -v module="$usbip_dir/$module.ko:" -v core="$usbip_dir/usbip-core.ko" '
+                $1 == module { for (i = 2; i <= NF; i++) if ($i == core) found = 1 }
+                END { exit !found }
+              ' "$modules_dep"
+            done
             for tool in usbip usbipd; do
               test -x "trunk/romfs/sbin/$tool"
               readelf -h "trunk/romfs/sbin/$tool" | grep -q 'Machine:.*MIPS'
