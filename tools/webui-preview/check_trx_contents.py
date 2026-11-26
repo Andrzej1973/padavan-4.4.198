@@ -58,7 +58,7 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
                for line in listing for path in iot_payloads):
             raise ValueError('Standard Classic TRX contains isolated IoT payload')
     # Verify the shared RC and Classic entry points against staged ROMFS.
-    paths += ['usr/sbin/httpd', 'sbin/rc', 'www/wr-band-status.js', 'www/index.asp',
+    paths += ['bin/busybox', 'usr/sbin/httpd', 'sbin/rc', 'www/wr-band-status.js', 'www/index.asp',
               'www/Advanced_WAdvanced2g_Content.asp', 'www/Advanced_Services_Content.asp',
               *('www/' + language + '.dict' for language in ('EN', 'UK', 'RU'))]
     if zapret2:

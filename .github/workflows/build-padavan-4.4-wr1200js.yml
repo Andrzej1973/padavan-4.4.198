@@ -1436,6 +1436,19 @@ jobs:
         run: |
           python3 tools/check-lua-closure.py
           python3 tools/check-target-busybox.py padavan-4.4 --output target-busybox-audit.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('target-busybox-audit.json')
+          audit = json.loads(path.read_text())
+          contents = json.loads(Path('final-content-check.json').read_text())
+          if audit['busybox_sha256'] != contents['files_sha256']['bin/busybox']:
+              raise SystemExit('BusyBox applet inventory refers to a different binary')
+          audit['image_sha256'] = contents['image_sha256']
+          audit['devmem_applet_present'] = 'devmem' in audit['applets']
+          path.write_text(json.dumps(audit, indent=2) + '\n')
+          PY
 
       - name: Exercise VPN profile service lock path with exact target BusyBox
         run: |
@@ -1811,6 +1824,7 @@ jobs:
             toolchain-loader-revision.txt
             unsupported-firmware-options.txt
             wr1200js-build-inputs.json
+            target-busybox-audit.json
             firmware-requested.config
             firmware-image-checks.json
             final-content-check.json

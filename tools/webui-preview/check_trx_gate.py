@@ -10,7 +10,7 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     root=Path(scratch)
     romfs=root/'romfs'
     names=['www/modern/'+n for n in ('index.html','app.js','wifi.js','shared-wifi.js','wifi-schema.json','styles.css','favicon.svg')]
-    names+=['sbin/rc','www/wr-band-status.js', 'www/index.asp','www/Advanced_WAdvanced2g_Content.asp',
+    names+=['bin/busybox', 'sbin/rc','www/wr-band-status.js', 'www/index.asp','www/Advanced_WAdvanced2g_Content.asp',
             'www/Advanced_Services_Content.asp', 'www/EN.dict', 'www/UK.dict', 'www/RU.dict',
             'www/Advanced_Services_Zapret2.asp','usr/sbin/httpd','usr/sbin/nfqws2','usr/sbin/zapret2',
             *('usr/share/zapret2/'+n for n in ('zapret-lib.lua','zapret-antidpi.lua','zapret-auto.lua')),
