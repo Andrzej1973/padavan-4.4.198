@@ -1759,6 +1759,8 @@ jobs:
                    'kernel-effective.config')
           report = {
               'source_sha': os.environ['SOURCE_SHA'],
+              'ci_run': {key: os.environ['GITHUB_' + key.upper()]
+                         for key in ('repository', 'run_id', 'run_attempt')},
               'toolchain_variant': os.environ['TOOLCHAIN_VARIANT'],
               'sqm_profile': os.environ['SQM_PROFILE'],
               'compiler_version': subprocess.check_output([compiler, '--version'], text=True).strip(),
