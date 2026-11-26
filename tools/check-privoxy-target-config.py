@@ -53,7 +53,8 @@ def main():
             rejected = subprocess.run(
                 [qemu, '-L', str(root), str(binary), '--no-daemon', '--config-test',
                  str(work / 'invalid')], capture_output=True, timeout=30)
-            report['checks']['missing_actions_file_refused'] = rejected.returncode != 0
+            report['invalid_config_test_exit'] = rejected.returncode
+            report['checks']['missing_actions_file_refused'] = rejected.returncode == 1
     except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:
         report['error'] = str(error)
         report['checks']['inspection_completed'] = False

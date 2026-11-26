@@ -101,6 +101,7 @@ on:
       - 'tools/check-target-busybox.py'
       - 'tools/check-target-busybox-map.py'
       - 'tools/check-qos-packaging.py'
+      - 'tools/check-encrypted-dnsmasq-combination.py'
       - 'tools/check-sqm-config-policy.py'
       - 'tools/check-cake-default.py'
       - 'tools/check-cake-image.py'

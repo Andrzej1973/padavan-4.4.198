@@ -13,7 +13,7 @@ trunk = args.trunk
 romfs = trunk / "romfs"
 checks = {}
 
-checks["effective_selector"] = "CONFIG_FIRMWARE_INCLUDE_WPAD=y" in (trunk / ".config").read_text()
+checks["effective_selector"] = "CONFIG_FIRMWARE_INCLUDE_WPAD=y" in (trunk / ".config").read_text().splitlines()
 for name in ("wpad.dat", "wpad.da", "proxy.pac"):
     link = romfs / "www" / name
     checks["link_" + name] = link.is_symlink() and os.readlink(link) == "/etc/storage/wpad.dat"
