@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only architecture inventory and scoped path/profile validation (stdlib)."""
 import argparse,collections,hashlib,json,re,subprocess,sys
+import tarfile
 from pathlib import Path
 from board_catalog import load
 ROOT=Path(__file__).resolve().parents[2]
@@ -54,6 +55,21 @@ def validate():
    errors.append('Owned input source registry mismatch '+relative)
   if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=item['sha256']:
    errors.append('Owned input hash mismatch '+relative)
+   continue
+  if len(entries)!=1:
+   continue
+  licenses=entries[0].get('archive_license_files', [])
+  if not licenses:
+   errors.append('Owned input has no registered license files '+relative)
+   continue
+  try:
+   with tarfile.open(path) as archive:
+    for name in licenses:
+     member=archive.getmember(name)
+     if not member.isfile() or member.size==0:
+      errors.append('Invalid archive license file '+relative+': '+name)
+  except (tarfile.TarError, KeyError, OSError) as error:
+   errors.append('Cannot inspect archive license files '+relative+': '+str(error))
  kernel=ROOT/'overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config'
  dts={'board_dts':'overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts','layout':'overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi','status':'Exact existing DTS/model/include and SPI16M partitions checked; includes from pinned kernel and compiled DTB still require assembled-source/image validation'}
  return {'errors':errors,'boards':boards,'dts_review':dts,'scope':'local source/profile/required-path/doc-link/archive checks; no full firmware/runtime verification','passed':not errors}
