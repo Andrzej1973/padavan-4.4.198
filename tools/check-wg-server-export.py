@@ -113,6 +113,18 @@ fixture_wg(){
    assert (line in client.read_text())==(module=='amneziawg')
   assert 'PublicKey = '+'B'*43+'=' in client.read_text().splitlines()
   assert result.stdout==client.read_text()
+ # Exercise the actual dispatch branch used by the WebUI.
+ dispatch_start=source.index('    export)\n', source.index('\ncase "$1" in\n'))
+ dispatch_end=source.index('    ;;\n',dispatch_start)+len('    ;;\n')
+ script.write_text(prelude+helper+export+'\ncase "$1" in\n'+source[dispatch_start:dispatch_end]+'esac\n')
+ explicit=root/'explicit.conf'
+ client.unlink(missing_ok=True)
+ result=subprocess.run([*shell,str(script),'export','client',str(explicit)],
+                       env=dict(env,MODULE='wireguard',JCVALUE='invalid'),
+                       capture_output=True,text=True,timeout=30)
+ assert result.returncode==0 and not result.stdout and not result.stderr
+ assert explicit.stat().st_mode & 0o777 == 0o600 and not client.exists()
+ assert 'PrivateKey = '+'A'*43+'=' in explicit.read_text().splitlines()
  # Exercise actual startup control flow with all network operations mocked.
  startup=source[source.index('wg_start_abort()'):source.index('wg_addclient()')]
  events=root/'events'

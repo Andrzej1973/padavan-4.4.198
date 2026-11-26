@@ -37,13 +37,17 @@
 	else if (!strcmp(value, " ExportWGConf "))
 	{
 		char *common_name = websGetVar(wp, "common_name", "");
+		char directory[] = "/tmp/wr-vpn-export-XXXXXX";
+		char path[sizeof(directory) + sizeof("/client.conf")];
 		if (!get_login_safe() || !*common_name)
 			return 0;
-		/* Pass the name as an argv element, and never serve stale output. */
-		unlink("/tmp/client-wg.conf");
-		if (eval("/usr/bin/wgs.sh", "export", common_name) == 0)
-			do_file("/tmp/client-wg.conf", wp);
-		unlink("/tmp/client-wg.conf");
+		if (!mkdtemp(directory))
+			return 0;
+		snprintf(path, sizeof(path), "%s/client.conf", directory);
+		if (eval("/usr/bin/wgs.sh", "export", common_name, path) == 0)
+			do_file(path, wp);
+		unlink(path);
+		rmdir(directory);
 		return 0;
 	}
 #endif

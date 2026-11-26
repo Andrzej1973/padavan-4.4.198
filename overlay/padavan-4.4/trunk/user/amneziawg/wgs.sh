@@ -394,7 +394,7 @@ wg_export()
 
     max="$(nvram get vpns_num_x)"
     for i in $(seq 0 $((max-1))); do
-        [ ! "$(nvram get vpns_user_x$i)" == "$1" ] && continue
+        [ "$(nvram get vpns_user_x$i)" = "$1" ] || continue
 
         tee "$EXPORT_CONF" <<EOF
 [Interface]
@@ -429,7 +429,12 @@ case "$1" in
     ;;
 
     export)
-        wg_export "$2"
+        if [ -n "$3" ]; then
+            EXPORT_CONF="$3"
+            wg_export "$2" >/dev/null
+        else
+            wg_export "$2"
+        fi
     ;;
 
     status)
