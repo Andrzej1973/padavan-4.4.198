@@ -1754,6 +1754,7 @@ jobs:
           if-no-files-found: error
       - name: Record WR1200JS build inputs and compiler
         env:
+          BUILD_HOST: ${{ inputs.build_host }}
           SOURCE_SHA: ${{ steps.source.outputs.sha }}
           TOOLCHAIN_VARIANT: ${{ inputs.toolchain_variant }}
           SQM_PROFILE: ${{ inputs.sqm_profile }}
@@ -1776,6 +1777,11 @@ jobs:
           report = {
               'source_sha': os.environ['SOURCE_SHA'],
               'firmware_build_number': os.environ['GITHUB_RUN_NUMBER'],
+              'build_host': {
+                  'requested': os.environ['BUILD_HOST'],
+                  'image_version': os.environ.get('ImageVersion', ''),
+                  'os_release_sha256': hashlib.sha256(Path('/etc/os-release').read_bytes()).hexdigest(),
+              },
               'kernel_build_metadata': {key: os.environ['KBUILD_BUILD_' + key.upper()]
                                         for key in ('timestamp', 'user', 'host', 'version')},
               'ci_run': {key: os.environ['GITHUB_' + key.upper()]
