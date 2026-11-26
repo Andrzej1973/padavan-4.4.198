@@ -23,12 +23,16 @@ static int is_interface_exist(const char *name){return !strcmp(name,"eth3");}
 static void nvram_set_temp(const char *key,const char *value){assert(!strcmp(key,"sqm_running_t")&&!strcmp(value,"1"));running=1;sets++;}
 static int cleanup_fail;
 static void nvram_unset(const char *key){assert(!strcmp(key,"sqm_running_t"));running=0;}
-static void reload_nat_modules(void){reloads++;}
+static void reload_nat_modules(void){
+ if(running)assert(sets==1&&!calls&&!stops);
+ else assert(stops>0&&!cleanup_fail);
+ reloads++;
+}
 static int is_module_loaded(const char *name){(void)name;return loaded;}
 static int eval(const char *path,const char *action,...){
  assert(running&&!strcmp(path,"/usr/lib/sqm/run.sh"));
  if(!strcmp(action,"stop")){stops++;return cleanup_fail;}
- assert(!strcmp(action,"start"));calls++;return fail;
+ assert(!strcmp(action,"start")&&reloads==1);calls++;return fail;
 }
 #define logmessage(...) ((void)0)
 '''+stop_helper+helper+r'''
