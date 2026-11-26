@@ -53,7 +53,8 @@ try:
     checks['listener_guard_matches_prepared_source'] = guard_path.read_bytes() == (args.trunk / 'user/doh_proxy/dns-listener-guard.sh').read_bytes()
     checks['lifecycle_rejects_stubby_conflict'] = 'wr_dns_listener_conflict doh' in helper
     checks['ca_bundle'] = hashlib.sha256(target('/usr/share/doh-proxy/cacert.pem').read_bytes()).hexdigest() == 'a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505'
-    checks['license'] = 'Copyright (c) 2016 Aaron Drew' in target('/usr/share/doh-proxy/LICENSE').read_text()
+    license_copy = Path(__file__).resolve().parents[4] / 'sources/licenses/https-dns-proxy-LICENSE'
+    checks['license'] = target('/usr/share/doh-proxy/LICENSE').read_bytes() == license_copy.read_bytes()
     page = target('/www/Advanced_Services_DoH.asp').read_text()
     keys = ['doh_enable', 'doh_server0', 'doh_server1', 'doh_server2', 'doh_server3', 'doh_quic', 'doh_bootstrap_dns', 'doh_listen_port', 'doh_listen_mode', 'doh_mode']
     checks['webui'] = all(key in page for key in keys) and 'login_safe()' in page and 'found_app_doh()' in page
