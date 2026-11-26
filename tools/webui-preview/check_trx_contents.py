@@ -112,6 +112,7 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
                     modern_asp_references[name] = [value.decode('ascii') for value in references]
     return {'scope': 'Final image selected content equals verified ROMFS; no runtime acceptance',
             'image_sha256': hashlib.sha256(data).hexdigest(), 'squashfs_offset': offsets[0],
+            'squashfs_created_epoch': int.from_bytes(data[offsets[0] + 8:offsets[0] + 12], 'little'),
             'files_sha256': hashes, 'classic_only_verified': classic_only,
             'iot_excluded_verified': classic_only,
             'sqm_excluded_verified': without_sqm, 'sqm_included_verified': with_sqm,

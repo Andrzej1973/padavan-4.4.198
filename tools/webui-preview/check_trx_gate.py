@@ -24,11 +24,15 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     binary=romfs/'usr/sbin/httpd'
     binary.chmod(0o755)
     squash=root/'fixture.sqfs'
-    subprocess.run(['mksquashfs',str(romfs),str(squash),'-noappend','-processors','1','-no-progress'],check=True,stdout=subprocess.DEVNULL)
+    created_epoch = 1234567890
+    subprocess.run(['mksquashfs', str(romfs), str(squash), '-noappend', '-processors', '1',
+                    '-no-progress', '-mkfs-time', str(created_epoch)], check=True,
+                   stdout=subprocess.DEVNULL)
     image=root/'fixture.trx'
     image.write_bytes(b'fixture header'+squash.read_bytes())
     report = check(image, romfs)
     assert report['squashfs_offset'] == 14
+    assert report['squashfs_created_epoch'] == created_epoch
     assert report['modern_asp_reference_literals'] == {
         'www/modern/wifi.js': ['/index.asp', '/status_lanlink.asp'],
     }
