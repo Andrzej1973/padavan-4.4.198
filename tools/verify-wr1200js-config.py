@@ -96,8 +96,15 @@ def main():
         for key, expected in sqm_kernel.items():
             if kernel.get(key) != expected:
                 errors.append(key)
+    security_options = (
+        'CONFIG_DEVMEM', 'CONFIG_DEVKMEM', 'CONFIG_STRICT_DEVMEM',
+        'CONFIG_MODULE_SIG', 'CONFIG_MODULE_SIG_FORCE', 'CONFIG_SECCOMP',
+        'CONFIG_CC_STACKPROTECTOR_REGULAR', 'CONFIG_CC_STACKPROTECTOR_STRONG',
+        'CONFIG_SECURITY', 'CONFIG_SECURITY_DMESG_RESTRICT', 'CONFIG_SYN_COOKIES',
+    )
     report = {'board': 'wr1200js', 'scope': 'Requested versus effective configuration; not package, runtime or complete-port proof',
               'mismatches': errors, 'options': rows,
+              'kernel_security_config': {key: kernel.get(key) for key in security_options},
               'vpn_policy_routing': {
                   'required': vpn_policy,
                   'effective': {key: kernel.get(key) for key in vpn_policy}},

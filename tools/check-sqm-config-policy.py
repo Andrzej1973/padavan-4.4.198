@@ -39,6 +39,13 @@ for requested in ('n','y'):
         valid=selector.endswith('=y') if requested=='y' else not selector.endswith(('=y','=m'))
         assert failed != valid,(requested,selector,data)
         assert data['mismatches']==([] if valid else ['CONFIG_FIRMWARE_INCLUDE_SQM'])
+failed,data=run('n','CONFIG_FIRMWARE_INCLUDE_SQM=n',
+                {'CONFIG_DEVMEM':'y','CONFIG_MODULE_SIG':'n'})
+assert not failed
+security=data['kernel_security_config']
+assert security['CONFIG_DEVMEM']=='y'
+assert security['CONFIG_MODULE_SIG']=='n'
+assert security['CONFIG_SECCOMP'] is None
 for key in required:
     altered=dict(required);altered[key]='n'
     failed,data=run('y','CONFIG_FIRMWARE_INCLUDE_SQM=y',altered)
