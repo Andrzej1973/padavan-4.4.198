@@ -728,6 +728,18 @@ jobs:
         run: |
           python3 tools/check-owned-build-dependencies.py
           python3 tools/prepare-owned-build-dependencies.py padavan-4.4 .cache/owned-build-dependencies
+      - name: Set stable kernel build metadata
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          epoch="$(git show -s --format=%ct "$SOURCE_SHA")"
+          [[ "$epoch" =~ ^[0-9]+$ ]]
+          timestamp="$(LC_ALL=C date -u -d "@$epoch" '+%a %b %e %T UTC %Y')"
+          printf '%s\n' "KBUILD_BUILD_TIMESTAMP=$timestamp" \
+            'KBUILD_BUILD_USER=padavan' 'KBUILD_BUILD_HOST=builder' \
+            'KBUILD_BUILD_VERSION=1' >> "$GITHUB_ENV"
+
       - name: Build WR1200JS firmware
         id: firmware_build
         run: |
@@ -1760,6 +1772,8 @@ jobs:
           report = {
               'source_sha': os.environ['SOURCE_SHA'],
               'firmware_build_number': os.environ['GITHUB_RUN_NUMBER'],
+              'kernel_build_metadata': {key: os.environ['KBUILD_BUILD_' + key.upper()]
+                                        for key in ('timestamp', 'user', 'host', 'version')},
               'ci_run': {key: os.environ['GITHUB_' + key.upper()]
                          for key in ('repository', 'run_id', 'run_attempt')},
               'toolchain_variant': os.environ['TOOLCHAIN_VARIANT'],
