@@ -35,5 +35,9 @@ digests = [report.get("image_sha256", "") for report in (first, second)]
 if any(not re.fullmatch(r"[0-9a-f]{64}", digest) for digest in digests):
     raise SystemExit("Missing or invalid TRX SHA-256")
 if digests[0] != digests[1]:
-    raise SystemExit("Matching recorded inputs produced different TRX digests: " + " / ".join(digests))
+    timestamps = [report.get("squashfs_created_epoch") for report in (first, second)]
+    message = "Matching recorded inputs produced different TRX digests: " + " / ".join(digests)
+    if all(type(value) is int and value >= 0 for value in timestamps) and timestamps[0] != timestamps[1]:
+        message += f"; SquashFS creation times differ: {timestamps[0]} / {timestamps[1]}"
+    raise SystemExit(message)
 print("PASS identical TRX digest for matching recorded inputs: " + digests[0])
