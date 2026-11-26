@@ -15,6 +15,8 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
             'www/Advanced_Services_Zapret2.asp','usr/sbin/httpd','usr/sbin/nfqws2','usr/sbin/zapret2',
             *('usr/share/zapret2/'+n for n in ('zapret-lib.lua','zapret-antidpi.lua','zapret-auto.lua')),
             'usr/share/licenses/zapret2/LICENSE.txt']
+    doh_paths = ['usr/sbin/https_dns_proxy', 'usr/share/doh-proxy/LICENSE']
+    names += doh_paths
     for name in names:
         path=romfs/name
         path.parent.mkdir(parents=True,exist_ok=True)
@@ -30,7 +32,8 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
                    stdout=subprocess.DEVNULL)
     image=root/'fixture.trx'
     image.write_bytes(b'fixture header'+squash.read_bytes())
-    report = check(image, romfs)
+    report = check(image, romfs, with_doh=True)
+    assert set(doh_paths) <= report['files_sha256'].keys()
     assert report['squashfs_offset'] == 14
     assert report['squashfs_created_epoch'] == created_epoch
     assert report['modern_asp_reference_literals'] == {
@@ -38,7 +41,7 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     }
     # A valid filesystem missing a required entry must fail closed.
     original_image = image.read_bytes()
-    for index, name in enumerate(('usr/sbin/nfqws2', 'www/index.asp')):
+    for index, name in enumerate(('usr/sbin/nfqws2', 'www/index.asp', doh_paths[1])):
         missing = romfs / name
         saved_missing = missing.read_bytes()
         missing.unlink()
@@ -49,7 +52,7 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
         missing.write_bytes(saved_missing)
         image.write_bytes(b'fixture header' + incomplete.read_bytes())
         try:
-            check(image, romfs)
+            check(image, romfs, with_doh=True)
         except FileNotFoundError as error:
             assert Path(error.filename).as_posix().endswith(name)
         else:

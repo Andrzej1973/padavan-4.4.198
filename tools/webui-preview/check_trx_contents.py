@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 
 
-def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, with_sqm=False, vpn_protocols=(), without_eoip=False):
+def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, with_sqm=False, vpn_protocols=(), without_eoip=False, with_doh=False):
     data = image.read_bytes()
     # Padavan appends SquashFS to its kernel image; validate candidates with unsquashfs.
     offsets = []
@@ -84,6 +84,8 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
         for protocol in vpn_protocols:
             paths += ['usr/libexec/wrvpn/' + name for name in
                       (protocol, 'validate-' + protocol, 'readback-' + protocol)]
+    if with_doh:
+        paths += ['usr/sbin/https_dns_proxy', 'usr/share/doh-proxy/LICENSE']
     hashes = {}
     modern_asp_references = {}
     with tempfile.TemporaryDirectory(prefix='wr-trx-content-') as scratch:
@@ -128,6 +130,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('image', type=Path)
     parser.add_argument('romfs', type=Path)
+    parser.add_argument('--with-doh', action='store_true')
     parser.add_argument('--without-eoip', action='store_true')
     parser.add_argument('--without-zapret2', action='store_true')
     sqm = parser.add_mutually_exclusive_group()
@@ -138,6 +141,6 @@ if __name__ == '__main__':
     parser.add_argument('--report', type=Path, required=True)
     args = parser.parse_args()
     result = check(args.image, args.romfs, not args.without_zapret2,
-                   args.classic_only, args.without_sqm, args.with_sqm, args.vpn_protocol, args.without_eoip)
+                   args.classic_only, args.without_sqm, args.with_sqm, args.vpn_protocol, args.without_eoip, args.with_doh)
     args.report.write_text(json.dumps(result, indent=2) + '\n')
     print('PASS final TRX selected content/modes equal verified ROMFS; scratch removed; runtime unverified')
