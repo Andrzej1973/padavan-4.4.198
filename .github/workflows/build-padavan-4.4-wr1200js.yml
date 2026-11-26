@@ -1482,6 +1482,20 @@ jobs:
               --test --conf-file=/dev/null --servers-file=/var/run/wrvpn.servers
             python3 tools/vpn-profiles/check-target-service.py \
               "$romfs" --output vpn-service-target-busybox.json
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('vpn-service-target-busybox.json')
+          report = json.loads(path.read_text())
+          contents = json.loads(Path('final-content-check.json').read_text())
+          files = contents['files_sha256']
+          if (report['target_busybox_sha256'] != files['bin/busybox']
+                  or report['service_sha256'] != files['usr/sbin/wr-vpn-profiles-service']):
+              raise SystemExit('VPN service test files differ from the final TRX')
+          report['image_sha256'] = contents['image_sha256']
+          path.write_text(json.dumps(report, indent=2) + '\n')
+          PY
           fi
 
       - name: Check shipped WireGuard server export with exact target BusyBox
