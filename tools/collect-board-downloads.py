@@ -56,6 +56,14 @@ for board in selected:
                 raise SystemExit('Invalid requested SQM profile')
             if contents.get('sqm_excluded_verified') is not (sqm_profile == 'excluded'):
                 raise SystemExit('ROMFS evidence differs from requested SQM profile')
+            provenance = json.loads((artifact / 'wr1200js-build-inputs.json').read_text())
+            if (provenance.get('source_sha') != revision or provenance.get('image_sha256') != digest
+                    or provenance.get('sqm_profile') != sqm_profile):
+                raise SystemExit('WR1200JS build inputs refer to a different revision, TRX or SQM profile')
+            for name in ('firmware-requested.config', 'firmware-effective.config', 'kernel-effective.config'):
+                config_digest = hashlib.sha256((artifact / name).read_bytes()).hexdigest()
+                if provenance['input_sha256'].get(name) != config_digest:
+                    raise SystemExit('WR1200JS configuration differs from build inputs: ' + name)
             if sqm_profile == 'profile':
                 if contents.get('sqm_included_verified') is not True:
                     raise SystemExit('Missing final TRX evidence for included SQM files')

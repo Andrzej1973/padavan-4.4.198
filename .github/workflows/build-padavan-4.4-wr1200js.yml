@@ -1737,6 +1737,41 @@ jobs:
           name: toolchain-comparison${{ inputs.artifact_suffix }}
           path: toolchain-comparison.json
           if-no-files-found: error
+      - name: Record WR1200JS build inputs and compiler
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          TOOLCHAIN_VARIANT: ${{ inputs.toolchain_variant }}
+          SQM_PROFILE: ${{ inputs.sqm_profile }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+
+          toolchain = Path('padavan-4.4/toolchain/toolchain-mipsel')
+          from runpy import run_path
+
+          compiler, readelf = run_path('tools/toolchain/tool-paths.py')['select'](toolchain)
+          paths = ('sources.lock.json', 'configs/owned-build-dependencies.json',
+                   'firmware-requested.config', 'firmware-effective.config',
+                   'kernel-effective.config')
+          report = {
+              'source_sha': os.environ['SOURCE_SHA'],
+              'toolchain_variant': os.environ['TOOLCHAIN_VARIANT'],
+              'sqm_profile': os.environ['SQM_PROFILE'],
+              'compiler_version': subprocess.check_output([compiler, '--version'], text=True).strip(),
+              'compiler_sha256': hashlib.sha256(compiler.read_bytes()).hexdigest(),
+              'readelf_sha256': hashlib.sha256(readelf.read_bytes()).hexdigest(),
+              'compiler_target': subprocess.check_output([compiler, '-dumpmachine'], text=True).strip(),
+              'input_sha256': {name: hashlib.sha256(Path(name).read_bytes()).hexdigest()
+                               for name in paths},
+              'image_sha256': json.loads(Path('final-content-check.json').read_text())['image_sha256'],
+          }
+          Path('wr1200js-build-inputs.json').write_text(json.dumps(report, indent=2) + '\n')
+          PY
+
       - name: Upload WR1200JS images and toolchain checksum
         uses: actions/upload-artifact@v7
         with:
@@ -1747,6 +1782,7 @@ jobs:
             toolchain-sha256.txt
             toolchain-loader-revision.txt
             unsupported-firmware-options.txt
+            wr1200js-build-inputs.json
             firmware-requested.config
             firmware-image-checks.json
             final-content-check.json
