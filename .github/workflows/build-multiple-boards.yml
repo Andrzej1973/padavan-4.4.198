@@ -1,5 +1,5 @@
 name: Build selected router firmware
-run-name: "Padavan #${{ github.run_number }} [${{ inputs.run_candidate_checks && 'optional' || 'standard' }}] ${{ inputs.verification_revision || github.sha }} host=${{ inputs.build_host || 'ubuntu-24.04' }} tc=${{ inputs.toolchain_variant || 'source' }} ${{ inputs.candidate_scope || 'iot' }}/${{ inputs.iot_candidate_variant || 'legacy' }}"
+run-name: "Padavan #${{ github.run_number }} · ${{ inputs.boards == 'all-supported' && 'Усі плати' || 'WR1200JS' }} · ${{ inputs.sqm_profile == 'profile' && 'SQM із заводським OFF' || 'Standard без CAKE/SQM' }}${{ inputs.run_candidate_checks && ' · Додаткові перевірки' || '' }}${{ inputs.evidence_only && ' · Лише звіти' || '' }}"
 on:
   pull_request:
     branches: [main]

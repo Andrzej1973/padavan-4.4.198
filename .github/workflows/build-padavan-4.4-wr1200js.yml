@@ -1497,11 +1497,27 @@ jobs:
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y' configs.build/wr1200js.config; then
             romfs=padavan-4.4/trunk/romfs
             grep -aFq 'servers-file=/var/run/wrvpn.servers' "$romfs/sbin/rc"
-            servers_file=$(mktemp)
-            trap 'rm -f -- "$servers_file"' EXIT
-            printf '%s\n' 'server=192.0.2.53' > "$servers_file"
-            qemu-mipsel-static -L "$romfs" "$romfs/usr/sbin/dnsmasq" \
-              --test --conf-file=/dev/null --servers-file="$servers_file"
+            python3 - "$romfs" <<'PY'
+          import runpy
+          import subprocess
+          import sys
+          import tempfile
+          from pathlib import Path
+
+          romfs = Path(sys.argv[1]).resolve()
+          make_test_root = runpy.run_path(
+              'tools/check-encrypted-dnsmasq-combination.py')['make_qemu_test_root']
+          with tempfile.TemporaryDirectory(prefix='vpn-dns-check-') as temp:
+              temp = Path(temp)
+              servers_file = temp / 'wrvpn.servers'
+              servers_file.write_text('server=192.0.2.53\n', encoding='ascii')
+              sysroot = temp / 'sysroot'
+              guest_file = '/tmp/' + make_test_root(sysroot, romfs, servers_file).name
+              subprocess.run([
+                  'qemu-mipsel-static', '-L', str(sysroot), str(romfs / 'usr/sbin/dnsmasq'),
+                  '--test', '--conf-file=' + guest_file, '--servers-file=' + guest_file,
+              ], check=True)
+          PY
           fi
 
       - name: Exercise VPN profile service lock path with exact target BusyBox
