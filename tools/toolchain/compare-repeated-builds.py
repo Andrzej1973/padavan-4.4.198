@@ -26,7 +26,7 @@ def run_identity(report):
 
 if run_identity(first) == run_identity(second):
     raise SystemExit("Both reports identify the same CI run attempt")
-inputs = ("source_sha", "sqm_profile", "toolchain_variant", "compiler_sha256",
+inputs = ("source_sha", "firmware_build_number", "sqm_profile", "toolchain_variant", "compiler_sha256",
           "readelf_sha256", "input_sha256")
 differences = [key for key in inputs if not first.get(key) or first[key] != second.get(key)]
 if differences:
