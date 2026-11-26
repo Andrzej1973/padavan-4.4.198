@@ -1492,14 +1492,23 @@ jobs:
           path.write_text(json.dumps(audit, indent=2) + '\n')
           PY
 
-      - name: Exercise VPN profile service lock path with exact target BusyBox
+      - name: Verify VPN DNS configuration with exact target dnsmasq
         run: |
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y' configs.build/wr1200js.config; then
             romfs=padavan-4.4/trunk/romfs
             grep -aFq 'servers-file=/var/run/wrvpn.servers' "$romfs/sbin/rc"
-            cmp tools/vpn-profiles/service.sh "$romfs/usr/sbin/wr-vpn-profiles-service"
+            servers_file=$(mktemp)
+            trap 'rm -f -- "$servers_file"' EXIT
+            printf '%s\n' 'server=192.0.2.53' > "$servers_file"
             qemu-mipsel-static -L "$romfs" "$romfs/usr/sbin/dnsmasq" \
-              --test --conf-file=/dev/null --servers-file=/var/run/wrvpn.servers
+              --test --conf-file=/dev/null --servers-file="$servers_file"
+          fi
+
+      - name: Exercise VPN profile service lock path with exact target BusyBox
+        run: |
+          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y' configs.build/wr1200js.config; then
+            romfs=padavan-4.4/trunk/romfs
+            cmp tools/vpn-profiles/service.sh "$romfs/usr/sbin/wr-vpn-profiles-service"
             python3 tools/vpn-profiles/check-target-service.py \
               "$romfs" --output vpn-service-target-busybox.json
             python3 - <<'PY'
@@ -1695,6 +1704,7 @@ jobs:
           path: doh-image-checks.json
 
       - name: Verify StrongSwan packaged commands and dependency files
+        id: verify_strongswan_image
         run: |
           if grep -q '^CONFIG_FIRMWARE_INCLUDE_SSWAN=y$' configs.build/wr1200js.config; then
             python3 tools/verify-strongswan-image.py padavan-4.4/trunk strongswan-image-checks.json
@@ -1704,7 +1714,7 @@ jobs:
           fi
 
       - name: Upload StrongSwan image diagnostics
-        if: always()
+        if: ${{ always() && (steps.verify_strongswan_image.outcome == 'success' || hashFiles('strongswan-image-checks.json') != '') }}
         uses: actions/upload-artifact@v7
         with:
           name: strongswan-image-checks${{ inputs.artifact_suffix }}
