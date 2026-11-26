@@ -1,0 +1,25 @@
+Backport: https://github.com/gregkh/linux/commit/0ccf51399d55963b2a5d0a86468885c8efb9e7a4
+
+diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
+index 24ce13a796654..65dbe1784d021 100644
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -709,6 +709,7 @@ static int raw_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
+ 	int ret = -EINVAL;
+ 	int chk_addr_ret;
+ 
++	lock_sock(sk);
+ 	if (sk->sk_state != TCP_CLOSE || addr_len < sizeof(struct sockaddr_in))
+ 		goto out;
+ 	chk_addr_ret = inet_addr_type(sock_net(sk), addr->sin_addr.s_addr);
+@@ -721,7 +722,9 @@ static int raw_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
+ 		inet->inet_saddr = 0;  /* Use device */
+ 	sk_dst_reset(sk);
+ 	ret = 0;
+-out:	return ret;
++out:
++	release_sock(sk);
++	return ret;
+ }
+ 
+ /*
