@@ -31,10 +31,10 @@
 #define WR_VPN_STORE_ROOT "/etc/storage/wrvpn"
 #endif
 #ifndef WR_VPN_IP
-#define WR_VPN_IP "/sbin/ip"
+#define WR_VPN_IP "/bin/ip"
 #endif
 #ifndef WR_VPN_IP_FALLBACK
-#define WR_VPN_IP_FALLBACK "/bin/ip"
+#define WR_VPN_IP_FALLBACK "/sbin/ip"
 #endif
 
 /* Initial management surface: validated create, metadata list, explicit

@@ -77,7 +77,7 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
     if vpn_protocols:
         ip = romfs / 'bin/ip'
         if not ip.is_file() or not ip.stat().st_mode & 0o111:
-            raise ValueError('Missing executable iproute2 fallback for VPN profiles')
+            raise ValueError('Missing executable /bin/ip for VPN profiles')
         paths.append('bin/ip')
         paths += ['usr/sbin/wr-vpn-profile', 'usr/sbin/wr-vpn-profiles-service',
                   'usr/libexec/wrvpn/action-worker']

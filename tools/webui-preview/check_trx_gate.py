@@ -181,7 +181,7 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     try:
         check(image, romfs, classic_only=True, with_sqm=True, vpn_protocols=('wg', 'awg'))
     except ValueError as error:
-        assert 'Missing executable iproute2 fallback' in str(error)
+        assert 'Missing executable /bin/ip' in str(error)
     else:
         raise AssertionError('Non-executable VPN routing utility accepted')
     ip.chmod(0o755)
