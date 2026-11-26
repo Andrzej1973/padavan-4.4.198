@@ -33,3 +33,6 @@ tools/iot/candidates/aux-remove-close-v39/** text eol=lf whitespace=-trailing-sp
 
 # Preserve native SDK context whitespace in the reviewed association patch.
 docs/iot/WR1200JS-ASSOC-GENERATION.patch whitespace=-trailing-space,-space-before-tab
+
+# Preserve upstream context whitespace in the IPv4 stable backport.
+overlay/padavan-4.4/patches/ipv4-raw-bind-lock.patch whitespace=-trailing-space,-space-before-tab
