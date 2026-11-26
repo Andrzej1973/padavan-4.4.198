@@ -101,6 +101,10 @@ on:
       - 'tools/check-target-busybox.py'
       - 'tools/check-target-busybox-map.py'
       - 'tools/check-qos-packaging.py'
+      - 'tools/check-sqm-config-policy.py'
+      - 'tools/check-cake-default.py'
+      - 'tools/check-cake-image.py'
+      - 'tools/verify-cake-image.py'
       - 'tools/target_busybox_service_map.py'
       - 'tools/check-privoxy-target-config.py'
       - 'tools/prepare-target-busybox.py'
@@ -142,6 +146,8 @@ on:
       - 'tools/vpn-profiles/prepare-package.py'
       - 'tools/vpn-profiles/verify-image.py'
       - 'tools/vpn-profiles/check-target-manager.py'
+      - 'tools/vpn-profiles/check-down.py'
+      - 'tools/vpn-profiles/check-down-seed.c'
       - 'tools/vpn-profiles/profilectl.c'
       - 'tools/vpn-profiles/store.c'
       - 'tools/vpn-profiles/validate-client.c'
@@ -189,6 +195,12 @@ on:
       - 'tools/vpn-profiles/addr-apply.h'
       - 'tools/vpn-profiles/route-apply.c'
       - 'tools/vpn-profiles/route-apply.h'
+      - 'tools/vpn-profiles/check-route-apply.c'
+      - 'tools/vpn-profiles/teardown.c'
+      - 'tools/vpn-profiles/teardown.h'
+      - 'tools/vpn-profiles/check-teardown.c'
+      - 'tools/vpn-profiles/ip-command-result.h'
+      - 'tools/vpn-profiles/check-ip-command-result.c'
       - 'tools/vpn-profiles/profile-apply.c'
       - 'tools/vpn-profiles/profile-apply.h'
       - 'tools/vpn-profiles/link-actions.c'
@@ -202,6 +214,10 @@ on:
       - 'tools/check-wg-server-export.py'
       - 'tools/check-wg-server-ui.py'
       - 'sources.lock.json'
+      - 'sources/archives/**'
+      - 'configs/owned-build-dependencies.json'
+      - 'tools/prepare-owned-build-dependencies.py'
+      - 'tools/check-owned-build-dependencies.py'
       - 'tools/verify-zram-image.py'
       - 'tools/verify-strongswan-image.py'
       - 'tools/prepare-zram-status-web.py'
@@ -350,6 +366,8 @@ jobs:
       - name: Create common download index and checksums
         env:
           BUILD_RESULT: ${{ needs.build.result }}
+          SOURCE_SHA: ${{ needs.select.outputs.revision }}
+          SQM_PROFILE: ${{ inputs.sqm_profile || 'excluded' }}
         run: python3 tools/collect-board-downloads.py
       - uses: actions/upload-artifact@v7
         with:

@@ -81,6 +81,14 @@ def main():
     for key, expected in nat_policy.items():
         if kernel.get(key) != expected:
             errors.append(key)
+    vpn_policy = {}
+    if effective.get('CONFIG_FIRMWARE_INCLUDE_WIREGUARD') == 'y':
+        vpn_policy['CONFIG_IP_MULTIPLE_TABLES'] = 'y'
+        if effective.get('CONFIG_FIRMWARE_ENABLE_IPV6') == 'y':
+            vpn_policy['CONFIG_IPV6_MULTIPLE_TABLES'] = 'y'
+    for key, expected in vpn_policy.items():
+        if kernel.get(key) != expected:
+            errors.append(key)
     # Compile-time inclusion is separate from the factory runtime switch.
     # Required components for both upload and IFB download shaping must exist.
     if requested.get('CONFIG_FIRMWARE_INCLUDE_SQM') == 'y':
@@ -90,6 +98,9 @@ def main():
                 errors.append(key)
     report = {'board': 'wr1200js', 'scope': 'Requested versus effective configuration; not package, runtime or complete-port proof',
               'mismatches': errors, 'options': rows,
+              'vpn_policy_routing': {
+                  'required': vpn_policy,
+                  'effective': {key: kernel.get(key) for key in vpn_policy}},
               'iot_hwnat_kernel_policy': {
                   'required': nat_policy,
                   'effective': {key: kernel.get(key) for key in nat_policy},

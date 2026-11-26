@@ -80,6 +80,37 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     else:
         raise AssertionError('Modern assets accepted in Classic-only image')
     shutil.rmtree(romfs/'www/modern')
+    # The standard release must also exclude the isolated IoT page, its
+    # configuration helpers and links compiled into production WebUI assets.
+    (romfs/'www/Advanced_IoT_Content.asp').write_text('IoT page')
+    (romfs/'www/classic-iot-config.js').write_text('IoT config')
+    (romfs/'www/classic-iot-navigation.js').write_text('IoT navigation')
+    (romfs/'www/Advanced_WAdvanced2g_Content.asp').write_text('Advanced_IoT_Content.asp')
+    iot_fixture=root/'iot.sqfs'
+    subprocess.run(['mksquashfs', str(romfs), str(iot_fixture), '-noappend',
+                    '-processors', '1', '-no-progress'], check=True,
+                   stdout=subprocess.DEVNULL)
+    image.write_bytes(b'fixture header' + iot_fixture.read_bytes())
+    try:
+        check(image, romfs, classic_only=True)
+    except ValueError as error:
+        assert 'isolated IoT' in str(error)
+    else:
+        raise AssertionError('Isolated IoT payload accepted in standard image')
+    for name in ('Advanced_IoT_Content.asp','classic-iot-config.js','classic-iot-navigation.js'):
+        (romfs/'www'/name).unlink()
+    iot_link_fixture=root/'iot-link.sqfs'
+    subprocess.run(['mksquashfs', str(romfs), str(iot_link_fixture), '-noappend',
+                    '-processors', '1', '-no-progress'], check=True,
+                   stdout=subprocess.DEVNULL)
+    image.write_bytes(b'fixture header' + iot_link_fixture.read_bytes())
+    try:
+        check(image, romfs, classic_only=True)
+    except ValueError as error:
+        assert 'isolated IoT control' in str(error)
+    else:
+        raise AssertionError('Classic IoT navigation accepted in standard image')
+    (romfs/'www/Advanced_WAdvanced2g_Content.asp').write_text('www/Advanced_WAdvanced2g_Content.asp')
     binary.chmod(0o755)
     classic = root/'classic.sqfs'
     subprocess.run(['mksquashfs', str(romfs), str(classic), '-noappend',
@@ -88,6 +119,7 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     image.write_bytes(b'fixture header' + classic.read_bytes())
     classic_report = check(image, romfs, classic_only=True)
     assert classic_report['classic_only_verified']
+    assert classic_report['iot_excluded_verified']
     assert 'www/state.js' in classic_report['files_sha256']
     # httpd route registration uses paths without the leading slash.
     binary.write_bytes(b'modern/index.html\0')
@@ -102,4 +134,48 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
         assert 'contains a Modern/Hybrid route: usr/sbin/httpd' in str(error)
     else:
         raise AssertionError('Modern route accepted in Classic-only image')
+    binary.write_text('usr/sbin/httpd')
+    sqm_paths = ['usr/lib/sqm/run.sh', 'www/Advanced_SQM.asp',
+                 *('lib/modules/4.4.198/' + name for name in
+                   ('sch_cake.ko', 'ifb.ko', 'sch_ingress.ko', 'cls_u32.ko', 'act_mirred.ko'))]
+    for name in sqm_paths:
+        path = romfs / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(name)
+    sqm = root / 'sqm.sqfs'
+    subprocess.run(['mksquashfs', str(romfs), str(sqm), '-noappend',
+                    '-processors', '1', '-no-progress'], check=True,
+                   stdout=subprocess.DEVNULL)
+    image.write_bytes(b'fixture header' + sqm.read_bytes())
+    report = check(image, romfs, classic_only=True, with_sqm=True)
+    assert report['sqm_included_verified'] and set(sqm_paths) <= report['files_sha256'].keys()
+    image.write_bytes(b'fixture header' + classic.read_bytes())
+    try:
+        check(image, romfs, classic_only=True, with_sqm=True)
+    except FileNotFoundError as error:
+        assert Path(error.filename).as_posix().endswith('usr/lib/sqm/run.sh')
+    else:
+        raise AssertionError('Image without packaged SQM files accepted')
+    vpn_paths = ['usr/sbin/wr-vpn-profile', 'usr/sbin/wr-vpn-profiles-service',
+                 *('usr/libexec/wrvpn/' + name for name in
+                   ('action-worker', 'wg', 'validate-wg', 'readback-wg',
+                    'awg', 'validate-awg', 'readback-awg'))]
+    for name in vpn_paths:
+        path = romfs / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(name)
+    vpn = root / 'vpn.sqfs'
+    subprocess.run(['mksquashfs', str(romfs), str(vpn), '-noappend',
+                    '-processors', '1', '-no-progress'], check=True,
+                   stdout=subprocess.DEVNULL)
+    image.write_bytes(b'fixture header' + vpn.read_bytes())
+    report = check(image, romfs, classic_only=True, with_sqm=True, vpn_protocols=('wg', 'awg'))
+    assert set(vpn_paths) <= report['files_sha256'].keys()
+    (romfs / vpn_paths[-1]).write_text('changed')
+    try:
+        check(image, romfs, classic_only=True, with_sqm=True, vpn_protocols=('wg', 'awg'))
+    except ValueError as error:
+        assert 'differs from verified ROMFS: ' + vpn_paths[-1] in str(error)
+    else:
+        raise AssertionError('Different AWG readback accepted')
 print('PASS final-content gate real SquashFS fixtures: offset/content/mode/missing filesystem; scratch removed')

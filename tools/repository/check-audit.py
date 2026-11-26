@@ -37,6 +37,13 @@ with tempfile.TemporaryDirectory(prefix='wr-phase1-profile-check-') as d:
  except ValueError:pass
  else:raise AssertionError('Wrong SoC accepted')
  profile.write_text(old)
+ assert 'CONFIG_FIRMWARE_INCLUDE_SQM=n' in old
+ for invalid_sqm in ('CONFIG_FIRMWARE_INCLUDE_SQM=y', ''):
+  profile.write_text(old.replace('CONFIG_FIRMWARE_INCLUDE_SQM=n', invalid_sqm))
+  try:load(out)
+  except ValueError as error:assert 'Standard WR1200JS profile must exclude CAKE/SQM' in str(error)
+  else:raise AssertionError('Invalid Standard SQM policy accepted')
+ profile.write_text(old)
  for name,old_value,new_value in [
   ('overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts','YouHua WR1200JS','Wrong board'),
   ('overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi','0xf70000','0xf60000'),

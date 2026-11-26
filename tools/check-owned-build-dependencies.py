@@ -25,7 +25,7 @@ with tempfile.TemporaryDirectory(prefix='wr-bundled-deps-') as d:
  (bundle/name).write_bytes(b'valid');m.seed(root,cache,entries,forbidden,bundle)
  assert (directory/name).read_bytes()==b'valid'
  for invalid in ['missing','corrupt']:
-  for f in cache.iterdir():f.unlink()
+  assert m.valid(cache/(digest+'-'+name),digest)
   if invalid=='missing':(bundle/name).unlink()
   else:(bundle/name).write_bytes(b'corrupt')
   try:m.seed(root,cache,entries,forbidden,bundle)

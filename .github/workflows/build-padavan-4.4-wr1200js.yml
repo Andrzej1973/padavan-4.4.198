@@ -131,18 +131,19 @@ jobs:
       - name: Check QoS tc packaging selections before firmware compilation
         run: |
           python3 tools/check-qos-packaging.py
-          if [ -f tools/check-sqm-config-policy.py ]; then
-            python3 -B tools/check-sqm-config-policy.py
-          fi
+          python3 -B tools/check-sqm-config-policy.py
 
       - name: Select WR1200JS SQM configuration
         env:
           SQM_PROFILE: ${{ inputs.sqm_profile }}
         run: |
+          test "$(grep -c '^CONFIG_FIRMWARE_INCLUDE_SQM=[yn]$' configs.build/wr1200js.config)" -eq 1
           case "$SQM_PROFILE" in
-            profile) ;;
+            profile)
+              sed -i 's/^CONFIG_FIRMWARE_INCLUDE_SQM=[yn]$/CONFIG_FIRMWARE_INCLUDE_SQM=y/' configs.build/wr1200js.config
+              grep -qx 'CONFIG_FIRMWARE_INCLUDE_SQM=y' configs.build/wr1200js.config
+              ;;
             excluded)
-              test "$(grep -c '^CONFIG_FIRMWARE_INCLUDE_SQM=[yn]$' configs.build/wr1200js.config)" -eq 1
               sed -i 's/^CONFIG_FIRMWARE_INCLUDE_SQM=[yn]$/CONFIG_FIRMWARE_INCLUDE_SQM=n/' configs.build/wr1200js.config
               grep -qx 'CONFIG_FIRMWARE_INCLUDE_SQM=n' configs.build/wr1200js.config
               ;;
@@ -232,11 +233,13 @@ jobs:
           test "$(git -C amnezia-source hash-object trunk/user/www/logo/padavan.png)" = ec7b6bcd9e27c41fd564832e860791a568587e20
 
       - name: Apply WR1200JS board port
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
         run: |
           python3 tools/prepare-mt76x2-file-read.py padavan-4.4
           python3 tools/prepare-mwan-shell.py padavan-4.4
           python3 tools/prepare-build-identity.py padavan-4.4 \
-            --number "$GITHUB_RUN_NUMBER" --commit "$GITHUB_SHA"
+            --number "$GITHUB_RUN_NUMBER" --commit "$SOURCE_SHA"
           patch --batch --forward -p1 -d padavan-4.4 \
             < overlay/padavan-4.4/patches/zram-service.diff
           # Runtime WAN role override: lets rc move the WAN role to another
@@ -302,10 +305,8 @@ jobs:
           python3 overlay/padavan-4.4/ports/sqm/prepare-packaging.py padavan-4.4
           python3 overlay/padavan-4.4/ports/qos/prepare-packaging.py padavan-4.4
           sh -n padavan-4.4/trunk/user/sqm-qos/scripts/run.sh
-          if [ -f tools/check-cake-default.py ]; then
-            python3 -B tools/check-cake-default.py padavan-4.4
-            python3 -B tools/check-cake-image.py
-          fi
+          python3 -B tools/check-cake-default.py padavan-4.4
+          python3 -B tools/check-cake-image.py
           python3 overlay/padavan-4.4/scripts/add-amneziawg-nvram.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-lifecycle.py padavan-4.4
           python3 overlay/padavan-4.4/scripts/add-amneziawg-firewall.py padavan-4.4
@@ -1021,9 +1022,7 @@ jobs:
               fi
             done
             grep -a -q 'wr1200js-sqm.lock' trunk/romfs/sbin/rc
-            if [ -f ../tools/verify-cake-image.py ]; then
-              python3 ../tools/verify-cake-image.py . --report ../cake-image-checks.json
-            fi
+            python3 ../tools/verify-cake-image.py . --report ../cake-image-checks.json
           else
             # An SQM-excluded profile must omit the module, service and Classic control.
             test ! -e trunk/romfs/usr/lib/sqm/run.sh
@@ -1233,10 +1232,12 @@ jobs:
           if-no-files-found: ignore
 
       - name: Generate model setup guide from enabled services
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
         run: |
           python3 tools/generate-router-guide.py firmware-effective.config \
             --model WR1200JS \
-            --build-number "$GITHUB_RUN_NUMBER" --commit "$GITHUB_SHA" \
+            --build-number "$GITHUB_RUN_NUMBER" --commit "$SOURCE_SHA" \
             --markdown SETUP_WR1200JS.md \
             --text SETUP_WR1200JS.txt \
             --report router-guide-report.json
@@ -1285,11 +1286,14 @@ jobs:
           retention-days: 14
 
       - name: Verify WR1200JS image upload structure
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          SQM_PROFILE: ${{ inputs.sqm_profile }}
         run: |
           images=(padavan-4.4/trunk/images/WR1200JS_*.trx)
           test "${#images[@]}" -eq 1
           test -f "${images[0]}"
-          image="${images[0]%.trx}_${GITHUB_SHA:0:8}.trx"
+          image="${images[0]%.trx}_${SOURCE_SHA:0:8}.trx"
           mv -- "${images[0]}" "$image"
           if grep -Fq 'iot_hwnat_dtb_policy' overlay/padavan-4.4/scripts/verify-wr1200js-image.py; then
             python3 tools/iot/check-hwnat-image-policy.py
@@ -1297,13 +1301,47 @@ jobs:
           python3 overlay/padavan-4.4/scripts/verify-wr1200js-image.py \
             "$image" \
             --report firmware-image-checks.json
+          case "$SQM_PROFILE" in
+            profile) grep -qx 'CONFIG_FIRMWARE_INCLUDE_SQM=y' padavan-4.4/trunk/.config ;;
+            excluded) grep -Eqx 'CONFIG_FIRMWARE_INCLUDE_SQM=n|# CONFIG_FIRMWARE_INCLUDE_SQM is not set' padavan-4.4/trunk/.config ;;
+            *) echo 'Unknown WR1200JS SQM release profile' >&2; exit 1 ;;
+          esac
+          if grep -Eq '^CONFIG_FIRMWARE_[A-Za-z0-9_]*(IOT|RA2)[A-Za-z0-9_]*=(y|m)$' padavan-4.4/trunk/.config; then
+            echo 'Isolated IoT/ra2 must not be selected for a WR1200JS release image' >&2
+            exit 1
+          fi
           python3 -B tools/webui-preview/check_trx_gate.py
           content_options=(--classic-only)
+          if [ "$SQM_PROFILE" = excluded ]; then
+            content_options+=(--without-sqm)
+          else
+            content_options+=(--with-sqm)
+          fi
           if ! grep -qx 'CONFIG_FIRMWARE_INCLUDE_ZAPRET2=y' padavan-4.4/trunk/.config; then
             content_options+=(--without-zapret2)
           fi
+          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y' configs.build/wr1200js.config; then
+            content_options+=(--vpn-protocol wg)
+            if grep -qx 'CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG=y' configs.build/wr1200js.config; then
+              content_options+=(--vpn-protocol awg)
+            fi
+          fi
           python3 tools/webui-preview/check_trx_contents.py "$image" padavan-4.4/trunk/romfs \
             "${content_options[@]}" --report final-content-check.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          image = json.loads(Path('firmware-image-checks.json').read_text())
+          contents = json.loads(Path('final-content-check.json').read_text())
+          if image['sha256'] != contents['image_sha256']:
+              raise SystemExit('TRX and ROMFS checks refer to different images')
+          if contents['sqm_included_verified']:
+              cake_path = Path('cake-image-checks.json')
+              cake = json.loads(cake_path.read_text())
+              cake['image_sha256'] = contents['image_sha256']
+              cake_path.write_text(json.dumps(cake, indent=2) + '\n')
+          PY
           python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt
           python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt --check
 
@@ -1384,8 +1422,13 @@ jobs:
       - name: Exercise VPN profile service lock path with exact target BusyBox
         run: |
           if grep -qx 'CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y' configs.build/wr1200js.config; then
+            romfs=padavan-4.4/trunk/romfs
+            grep -aFq 'servers-file=/var/run/wrvpn.servers' "$romfs/sbin/rc"
+            cmp tools/vpn-profiles/service.sh "$romfs/usr/sbin/wr-vpn-profiles-service"
+            qemu-mipsel-static -L "$romfs" "$romfs/usr/sbin/dnsmasq" \
+              --test --conf-file=/dev/null --servers-file=/var/run/wrvpn.servers
             python3 tools/vpn-profiles/check-target-service.py \
-              padavan-4.4/trunk/romfs --output vpn-service-target-busybox.json
+              "$romfs" --output vpn-service-target-busybox.json
           fi
 
       - name: Check shipped WireGuard server export with exact target BusyBox
@@ -1408,8 +1451,26 @@ jobs:
             python3 tools/vpn-profiles/check-target-manager.py padavan-4.4/trunk/romfs "${options[@]}" --output vpn-manager-mips.json
             compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
             test -x "$compiler"
-            "$compiler" -std=gnu99 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -msoft-float tools/vpn-profiles/check-link.c tools/vpn-profiles/link-observation.c -o vpn-link-mips
+            "$compiler" -std=gnu99 -Wall -Wextra -Werror -O2 -mips32r2 -mabi=32 -Wl,--fatal-warnings tools/vpn-profiles/check-link.c tools/vpn-profiles/link-observation.c -o vpn-link-mips
+            set -o pipefail
             qemu-mipsel-static -L padavan-4.4/trunk/romfs ./vpn-link-mips | tee vpn-link-mips.txt
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          final = json.loads(Path('final-content-check.json').read_text())
+          report_path = Path('vpn-profile-image.json')
+          report = json.loads(report_path.read_text())
+          expected = {path: digest for path, digest in final['files_sha256'].items()
+                      if path.startswith('usr/libexec/wrvpn/') or path in
+                      ('usr/sbin/wr-vpn-profile', 'usr/sbin/wr-vpn-profiles-service')}
+          binaries = report['binaries'].values()
+          actual = {entry['path']: entry['sha256'] for entry in binaries}
+          if not expected or len(actual) != len(binaries) or actual != expected:
+              raise SystemExit('MIPS VPN report differs from final TRX file evidence')
+          report['image_sha256'] = final['image_sha256']
+          report_path.write_text(json.dumps(report, indent=2) + '\n')
+          PY
           fi
 
       - name: Preserve VPN profile image checks
@@ -1687,6 +1748,11 @@ jobs:
             firmware-image-checks.json
             final-content-check.json
             firmware-config-checks.json
+            cake-image-checks.json
+            vpn-profile-image.json
+            vpn-manager-mips.json
+            vpn-link-mips.txt
+            vpn-service-target-busybox.json
             SETUP_WR1200JS.md
             SETUP_WR1200JS.txt
             router-guide-report.json
@@ -2116,11 +2182,16 @@ jobs:
         if: always()
         env:
           BOARD_BUILD_STATUS: ${{ job.status }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
         run: |
           python3 - <<'PY'
           import json, os
           from pathlib import Path
-          Path('board-build-status.json').write_text(json.dumps({'board':'wr1200js','status':os.environ['BOARD_BUILD_STATUS']}) + '\n')
+          status = {'board': 'wr1200js', 'status': os.environ['BOARD_BUILD_STATUS'],
+                    'revision': os.environ['SOURCE_SHA']}
+          if status['status'] == 'success':
+              status['sha256'] = json.loads(Path('firmware-image-checks.json').read_text())['sha256']
+          Path('board-build-status.json').write_text(json.dumps(status) + '\n')
           PY
       - name: Upload board build status
         if: always()

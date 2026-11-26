@@ -3,10 +3,14 @@
 import hashlib
 import json
 import os
+import re
 import shutil
 from pathlib import Path
 
 selected = json.loads(Path('selection/selected-boards.json').read_text())
+revision = os.environ.get('SOURCE_SHA', '')
+if not re.fullmatch(r'[0-9a-f]{40}', revision):
+    raise SystemExit('Missing or invalid selected source revision')
 out = Path('downloads')
 out.mkdir(exist_ok=True)
 records = []
@@ -32,21 +36,53 @@ for board in selected:
     target = out / board_id
     images = list(artifact.rglob('*.trx')) if artifact.exists() else []
     record = {'board': board_id, 'build_status': status, 'images': []}
-    if len(images) == 1:
-        shutil.copytree(str(artifact), str(target))
+    if status == 'success':
+        if len(images) != 1:
+            raise SystemExit('Successful build must supply exactly one TRX: ' + board_id)
         source = images[0]
+        if status_record.get('revision') != revision or not source.name.endswith('_' + revision[:8] + '.trx'):
+            raise SystemExit('TRX revision differs from selected source: ' + board_id)
         relative = source.relative_to(artifact)
         digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        report = json.loads((artifact / 'firmware-image-checks.json').read_text())
+        if report.get('sha256') != digest or status_record.get('sha256') != digest:
+            raise SystemExit('TRX checksum differs from build evidence: ' + board_id)
+        if board_id == 'wr1200js':
+            contents = json.loads((artifact / 'final-content-check.json').read_text())
+            if contents.get('image_sha256') != digest:
+                raise SystemExit('TRX checksum differs from final ROMFS evidence: ' + board_id)
+            sqm_profile = os.environ.get('SQM_PROFILE', 'excluded')
+            if sqm_profile not in ('excluded', 'profile'):
+                raise SystemExit('Invalid requested SQM profile')
+            if contents.get('sqm_excluded_verified') is not (sqm_profile == 'excluded'):
+                raise SystemExit('ROMFS evidence differs from requested SQM profile')
+            if sqm_profile == 'profile':
+                if contents.get('sqm_included_verified') is not True:
+                    raise SystemExit('Missing final TRX evidence for included SQM files')
+                cake_report = json.loads((artifact / 'cake-image-checks.json').read_text())
+                if cake_report.get('image_sha256') != digest:
+                    raise SystemExit('TRX checksum differs from CAKE verification report')
+                checks = cake_report.get('checks', {})
+                required = ('profile_included', 'kernel_components', 'factory_off', 'not_default_qdisc')
+                report_board = cake_report.get('board')
+                if (not isinstance(report_board, str) or report_board.lower() != board_id
+                        or not isinstance(checks, dict)
+                        or any(checks.get(key) is not True for key in required)
+                        or any(value is not True for value in checks.values())):
+                    raise SystemExit('CAKE inclusion or default-OFF verification failed')
+            record['sqm_profile'] = 'without-cake' if sqm_profile == 'excluded' else 'with-cake'
+        shutil.copytree(str(artifact), str(target))
         (target / 'SHA256SUMS').write_text(digest + '  ' + relative.as_posix() + '\n')
         record['images'].append({'file': (Path(board_id) / relative).as_posix(),
                                  'sha256': digest, 'bytes': source.stat().st_size})
         lines.append('- {}: {} — [{}]({})'.format(board['name'], status,
                      source.name, record['images'][0]['file']))
     else:
-        record['image_status'] = 'missing-or-ambiguous'
-        lines.append('- {}: {} — no unique firmware image.'.format(board['name'], status))
+        record['image_status'] = 'build-not-confirmed'
+        lines.append('- {}: {} — firmware withheld.'.format(board['name'], status))
     records.append(record)
-result = {'workflow_build_result': os.environ.get('BUILD_RESULT', 'unknown'), 'boards': records}
+result = {'workflow_build_result': os.environ.get('BUILD_RESULT', 'unknown'),
+          'source_revision': revision, 'boards': records}
 result['all_selected_images_built'] = bool(records) and all(
     record['build_status'] == 'success' and len(record['images']) == 1
     for record in records)

@@ -43,9 +43,13 @@ for key in required:
     altered=dict(required);altered[key]='n'
     failed,data=run('y','CONFIG_FIRMWARE_INCLUDE_SQM=y',altered)
     assert failed and key in data['mismatches'],key
-profile=verifier.read_config(Path(__file__).resolve().parents[1]/'configs.build/wr1200js.config')
-assert profile.get('CONFIG_FIRMWARE_INCLUDE_SQM')=='y', 'WR1200JS must include CAKE/SQM; runtime default is separately OFF'
-print('PASS SQM inclusion, normalized historical exclusion and missing CAKE/IFB/ingress components refused')
+repo=Path(__file__).resolve().parents[1]
+profile=verifier.read_config(repo/'configs.build/wr1200js.config')
+assert profile.get('CONFIG_FIRMWARE_INCLUDE_SQM')=='n', 'standard WR1200JS profile must exclude CAKE/SQM'
+workflow=(repo/'.github/workflows/build-padavan-4.4-wr1200js.yml').read_text()
+assert "profile)\n              sed -i 's/^CONFIG_FIRMWARE_INCLUDE_SQM=[yn]$/CONFIG_FIRMWARE_INCLUDE_SQM=y/'" in workflow
+assert "excluded)\n              sed -i 's/^CONFIG_FIRMWARE_INCLUDE_SQM=[yn]$/CONFIG_FIRMWARE_INCLUDE_SQM=n/'" in workflow
+print('PASS standard SQM exclusion, explicit candidate inclusion, normalized effective config and missing CAKE/IFB/ingress components refused')
 
 
 def check_dashboard(selector):

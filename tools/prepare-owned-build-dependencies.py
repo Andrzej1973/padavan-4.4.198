@@ -13,11 +13,12 @@ def seed(root,cache,entries,fetch,bundle=None):
   directory=root/entry['directory'];name=entry['filename'];digest=entry['sha256']
   if not directory.is_dir():raise ValueError('Required dependency directory absent: '+str(directory))
   archive=cache/(digest+'-'+name);partial=archive.with_name(archive.name+'.part')
+  bundled=bundle/name if bundle is not None else None
+  if bundled is not None and not valid(bundled,digest):
+   raise ValueError('Bundled dependency SHA256 mismatch or missing: '+name)
   try:
    if not valid(archive,digest):
-    bundled=bundle/name if bundle is not None else None
     if bundled is not None:
-     if not valid(bundled,digest):raise ValueError('Bundled dependency SHA256 mismatch or missing: '+name)
      shutil.copyfile(bundled,partial)
     else:
      fetch(entry['url'],partial)

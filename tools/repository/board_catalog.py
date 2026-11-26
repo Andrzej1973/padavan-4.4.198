@@ -38,7 +38,8 @@ def load(root):
    kernel=read_config(board/'kernel-4.4.x.config')
    for k,v in {'CONFIG_CPU_MIPS32_R2':'y','CONFIG_PCI':'y','CONFIG_MTD_SPI_NOR':'y','CONFIG_MT7603E_RLT_WIFI':'m'}.items():
     if kernel.get(k)!=v:raise ValueError('Required WR1200JS kernel setting '+k)
-   if config.get('CONFIG_FIRMWARE_INCLUDE_SQM')!='y':raise ValueError('WR1200JS CAKE/SQM inclusion required; runtime default is separate')
+   if config.get('CONFIG_FIRMWARE_INCLUDE_SQM')!='n':
+    raise ValueError('Standard WR1200JS profile must exclude CAKE/SQM')
    validate_wr_layout(root)
   elif b['recipe'] is not None:raise ValueError('Pending board must not carry active recipe')
  return boards
