@@ -100,7 +100,16 @@ flock -x -n 9 || { echo 'Another Privoxy operation is in progress' >&2; exit 1; 
 case "${1:-}" in
     start) start_service;;
     stop) stop_service;;
-    restart) stop_service; start_service;;
+    restart)
+        # Preserve the running process when the replacement config is invalid.
+        prepare_config
+        if ! "$binary" --no-daemon --config-test "$storage/config"; then
+            logger -t privoxy 'Configuration rejected; existing process was left running'
+            exit 1
+        fi
+        stop_service
+        start_service
+        ;;
     check) "$binary" --no-daemon --config-test "$storage/config";;
     *) echo "Usage: $0 {start|stop|restart|check}" >&2; exit 1;;
 esac
