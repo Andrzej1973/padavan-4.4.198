@@ -160,7 +160,7 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
         assert Path(error.filename).as_posix().endswith('usr/lib/sqm/run.sh')
     else:
         raise AssertionError('Image without packaged SQM files accepted')
-    vpn_paths = ['usr/sbin/wr-vpn-profile', 'usr/sbin/wr-vpn-profiles-service',
+    vpn_paths = ['bin/ip', 'usr/sbin/wr-vpn-profile', 'usr/sbin/wr-vpn-profiles-service',
                  *('usr/libexec/wrvpn/' + name for name in
                    ('action-worker', 'wg', 'validate-wg', 'readback-wg',
                     'awg', 'validate-awg', 'readback-awg'))]
@@ -168,6 +168,7 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
         path = romfs / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(name)
+    (romfs / 'bin/ip').chmod(0o755)
     vpn = root / 'vpn.sqfs'
     subprocess.run(['mksquashfs', str(romfs), str(vpn), '-noappend',
                     '-processors', '1', '-no-progress'], check=True,
@@ -175,6 +176,15 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     image.write_bytes(b'fixture header' + vpn.read_bytes())
     report = check(image, romfs, classic_only=True, with_sqm=True, vpn_protocols=('wg', 'awg'))
     assert set(vpn_paths) <= report['files_sha256'].keys()
+    ip = romfs / 'bin/ip'
+    ip.chmod(0o644)
+    try:
+        check(image, romfs, classic_only=True, with_sqm=True, vpn_protocols=('wg', 'awg'))
+    except ValueError as error:
+        assert 'Missing executable iproute2 fallback' in str(error)
+    else:
+        raise AssertionError('Non-executable VPN routing utility accepted')
+    ip.chmod(0o755)
     (romfs / vpn_paths[-1]).write_text('changed')
     try:
         check(image, romfs, classic_only=True, with_sqm=True, vpn_protocols=('wg', 'awg'))

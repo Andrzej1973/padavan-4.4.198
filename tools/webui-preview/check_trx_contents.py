@@ -75,6 +75,10 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
                 raise ValueError('Expected one staged SQM module: ' + module)
             paths.append(candidates[0].relative_to(romfs).as_posix())
     if vpn_protocols:
+        ip = romfs / 'bin/ip'
+        if not ip.is_file() or not ip.stat().st_mode & 0o111:
+            raise ValueError('Missing executable iproute2 fallback for VPN profiles')
+        paths.append('bin/ip')
         paths += ['usr/sbin/wr-vpn-profile', 'usr/sbin/wr-vpn-profiles-service',
                   'usr/libexec/wrvpn/action-worker']
         for protocol in vpn_protocols:
