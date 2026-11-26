@@ -2,6 +2,7 @@
 """Integrate the preserved DoH package into a prepared WR1200JS source tree."""
 import argparse
 import hashlib
+import tarfile
 import json
 import re
 from pathlib import Path
@@ -31,6 +32,14 @@ def main():
     archive = assets.parents[3] / 'sources/archives/https_dns_proxy-0ba0525.tar.gz'
     if hashlib.sha256(archive.read_bytes()).hexdigest() != 'd3723d0e14612d2d2cab1f64150558a2a9804b54b2108afbb3e08949b4220ba6':
         raise RuntimeError('Preserved DoH source archive mismatch')
+    license_copy = archive.parent.parent / 'licenses/https-dns-proxy-LICENSE'
+    with tarfile.open(archive) as source:
+        license_member = source.getmember('https_dns_proxy-master/LICENSE')
+        if not license_member.isfile():
+            raise RuntimeError('Expected a regular DoH license file in source archive')
+        with source.extractfile(license_member) as license_file:
+            if license_file.read() != license_copy.read_bytes():
+                raise RuntimeError('Preserved DoH license differs from source archive')
     certificate = assets.parent / 'stubby/cacert-2026-09-25.pem'
     if hashlib.sha256(certificate.read_bytes()).hexdigest() != 'a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505':
         raise RuntimeError('Pinned CA bundle mismatch')

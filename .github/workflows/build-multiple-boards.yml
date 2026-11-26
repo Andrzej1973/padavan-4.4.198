@@ -216,6 +216,7 @@ on:
       - 'tools/check-wg-server-ui.py'
       - 'sources.lock.json'
       - 'sources/archives/**'
+      - 'sources/licenses/https-dns-proxy-LICENSE'
       - 'configs/owned-build-dependencies.json'
       - 'tools/prepare-owned-build-dependencies.py'
       - 'tools/check-owned-build-dependencies.py'
