@@ -1360,6 +1360,28 @@ jobs:
               cake['image_sha256'] = contents['image_sha256']
               cake_path.write_text(json.dumps(cake, indent=2) + '\n')
           PY
+          python3 - "$image" <<'PY'
+          import gzip
+          import lzma
+          from pathlib import Path
+          import sys
+
+          image = Path(sys.argv[1]).read_bytes()
+          if image[31] != 3:
+              raise SystemExit('Expected an LZMA kernel in the verified uImage')
+          decoder = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)
+          kernel = decoder.decompress(image[64:], max_length=64 * 1024 * 1024)
+          if not decoder.eof:
+              raise SystemExit('Incomplete or oversized LZMA kernel')
+          start = kernel.find(b'IKCFG_ST')
+          end = kernel.find(b'IKCFG_ED', start + 8)
+          if start < 0 or end < 0:
+              raise SystemExit('Embedded kernel configuration missing')
+          embedded = gzip.decompress(kernel[start + 8:end])
+          if embedded != Path('kernel-effective.config').read_bytes():
+              raise SystemExit('Embedded kernel configuration differs from build evidence')
+          print('PASS embedded kernel configuration matches kernel-effective.config')
+          PY
           python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt
           python3 tools/bind-router-guide-image.py "$image" SETUP_WR1200JS.md SETUP_WR1200JS.txt --check
 
