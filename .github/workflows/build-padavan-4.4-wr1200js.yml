@@ -24,6 +24,10 @@ on:
         description: Compile isolated experimental candidates after firmware verification
         type: boolean
         default: false
+      evidence_only:
+        description: Keep TRX images on the runner and upload verification reports
+        type: boolean
+        default: false
       sqm_profile:
         type: string
         default: profile
@@ -1777,7 +1781,7 @@ jobs:
             zerotier-persistence-target.json
 
       - name: Preserve failed firmware build evidence
-        if: ${{ !cancelled() && steps.firmware_build.conclusion == 'failure' }}
+        if: ${{ !inputs.evidence_only && !cancelled() && steps.firmware_build.conclusion == 'failure' }}
         uses: actions/upload-artifact@v7
         with:
           name: failed-firmware-build-evidence-wr1200js${{ inputs.artifact_suffix }}
@@ -1865,7 +1869,21 @@ jobs:
           Path('wr1200js-build-inputs.json').write_text(json.dumps(report, indent=2) + '\n')
           PY
 
+      - name: Upload WR1200JS verification reports
+        if: ${{ inputs.evidence_only }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: wr1200js-verification${{ inputs.artifact_suffix }}
+          if-no-files-found: error
+          path: |
+            wr1200js-build-inputs.json
+            firmware-image-checks.json
+            final-content-check.json
+            firmware-config-checks.json
+            cake-image-checks.json
+
       - name: Upload WR1200JS images and toolchain checksum
+        if: ${{ !inputs.evidence_only }}
         uses: actions/upload-artifact@v7
         with:
           name: padavan-linux-4.4.198-wr1200js${{ inputs.artifact_suffix }}

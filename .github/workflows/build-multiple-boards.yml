@@ -29,6 +29,10 @@ on:
         description: Run additional isolated experimental compilations
         type: boolean
         default: false
+      evidence_only:
+        description: Verify firmware in CI without uploading TRX images
+        type: boolean
+        default: false
       sqm_profile:
         description: WR1200JS SQM inclusion
         type: choice
@@ -344,11 +348,12 @@ jobs:
       verification_revision: ${{ needs.select.outputs.revision }}
       toolchain_variant: ${{ inputs.toolchain_variant || 'source' }}
       run_candidate_checks: ${{ inputs.run_candidate_checks || false }}
+      evidence_only: ${{ inputs.evidence_only || false }}
       sqm_profile: ${{ inputs.sqm_profile || 'excluded' }}
       candidate_scope: ${{ inputs.candidate_scope || 'iot' }}
       iot_candidate_variant: ${{ inputs.iot_candidate_variant || 'legacy' }}
   downloads:
-    if: always() && needs.select.result == 'success'
+    if: always() && !inputs.evidence_only && needs.select.result == 'success'
     needs: [select, build]
     runs-on: ubuntu-24.04
     steps:
@@ -390,6 +395,7 @@ jobs:
           python3 -c "import json; assert json.load(open('downloads/index.json'))['all_selected_images_built']"
 
   firmware-zip:
+    if: ${{ !inputs.evidence_only }}
     needs: [select, build]
     strategy:
       fail-fast: false
