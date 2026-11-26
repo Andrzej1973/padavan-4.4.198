@@ -2181,6 +2181,39 @@ jobs:
             stubby-candidate-build/build/CMakeCache.txt
             stubby-candidate-build/build/CMakeFiles/CMake*.log
 
+      - name: Compile isolated IPv4 raw socket backport
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && steps.firmware_build.conclusion == 'success' }}
+        run: |
+          set -euo pipefail
+          source_kernel="$PWD/padavan-4.4/trunk/linux-4.4.x"
+          kernel="$RUNNER_TEMP/wr1200js-ipv4-raw-bind"
+          test ! -e "$kernel"
+          cp -a "$source_kernel" "$kernel"
+          patch --batch --forward --fuzz=0 -p1 -d "$kernel" \
+            < overlay/padavan-4.4/patches/ipv4-raw-bind-lock.patch
+          compiler="$(find "$PWD/padavan-4.4/toolchain/toolchain-mipsel" -path '*/bin/mipsel-linux-uclibc-gcc' -print -quit)"
+          test -x "$compiler"
+          cross="${compiler%gcc}"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" -j1 net/ipv4/raw.o \
+            2>&1 | tee ipv4-raw-bind-mips.log
+          object="$kernel/net/ipv4/raw.o"
+          test -s "$object"
+          "${cross}readelf" -h "$object" | grep -q 'Class:.*ELF32'
+          "${cross}readelf" -h "$object" | grep -q 'Data:.*little endian'
+          "${cross}readelf" -h "$object" | grep -q 'Machine:.*MIPS'
+          stat -c '%s' "$object" > ipv4-raw-bind-mips.bytes
+
+      - name: Preserve IPv4 raw bind backport diagnostics
+        if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (always()) }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ipv4-raw-bind-mips${{ inputs.artifact_suffix }}
+          path: |
+            ipv4-raw-bind-mips.log
+            ipv4-raw-bind-mips.bytes
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Link isolated MT7621 systick candidate kernel
         if: ${{ inputs.run_candidate_checks && inputs.candidate_scope == 'all' && (!cancelled() && steps.firmware_build.conclusion == 'success' && steps.steering_prepare.outputs.enabled != 'y') }}
         run: |
