@@ -45,10 +45,15 @@ def validate():
  for group in GROUPS:
   if not (ROOT/group).is_dir():errors.append('Missing operational directory '+group)
  errors+=navigation_errors()
- for name in ['configs/owned-build-dependencies.json']:
-  for item in json.loads((ROOT/name).read_text()):
-   p=ROOT/'sources/archives'/item['filename']
-   if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest()!=item['sha256']:errors.append('Owned input hash mismatch '+str(p.relative_to(ROOT)))
+ registry=json.loads((ROOT/'sources.lock.json').read_text())['sources']
+ for item in json.loads((ROOT/'configs/owned-build-dependencies.json').read_text()):
+  path=ROOT/'sources/archives'/item['filename']
+  relative=path.relative_to(ROOT).as_posix()
+  entries=[source for source in registry if source.get('repository_archive')==relative]
+  if len(entries)!=1 or entries[0].get('sha256')!=item['sha256']:
+   errors.append('Owned input source registry mismatch '+relative)
+  if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=item['sha256']:
+   errors.append('Owned input hash mismatch '+relative)
  kernel=ROOT/'overlay/padavan-4.4/trunk/configs/boards/WR1200JS/kernel-4.4.x.config'
  dts={'board_dts':'overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/wr1200js.dts','layout':'overlay/padavan-4.4/trunk/linux-4.4.x/arch/mips/boot/dts/ralink/mt7621-spi-16m-wr1200js-layout.dtsi','status':'Exact existing DTS/model/include and SPI16M partitions checked; includes from pinned kernel and compiled DTB still require assembled-source/image validation'}
  return {'errors':errors,'boards':boards,'dts_review':dts,'scope':'local source/profile/required-path/doc-link/archive checks; no full firmware/runtime verification','passed':not errors}
