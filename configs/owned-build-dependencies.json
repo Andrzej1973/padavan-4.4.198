@@ -26,5 +26,12 @@
     "sha256": "22438f231d39ea27e4bdc69707ec3103357f3cecc9ad3eecba18a61e5b39c9b9",
     "url": "https://codeload.github.com/amnezia-vpn/amneziawg-tools/tar.gz/ee0f0a9aa34ff0a0da4b3433b9512781cfe02843",
     "origin": "https://github.com/amnezia-vpn/amneziawg-tools/archive/ee0f0a9aa34ff0a0da4b3433b9512781cfe02843.tar.gz"
+  },
+  {
+    "directory": "trunk/user/wireguard-tools",
+    "filename": "wireguard-tools-1.0.20210914.tar.xz",
+    "sha256": "942ed32d1d6631932c82ff86c91ae8428d4c90bfec231a14ebdf6c29f068e60b",
+    "url": "https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20210914.tar.xz",
+    "origin": "https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20210914.tar.xz"
   }
 ]

@@ -70,6 +70,7 @@
       "local_backup_relative_path": "sources/archives/pcre2-10.49.tar.bz2",
       "checksum_evidence": "Local archive independently matched official GitHub Release asset SHA-256 and size on 2026-10-10; current workflow verifies the same SHA-256 before extraction",
       "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723676762",
+      "archive_license_files": ["pcre2-10.49/COPYING", "pcre2-10.49/LICENCE.md"],
       "repository_archive": "sources/archives/pcre2-10.49.tar.bz2"
     },
     {
@@ -106,6 +107,7 @@
       "owned_copy": "https://github.com/Andrzej1973/padavan-4.4.198/releases/download/build-dependencies-v1/mbedtls-2.28.8.tar.gz",
       "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723676761",
       "preservation_status": "owned-release-and-repository-verified",
+      "archive_license_files": ["mbedtls-2.28.8/LICENSE"],
       "repository_archive": "sources/archives/mbedtls-2.28.8.tar.gz"
     },
     {
@@ -117,7 +119,23 @@
       "owned_copy": "https://github.com/Andrzej1973/padavan-4.4.198/releases/download/build-dependencies-v1/libqrencode-715e29fd4cd71b6e452ae0f4e36d917b43122ce8.tar.gz",
       "owned_asset_api": "https://api.github.com/repos/Andrzej1973/padavan-4.4.198/releases/assets/723676758",
       "preservation_status": "owned-release-and-repository-verified",
+      "archive_license_files": ["libqrencode-715e29fd4cd71b6e452ae0f4e36d917b43122ce8/COPYING"],
       "repository_archive": "sources/archives/libqrencode-715e29fd4cd71b6e452ae0f4e36d917b43122ce8.tar.gz"
+    },
+    {
+      "id": "wireguard-tools-build-archive",
+      "kind": "archive",
+      "revision": "v1.0.20210914",
+      "scope": "WR1200JS target WireGuard tool and VPN profile parser/readback",
+      "origin": "https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20210914.tar.xz",
+      "sha256": "942ed32d1d6631932c82ff86c91ae8428d4c90bfec231a14ebdf6c29f068e60b",
+      "size_bytes": 99752,
+      "repository_archive": "sources/archives/wireguard-tools-1.0.20210914.tar.xz",
+      "archive_license_files": [
+        "wireguard-tools-1.0.20210914/COPYING"
+      ],
+      "preservation_status": "repository-archive-verified",
+      "license_inventory_status": "upstream-license-file-retained; component-inventory-pending"
     },
     {
       "id": "amneziawg-tools-build-archive",
@@ -126,6 +144,7 @@
       "origin": "https://codeload.github.com/amnezia-vpn/amneziawg-tools/tar.gz/ee0f0a9aa34ff0a0da4b3433b9512781cfe02843",
       "sha256": "22438f231d39ea27e4bdc69707ec3103357f3cecc9ad3eecba18a61e5b39c9b9",
       "size_bytes": 161936,
+      "archive_license_files": ["amneziawg-tools-ee0f0a9aa34ff0a0da4b3433b9512781cfe02843/COPYING"],
       "repository_archive": "sources/archives/amneziawg-tools-ee0f0a9aa34ff0a0da4b3433b9512781cfe02843.tar.gz",
       "preservation_status": "repository-archive-verified",
       "license_inventory_status": "upstream-license-files-retained; component-inventory-pending"
