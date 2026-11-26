@@ -20,7 +20,7 @@ static void prepare(const char *dns)
 
 int main(void)
 {
-    char root[]="/tmp/wrvpn-dns-XXXXXX",contents[128];struct stat st;FILE *file;size_t n;
+    char root[]="/tmp/wrvpn-dns-XXXXXX",contents[128],target[512];struct stat st;FILE *file;size_t n;
     assert(mkdtemp(root));
     setenv("WRTMP",root,1);
 
@@ -49,8 +49,19 @@ int main(void)
     prepare("1.1.1.1");
     assert(wr_vpn_dns_write(&plan,"/nonexistent-wrvpn-dir")==WR_VPN_DNS_IO);
 
-    unlink(path);rmdir(root);
+    assert(wr_vpn_dns_remove(&plan,root)==WR_VPN_DNS_DONE);
+    assert(lstat(path,&st)<0);
+    assert(wr_vpn_dns_remove(&plan,root)==WR_VPN_DNS_EMPTY);
+
+    snprintf(target,sizeof(target),"%s/foreign",root);
+    file=fopen(target,"w");assert(file);fputs("keep\n",file);fclose(file);
+    assert(!symlink(target,path));
+    assert(wr_vpn_dns_remove(&plan,root)==WR_VPN_DNS_DONE);
+    assert(!stat(target,&st));
+    unlink(target);
+
+    rmdir(root);
     puts("PASS VPN DNS write: validated entries, IPv6, atomic 0600 file, empty and "
-         "invalid cases leave the previous file untouched");
+         "invalid cases leave the previous file untouched; remove is idempotent and does not follow symlinks");
     return 0;
 }

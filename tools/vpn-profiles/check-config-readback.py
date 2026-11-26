@@ -38,10 +38,13 @@ int __wrap_ipc_get_device(struct wgdevice **out,const char *name) {
 }
 ''')
     for protocol, source, commit in [
-        ('wg', a.wg_source, '3ba6527130c502144e7388b900138bca6260f4e8'),
+        ('wg', a.wg_source, 'v1.0.20210914'),
         ('awg', a.awg_source, 'ee0f0a9aa34ff0a0da4b3433b9512781cfe02843'),
     ]:
-        assert subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip() == commit
+        marker = source / 'source-revision'
+        actual = marker.read_text().strip() if marker.is_file() else subprocess.check_output(
+            ['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
+        assert actual == commit
         src = source.resolve() / 'src'
         flags = ['-std=gnu99', '-D_GNU_SOURCE', '-DRUNSTATEDIR="/var/run"', '-Wall', '-Wextra', '-g',
                  '-fsanitize=address,undefined', '-I' + str(src), '-I' + str(here)]

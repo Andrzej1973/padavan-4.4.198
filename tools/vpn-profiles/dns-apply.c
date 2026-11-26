@@ -3,6 +3,7 @@
 #endif
 #include "dns-apply.h"
 #include <arpa/inet.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
@@ -54,4 +55,16 @@ enum wr_vpn_dns_result wr_vpn_dns_write(const struct wr_vpn_config_plan *plan,
     if (close(fd) || !written) { unlink(temp);return WR_VPN_DNS_IO; }
     if (rename(temp,path)) { unlink(temp);return WR_VPN_DNS_IO; }
     return WR_VPN_DNS_DONE;
+}
+
+enum wr_vpn_dns_result wr_vpn_dns_remove(const struct wr_vpn_config_plan *plan,
+                                         const char *directory)
+{
+    char path[512];int n;
+    if (!plan || !directory || !*directory || !plan->resources.dns[0])
+        return WR_VPN_DNS_INVALID;
+    n=snprintf(path,sizeof(path),"%s/%s",directory,plan->resources.dns);
+    if (n<0 || (size_t)n>=sizeof(path)) return WR_VPN_DNS_INVALID;
+    if (!unlink(path)) return WR_VPN_DNS_DONE;
+    return errno==ENOENT?WR_VPN_DNS_EMPTY:WR_VPN_DNS_IO;
 }

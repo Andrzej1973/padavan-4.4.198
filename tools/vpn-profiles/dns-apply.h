@@ -1,6 +1,7 @@
 #ifndef WR_VPN_DNS_APPLY_H
 #define WR_VPN_DNS_APPLY_H
 #include "config-plan.h"
+#include <stddef.h>
 
 enum wr_vpn_dns_result {
     WR_VPN_DNS_DONE,     /* the profile DNS list was written */
@@ -16,6 +17,12 @@ enum wr_vpn_dns_result {
  * router without a resolver.
  */
 enum wr_vpn_dns_result wr_vpn_dns_write(const struct wr_vpn_config_plan *plan,
+    const char *directory);
+
+/* Removes only the runtime DNS file owned by this profile. Missing files are
+ * idempotent success; callers resynchronize the shared dnsmasq list after the
+ * profile lifecycle operation completes. */
+enum wr_vpn_dns_result wr_vpn_dns_remove(const struct wr_vpn_config_plan *plan,
     const char *directory);
 
 #endif

@@ -16,7 +16,7 @@ int wr_vpn_profile_apply(const char *runtime_root,const struct wr_vpn_record *re
 {
     struct wr_vpn_config_plan *plan;
     enum wr_vpn_validation validation;
-    if (!runtime_root || !record || !expected || !options || !exec || !outcome) return 0;
+    if (!runtime_root || !record || !expected || !options || !exec || !exec->run || !outcome) return 0;
     memset(outcome,0,sizeof(*outcome));
     outcome->protocol=WR_VPN_TRANSACTION_REFUSED;
     outcome->addresses=WR_VPN_ADDR_EMPTY;
@@ -45,6 +45,15 @@ int wr_vpn_profile_apply(const char *runtime_root,const struct wr_vpn_record *re
         if (outcome->addresses!=WR_VPN_ADDR_DONE) goto done;
     }
 
+    /* IPv6 route installation requires an administratively up link. */
+    const char *const link_up[] = {"ip", "link", "set", "dev",
+                                  plan->resources.interface, "up", NULL};
+    if (exec->run(exec->context, link_up) != WR_VPN_EXEC_DONE) {
+        outcome->routes_attempted=1;
+        outcome->routes=WR_VPN_ROUTE_FAILED;
+        goto done;
+    }
+
     if (plan->allowed[0]) {
         outcome->routes_attempted=1;
         outcome->routes=wr_vpn_routes_apply(&plan->resources,plan->allowed,1,exec);
@@ -52,10 +61,11 @@ int wr_vpn_profile_apply(const char *runtime_root,const struct wr_vpn_record *re
     }
 
     /* DNS is a file for the opt-in dnsmasq step; a failure does not undo routes. */
-    if (plan->dns[0]) {
-        outcome->dns_attempted=1;
+    outcome->dns_attempted=1;
+    if (plan->dns[0])
         outcome->dns=wr_vpn_dns_write(plan,runtime_root);
-    }
+    else
+        outcome->dns=wr_vpn_dns_remove(plan,runtime_root);
 
 done:
     erase(plan,sizeof(*plan));free(plan);

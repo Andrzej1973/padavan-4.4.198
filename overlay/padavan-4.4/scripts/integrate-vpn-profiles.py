@@ -54,8 +54,8 @@ def main() -> int:
         '\tload_user_config(fp, storage_dir, "dnsmasq.servers", NULL);\n'
     )
     dns_addition = (
-        "\t/* Independent VPN profiles: this file exists only when wrvpn_use_dns=1. */\n"
-        '\tload_user_config(fp, storage_dir, "wrvpn.servers", NULL);\n'
+        "\t/* Read the current VPN upstream list again on SIGHUP. */\n"
+        '\tfputs("servers-file=/var/run/wrvpn.servers\\n", fp);\n'
     )
     if dns_text.count(dns_anchor) != 1:
         raise RuntimeError("fill_dnsmasq_servers anchor changed")

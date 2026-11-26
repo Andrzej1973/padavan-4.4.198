@@ -70,7 +70,7 @@ done:
 enum wr_vpn_action_result wr_vpn_link_create(const struct wr_vpn_session *s,struct wr_vpn_link *out)
 {
     unsigned char request[512];struct wr_vpn_resources r;struct wr_vpn_link link;
-    enum wr_vpn_link_result status;size_t size;char owner[64];
+    enum wr_vpn_link_result status;size_t size;char owner[64];int created;
     if (!out) return WR_VPN_ACTION_REFUSED;
     memset(out,0,sizeof(*out));
     size=wr_vpn_link_request(s,0,UINT32_C(0x57564352),request,sizeof(request));
@@ -78,8 +78,27 @@ enum wr_vpn_action_result wr_vpn_link_create(const struct wr_vpn_session *s,stru
     status=wr_vpn_link_query(r.interface,&link);
     if (status==WR_VPN_LINK_UNKNOWN) return WR_VPN_ACTION_UNKNOWN;
     if (status!=WR_VPN_LINK_ABSENT) return WR_VPN_ACTION_REFUSED;
-    (void)send_request(request,size);
+    created=send_request(request,size);
     status=wr_vpn_link_query(r.interface,&link);
+    /* Some kernels ignore IFLA_IFALIAS during creation. Only stamp an
+     * unlabelled link after an acknowledged exclusive create. */
+    if (created && status==WR_VPN_LINK_PRESENT && !link.owner[0] &&
+        !link.master && !strcmp(link.kind,s->protocol==WR_VPN_WIREGUARD?"wireguard":"amneziawg")) {
+        struct nlmsghdr header={0};
+        struct ifinfomsg info={0};
+        uint32_t index=link.index;
+        memset(request,0,sizeof(request));
+        info.ifi_index=(int)index;
+        size=append_attr(request,NLMSG_LENGTH(sizeof(info)),IFLA_IFALIAS,owner,strlen(owner)+1);
+        header.nlmsg_len=(uint32_t)size;header.nlmsg_type=RTM_NEWLINK;
+        header.nlmsg_flags=NLM_F_REQUEST|NLM_F_ACK;header.nlmsg_seq=UINT32_C(0x5756414c);
+        memcpy(request,&header,sizeof(header));
+        memcpy(request+NLMSG_HDRLEN,&info,sizeof(info));
+        (void)send_request(request,size);
+        status=wr_vpn_link_query(r.interface,&link);
+        if (status!=WR_VPN_LINK_PRESENT || link.index!=index)
+            return WR_VPN_ACTION_UNKNOWN;
+    }
     if (status==WR_VPN_LINK_PRESENT && wr_vpn_link_owned(&r,&link,link.index,owner)) {
         *out=link;return WR_VPN_ACTION_OK;
     }

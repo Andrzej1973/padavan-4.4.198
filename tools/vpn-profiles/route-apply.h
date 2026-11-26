@@ -6,25 +6,28 @@ enum wr_vpn_route_result {
     WR_VPN_ROUTE_DONE,     /* routes and the marked rule are in place */
     WR_VPN_ROUTE_EMPTY,    /* the profile carries no AllowedIPs */
     WR_VPN_ROUTE_INVALID,  /* malformed prefix; nothing was executed */
-    WR_VPN_ROUTE_FAILED    /* the runner refused a command */
+    WR_VPN_ROUTE_FAILED,   /* operation failed and rollback completed */
+    WR_VPN_ROUTE_PARTIAL   /* cleanup failed; owned state may remain */
 };
 
 /* Adds or removes the profile's routes and its policy rule.
  *
  * Routes go only to the profile table (never the main table):
- *   ip route replace|del <prefix> dev <interface> table <table>
+ *   ip route replace|del <IPv4-prefix> dev <interface> table <table>
+ *   ip -6 route replace|del <IPv6-prefix> dev <interface> table <table>
  * Redirecting is done only for packets the daemon marks:
  *   ip rule add|del fwmark <mark>/0xffffffff lookup <table> priority <priority_tunnel>
+ *   ip -6 rule add|del fwmark <mark>/0xffffffff lookup <table> priority <priority_tunnel>
  *
- * On removal the rule goes first, so traffic stops being redirected before the
- * table is emptied. On removal the runner should treat "no such route/rule" as
- * success; the controller reconciles observed state. Adding never creates a
- * `from all` rule, so the router's own traffic keeps using the main table.
+ * On removal, each family's rule goes first. Its routes are kept if that
+ * family's rule cannot be removed, preserving context for a later retry.
+ * Missing routes and rules are idempotent cleanup successes. Adding never
+ * creates a `from all` rule, so router-originated traffic keeps using main.
  */
 enum wr_vpn_route_result wr_vpn_routes_apply(const struct wr_vpn_resources *resources,
     const char *allowed_ips, int add, const struct wr_vpn_exec *exec);
 
-/* Removes only the profile's marked rule. Teardown uses this when the stored
+/* Removes only the profile's IPv4 and IPv6 marked rules. Teardown uses this when the stored
  * configuration cannot be parsed any more: the rule is derived from the
  * resource identity, so it can be dropped without a plan. The controller's
  * runner should treat "no such rule" as success.

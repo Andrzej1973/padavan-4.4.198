@@ -8,8 +8,10 @@
 #include "plan-report.h"
 #include "profile-apply.h"
 #include "link-lifecycle.h"
+#include "teardown.h"
 #include "protect.h"
 #include "endpoint-pin.h"
+#include "ip-command-result.h"
 #include <arpa/inet.h>
 #include <dirent.h>
 #include <errno.h>
@@ -27,6 +29,12 @@
 
 #ifndef WR_VPN_STORE_ROOT
 #define WR_VPN_STORE_ROOT "/etc/storage/wrvpn"
+#endif
+#ifndef WR_VPN_IP
+#define WR_VPN_IP "/sbin/ip"
+#endif
+#ifndef WR_VPN_IP_FALLBACK
+#define WR_VPN_IP_FALLBACK "/bin/ip"
 #endif
 
 /* Initial management surface: validated create, metadata list, explicit
@@ -210,30 +218,109 @@ static long long elapsed_ms(void)
     if (clock_gettime(CLOCK_MONOTONIC,&now)) return -1;
     return (long long)now.tv_sec*1000+now.tv_nsec/1000000;
 }
-static int run_ip(void *context,const char *const argv[])
+static enum wr_vpn_exec_result run_ip_command(const char *const argv[], char *listing)
 {
     char *const env[]={"LC_ALL=C",NULL};
-    pid_t child,done;int status;long long began;
-    (void)context;
+    char error[256];size_t used=0;pid_t child,done;int status,pipefd[2],flags,eof=0;long long began;
+    error[0]=0;
+    if (pipe(pipefd)) return WR_VPN_EXEC_FAILED;
     child=fork();
-    if (child<0) return 1;
+    if (child<0) { close(pipefd[0]);close(pipefd[1]);return WR_VPN_EXEC_FAILED; }
     if (!child) {
-        execve("/sbin/ip",(char *const *)argv,env);
-        execve("/bin/ip",(char *const *)argv,env);
+        close(pipefd[0]);
+        if (dup2(pipefd[1],STDERR_FILENO)<0 ||
+            (listing && dup2(pipefd[1],STDOUT_FILENO)<0)) _exit(126);
+        close(pipefd[1]);
+        execve(WR_VPN_IP,(char *const *)argv,env);
+        execve(WR_VPN_IP_FALLBACK,(char *const *)argv,env);
         _exit(127);
+    }
+    close(pipefd[1]);
+    flags=fcntl(pipefd[0],F_GETFL,0);
+    if (flags<0 || fcntl(pipefd[0],F_SETFL,flags|O_NONBLOCK)<0) {
+        kill(child,SIGKILL);while (waitpid(child,&status,0)<0 && errno==EINTR) {}
+        close(pipefd[0]);return WR_VPN_EXEC_UNKNOWN;
     }
     began=elapsed_ms();
     for (;;) {
+        ssize_t n;
+        long long now;
+        /* Reap before draining stderr so a fast exit cannot hide its final
+         * diagnostic between a nonblocking read and waitpid. */
         done=waitpid(child,&status,WNOHANG);
-        if (done==child) return (WIFEXITED(status) && WEXITSTATUS(status)==0)?0:1;
-        if (done<0 && errno!=EINTR) return 1;
-        if (began<0 || elapsed_ms()-began>3000) {
+        if (done<0 && errno!=EINTR) {
+            close(pipefd[0]);
+            return WR_VPN_EXEC_UNKNOWN;
+        }
+        while ((n=read(pipefd[0],error+used,sizeof(error)-1-used))>0) {
+            used+=(size_t)n;
+            if (used==sizeof(error)-1) {
+                char discard[128];
+                while (read(pipefd[0],discard,sizeof(discard))>0) {}
+                break;
+            }
+        }
+        if (!n) eof=1;
+        else if (n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK && errno!=EINTR)
+            eof=-1;
+        error[used]=0;
+        if (done==child) {
+            close(pipefd[0]);
+            if (!WIFEXITED(status)) return WR_VPN_EXEC_UNKNOWN;
+            if (listing) {
+                if (WEXITSTATUS(status) || used==sizeof(error)-1 || eof!=1 ||
+                    memchr(error,0,used)) return WR_VPN_EXEC_UNKNOWN;
+                memcpy(listing,error,used+1);
+                return WR_VPN_EXEC_DONE;
+            }
+            if (WEXITSTATUS(status)==0) return WR_VPN_EXEC_DONE;
+            if (eof==1 && used<sizeof(error)-1 && wr_vpn_ip_delete_absent(argv,error))
+                return WR_VPN_EXEC_DONE;
+            if (used) fputs(error,stderr);
+            return WR_VPN_EXEC_FAILED;
+        }
+        now=elapsed_ms();
+        if (began<0 || now<0 || now-began>3000) {
             kill(child,SIGKILL);
             while (waitpid(child,&status,0)<0 && errno==EINTR) {}
-            return 1;
+            close(pipefd[0]);
+            return WR_VPN_EXEC_UNKNOWN;
         }
-        (void)poll(NULL,0,20);
+        if (!eof) {
+            struct pollfd pfd={pipefd[0],POLLIN,0};
+            (void)poll(&pfd,1,20);
+        } else (void)poll(NULL,0,20);
     }
+}
+static enum wr_vpn_exec_result run_ip(void *context,const char *const argv[])
+{
+    int i=argv[1] && !strcmp(argv[1],"-6")?2:1;
+    (void)context;
+    if (!argv[i]) return WR_VPN_EXEC_FAILED;
+    if (!strcmp(argv[i],"rule")) {
+        size_t count=0;
+        while (argv[count]) count++;
+        if (count!=(size_t)i+8 ||
+            (strcmp(argv[i+1],"add") && strcmp(argv[i+1],"del")) ||
+            strcmp(argv[i+2],"fwmark") || strcmp(argv[i+4],"lookup") ||
+            strcmp(argv[i+6],"priority"))
+            return WR_VPN_EXEC_FAILED;
+        int deleting=!strcmp(argv[i+1],"del");
+        char listing[256];
+        unsigned int priority,mark,table;
+        enum wr_vpn_rule_match match;
+        const char *query[]={"ip",i==2?"-6":"-4","-N","rule","show","pref",argv[i+7],NULL};
+        if (sscanf(argv[i+3],"0x%x",&mark)!=1 ||
+            sscanf(argv[i+5],"%u",&table)!=1 ||
+            sscanf(argv[i+7],"%u",&priority)!=1 ||
+            run_ip_command(query,listing)!=WR_VPN_EXEC_DONE)
+            return WR_VPN_EXEC_UNKNOWN;
+        match=wr_vpn_rule_match_listing(listing,priority,mark,table);
+        if (match==WR_VPN_RULE_AMBIGUOUS) return WR_VPN_EXEC_UNKNOWN;
+        if (deleting && match==WR_VPN_RULE_ABSENT) return WR_VPN_EXEC_DONE;
+        if (!deleting && match==WR_VPN_RULE_EXACT) return WR_VPN_EXEC_PRESENT;
+    }
+    return run_ip_command(argv,NULL);
 }
 static const char *address_name(enum wr_vpn_addr_result result)
 {
@@ -253,6 +340,7 @@ static const char *route_name(enum wr_vpn_route_result result)
     case WR_VPN_ROUTE_EMPTY: return "empty";
     case WR_VPN_ROUTE_INVALID: return "invalid";
     case WR_VPN_ROUTE_FAILED: return "failed";
+    case WR_VPN_ROUTE_PARTIAL: return "partial";
     }
     return "invalid";
 }
@@ -276,11 +364,23 @@ static const char *lifecycle_name(enum wr_vpn_lifecycle_result result)
     }
     return "unknown";
 }
+static const char *teardown_name(enum wr_vpn_teardown_result result)
+{
+    switch (result) {
+    case WR_VPN_TEARDOWN_DONE: return "done";
+    case WR_VPN_TEARDOWN_PARTIAL: return "partial";
+    case WR_VPN_TEARDOWN_UNKNOWN: return "unknown";
+    case WR_VPN_TEARDOWN_INVALID: return "invalid";
+    }
+    return "unknown";
+}
 /* A failed `up` must not leave an owned link or a stale fwmark rule. Routes
  * and addresses live on the device and disappear with it; the rule does not. */
 static const char *release_name(int released)
 {
-    return released==0?"done":released<0?"unknown":"failed";
+    if (released==0) return "done";
+    if (released==-2) return "retained-partial";
+    return released<0?"unknown":"failed";
 }
 /* System resolver used only while no tunnel route exists (before acquire). */
 static int resolve_host(const char *host,char *numeric,size_t capacity)
@@ -319,7 +419,6 @@ static int pin_record(const struct wr_vpn_record *input,struct wr_vpn_record *ou
 static int release_failed_up(const struct wr_vpn_resources *resources,
                              const struct wr_vpn_session *expected)
 {
-    struct wr_vpn_exec exec={run_ip,NULL};
     struct wr_vpn_runtime runtime={-1,-1};
     struct wr_vpn_session current;
     enum wr_vpn_runtime_result status;
@@ -336,7 +435,6 @@ static int release_failed_up(const struct wr_vpn_resources *resources,
         wr_vpn_runtime_unlock(&runtime);
         return -1;
     }
-    (void)wr_vpn_rule_remove(resources,&exec);
     down=wr_vpn_link_release(&runtime,resources->id,&wr_vpn_system_links);
     wr_vpn_runtime_unlock(&runtime);
     return down==WR_VPN_LIFECYCLE_OK?0:1;
@@ -344,17 +442,20 @@ static int release_failed_up(const struct wr_vpn_resources *resources,
 /* Create the owned link, then apply configuration, addresses and routes. */
 static int wr_up(int root,unsigned int id,const char *protect)
 {
-    struct wr_vpn_record record;struct wr_vpn_session session;
+    struct wr_vpn_record record;struct wr_vpn_session session,previous;
     struct wr_vpn_resources resources;struct wr_vpn_runtime runtime={-1,-1};
+    struct wr_vpn_config_plan cleanup_plan;struct wr_vpn_teardown_report cleanup_report;
     struct wr_vpn_apply_options options={NULL,0};struct wr_vpn_apply_outcome outcome;
     struct wr_vpn_exec exec={run_ip,NULL};
     enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status;
-    enum wr_vpn_lifecycle_result up;int result=0,released;
+    enum wr_vpn_lifecycle_result up;enum wr_vpn_validation validation;
+    enum wr_vpn_teardown_result cleanup;int result=0,released=-2,fresh_session;
     char buffer[256];const char *prefixes[8];int count=0;
     stored=wr_vpn_store_get(root,id,&record);
     if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
     if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
-    if (wr_vpn_validate(record.protocol,record.config,record.size)!=WR_VPN_VALID) return 2;
+    validation=wr_vpn_prepare_config(&record,&cleanup_plan);
+    if (validation!=WR_VPN_VALID) return validation==WR_VPN_REJECTED?2:3;
     if (protect && *protect) {
         count=wr_vpn_parse_protect(protect,buffer,sizeof(buffer),prefixes,8);
         if (count<0) return 2;
@@ -372,6 +473,7 @@ static int wr_up(int root,unsigned int id,const char *protect)
         printf("up\t%u\t%s\n",id,status==WR_VPN_RUNTIME_BUSY?"busy":"io");
         return status==WR_VPN_RUNTIME_BUSY?4:3;
     }
+    fresh_session=wr_vpn_runtime_read(&runtime,id,&previous)==WR_VPN_RUNTIME_ABSENT;
     up=wr_vpn_link_acquire(&runtime,id,record.protocol,record.revision,
                            &wr_vpn_system_links,&session);
     wr_vpn_runtime_unlock(&runtime);
@@ -380,61 +482,118 @@ static int wr_up(int root,unsigned int id,const char *protect)
         return 6;
     }
     if (!wr_vpn_profile_apply(resources.runtime,&record,&session,&options,&exec,&outcome)) {
-        released=release_failed_up(&resources,&session);
+        if (fresh_session)
+            released=release_failed_up(&resources,&session);
+        memset(&cleanup_plan,0,sizeof(cleanup_plan));
         printf("up\t%u\tapply=refused\tcleanup=%s\n",id,release_name(released));
         return 3;
     }
-    printf("up\t%u\tprotocol=%s\taddresses=%s\troutes=%s\tdns=%s\n",id,
-           transaction_name(outcome.protocol),address_name(outcome.addresses),
-           route_name(outcome.routes),dns_name(outcome.dns));
-    if (fflush(stdout)) return 3;
     if (outcome.addresses_attempted && outcome.addresses!=WR_VPN_ADDR_DONE) result=8;
     else if (outcome.protocol!=WR_VPN_TRANSACTION_DONE &&
         outcome.protocol!=WR_VPN_TRANSACTION_UNSAVED)
         result=transaction_status(outcome.protocol);
     else if (outcome.routes_attempted && outcome.routes!=WR_VPN_ROUTE_DONE) result=9;
-    else if (outcome.dns_attempted && outcome.dns!=WR_VPN_DNS_DONE) result=11;
+    else if (outcome.dns_attempted && outcome.dns!=WR_VPN_DNS_DONE &&
+             outcome.dns!=WR_VPN_DNS_EMPTY) result=11;
     else if (outcome.protocol==WR_VPN_TRANSACTION_UNSAVED) result=10;
-    if (result) {
-        released=release_failed_up(&resources,&session);
-        printf("up\t%u\tcleanup=%s\n",id,release_name(released));
-        if (fflush(stdout)) return 3;
+    if (result && fresh_session && outcome.routes!=WR_VPN_ROUTE_PARTIAL) {
+        /* Removing the owned link also removes its addresses. Only run
+         * policy teardown if this start installed a complete route set. */
+        if (outcome.routes_attempted && outcome.routes==WR_VPN_ROUTE_DONE) {
+            cleanup=wr_vpn_profile_cleanup(&cleanup_plan,&resources,resources.runtime,
+                                          1,&exec,&cleanup_report);
+            if (cleanup==WR_VPN_TEARDOWN_DONE)
+                released=release_failed_up(&resources,&session);
+        } else {
+            released=release_failed_up(&resources,&session);
+        }
     }
+    memset(&cleanup_plan,0,sizeof(cleanup_plan));
+    printf("up\t%u\tprotocol=%s\taddresses=%s\troutes=%s\tdns=%s\n",id,
+           transaction_name(outcome.protocol),address_name(outcome.addresses),
+           route_name(outcome.routes),dns_name(outcome.dns));
+    if (result)
+        printf("up\t%u\tcleanup=%s\n",id,release_name(released));
+    if (fflush(stdout)) return 3;
     return result;
 }
 /* Scoped policy first (rule, routes, addresses), then the owned link. */
 static int wr_down(int root,unsigned int id)
 {
-    struct wr_vpn_record record;struct wr_vpn_resources resources;
-    struct wr_vpn_runtime runtime={-1,-1};
-    struct wr_vpn_config_plan *plan;struct wr_vpn_exec exec={run_ip,NULL};
-    enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status;
-    enum wr_vpn_lifecycle_result down;int result=0;
+    struct wr_vpn_record record,snapshot;struct wr_vpn_resources resources;
+    struct wr_vpn_runtime runtime={-1,-1};struct wr_vpn_session session;
+    struct wr_vpn_link link;struct wr_vpn_config_plan plan;
+    struct wr_vpn_exec exec={run_ip,NULL};struct wr_vpn_teardown_report report;
+    enum wr_vpn_store_result stored;enum wr_vpn_runtime_result status,snapshot_status;
+    enum wr_vpn_link_result observed;enum wr_vpn_lifecycle_result down;
+    enum wr_vpn_validation validation;enum wr_vpn_teardown_result cleanup;
+    char owner[128];int config_valid=0;
+    if (!id || id>WR_VPN_PROFILE_ID_MAX ||
+        !wr_vpn_resources_make(&resources,id,WR_VPN_WIREGUARD)) return 3;
     stored=wr_vpn_store_get(root,id,&record);
-    if (stored==WR_VPN_STORE_NOT_FOUND) return 5;
-    if (stored!=WR_VPN_STORE_OK || !wr_vpn_resources_make(&resources,id,record.protocol)) return 3;
-    plan=calloc(1,sizeof(*plan));
-    if (!plan) return 3;
-    if (wr_vpn_prepare_config(&record,plan)==WR_VPN_VALID) {
-        if (plan->allowed[0])
-            wr_vpn_routes_apply(&plan->resources,plan->allowed,0,&exec);
-        if (plan->addresses[0])
-            wr_vpn_addresses_apply(plan,0,NULL,0,&exec);
-    } else
-        /* Unreadable configuration: the rule still has to go. */
-        wr_vpn_rule_remove(&resources,&exec);
-    memset(plan,0,sizeof(*plan));free(plan);
+    if (stored==WR_VPN_STORE_BUSY) return 4;
     status=wr_vpn_runtime_lock(resources.runtime,&runtime);
     if (status!=WR_VPN_RUNTIME_OK) {
         printf("down\t%u\t%s\n",id,status==WR_VPN_RUNTIME_BUSY?"busy":"io");
         return status==WR_VPN_RUNTIME_BUSY?4:3;
     }
-    down=wr_vpn_link_release(&runtime,id,&wr_vpn_system_links);
+    status=wr_vpn_runtime_read(&runtime,id,&session);
+    if (status==WR_VPN_RUNTIME_ABSENT) {
+        wr_vpn_runtime_unlock(&runtime);
+        return stored==WR_VPN_STORE_NOT_FOUND?5:stored==WR_VPN_STORE_OK?0:3;
+    }
+    if (status!=WR_VPN_RUNTIME_OK ||
+        !wr_vpn_resources_make(&resources,id,session.protocol)) {
+        wr_vpn_runtime_unlock(&runtime);return 3;
+    }
+    observed=wr_vpn_link_query(resources.interface,&link);
+    if (observed==WR_VPN_LINK_UNKNOWN || !wr_vpn_session_owner(&session,owner,sizeof(owner)) ||
+        (observed==WR_VPN_LINK_PRESENT && !wr_vpn_link_owned(&resources,&link,
+            session.index?session.index:link.index,owner))) {
+        wr_vpn_runtime_unlock(&runtime);
+        printf("down\t%u\tunknown-or-unowned-link\tlink=retained\n",id);
+        return fflush(stdout)?3:6;
+    }
+
+    snapshot_status=wr_vpn_runtime_snapshot_get(&runtime,id,&snapshot);
+    if (snapshot_status==WR_VPN_RUNTIME_OK && snapshot.id==id &&
+        snapshot.protocol==session.protocol) {
+        record=snapshot;config_valid=1;
+    } else if (stored==WR_VPN_STORE_OK && record.id==id &&
+        record.protocol==session.protocol && record.revision==session.revision) {
+        config_valid=1;
+    }
+    if (config_valid) {
+        validation=wr_vpn_prepare_config(&record,&plan);
+        config_valid=validation==WR_VPN_VALID;
+    }
+    if (!config_valid) memset(&plan,0,sizeof(plan));
+    cleanup=wr_vpn_profile_cleanup(&plan,&resources,resources.runtime,
+                                   config_valid,&exec,&report);
+    memset(&plan,0,sizeof(plan));
+    if (cleanup==WR_VPN_TEARDOWN_DONE) {
+        down=wr_vpn_link_release(&runtime,id,&wr_vpn_system_links);
+        wr_vpn_runtime_unlock(&runtime);
+        printf("down\t%u\t%s\troutes=%s\taddresses=%s\tdns=%s\n",
+               id,lifecycle_name(down),route_name(report.routes),
+               address_name(report.addresses),dns_name(report.dns));
+        if (fflush(stdout)) return 3;
+        return down==WR_VPN_LIFECYCLE_OK?0:6;
+    }
+    if (cleanup==WR_VPN_TEARDOWN_UNKNOWN && observed==WR_VPN_LINK_ABSENT) {
+        down=wr_vpn_link_release(&runtime,id,&wr_vpn_system_links);
+        wr_vpn_runtime_unlock(&runtime);
+        printf("down\t%u\tunknown-config\tlink-absent=%s\troutes=%s\tdns=%s\n",
+               id,lifecycle_name(down),route_name(report.routes),dns_name(report.dns));
+        if (fflush(stdout)) return 3;
+        return 12;
+    }
     wr_vpn_runtime_unlock(&runtime);
-    printf("down\t%u\t%s\n",id,lifecycle_name(down));
+    printf("down\t%u\t%s\troutes=%s\taddresses=%s\tdns=%s\tlink=retained\n",
+           id,teardown_name(cleanup),route_name(report.routes),
+           address_name(report.addresses),dns_name(report.dns));
     if (fflush(stdout)) return 3;
-    if (down!=WR_VPN_LIFECYCLE_OK) result=6;
-    return result;
+    return cleanup==WR_VPN_TEARDOWN_UNKNOWN?12:9;
 }
 /* Protocol configuration, then addresses, then routes - one sequence. */
 static int wr_apply(int root,unsigned int id,const char *protect)
@@ -478,6 +637,8 @@ static int wr_apply(int root,unsigned int id,const char *protect)
         outcome.protocol!=WR_VPN_TRANSACTION_UNSAVED)
         return transaction_status(outcome.protocol);
     if (outcome.routes_attempted && outcome.routes!=WR_VPN_ROUTE_DONE) return 9;
+    if (outcome.dns_attempted && outcome.dns!=WR_VPN_DNS_DONE &&
+        outcome.dns!=WR_VPN_DNS_EMPTY) return 11;
     return outcome.protocol==WR_VPN_TRANSACTION_UNSAVED?10:0;
 }
 /* Read-only preview: what would be applied, and what is observed now. */

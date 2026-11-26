@@ -28,15 +28,15 @@ HARNESS = '''#include "profile-apply.h"
 static FILE *log_file;
 static int calls, fail_at;
 
-static int record(void *context,const char *const argv[])
+static enum wr_vpn_exec_result record(void *context,const char *const argv[])
 {
     int i;
     (void)context;
     calls++;
-    if (fail_at==calls) return 1;
+    if (fail_at==calls) return WR_VPN_EXEC_FAILED;
     for (i=0;argv[i];i++) fprintf(log_file,"%s%s",i?" ":"",argv[i]);
     fputs("\\n",log_file);fflush(log_file);
-    return 0;
+    return WR_VPN_EXEC_DONE;
 }
 
 static int make_session(const char *root,struct wr_vpn_session *out,enum wr_vpn_protocol protocol)
@@ -140,11 +140,14 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-controller-') as directory:
                UBSAN_OPTIONS='halt_on_error=1:exitcode=97')
     counter = 0
 
-    def run(protocol, protect, data, fail_at=0):
+    def run(protocol, protect, data, fail_at=0, stale_dns=False):
         global counter
         counter += 1
         runtime = root / f'runtime-{counter}'
         runtime.mkdir(mode=0o700)
+        dns_file = runtime / 'wrv2.dns'
+        if stale_dns:
+            dns_file.write_text('192.0.2.53\n')
         log = runtime / 'commands'
         run_env = dict(env)
         if protect:
@@ -155,6 +158,8 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-controller-') as directory:
                                 input=data.encode(), capture_output=True, timeout=20, env=run_env)
         assert result.returncode == 0 and not result.stderr, (result.returncode, result.stderr)
         commands = log.read_text().splitlines() if log.exists() else []
+        if stale_dns:
+            assert not dns_file.exists(), 'stale DNS servers survived apply'
         return result.stdout.decode().strip(), commands
 
     for protocol in controls:
@@ -162,7 +167,8 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-controller-') as directory:
 
         outcome, commands = run(protocol, '192.168.20.0/24', data)
         assert outcome == '0,0,0,1,1,0,1', (outcome, commands)
-        assert commands == ['ip address add 10.8.0.2/32 dev wrvpn2',
+        assert commands == ['ip address replace 10.8.0.2/32 dev wrvpn2',
+                            'ip link set dev wrvpn2 up',
                             'ip route replace 0.0.0.0/0 dev wrvpn2 table 20002',
                             'ip rule add fwmark 0x57560002/0xffffffff lookup 20002 priority 20003'], commands
 
@@ -179,7 +185,16 @@ with tempfile.TemporaryDirectory(prefix='wrvpn-controller-') as directory:
 
         outcome, commands = run(protocol, '192.168.20.0/24', data, fail_at=2)
         assert outcome == '0,0,3,1,1,1,0', (outcome, commands)
-        assert commands == ['ip address add 10.8.0.2/32 dev wrvpn2'], commands
+        assert commands == ['ip address replace 10.8.0.2/32 dev wrvpn2'], commands
+
+        outcome, commands = run(protocol, '192.168.20.0/24', data, fail_at=3)
+        assert outcome == '0,0,3,1,1,1,0', (outcome, commands)
+        assert commands == ['ip address replace 10.8.0.2/32 dev wrvpn2',
+                            'ip link set dev wrvpn2 up'], commands
+
+        outcome, commands = run(protocol, '192.168.20.0/24',
+                                data.replace('DNS = 1.1.1.1\n', ''), stale_dns=True)
+        assert outcome == '0,0,0,1,1,0,1', (outcome, commands)
 
     print('PASS apply controller: protocol, then addresses, then routes; no protected '
           'prefix refuses before the protocol transport; a failing runner stops the '

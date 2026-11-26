@@ -31,6 +31,8 @@ static struct prefix parse_prefix(const char *text)
         prefix.family=AF_INET6;max=128;bits=128;
     } else return prefix;
     if (slash) {
+        const char *digits=slash+1;
+        if (!*digits || digits[strspn(digits,"0123456789")]) return prefix;
         bits=strtoul(slash+1,&end,10);
         if (*end || bits>max) return prefix;
     }
@@ -68,7 +70,8 @@ enum wr_vpn_addr_result wr_vpn_addresses_apply(const struct wr_vpn_config_plan *
 {
     const char *cursor;int any=0;
     if (!plan || !exec || !exec->run) return WR_VPN_ADDR_INVALID;
-    if (protected_prefixes && protected_count>64) return WR_VPN_ADDR_INVALID;
+    if (protected_count>64 || (protected_count && !protected_prefixes))
+        return WR_VPN_ADDR_INVALID;
     if (!plan->addresses[0]) return WR_VPN_ADDR_EMPTY;
 
     /* Validate every address and every overlap before running anything. */
@@ -100,10 +103,12 @@ enum wr_vpn_addr_result wr_vpn_addresses_apply(const struct wr_vpn_config_plan *
     while (cursor && *cursor) {
         const char *comma=strstr(cursor,", ");
         size_t length=comma?(size_t)(comma-cursor):strlen(cursor);
-        char text[64];const char *argv[7];
+        char text[64];const char *argv[8];size_t arg=0;
         if (!address_text(cursor,length,text,sizeof(text))) return WR_VPN_ADDR_INVALID;
-        argv[0]="ip";argv[1]="address";argv[2]=add?"add":"del";argv[3]=text;
-        argv[4]="dev";argv[5]=plan->resources.interface;argv[6]=NULL;
+        argv[arg++]="ip";
+        if (parse_prefix(text).family==AF_INET6) argv[arg++]="-6";
+        argv[arg++]="address";argv[arg++]=add?"replace":"del";argv[arg++]=text;
+        argv[arg++]="dev";argv[arg++]=plan->resources.interface;argv[arg]=NULL;
         if (exec->run(exec->context,argv)) return WR_VPN_ADDR_FAILED;
         cursor=comma?comma+2:NULL;
     }

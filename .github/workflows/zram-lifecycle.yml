@@ -49,9 +49,13 @@ on:
       - 'tools/prepare-vpn-interface-check.py'
       - 'tools/vpn-status/**'
       - 'tools/vpn-profiles/**'
+      - 'sources.lock.json'
+      - 'sources/archives/wireguard-tools-*.tar.xz'
+      - 'sources/archives/amneziawg-tools-*.tar.gz'
       - 'tools/prepare-vpn-qr.py'
       - 'tools/export-vpn-qr-fixtures.js'
       - 'tools/check-wg-server-export.py'
+      - 'overlay/padavan-4.4/trunk/user/amneziawg/wgs.sh'
       - 'tools/wifi-qrcode-renderer.js'
       - '.github/workflows/zram-lifecycle.yml'
   workflow_dispatch:
@@ -99,6 +103,10 @@ jobs:
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-protect
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-route-apply.c tools/vpn-profiles/route-apply.c -o checks/vpn-route-apply
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-route-apply
+          gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-teardown.c tools/vpn-profiles/teardown.c tools/vpn-profiles/route-apply.c tools/vpn-profiles/addr-apply.c tools/vpn-profiles/dns-apply.c -o checks/vpn-teardown
+          ASAN_OPTIONS=detect_leaks=1 checks/vpn-teardown
+          gcc -std=c99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-ip-command-result.c -o checks/vpn-ip-command-result
+          ASAN_OPTIONS=detect_leaks=1 checks/vpn-ip-command-result
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined tools/vpn-profiles/check-dns-write.c tools/vpn-profiles/dns-apply.c -o checks/vpn-dns-write
           ASAN_OPTIONS=detect_leaks=1 checks/vpn-dns-write
           gcc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined -Itools/vpn-profiles tools/vpn-profiles/check-web-render.c -o checks/vpn-web-render
@@ -122,21 +130,15 @@ jobs:
           python3 tools/vpn-profiles/check-http-export.py --output checks/vpn-http-export
       - name: Check imports using pinned native WG and AWG parsers
         run: |
-          git init checks/wg-parser-source
-          git -C checks/wg-parser-source remote add origin https://github.com/WireGuard/wireguard-tools.git
-          python3 tools/retry-source-command.py git -C checks/wg-parser-source fetch --depth=1 origin 3ba6527130c502144e7388b900138bca6260f4e8
-          git -C checks/wg-parser-source checkout --detach FETCH_HEAD
-          git init checks/awg-parser-source
-          git -C checks/awg-parser-source remote add origin https://github.com/amnezia-vpn/amneziawg-tools.git
-          python3 tools/retry-source-command.py git -C checks/awg-parser-source fetch --depth=1 origin ee0f0a9aa34ff0a0da4b3433b9512781cfe02843
-          git -C checks/awg-parser-source checkout --detach FETCH_HEAD
-          ASAN_OPTIONS=detect_leaks=1 python3 tools/vpn-profiles/check-import.py --wg-source checks/wg-parser-source --awg-source checks/awg-parser-source --output checks/vpn-import
+          python3 tools/vpn-profiles/parser-source.py checks/vpn-parser-sources
+          ASAN_OPTIONS=detect_leaks=1 python3 tools/vpn-profiles/check-import.py --wg-source checks/vpn-parser-sources/wg --awg-source checks/vpn-parser-sources/awg --output checks/vpn-import
+          python3 tools/vpn-profiles/check-down.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg
           python3 tools/vpn-profiles/check-manager.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg --output checks/vpn-manager
           python3 tools/vpn-profiles/check-config-apply.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg
           python3 tools/vpn-profiles/check-config-transaction.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg
           python3 tools/vpn-profiles/check-plan-report.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg
           python3 tools/vpn-profiles/check-profile-apply.py --wg-validator checks/vpn-import/wireguard --awg-validator checks/vpn-import/amneziawg
-          python3 tools/vpn-profiles/check-config-readback.py --wg-source checks/wg-parser-source --awg-source checks/awg-parser-source
+          python3 tools/vpn-profiles/check-config-readback.py --wg-source checks/vpn-parser-sources/wg --awg-source checks/vpn-parser-sources/awg
           sh -n tools/vpn-profiles/check-device-readonly.sh
           python3 tools/vpn-profiles/check-device-log-window.py
       - name: Check USB/IP runtime status integration

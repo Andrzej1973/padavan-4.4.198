@@ -12,7 +12,7 @@ p.add_argument('--awg-source',required=True,type=Path)
 p.add_argument('--output',required=True,type=Path)
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 here=Path(__file__).resolve().parent
-roots=[('wireguard',a.wg_source,'3ba6527130c502144e7388b900138bca6260f4e8'),
+roots=[('wireguard',a.wg_source,'v1.0.20210914'),
        ('amneziawg',a.awg_source,'ee0f0a9aa34ff0a0da4b3433b9512781cfe02843')]
 # Guard the upstream resolver too: this test cannot make a hostname lookup.
 guard=a.output/'resolver-guard.c'
@@ -42,7 +42,9 @@ PersistentKeepalive = 25
 '''
 awg=base.replace('[Peer]','Jc = 4\nJmin = 16\nJmax = 64\nS1 = 10\nS2 = 20\nH1 = 1\nH2 = 2\nH3 = 3\nH4 = 4\n[Peer]')
 for protocol,root,commit in roots:
- actual=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()
+ marker = root / 'source-revision'
+ actual = marker.read_text().strip() if marker.is_file() else subprocess.check_output(
+     ['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
  assert actual==commit,(protocol,actual)
  src=root.resolve()/'src';prefix=a.output/protocol;objects=[]
  flags=['-std=gnu99','-D_GNU_SOURCE','-Wall','-Wextra','-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer','-I'+str(src)]

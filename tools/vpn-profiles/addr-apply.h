@@ -2,10 +2,18 @@
 #define WR_VPN_ADDR_APPLY_H
 #include "config-plan.h"
 
-/* Injected command runner. Return 0 when the command succeeded; anything else
- * is a failure. The controller supplies the real runner, tests record argv. */
+/* The controller supplies the real runner, tests record argv. */
+enum wr_vpn_exec_result {
+    WR_VPN_EXEC_DONE,
+    WR_VPN_EXEC_FAILED,
+    WR_VPN_EXEC_UNKNOWN,
+    WR_VPN_EXEC_PRESENT /* exact rule already existed before add */
+};
+
 struct wr_vpn_exec {
-    int (*run)(void *context, const char *const argv[]);
+    /* DONE: command completed. FAILED: command was rejected before mutation.
+     * UNKNOWN: runner lost certainty after dispatch (timeout/transport loss). */
+    enum wr_vpn_exec_result (*run)(void *context, const char *const argv[]);
     void *context;
 };
 
@@ -18,7 +26,7 @@ enum wr_vpn_addr_result {
 };
 
 /* Adds (add!=0) or removes the profile's addresses on its own interface with
- * `ip address add|del <cidr> dev <interface>`.
+ * `ip address replace|del <cidr> dev <interface>`.
  *
  * Before executing anything, every IPv4 address is checked against the
  * protected prefixes - the router's management and LAN networks. An overlap

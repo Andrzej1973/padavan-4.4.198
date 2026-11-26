@@ -19,11 +19,17 @@
 #ifndef WR_VPN_MANAGER
 #define WR_VPN_MANAGER "/usr/sbin/wr-vpn-profile"
 #endif
+#ifndef WR_VPN_SERVICE
+#define WR_VPN_SERVICE "/usr/sbin/wr-vpn-profiles-service"
+#endif
 #ifndef WR_VPN_ACTION_ROOT
 #define WR_VPN_ACTION_ROOT "/var/run/wrvpn/actions"
 #endif
 #ifndef WR_VPN_ACTION_TIMEOUT_MS
 #define WR_VPN_ACTION_TIMEOUT_MS 30000
+#endif
+#ifndef WR_VPN_DNS_SYNC_TIMEOUT_MS
+#define WR_VPN_DNS_SYNC_TIMEOUT_MS 5000
 #endif
 
 static long long now_ms(void)
@@ -31,6 +37,51 @@ static long long now_ms(void)
     struct timespec now;
     if (clock_gettime(CLOCK_MONOTONIC,&now)) return -1;
     return (long long)now.tv_sec*1000+now.tv_nsec/1000000;
+}
+
+static int run_dns_sync_once(void)
+{
+    char *const argv[]={(char *)WR_VPN_SERVICE,"dns-sync",NULL};
+    char *const env[]={"LC_ALL=C",NULL};
+    pid_t child,done;int status,nullfd;long long began;
+    child=fork();
+    if (child<0) return 1;
+    if (!child) {
+        nullfd=open("/dev/null",O_RDWR|O_CLOEXEC);
+        if (nullfd<0 || dup2(nullfd,STDOUT_FILENO)<0 || dup2(nullfd,STDERR_FILENO)<0) _exit(127);
+        execve(WR_VPN_SERVICE,argv,env);
+        _exit(127);
+    }
+    began=now_ms();
+    for (;;) {
+        done=waitpid(child,&status,WNOHANG);
+        if (done==child) return WIFEXITED(status) && WEXITSTATUS(status)==0?0:1;
+        if (done<0 && errno!=EINTR) return 1;
+        if (began<0 || now_ms()-began>=WR_VPN_DNS_SYNC_TIMEOUT_MS) {
+            kill(child,SIGKILL);
+            while (waitpid(child,&status,0)<0 && errno==EINTR) {}
+            return 1;
+        }
+        (void)poll(NULL,0,20);
+    }
+}
+
+static int run_dns_sync(void)
+{
+    int attempt;
+    for (attempt=0;attempt<3;attempt++) {
+        if (!run_dns_sync_once()) return 0;
+        if (attempt<2) (void)poll(NULL,0,100);
+    }
+    return 1;
+}
+
+static void append_dns_sync_failure(char *output,size_t capacity,size_t *used)
+{
+    static const char message[]=" dnsmasq DNS sync failed";
+    size_t length=sizeof(message)-1;
+    if (*used+length>=capacity) return;
+    memcpy(output+*used,message,length);*used+=length;output[*used]=0;
 }
 
 static int valid_id(const char *text,unsigned int *out)
@@ -144,12 +195,17 @@ int main(int argc,char **argv)
         kill(child,SIGKILL);
         while (waitpid(child,&status,0)<0 && errno==EINTR) {}
         close(pipefd[0]);
+        if (run_dns_sync()) append_dns_sync_failure(output,sizeof(output),&used);
         write_state(WR_VPN_ACTION_ROOT,id,overflow?"overflow":"timeout",-1,output);
         return 1;
     }
     while (waitpid(child,&status,0)<0 && errno==EINTR) {}
     close(pipefd[0]);
     code=WIFEXITED(status)?WEXITSTATUS(status):-1;
+    if (run_dns_sync()) {
+        append_dns_sync_failure(output,sizeof(output),&used);
+        if (!code) code=12;
+    }
     write_state(WR_VPN_ACTION_ROOT,id,code==0?"done":"failed",code,output);
     return code==0?0:1;
 }
