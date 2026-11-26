@@ -370,6 +370,7 @@ jobs:
           SOURCE_SHA: ${{ needs.select.outputs.revision }}
           SQM_PROFILE: ${{ inputs.sqm_profile || 'excluded' }}
           TOOLCHAIN_VARIANT: ${{ inputs.toolchain_variant || 'source' }}
+          BUILD_HOST: ${{ inputs.build_host || 'ubuntu-24.04' }}
         run: python3 tools/collect-board-downloads.py
       - uses: actions/upload-artifact@v7
         with:

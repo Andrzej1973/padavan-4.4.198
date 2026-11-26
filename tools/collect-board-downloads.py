@@ -64,6 +64,10 @@ for board in selected:
             if provenance.get('toolchain_variant') != toolchain:
                 raise SystemExit('WR1200JS build inputs refer to a different toolchain variant')
             record['toolchain_variant'] = toolchain
+            host = os.environ.get('BUILD_HOST', 'ubuntu-24.04')
+            if provenance.get('build_host', {}).get('requested') != host:
+                raise SystemExit('WR1200JS build inputs refer to a different build host')
+            record['build_host'] = host
             for name in ('firmware-requested.config', 'firmware-effective.config', 'kernel-effective.config'):
                 config_digest = hashlib.sha256((artifact / name).read_bytes()).hexdigest()
                 if provenance['input_sha256'].get(name) != config_digest:
