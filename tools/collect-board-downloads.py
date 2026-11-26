@@ -60,6 +60,10 @@ for board in selected:
             if (provenance.get('source_sha') != revision or provenance.get('image_sha256') != digest
                     or provenance.get('sqm_profile') != sqm_profile):
                 raise SystemExit('WR1200JS build inputs refer to a different revision, TRX or SQM profile')
+            toolchain = os.environ.get('TOOLCHAIN_VARIANT', 'source')
+            if provenance.get('toolchain_variant') != toolchain:
+                raise SystemExit('WR1200JS build inputs refer to a different toolchain variant')
+            record['toolchain_variant'] = toolchain
             for name in ('firmware-requested.config', 'firmware-effective.config', 'kernel-effective.config'):
                 config_digest = hashlib.sha256((artifact / name).read_bytes()).hexdigest()
                 if provenance['input_sha256'].get(name) != config_digest:
