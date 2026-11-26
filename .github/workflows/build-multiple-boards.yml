@@ -352,7 +352,11 @@ jobs:
     needs: [select, build]
     runs-on: ubuntu-24.04
     steps:
+      # The collector follows the workflow revision. SOURCE_SHA ties
+      # the downloaded reports to the selected firmware revision.
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
       - uses: actions/download-artifact@v8
         with:
           name: selected-board-profiles
