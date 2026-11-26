@@ -736,7 +736,7 @@ jobs:
           epoch="$(git show -s --format=%ct "$SOURCE_SHA")"
           [[ "$epoch" =~ ^[0-9]+$ ]]
           timestamp="$(LC_ALL=C date -u -d "@$epoch" '+%a %b %e %T UTC %Y')"
-          printf '%s\n' "KBUILD_BUILD_TIMESTAMP=$timestamp" \
+          printf '%s\n' "WR_FIRMWARE_EPOCH=$epoch" "KBUILD_BUILD_TIMESTAMP=$timestamp" \
             'KBUILD_BUILD_USER=padavan' 'KBUILD_BUILD_HOST=builder' \
             'KBUILD_BUILD_VERSION=1' >> "$GITHUB_ENV"
 
@@ -748,7 +748,7 @@ jobs:
           test ! -e trunk/user/rc/wr-iot-profile.c
           test ! -d trunk/user/rc/wr-iot
           python3 ../tools/prepare-autostart-log.py trunk/user/scripts/autostart.sh
-          make WR1200JS TOOLCHAIN=mipsel-linux-uclibc CONFIG_CCACHE=y
+          SOURCE_DATE_EPOCH="$WR_FIRMWARE_EPOCH" make WR1200JS TOOLCHAIN=mipsel-linux-uclibc CONFIG_CCACHE=y
           python3 ../tools/prepare-autostart-log.py --check trunk/romfs/usr/bin/autostart.sh
           grep -qx 'CONFIG_CCACHE=y' trunk/.config
           test "$(readlink toolchain/toolchain-mipsel/lib/ccache/mipsel-linux-uclibc-gcc)" = /usr/bin/ccache
@@ -1345,12 +1345,15 @@ jobs:
             "${content_options[@]}" --report final-content-check.json
           python3 - <<'PY'
           import json
+          import os
           from pathlib import Path
 
           image = json.loads(Path('firmware-image-checks.json').read_text())
           contents = json.loads(Path('final-content-check.json').read_text())
           if image['sha256'] != contents['image_sha256']:
               raise SystemExit('TRX and ROMFS checks refer to different images')
+          if contents['squashfs_created_epoch'] != int(os.environ['WR_FIRMWARE_EPOCH']):
+              raise SystemExit('SquashFS creation time differs from firmware source epoch')
           if contents['sqm_included_verified']:
               cake_path = Path('cake-image-checks.json')
               cake = json.loads(cake_path.read_text())
