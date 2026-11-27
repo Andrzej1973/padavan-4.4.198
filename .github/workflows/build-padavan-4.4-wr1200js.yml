@@ -754,6 +754,19 @@ jobs:
             'KBUILD_BUILD_USER=padavan' 'KBUILD_BUILD_HOST=builder' \
             'KBUILD_BUILD_VERSION=1' >> "$GITHUB_ENV"
 
+      - name: Remove wall-clock timestamps from BusyBox metadata
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          wrapper = Path('padavan-4.4/trunk/user/busybox/Makefile')
+          source = wrapper.read_text()
+          anchor = 'SRC_NAME=busybox-1.24.x\n'
+          if source.count(anchor) != 1 or 'KCONFIG_NOTIMESTAMP' in source:
+              raise SystemExit('Unexpected BusyBox wrapper')
+          wrapper.write_text(source.replace(anchor, anchor + 'export KCONFIG_NOTIMESTAMP := 1\n'))
+          PY
+
       - name: Build WR1200JS firmware
         id: firmware_build
         run: |
@@ -1494,6 +1507,11 @@ jobs:
 
           path = Path('target-busybox-audit.json')
           audit = json.loads(path.read_text())
+          import re
+
+          banner = audit.get('busybox_version_banner')
+          if not banner or re.search(r'\b[0-9]{4}-[0-9]{2}-[0-9]{2}\b', banner):
+              raise SystemExit('Expected BusyBox version banner without a build date: ' + repr(banner))
           contents = json.loads(Path('final-content-check.json').read_text())
           if audit['busybox_sha256'] != contents['files_sha256']['bin/busybox']:
               raise SystemExit('BusyBox applet inventory refers to a different binary')
