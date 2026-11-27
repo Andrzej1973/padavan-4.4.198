@@ -347,7 +347,7 @@ service_entrypoints=(
     ('usbip',('CONFIG_FIRMWARE_INCLUDE_USBIP',),
         ('usr/libexec/wr-usbip/device-action.sh','usr/libexec/wr-usbip/device-policy.sh',
          'usr/libexec/wr-usbip/firewall-policy.sh','usr/libexec/wr-usbip/restore.sh','usr/sbin/wr-usbip')),
-    ('vlmcsd',('CONFIG_FIRMWARE_INCLUDE_VLMCSD',),('usr/bin/vlmcsd.sh',)),
+    ('vlmcsd',('CONFIG_FIRMWARE_INCLUDE_VLMCSD',),('usr/bin/vlmcsd','usr/bin/vlmcsd.sh')),
     ('u2ec',('CONFIG_FIRMWARE_INCLUDE_U2EC',),('usr/sbin/u2ec',)),
     ('sqm',('CONFIG_FIRMWARE_INCLUDE_SQM',),
         ('usr/lib/sqm/run.sh','bin/tc','bin/ip','sbin/rc','www/Advanced_SQM.asp')),
