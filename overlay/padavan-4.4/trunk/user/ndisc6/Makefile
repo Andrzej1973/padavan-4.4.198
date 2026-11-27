@@ -24,7 +24,7 @@ config_test: extract_test
 
 configure:
 	( cd $(SRC_NAME) ; \
-	./configure \
+	rdc_cv_build_hostname=padavan-builder ./configure \
 		--prefix=/usr \
 		--host=$(HOST_TARGET) \
 		--build=$(HOST_BUILD) ; \

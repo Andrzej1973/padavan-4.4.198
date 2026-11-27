@@ -789,6 +789,32 @@ jobs:
           makefile.write_text(''.join(lines))
           PY
 
+      - name: Use the source epoch in vlmcsd metadata
+        run: |
+          if grep -qx 'CONFIG_FIRMWARE_INCLUDE_VLMCSD=y' configs.build/wr1200js.config; then
+            make -C padavan-4.4/trunk/user/vlmcsd download_test extract_test
+            python3 - "$WR_FIRMWARE_EPOCH" <<'PY'
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import sys
+
+          epoch = int(sys.argv[1])
+          timestamp = datetime.fromtimestamp(epoch, timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+          makefile = Path('padavan-4.4/trunk/user/vlmcsd/vlmcsd-svn1113/src/GNUmakefile')
+          source = makefile.read_text()
+          replacements = {
+              "$(shell date '+%s')": str(epoch),
+              "$(shell date -u '+%Y-%m-%d %H:%M:%S' | sed -e 's/ /" + chr(92) * 2 + " /g')":
+                  timestamp.replace(' ', chr(92) + ' '),
+          }
+          for old, new in replacements.items():
+              if source.count(old) != 1:
+                  raise SystemExit('Unexpected vlmcsd build timestamp recipe')
+              source = source.replace(old, new)
+          makefile.write_text(source)
+          PY
+          fi
+
       - name: Build WR1200JS firmware
         id: firmware_build
         run: |
