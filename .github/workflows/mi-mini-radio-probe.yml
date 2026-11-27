@@ -97,6 +97,15 @@ jobs:
           grep -q 'Machine:.*MIPS' mi-mini-vmlinux-elf.txt
           "${cross}readelf" -h kernel-source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2_ap/mt76x2_ap.ko > mi-mini-mt7612e-elf.txt
           grep -q 'Machine:.*MIPS' mi-mini-mt7612e-elf.txt
+          kernel="$PWD/kernel-source/trunk/linux-4.4.x"
+          staging="$(mktemp -d "$RUNNER_TEMP/mimini-modules.XXXXXX")"
+          release="$(make -s -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" kernelrelease)"
+          make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" INSTALL_MOD_PATH="$staging" DEPMOD=true modules_install
+          module="$staging/lib/modules/$release/kernel/drivers/net/wireless/mediatek/mt76x2_ap/mt76x2_ap.ko"
+          test -s "$module"
+          cmp "$module" "$kernel/drivers/net/wireless/mediatek/mt76x2_ap/mt76x2_ap.ko"
+          "${cross}readelf" -p .modinfo "$module" > mi-mini-mt7612e-modinfo.txt
+          grep -F "vermagic=$release " mi-mini-mt7612e-modinfo.txt
       - name: Upload diagnostics only
         if: always()
         uses: actions/upload-artifact@v7
@@ -110,6 +119,7 @@ jobs:
             mi-mini-radio-elf.txt
             mi-mini-vmlinux-elf.txt
             mi-mini-mt7612e-elf.txt
+            mi-mini-mt7612e-modinfo.txt
             kernel-source/trunk/linux-4.4.x/mi-mini-vmlinux-symbols.txt
             toolchain.sha256
             kernel-source/trunk/linux-4.4.x/.config
