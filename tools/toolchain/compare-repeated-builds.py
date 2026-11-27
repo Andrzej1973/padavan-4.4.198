@@ -8,6 +8,9 @@ from pathlib import Path
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("first", type=Path)
 parser.add_argument("second", type=Path)
+parser.add_argument("--squashfs-reports", nargs=2, type=Path,
+                    metavar=("FIRST", "SECOND"),
+                    help="optional final-content reports for filesystem diagnostics")
 args = parser.parse_args()
 first = json.loads(args.first.read_text())
 second = json.loads(args.second.read_text())
@@ -50,5 +53,19 @@ if digests[0] != digests[1]:
             message += "; nfqws2 ELF sections differ: " + ", ".join(changed)
         else:
             message += "; recorded nfqws2 ELF sections match"
+    if args.squashfs_reports:
+        filesystems = [json.loads(path.read_text()) for path in args.squashfs_reports]
+        if [fs.get("image_sha256") for fs in filesystems] != digests:
+            raise SystemExit("SquashFS reports do not match the compared TRX digests")
+        first_files, second_files = (fs.get("squashfs_regular_files_sha256")
+                                     for fs in filesystems)
+        if not first_files or not second_files:
+            raise SystemExit("Missing regular-file inventory in SquashFS reports")
+        changed = sorted(name for name in first_files.keys() | second_files.keys()
+                         if first_files.get(name) != second_files.get(name))
+        message += "; SquashFS regular files: " + (", ".join(changed) if changed else "match")
+        metadata = [fs.get("squashfs_metadata_listing_sha256") for fs in filesystems]
+        if all(metadata):
+            message += "; metadata listings " + ("match" if metadata[0] == metadata[1] else "differ")
     raise SystemExit(message)
 print("PASS identical TRX digest for matching recorded inputs: " + digests[0])
