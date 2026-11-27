@@ -1,14 +1,23 @@
 SRC_NAME = ndisc6-1.0.8
 SRC_URL = https://www.remlab.net/files/ndisc6/$(SRC_NAME).tar.bz2
+SRC_SHA256 = 1f2fb2dc1172770aa5a09d39738a44d8b753cc5e2e25e306ca78682f9fea0b4f
 THISDIR = $(shell pwd)
 
 all: config_test
 	$(MAKE) -j$(HOST_NCPU) -C $(SRC_NAME)
 
 download_test:
-	( if [ ! -f $(SRC_NAME).tar.bz2 ]; then \
-		wget -t5 --timeout=20 --no-check-certificate -O $(SRC_NAME).tar.bz2 $(SRC_URL); \
-	fi )
+	@set -eu; \
+	archive="$(SRC_NAME).tar.bz2"; \
+	if [ ! -f "$$archive" ]; then \
+		tmp=$$(mktemp "$$archive.XXXXXX"); \
+		trap 'rm -f -- "$$tmp"' EXIT; \
+		wget -t5 --timeout=20 -O "$$tmp" "$(SRC_URL)"; \
+		printf '%s  %s\n' "$(SRC_SHA256)" "$$tmp" | sha256sum -c -; \
+		mv -f -- "$$tmp" "$$archive"; \
+	else \
+		printf '%s  %s\n' "$(SRC_SHA256)" "$$archive" | sha256sum -c -; \
+	fi
 
 extract_test: download_test
 	( if [ ! -d $(SRC_NAME) ]; then \
