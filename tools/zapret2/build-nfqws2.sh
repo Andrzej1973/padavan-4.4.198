@@ -45,7 +45,8 @@ compile_pkg() {
     for f in "$dir"/*.c; do
         obj="$BUILD/obj/${prefix}_$(basename "$f" .c).o"
         # shellcheck disable=SC2086
-        $CC ${CFLAGS:-} -Os -fno-strict-aliasing $INC -c "$f" -o "$obj"
+        # Some dependencies embed __FILE__ in diagnostics.
+        (cd "$dir" && $CC ${CFLAGS:-} -Os -fno-strict-aliasing $INC -c "${f##*/}" -o "$obj")
     done
 }
 
