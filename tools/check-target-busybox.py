@@ -54,6 +54,7 @@ version_output=run(['--help'])
 version_text=(version_output.stdout+version_output.stderr).decode(errors='replace')
 version=re.search(r'^BusyBox v([^\s]+)',version_text,re.MULTILINE)
 report['busybox_version']=version.group(1) if version else None
+report['busybox_version_banner'] = version_text[version.start():].splitlines()[0] if version else None
 report['checks']['busybox_version_identified']=version is not None
 report['checks']['shell_type_builtin']=run(['sh','-c','type type >/dev/null 2>&1']).returncode==0
 report['checks']['mwan_shell_arithmetic']=run(['sh','-c','i=1; count=$((i-1)); last=$i; j=$((i-1)); test "$count:$last:$j" = "0:1:0"']).returncode==0

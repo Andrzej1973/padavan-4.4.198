@@ -29,6 +29,8 @@ if run_identity(first) == run_identity(second):
 inputs = ("source_sha", "firmware_build_number", "sqm_profile", "toolchain_variant", "compiler_sha256",
           "readelf_sha256", "build_host", "kernel_build_metadata", "input_sha256")
 differences = [key for key in inputs if not first.get(key) or first[key] != second.get(key)]
+if first.get("compiler_cache_mode") != second.get("compiler_cache_mode"):
+    differences.append("compiler_cache_mode")
 if differences:
     raise SystemExit("Build inputs differ or are missing: " + ", ".join(differences))
 digests = [report.get("image_sha256", "") for report in (first, second)]

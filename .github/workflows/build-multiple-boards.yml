@@ -29,6 +29,10 @@ on:
         description: Run additional isolated experimental compilations
         type: boolean
         default: false
+      disable_compiler_cache:
+        description: Bypass ccache for a reproducibility check
+        type: boolean
+        default: false
       evidence_only:
         description: Verify firmware in CI without uploading TRX images
         type: boolean
@@ -348,6 +352,7 @@ jobs:
       verification_revision: ${{ needs.select.outputs.revision }}
       toolchain_variant: ${{ inputs.toolchain_variant || 'source' }}
       run_candidate_checks: ${{ inputs.run_candidate_checks || false }}
+      disable_compiler_cache: ${{ inputs.disable_compiler_cache || false }}
       evidence_only: ${{ inputs.evidence_only || false }}
       sqm_profile: ${{ inputs.sqm_profile || 'excluded' }}
       candidate_scope: ${{ inputs.candidate_scope || 'iot' }}

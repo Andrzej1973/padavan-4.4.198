@@ -24,6 +24,10 @@ on:
         description: Compile isolated experimental candidates after firmware verification
         type: boolean
         default: false
+      disable_compiler_cache:
+        description: Bypass ccache for a reproducibility check
+        type: boolean
+        default: false
       evidence_only:
         description: Keep TRX images on the runner and upload verification reports
         type: boolean
@@ -161,7 +165,12 @@ jobs:
             --text /tmp/wr1200js-guide.txt --report /tmp/wr1200js-guide.json
           python3 tools/check-router-guide.py /tmp/wr1200js-guide.md /tmp/wr1200js-guide.txt
 
+      - name: Bypass compiler cache for reproducibility
+        if: ${{ inputs.disable_compiler_cache }}
+        run: echo "CCACHE_DISABLE=1" >> "$GITHUB_ENV"
+
       - name: Restore compiler cache
+        if: ${{ !inputs.disable_compiler_cache }}
         id: compiler_cache
         uses: actions/cache/restore@v6
         with:
@@ -171,6 +180,7 @@ jobs:
             wr1200js-ccache-v4-${{ inputs.build_host }}-${{ inputs.toolchain_variant }}-
 
       - name: Configure compiler cache
+        if: ${{ !inputs.disable_compiler_cache }}
         id: compiler_cache_setup
         run: |
           ccache --version
@@ -1871,6 +1881,7 @@ jobs:
           contents = json.loads(Path('final-content-check.json').read_text())
           report = {
               'source_sha': os.environ['SOURCE_SHA'],
+              'compiler_cache_mode': 'disabled' if os.environ.get('CCACHE_DISABLE') == '1' else 'enabled',
               'firmware_build_number': os.environ['GITHUB_RUN_NUMBER'],
               'build_host': {
                   'requested': os.environ['BUILD_HOST'],
