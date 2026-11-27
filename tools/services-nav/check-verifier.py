@@ -137,4 +137,18 @@ with TemporaryDirectory() as scratch:
     assert '<th><#WRServicesNavStatus#></th>' in rendered
     assert '<#menu5_32' not in rendered
 
+with TemporaryDirectory() as scratch:
+    www = Path(scratch)
+    help_script = '<script type="text/javascript" src="/help.js"></script>\n'
+    extra_script = '<script type="text/javascript" src="/help_b.js"></script>\n'
+    pages = [www / name for name in ("Advanced_wireguard.asp", "Advanced_zerotier.asp")]
+    for asset_present in (False, True):
+        if asset_present:
+            (www / "help_b.js").touch()
+        for page in pages:
+            page.write_text(help_script + extra_script, encoding="utf-8")
+        module.prepare_legacy_vpn_tabs(www, set())
+        expected = help_script + (extra_script if asset_present else "")
+        assert all(page.read_text(encoding="utf-8") == expected for page in pages)
+
 print("PASS service panels, board-specific exclusions, active capability parsing, return links and VPN profile route")

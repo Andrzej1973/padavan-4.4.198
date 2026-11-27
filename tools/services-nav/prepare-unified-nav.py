@@ -248,6 +248,14 @@ def prepare_legacy_vpn_tabs(www: Path, config: set[str]) -> None:
     """Point the inherited WireGuard tab to the actual WG/AWG profile UI."""
     zerotier = www / "Advanced_zerotier.asp"
     legacy = www / "Advanced_wireguard.asp"
+    if not (www / "help_b.js").is_file():
+        stale_script = '<script type="text/javascript" src="/help_b.js"></script>'
+        for path in (zerotier, legacy):
+            if not path.is_file():
+                continue
+            text = path.read_text(encoding="utf-8")
+            if stale_script in text:
+                path.write_text(text.replace(stale_script + "\n", ""), encoding="utf-8", newline="\n")
     if not enabled(config, "CONFIG_FIRMWARE_INCLUDE_WIREGUARD"):
         return
     old = '<a href="Advanced_wireguard.asp"><#menu5_35_1#></a>'
