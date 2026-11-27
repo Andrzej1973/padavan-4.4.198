@@ -388,6 +388,9 @@ def verify(www: Path, config: set[str], *, image: bool = False,
                 )
         elif MARKER in text:
             raise SystemExit(f"Unexpected top catalog shortcut in {name}")
+        if image and name in {"Advanced_zerotier.asp", "Advanced_wireguard.asp"}:
+            if 'src="/help_b.js"' in text and not (www / "help_b.js").is_file():
+                raise SystemExit(f"Missing help_b.js referenced by {name}")
         if status_panel_contract_error(text):
             raise SystemExit(f"Service status blue-panel grouping or styles absent from {name}")
         if enabled(config, "CONFIG_FIRMWARE_INCLUDE_WIREGUARD") and name in {
