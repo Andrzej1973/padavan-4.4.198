@@ -827,6 +827,23 @@ jobs:
           PY
           fi
 
+      - name: Use the source epoch in the uImage header
+        run: |
+          python3 - "$WR_FIRMWARE_EPOCH" <<'PY'
+          import sys
+          from pathlib import Path
+
+          epoch = int(sys.argv[1])
+          if not 0 <= epoch <= 0xffffffff:
+              raise SystemExit('Source epoch does not fit the uImage timestamp')
+          path = Path('padavan-4.4/trunk/tools/mkimage/mkimage.c')
+          source = path.read_bytes()
+          anchor = b'htonl(sbuf.st_mtime)'
+          if source.count(anchor) != 1:
+              raise SystemExit('Unexpected mkimage timestamp recipe')
+          path.write_bytes(source.replace(anchor, f'htonl({epoch}U)'.encode('ascii')))
+          PY
+
       - name: Build WR1200JS firmware
         id: firmware_build
         run: |
@@ -1407,6 +1424,15 @@ jobs:
           test -f "${images[0]}"
           image="${images[0]%.trx}_${SOURCE_SHA:0:8}.trx"
           mv -- "${images[0]}" "$image"
+          python3 - "$image" "$WR_FIRMWARE_EPOCH" <<'PY'
+          import sys
+          from pathlib import Path
+
+          with Path(sys.argv[1]).open('rb') as image:
+              header = image.read(64)
+          if len(header) != 64 or int.from_bytes(header[8:12], 'big') != int(sys.argv[2]):
+              raise SystemExit('uImage timestamp differs from source epoch')
+          PY
           if grep -Fq 'iot_hwnat_dtb_policy' overlay/padavan-4.4/scripts/verify-wr1200js-image.py; then
             python3 tools/iot/check-hwnat-image-policy.py
           fi
