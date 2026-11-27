@@ -20,3 +20,15 @@ workflow source and the run logs remain the reproducible record at this point.
 Mi Mini board DTS, Ethernet, full image, 2.4/5 GHz operation, repeater recovery,
 IoT, and device acceptance remain unverified. Keep Mi Mini implementation after
 WR1200JS acceptance as required by `docs/PROJECT-DELIVERY-SCOPE.md`.
+
+## 2026-11-27 MT7612E candidate
+
+[Run 46041332550](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/46041332550)
+succeeded on commit `ad69cce630f3c87048e2db79c423068532c70b25`.
+The `compile-radio` job linked the isolated kernel. It also required the staged
+MT7612E module metadata to match the kernel release and checked that
+`modprobe --resolve-alias` resolved PCI ID `14c3:7612` to `mt76x2_ap`.
+The job uploaded the ELF, module metadata and alias-resolution reports.
+
+This establishes alias resolution in the staged module tree. Full-image
+packaging, module loading on the board and 5 GHz operation remain unverified.
