@@ -59,6 +59,12 @@ if digests[0] != digests[1]:
         else:
             message += "; recorded nfqws2 ELF sections match"
     if filesystems:
+        regions = [fs.get("image_regions_sha256") for fs in filesystems]
+        if all(isinstance(region, dict) and region for region in regions):
+            left, right = regions
+            changed = sorted(name for name in left.keys() | right.keys()
+                             if left.get(name) != right.get(name))
+            message += "; image regions: " + (", ".join(changed) if changed else "match")
         first_files, second_files = (fs.get("squashfs_regular_files_sha256")
                                      for fs in filesystems)
         if not first_files or not second_files:
