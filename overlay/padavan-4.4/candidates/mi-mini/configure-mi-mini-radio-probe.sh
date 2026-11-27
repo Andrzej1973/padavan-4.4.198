@@ -14,11 +14,13 @@ bash scripts/config --disable SOC_RT305X --disable SOC_RT288X \
     --enable MTD --enable MTD_PARTITIONS --enable PCI --enable GPIO_SYSFS \
     --enable RT2860V2_AP_LLTD --enable RT2860V2_AP_WDS \
     --enable RT2860V2_AP_MBSS --enable RT2860V2_AP_MBSS_NEW_MBSSID_MODE \
+    --enable RT_SECOND_IF_MT7612E --enable MT76X2_AP --enable MT76X2_AP_APCLI \
     --enable RT2860V2_AP_APCLI --enable RT2860V2_AP_GREENAP \
     --disable RT_ATE --disable RT_VIDEO_TURBINE --disable RA_HW_NAT_WIFI
 make ARCH=mips CROSS_COMPILE="$cross" olddefconfig
 for key in SOC_MT7620 PCI GPIO_SYSFS USB USB_PRINTER MI_MINI_RADIO RT2860V2_AP RT2860V2_AP_WDS \
-           RT2860V2_AP_MBSS RT2860V2_AP_APCLI; do
+           RT2860V2_AP_MBSS RT2860V2_AP_APCLI \
+           RT_SECOND_IF_MT7612E MT76X2_AP MT76X2_AP_APCLI; do
     grep -qx "CONFIG_${key}=y" .config || {
         echo "Required compile-probe selection did not survive Kconfig: $key" >&2
         exit 1
@@ -34,11 +36,12 @@ if grep -qx 'CONFIG_SOC_MT7621=y' .config; then
 fi
 make ARCH=mips CROSS_COMPILE="$cross" prepare
 make ARCH=mips CROSS_COMPILE="$cross" -j2 \
-    drivers/net/wireless/mediatek/mi-mini/ \
+    drivers/net/wireless/mediatek/mi-mini/ drivers/net/wireless/mediatek/mt76x2_ap/ \
     drivers/net/wireless/wifi_utility/mt_wifi_mtd.o
 echo 'Radio and MTD objects compiled; starting isolated full vmlinux link.'
 make ARCH=mips CROSS_COMPILE="$cross" -j2 vmlinux
 test -s drivers/usb/class/usblp.o
+test -s drivers/net/wireless/mediatek/mt76x2/ap/ap_apcli.o
 "${cross}nm" vmlinux > mi-mini-vmlinux-symbols.txt
 for symbol in mi_mini_factory_read mi_mini_factory_write mi_mini_radio_attach mi_mini_probe; do
     grep -Eq " [tT] ${symbol}$" mi-mini-vmlinux-symbols.txt || {
