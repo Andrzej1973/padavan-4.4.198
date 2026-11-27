@@ -1943,6 +1943,22 @@ jobs:
               'image_sha256': contents['image_sha256'],
               'squashfs_created_epoch': contents['squashfs_created_epoch'],
           }
+          binary = Path('padavan-4.4/trunk/romfs/usr/sbin/nfqws2')
+          if binary.is_file():
+              import re
+
+              data = binary.read_bytes()
+              if hashlib.sha256(data).hexdigest() != contents['files_sha256']['usr/sbin/nfqws2']:
+                  raise SystemExit('nfqws2 diagnostic refers to a different binary')
+              sections = subprocess.check_output([readelf, '-SW', binary], text=True)
+              pattern = r'^\s*\[\s*\d+\]\s+(\S+)\s+(\S+)\s+[0-9a-fA-F]+\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)'
+              report['nfqws2_elf_sections_sha256'] = {
+                  name: hashlib.sha256(data[int(offset, 16):int(offset, 16) + int(size, 16)]).hexdigest()
+                  for name, kind, offset, size in re.findall(pattern, sections, re.M)
+                  if kind not in ('NULL', 'NOBITS')
+              }
+              if '.text' not in report['nfqws2_elf_sections_sha256']:
+                  raise SystemExit('Missing nfqws2 ELF text section')
           Path('wr1200js-build-inputs.json').write_text(json.dumps(report, indent=2) + '\n')
           PY
 
