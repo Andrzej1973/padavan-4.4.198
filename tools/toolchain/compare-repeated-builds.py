@@ -39,6 +39,11 @@ if differences:
 digests = [report.get("image_sha256", "") for report in (first, second)]
 if any(not re.fullmatch(r"[0-9a-f]{64}", digest) for digest in digests):
     raise SystemExit("Missing or invalid TRX SHA-256")
+filesystems = []
+if args.squashfs_reports:
+    filesystems = [json.loads(path.read_text()) for path in args.squashfs_reports]
+    if [fs.get("image_sha256") for fs in filesystems] != digests:
+        raise SystemExit("SquashFS reports do not match the compared TRX digests")
 if digests[0] != digests[1]:
     timestamps = [report.get("squashfs_created_epoch") for report in (first, second)]
     message = "Matching recorded inputs produced different TRX digests: " + " / ".join(digests)
@@ -53,10 +58,7 @@ if digests[0] != digests[1]:
             message += "; nfqws2 ELF sections differ: " + ", ".join(changed)
         else:
             message += "; recorded nfqws2 ELF sections match"
-    if args.squashfs_reports:
-        filesystems = [json.loads(path.read_text()) for path in args.squashfs_reports]
-        if [fs.get("image_sha256") for fs in filesystems] != digests:
-            raise SystemExit("SquashFS reports do not match the compared TRX digests")
+    if filesystems:
         first_files, second_files = (fs.get("squashfs_regular_files_sha256")
                                      for fs in filesystems)
         if not first_files or not second_files:
