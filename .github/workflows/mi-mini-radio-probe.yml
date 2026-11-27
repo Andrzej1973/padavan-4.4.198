@@ -95,6 +95,8 @@ jobs:
           grep -q 'Machine:.*MIPS' mi-mini-radio-elf.txt
           "${cross}readelf" -h kernel-source/trunk/linux-4.4.x/vmlinux > mi-mini-vmlinux-elf.txt
           grep -q 'Machine:.*MIPS' mi-mini-vmlinux-elf.txt
+          "${cross}readelf" -h kernel-source/trunk/linux-4.4.x/drivers/net/wireless/mediatek/mt76x2_ap/mt76x2_ap.ko > mi-mini-mt7612e-elf.txt
+          grep -q 'Machine:.*MIPS' mi-mini-mt7612e-elf.txt
       - name: Upload diagnostics only
         if: always()
         uses: actions/upload-artifact@v7
@@ -107,6 +109,7 @@ jobs:
             mi-mini-radio-compile.log
             mi-mini-radio-elf.txt
             mi-mini-vmlinux-elf.txt
+            mi-mini-mt7612e-elf.txt
             kernel-source/trunk/linux-4.4.x/mi-mini-vmlinux-symbols.txt
             toolchain.sha256
             kernel-source/trunk/linux-4.4.x/.config
