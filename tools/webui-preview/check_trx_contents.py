@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import os
 import re
 import stat
 import subprocess
@@ -92,7 +93,12 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
     with tempfile.TemporaryDirectory(prefix='wr-trx-content-') as scratch:
         extracted = Path(scratch) / 'root'
         subprocess.run(['unsquashfs', '-no-progress', '-processors', '1', '-offset', str(offsets[0]),
-                        '-dest', str(extracted), str(image), *paths], check=True, stdout=subprocess.DEVNULL)
+                        '-dest', str(extracted), str(image)], check=True, stdout=subprocess.DEVNULL)
+        all_file_hashes = {
+            path.relative_to(extracted).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(extracted.rglob('*'))
+            if stat.S_ISREG(path.lstat().st_mode)
+        }
         for name in paths:
             expected, actual = romfs / name, extracted / name
             if not stat.S_ISREG(expected.lstat().st_mode) or not stat.S_ISREG(actual.lstat().st_mode):
@@ -120,6 +126,10 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
                 references = sorted(set(re.findall(rb'[A-Za-z0-9_/-]+[.]asp', content)))
                 if references:
                     modern_asp_references[name] = [value.decode('ascii') for value in references]
+    metadata_listing = subprocess.check_output(
+        ['unsquashfs', '-lln', '-full-precision', '-offset', str(offsets[0]), str(image)],
+        env={**os.environ, 'LC_ALL': 'C', 'TZ': 'UTC'},
+    )
     regions = {
         'before_squashfs': hashlib.sha256(data[:offsets[0]]).hexdigest(),
         'squashfs_to_end': hashlib.sha256(data[offsets[0]:]).hexdigest(),
@@ -133,6 +143,8 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
             'squashfs_created_epoch': int.from_bytes(data[offsets[0] + 8:offsets[0] + 12], 'little'),
             'files_sha256': hashes, 'classic_only_verified': classic_only,
             'dictionary_lines_sha256': dictionary_lines_sha256,
+            'squashfs_regular_files_sha256': all_file_hashes,
+            'squashfs_metadata_listing_sha256': hashlib.sha256(metadata_listing).hexdigest(),
             'iot_excluded_verified': classic_only,
             'sqm_excluded_verified': without_sqm, 'sqm_included_verified': with_sqm,
             'modern_asp_reference_literals': modern_asp_references,
