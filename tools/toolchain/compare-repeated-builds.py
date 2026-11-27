@@ -41,5 +41,14 @@ if digests[0] != digests[1]:
     message = "Matching recorded inputs produced different TRX digests: " + " / ".join(digests)
     if all(type(value) is int and value >= 0 for value in timestamps) and timestamps[0] != timestamps[1]:
         message += f"; SquashFS creation times differ: {timestamps[0]} / {timestamps[1]}"
+    section_maps = [report.get("nfqws2_elf_sections_sha256") for report in (first, second)]
+    if all(isinstance(sections, dict) and sections for sections in section_maps):
+        left, right = section_maps
+        changed = sorted(name for name in left.keys() | right.keys()
+                         if left.get(name) != right.get(name))
+        if changed:
+            message += "; nfqws2 ELF sections differ: " + ", ".join(changed)
+        else:
+            message += "; recorded nfqws2 ELF sections match"
     raise SystemExit(message)
 print("PASS identical TRX digest for matching recorded inputs: " + digests[0])
