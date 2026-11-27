@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Exercise final-content gate with actual SquashFS fixtures, not firmware builds."""
+import hashlib
 import tempfile
 import shutil
 import subprocess
@@ -39,6 +40,18 @@ with tempfile.TemporaryDirectory(prefix='wr-trx-gate-test-') as scratch:
     assert report['modern_asp_reference_literals'] == {
         'www/modern/wifi.js': ['/index.asp', '/status_lanlink.asp'],
     }
+    # Header changes must not alter the reported pre-filesystem payload digest.
+    header = bytes.fromhex('27051956') + bytes(60)
+    payload = b'fixture kernel payload'
+    image.write_bytes(header + payload + squash.read_bytes())
+    regions = check(image, romfs, with_doh=True)['image_regions_sha256']
+    assert regions['uimage_header'] == hashlib.sha256(header).hexdigest()
+    assert regions['uimage_payload_before_squashfs'] == hashlib.sha256(payload).hexdigest()
+    image.write_bytes(header[:-1] + b'X' + payload + squash.read_bytes())
+    changed_regions = check(image, romfs, with_doh=True)['image_regions_sha256']
+    assert changed_regions['uimage_header'] != regions['uimage_header']
+    assert changed_regions['uimage_payload_before_squashfs'] == regions['uimage_payload_before_squashfs']
+    image.write_bytes(b'fixture header' + squash.read_bytes())
     # A valid filesystem missing a required entry must fail closed.
     original_image = image.read_bytes()
     for index, name in enumerate(('usr/sbin/nfqws2', 'www/index.asp', doh_paths[1])):
