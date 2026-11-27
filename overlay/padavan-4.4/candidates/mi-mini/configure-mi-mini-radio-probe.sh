@@ -7,7 +7,7 @@ make -C "$kernel" ARCH=mips CROSS_COMPILE="$cross" rt305x_defconfig
 cd "$kernel"
 bash scripts/config --disable SOC_RT305X --disable SOC_RT288X \
     --disable SOC_RT3883 --disable SOC_MT7621 --enable SOC_MT7620 \
-    --enable OF --enable NET --enable WIRELESS --enable WLAN --enable USB --enable USB_PRINTER \
+    --enable OF --enable NET --enable IPV6 --enable WIRELESS --enable WLAN --enable USB --enable USB_PRINTER \
     --enable WL_MEDIATEK --enable WIFI_DRIVER --enable MI_MINI_RADIO \
     --set-val MI_MINI_RADIO_RAM_MB 128 --disable RT_MEMORY_OPTIMIZATION \
     --disable CC_OPTIMIZE_FOR_SIZE \
@@ -20,7 +20,7 @@ bash scripts/config --disable SOC_RT305X --disable SOC_RT288X \
 make ARCH=mips CROSS_COMPILE="$cross" olddefconfig
 for key in SOC_MT7620 PCI GPIO_SYSFS USB USB_PRINTER MI_MINI_RADIO RT2860V2_AP RT2860V2_AP_WDS \
            RT2860V2_AP_MBSS RT2860V2_AP_APCLI \
-           RT_SECOND_IF_MT7612E MODULES MT76X2_AP_APCLI; do
+           RT_SECOND_IF_MT7612E MODULES IPV6 MT76X2_AP_APCLI; do
     grep -qx "CONFIG_${key}=y" .config || {
         echo "Required compile-probe selection did not survive Kconfig: $key" >&2
         exit 1
