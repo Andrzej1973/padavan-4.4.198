@@ -767,6 +767,28 @@ jobs:
           wrapper.write_text(source.replace(anchor, anchor + 'export KCONFIG_NOTIMESTAMP := 1\n'))
           PY
 
+      - name: Use the source epoch in Classic dictionaries
+        run: |
+          python3 - "$WR_FIRMWARE_EPOCH" <<'PY'
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import sys
+
+          epoch = datetime.fromtimestamp(int(sys.argv[1]), tz=timezone.utc)
+          makefile = Path('padavan-4.4/trunk/user/www/Makefile')
+          source = makefile.read_text()
+          lines = source.splitlines(keepends=True)
+          index, = [i for i, line in enumerate(lines) if line.startswith('LABEL_COPYRIGHT_TEXT=')]
+          ticks = chr(96)
+          year = ticks + "date +'%Y'" + ticks
+          timestamp = ticks + "TZ='Asia/Shanghai' date +'%Y.%m.%d %H:%M:%S'" + ticks
+          if lines[index].count(year) != 1 or lines[index].count(timestamp) != 1:
+              raise SystemExit('Unexpected Classic copyright timestamp recipe')
+          lines[index] = lines[index].replace(year, str(epoch.year)).replace(
+              timestamp, epoch.strftime('%Y.%m.%d %H:%M:%S UTC'))
+          makefile.write_text(''.join(lines))
+          PY
+
       - name: Build WR1200JS firmware
         id: firmware_build
         run: |

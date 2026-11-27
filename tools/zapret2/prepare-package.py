@@ -3,6 +3,8 @@
 
 import argparse
 import importlib.util
+import json
+import re
 import shutil
 from pathlib import Path
 
@@ -105,6 +107,17 @@ def main() -> int:
     for name in ("quic_initial_www_google_com.bin", "stun.bin", "tls_clienthello_www_google_com.bin"):
         shutil.copy2(repo / "third_party/bol-van/zapret2/files/fake" / name, fake / name)
     shutil.copytree(repo / "third_party/bol-van/zapret2/nfq2", nfq2)
+    manifest = repo / "third_party/bol-van/zapret2-source-manifest.json"
+    commit = json.loads(manifest.read_text(encoding="utf-8"))["commit"]
+    if not re.fullmatch(r"[0-9a-f]{40}", commit):
+        raise SystemExit("Invalid Zapret2 source commit")
+    version_source = nfq2 / "nfqws.c"
+    content = version_source.read_bytes()
+    original = b'"self-built version %s %s lua_compat_ver %u", __DATE__, __TIME__, LUA_COMPAT_VER'
+    if content.count(original) != 1:
+        raise SystemExit("Unexpected nfqws2 version banner")
+    stable = f'"Padavan build ({commit}) lua_compat_ver %u", LUA_COMPAT_VER'
+    version_source.write_bytes(content.replace(original, stable.encode("ascii")))
     for archive in (repo / "third_party/netfilter").glob("*.tar.bz2"):
         shutil.copyfile(archive, deps / archive.name)
     for name in ("zapret-lib.lua", "zapret-antidpi.lua", "zapret-auto.lua"):

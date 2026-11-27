@@ -88,6 +88,7 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
         paths += ['usr/sbin/https_dns_proxy', 'usr/share/doh-proxy/LICENSE']
     hashes = {}
     modern_asp_references = {}
+    dictionary_lines_sha256 = {}
     with tempfile.TemporaryDirectory(prefix='wr-trx-content-') as scratch:
         extracted = Path(scratch) / 'root'
         subprocess.run(['unsquashfs', '-no-progress', '-processors', '1', '-offset', str(offsets[0]),
@@ -112,6 +113,9 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
                 if any(marker in content for marker in markers):
                     raise ValueError('Standard Classic TRX contains isolated IoT control: ' + name)
             hashes[name] = hashlib.sha256(content).hexdigest()
+            if name in ('www/EN.dict', 'www/UK.dict', 'www/RU.dict'):
+                lines = sorted(content.splitlines())
+                dictionary_lines_sha256[name] = hashlib.sha256(b'\n'.join(lines)).hexdigest()
             if name.startswith('www/modern/') and name.endswith(('.html', '.js', '.json')):
                 references = sorted(set(re.findall(rb'[A-Za-z0-9_/-]+[.]asp', content)))
                 if references:
@@ -124,6 +128,7 @@ def check(image, romfs, zapret2=True, classic_only=False, without_sqm=False, wit
             },
             'squashfs_created_epoch': int.from_bytes(data[offsets[0] + 8:offsets[0] + 12], 'little'),
             'files_sha256': hashes, 'classic_only_verified': classic_only,
+            'dictionary_lines_sha256': dictionary_lines_sha256,
             'iot_excluded_verified': classic_only,
             'sqm_excluded_verified': without_sqm, 'sqm_included_verified': with_sqm,
             'modern_asp_reference_literals': modern_asp_references,
