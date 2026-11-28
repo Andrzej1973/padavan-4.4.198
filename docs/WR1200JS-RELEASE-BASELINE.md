@@ -36,9 +36,26 @@ Standard release image.
   d93e0ac8. The SQM image passed the factory-OFF check.
 - [Service CI](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/46131574569)
   passed on 4c95cef6. [Standard #1546](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/46131780143)
-  is the image verification run for that revision.
+  passed image verification on that revision. Its 13,065,507-byte TRX
+  leaves 3,121,885 bytes in Firmware. The linked image and final-content
+  reports confirm both CRCs, declared length, Classic-only, IoT and SQM
+  exclusion, and the exact VPN service script from that revision.
+- [SQM #1547](https://github.com/Andrzej1973/padavan-4.4.198/actions/runs/46133859566)
+  passed on the same 4c95cef6 revision. The 13,100,191-byte TRX leaves
+  3,087,201 bytes in Firmware. TRX, ROMFS and CAKE reports agree on SHA-256
+  `66b91cc43c458c486d3ec0b07e59c62625cdd1b3e64662fdda1999f435e24dec`.
+  Classic-only, IoT exclusion and SQM factory OFF passed, and the VPN
+  service digest matches Standard #1546. The reproducibility result from
+  SQM #1545 applies to d93e0ac8.
 
 See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for hashes and test scope.
+
+The matching hashes on d93e0ac8 establish reproducibility for those CI inputs.
+The two profiles on 4c95cef6 have one verified build each.
+The workflow still installs runner packages and can fetch missing pinned
+source archives. A full network-disabled build has yet to be verified.
+See [sources.lock.json](../sources.lock.json) for source pins and
+the recorded self-contained build status.
 
 ## Acceptance evidence
 
