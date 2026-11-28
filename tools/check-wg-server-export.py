@@ -31,7 +31,16 @@ nvram(){
  case "$2" in
  vpns_num_x) echo 1;;
  vpns_user_x0) echo client;;
- vpns_pass_x0) echo AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=;;
+ vpns_pass_x0)
+  if test -n "${READY_FILE:-}"; then
+   : > "$READY_FILE" || return 1
+   for attempt in 1 2 3 4 5; do
+    test -f "$PEER_READY_FILE" && break
+    sleep 1
+   done
+   test -f "$PEER_READY_FILE" || return 1
+  fi
+  echo "${CLIENT_PRIVATE:-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=}";;
  vpns_public_x0) echo BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=;;
  vpns_wg_public) printf "%s" "${CACHED_SERVER_PUBLIC:-}";;
  vpns_vnet) echo 10.0.0.0;;
@@ -85,7 +94,7 @@ fixture_wg(){
   if not qemu or not binary.is_file():raise SystemExit('Exact image BusyBox and target QEMU required')
   shell=[qemu,'-L',str(romfs),str(binary),'sh']
   providers=root/'providers';providers.mkdir()
-  applets=('awk','cat','chmod','cp','rm','sed','seq','tee','wc')
+  applets=('awk','cat','chmod','cp','rm','sed','seq','sleep','tee','wc')
   inventory=subprocess.run([*shell[:-1],'--list'],capture_output=True,text=True,timeout=15)
   missing=set(applets)-set(inventory.stdout.splitlines())
   if inventory.returncode or missing:raise SystemExit('Required target applets unavailable: '+','.join(sorted(missing)))
@@ -125,6 +134,26 @@ fixture_wg(){
  assert result.returncode==0 and not result.stdout and not result.stderr
  assert explicit.stat().st_mode & 0o777 == 0o600 and not client.exists()
  assert 'PrivateKey = '+'A'*43+'=' in explicit.read_text().splitlines()
+ concurrent = [(root / 'request-a.conf', 'A' * 43 + '='),
+               (root / 'request-b.conf', 'D' * 43 + '=')]
+ with subprocess.Popen([*shell, str(script), 'export', 'client', str(concurrent[0][0])],
+                       env=dict(env, MODULE='wireguard', CLIENT_PRIVATE=concurrent[0][1],
+                                READY_FILE=str(root / 'ready-0'),
+                                PEER_READY_FILE=str(root / 'ready-1')),
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE) as first:
+  second = subprocess.run([*shell, str(script), 'export', 'client', str(concurrent[1][0])],
+                          env=dict(env, MODULE='wireguard', CLIENT_PRIVATE=concurrent[1][1],
+                                READY_FILE=str(root / 'ready-1'),
+                                PEER_READY_FILE=str(root / 'ready-0')),
+                          capture_output=True, timeout=30)
+  stdout, stderr = first.communicate(timeout=30)
+  assert first.returncode == second.returncode == 0
+  assert not (stdout or stderr or second.stdout or second.stderr)
+ for output, key in concurrent:
+  assert output.stat().st_mode & 0o777 == 0o600
+  assert [line for line in output.read_text().splitlines()
+          if line.startswith('PrivateKey = ')] == ['PrivateKey = ' + key]
+ assert not client.exists()
  # Exercise actual startup control flow with all network operations mocked.
  startup=source[source.index('wg_start_abort()'):source.index('wg_addclient()')]
  events=root/'events'
