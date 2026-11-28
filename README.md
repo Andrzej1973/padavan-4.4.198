@@ -4,7 +4,7 @@ Padavan firmware for **YOUHUA WR1200JS**, based on [vipshmily/padavan-4.4](https
 
 ## Поточний профіль WR1200JS
 
-Classic з основною та гостьовою Wi-Fi. Для робочого роутера — без CAKE/SQM. Розробку ізольованої IoT-мережі призупинено. [Архів напрацювань і діагностика](docs/runtime/WR1200JS-IOT-SUSPENSION-2026-11-24.md).
+Classic з основною та гостьовою Wi-Fi. Стандартний образ не містить ізольованої IoT-мережі або CAKE/SQM. [Поточна політика випуску](docs/WR1200JS-RELEASE-BASELINE.md) і [архів діагностики IoT](docs/runtime/WR1200JS-IOT-SUSPENSION-2026-11-24.md).
 
 ## Working on this repository
 
@@ -29,7 +29,7 @@ The [WR1200JS configuration](configs.build/wr1200js.config) enables:
 - **USB and storage:** USBIP, USB printer sharing, HID, NTFS-3G, filesystem tools and zram.
 - **Wi-Fi and interface:** Band Steering integration (off by default), local Wi-Fi QR previews, vendor logo, Ukrainian and Russian translations.
 
-Commented options are excluded. CAKE/SQM is included with factory runtime OFF; TOR and legacy ZAPRET remain excluded from the current profile. Package selection and successful compilation do not prove device operation; Linux 4.4 router runtime verification is still pending.
+Commented options are excluded. The standard WR1200JS profile excludes CAKE/SQM and isolated IoT. A separate opt-in SQM candidate is available with factory runtime OFF. TOR and legacy ZAPRET remain excluded. Package selection and successful compilation do not prove device operation; see the [release baseline](docs/WR1200JS-RELEASE-BASELINE.md) for acceptance status.
 
 ## Build and download
 
