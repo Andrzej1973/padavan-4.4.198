@@ -27,9 +27,12 @@ for radio in ('mt76x2', 'mt76x3'):
     if len(records) != 1:
         raise SystemExit(f'{radio}: require one actual cmm_info object command')
     flags = []
-    for token in re.findall(r'(?:^|\s)(-D[^\s]+)', records[0].read_text(encoding='utf-8')):
+    defines = re.findall(r'(?:^|\s)(-D[^\s]+)', records[0].read_text(encoding='utf-8'))
+    for token in defines:
         if token[2:].split('=', 1)[0] in allowed:
             flags.append(token)
+    roaming_flags = sorted({token for token in defines if re.search(
+        r'DOT11[KR]|WNM|RRM|80211[KVR]', token, re.I)})
     flags.append('-DCONFIG_RT_MAX_CLIENTS=64')
     if radio == 'mt76x3' and '-DMT7603' not in flags:
         raise SystemExit('MT7603 chipset flag missing from actual object command')
@@ -51,6 +54,6 @@ for radio in ('mt76x2', 'mt76x3'):
     if len(expression) != 1:
         raise SystemExit(f'{radio}: missing compiler capacity expression')
     result[radio] = {'object_command': str(records[0]), 'capacity_expression': expression[0],
-                     'flags': flags}
+                     'flags': flags, 'roaming_compile_flags': roaming_flags}
 a.output.write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
 print(json.dumps(result, indent=2))
