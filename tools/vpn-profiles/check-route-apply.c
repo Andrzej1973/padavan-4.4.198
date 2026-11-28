@@ -84,13 +84,14 @@ int main(void)
     assert(run(1,"300.1.1.0/24",0,0,"")==WR_VPN_ROUTE_INVALID);
     assert(run(1,"10.0.0.0/33",0,0,"")==WR_VPN_ROUTE_INVALID);
     assert(run(1,"fd00::/129",0,0,"")==WR_VPN_ROUTE_INVALID);
+    assert(run(1,"10.0.0.0/8,fd00::/129",0,0,"")==WR_VPN_ROUTE_INVALID);
+    assert(run(1,"2001:db8::/32,10.0.0.0/33",0,0,"")==WR_VPN_ROUTE_INVALID);
     assert(run(1,"2001:db8::/abc",0,0,"")==WR_VPN_ROUTE_INVALID);
     assert(run(1,"10.0.0.0/8,",0,0,"")==WR_VPN_ROUTE_INVALID);
     assert(run(1,"",0,0,"")==WR_VPN_ROUTE_EMPTY);
 
-    /* An add failure rolls back every attempted route, including the failed
-     * confirmed-success route. A rejected command is not deleted because the
-     * route may have been owned by another process. */
+    /* Rollback deletes only routes confirmed installed by this attempt.
+     * A rejected command may refer to a route owned by another process. */
     assert(run(1,"10.1.0.0/16, 10.2.0.0/16",1,0,
         "ip route replace 10.1.0.0/16 dev wrvpn2 table 20002\n")
         ==WR_VPN_ROUTE_FAILED);
@@ -100,7 +101,7 @@ int main(void)
         "ip route del 10.1.0.0/16 dev wrvpn2 table 20002\n")
         ==WR_VPN_ROUTE_FAILED);
 
-    /* Rule-install failures remove attempted family rules and all routes. */
+    /* Rollback removes confirmed new rules before confirmed new routes. */
     assert(run(1,"10.1.0.0/16",2,0,
         "ip route replace 10.1.0.0/16 dev wrvpn2 table 20002\n"
         "ip rule add fwmark 0x57560002/0xffffffff lookup 20002 priority 20003\n"
