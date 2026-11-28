@@ -12,7 +12,7 @@ on:
         options: [ubuntu-22.04, ubuntu-24.04]
         default: ubuntu-24.04
       verification_revision:
-        description: Optional exact ancestor SHA to verify independently of the current branch HEAD
+        description: Exact ancestor SHA for additional candidate checks only. Leave blank for Standard and SQM builds.
         type: string
         default: ''
       toolchain_variant:
