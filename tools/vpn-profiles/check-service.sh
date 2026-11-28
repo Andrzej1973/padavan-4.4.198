@@ -189,6 +189,25 @@ test "$(cat "$calls")" = "ctl down 3
 ctl down 7"
 test ! -s "$root/dns/wrvpn.servers"
 
+cat > "$bin/killall" <<'EOS'
+#!/bin/sh
+exit 1
+EOS
+cat > "$bin/pidof" <<EOS
+#!/bin/sh
+test -f "$root/dnsmasq-running"
+EOS
+cat > "$bin/logger" <<EOS
+#!/bin/sh
+printf '%s\n' "\$*" >> "$root/syslog"
+EOS
+chmod +x "$bin/pidof"
+run dns-sync
+test ! -e "$root/syslog"
+touch "$root/dnsmasq-running"
+run dns-sync
+grep -q 'dnsmasq reload signal failed' "$root/syslog"
+
 # The profile manager must not run without its lifecycle lock utility.
 mkdir -p "$root/no-flock"
 : > "$calls"

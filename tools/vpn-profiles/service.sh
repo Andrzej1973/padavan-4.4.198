@@ -74,7 +74,9 @@ dns_sync()
     chmod 0644 "$tmp" && mv -f "$tmp" "$dns_servers" || {
         rm -f "$tmp"; fail 'DNS file update failed'; return 1;
     }
-    killall -HUP dnsmasq 2>/dev/null || :
+    if ! killall -HUP dnsmasq 2>/dev/null && pidof dnsmasq >/dev/null 2>&1; then
+        logger -t "$tag" 'VPN DNS list updated but dnsmasq reload signal failed' 2>/dev/null || :
+    fi
 }
 
 sync_dns_service()
